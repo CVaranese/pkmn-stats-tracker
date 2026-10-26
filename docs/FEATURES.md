@@ -15,7 +15,7 @@ Status: `todo` · `in progress` · `done`. Source: **user** = asked for, **idea*
 ## Bugs / correctness first
 | Status | Item | Notes |
 |---|---|---|
-| todo | **Illusion breaks attribution** | Replay `gen9nationaldex-2705111047`: Zoroark-Hisui disguised as Gardevoir. Its moves count for Gardevoir, and when the disguise breaks (`|replace|`) the KO on it is lost. Fix: on `replace`, move that slot's history to the real Pokémon. |
+| done | **Illusion breaks attribution** | Replay `gen9nationaldex-2705111047`: Zoroark-Hisui disguised as Gardevoir. Fixed: the parser tracks each stay on the field separately and re-assigns the disguised one on `|replace|`. Tested with that replay and a made-up log. A disguise that never breaks can't be detected. The old Python CLI still has this bug. |
 | todo | Record how the game ended | normal / forfeit / timer loss. Needed so stats from a 3-turn timer loss can be filtered out. |
 
 ## Requested features

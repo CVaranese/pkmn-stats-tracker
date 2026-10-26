@@ -81,4 +81,4 @@ Full protocol reference: `SIM-PROTOCOL.md` in smogon/pokemon-showdown.
 - Pokémon that were never sent out reveal nothing (no items/moves) unless open team sheets are on.
 - HP is a percentage in public VGC replays, so damage stats are in % of max HP, not raw HP.
 - `inputlog` and `rating` are missing from these non-ladder VGC replays; don't build features that need them for league play.
-- **Guess:** Illusion (Zoroark) shows up as the disguised Pokémon until `|replace|`; not in any fixture yet.
+- **Tested** (`gen9nationaldex-2705111047`): Illusion shows the disguised Pokémon's nickname and species on `|switch|` and in every line until the disguise breaks. Then `|replace|p1a: <Zoroark nickname>|Zoroark-Hisui, M`, `|-end|...|Illusion`, and later lines use Zoroark's nickname. The `|-damage|...|0 fnt` that breaks it still names the disguise; the `|faint|` names Zoroark.

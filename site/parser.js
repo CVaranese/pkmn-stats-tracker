@@ -12,6 +12,9 @@
  *            damaged it gets a passive kill. If no opponent ever damaged it, nobody gets a kill.
  *   self-KO  Explosion / Memento / Final Gambit / Healing Wish: a death, no kill.
  *   forfeit  Pokemon left standing after a forfeit are not counted as deaths.
+ *   Illusion while disguised, Zoroark is logged as the Pokemon it copies. When the disguise
+ *            breaks (|replace|), everything from that time on the field moves to Zoroark. A
+ *            disguise that never breaks can't be detected, so it stays with the copied Pokemon.
  */
 (function (root) {
   "use strict";
@@ -49,6 +52,11 @@
     return i < 0 ? ident.slice(0, 2) : ident.slice(0, 2) + ": " + ident.slice(i + 2);
   }
 
+  /** 'p1a: Charizard' -> 'p1a'; null when the ident has no slot letter ('p1: Charizard'). */
+  function slotOf(ident) {
+    return /^p\d[a-z]:/.test(ident) ? ident.slice(0, 3) : null;
+  }
+
   const sideOf = (key) => key.slice(0, 2);
 
   /** 'move: Leech Seed' / 'Leech Seed' / 'leechseed' -> 'leechseed'. */
@@ -80,32 +88,58 @@
   function parseBattle(log) {
     const players = {};                 // 'p1' -> name
     const preview = { p1: [], p2: [] }; // species at team preview
-    const species = new Map();          // mon key -> species (insertion order = first seen)
-    const stats = new Map();            // mon key -> {direct, passive, deaths}
     let winner = null;
     let forfeited = false;
 
-    let mover = null;                   // mon key of the Pokemon whose move is resolving
+    // A "stint" is one stay on the field: {key, side, species, direct, passive, deaths}.
+    // Credit goes to stints, so an Illusion reveal can re-assign one stint without touching
+    // the copied Pokemon's other stints. Stats are summed per key at the end.
+    const stints = [];
+    const slots = {};                   // 'p1a' -> stint currently in that position
+    const latestByKey = new Map();      // mon key -> its most recent stint
+
+    let mover = null;                   // stint whose move is resolving
+    // Per-target state, keyed by mon key (it survives switching out); values are stints.
     const statusSrc = new Map();        // mon key -> who inflicted its status
-    const effectSrc = new Map();        // 'key|effect' -> source mon (Leech Seed, Salt Cure, perish...)
+    const effectSrc = new Map();        // 'key|effect' -> source (Leech Seed, Salt Cure, perish...)
+    const lastOppHit = new Map();       // mon key -> last opposing stint that damaged it
+    const pendingKo = new Map();        // mon key -> [killer, kind], set on the 0 HP damage line
     const hazardSrc = new Map();        // 'side|hazard' -> setter
     let weatherSrc = null;
     const delayedSrc = new Map();       // 'side|move' -> user of Future Sight / Doom Desire
-    const lastOppHit = new Map();       // mon key -> last opposing mon that damaged it
-    const pendingKo = new Map();        // mon key -> [killer, kind], set on the 0 HP damage line
-    let destinyBond = null;             // mon key whose Destiny Bond triggered
-    const kills = [];                   // [killer or null, kind, victim] for checking
+    let destinyBond = null;             // stint whose Destiny Bond triggered
+    const kills = [];                   // [killer stint or null, kind, victim stint]
 
-    const statOf = (key) => {
-      if (!stats.has(key)) stats.set(key, { direct: 0, passive: 0, deaths: 0 });
-      return stats.get(key);
-    };
+    function newStint(key, sp) {
+      const s = { key, side: sideOf(key), species: sp, direct: 0, passive: 0, deaths: 0, prev: latestByKey.get(key) };
+      stints.push(s);
+      latestByKey.set(key, s);
+      return s;
+    }
+
+    /** The stint an ident refers to: by position when it has one, else the latest with that key. */
+    function stintOf(ident) {
+      const key = monKey(ident);
+      const s = slots[slotOf(ident)];
+      if (s && s.key === key) return s;
+      return latestByKey.get(key) || newStint(key, null);
+    }
+
+    /** Snapshot of the per-target state for a key, so an Illusion reveal can restore it. */
+    function targetState(key) {
+      const effects = [...effectSrc].filter(([k]) => k.startsWith(key + "|"));
+      return { status: statusSrc.get(key), hasStatus: statusSrc.has(key), lastOpp: lastOppHit.get(key), effects };
+    }
 
     /** Apply the 'source must be an opponent, else fall back' rule. */
-    function credit(target, source, kind) {
-      if (source && sideOf(source) !== sideOf(target)) return [source, kind];
-      const fallback = lastOppHit.get(target);
+    function credit(targetKey, source, kind) {
+      if (source && source.side !== sideOf(targetKey)) return [source, kind];
+      const fallback = lastOppHit.get(targetKey);
       return fallback ? [fallback, "passive"] : [null, "none"];
+    }
+
+    function moveKey(map, from, to) {
+      if (map.has(from)) { map.set(to, map.get(from)); map.delete(from); }
     }
 
     for (const line of String(log).split(/\r?\n/)) {
@@ -118,15 +152,47 @@
         players[parts[1]] = parts[2];
       } else if (cmd === "poke") {
         (preview[parts[1]] = preview[parts[1]] || []).push(baseSpecies(parts[2]));
-      } else if (cmd === "switch" || cmd === "drag" || cmd === "replace") {
-        const key = monKey(parts[1]);
-        if (!species.has(key)) species.set(key, baseSpecies(parts[2]));
+      } else if (cmd === "switch" || cmd === "drag") {
+        const s = newStint(monKey(parts[1]), baseSpecies(parts[2]));
+        s.entryState = targetState(s.key);
+        slots[slotOf(parts[1])] = s;
         mover = null;
+      } else if (cmd === "replace") {
+        // Illusion broke: this stint was really the Pokemon named here (Zoroark)
+        const s = slots[slotOf(parts[1])];
+        const newKey = monKey(parts[1]);
+        if (s && s.key !== newKey) {
+          const oldKey = s.key;
+          const entry = s.entryState || targetState(oldKey);
+          // per-target state gathered while disguised belongs to Zoroark
+          moveKey(statusSrc, oldKey, newKey);
+          moveKey(lastOppHit, oldKey, newKey);
+          moveKey(pendingKo, oldKey, newKey);
+          for (const [k] of [...effectSrc]) {
+            if (k.startsWith(oldKey + "|")) moveKey(effectSrc, k, newKey + k.slice(oldKey.length));
+          }
+          // ...and the copied Pokemon gets back what it had before this stint
+          if (entry.hasStatus) statusSrc.set(oldKey, entry.status);
+          if (entry.lastOpp) lastOppHit.set(oldKey, entry.lastOpp);
+          for (const [k, v] of entry.effects) effectSrc.set(k, v);
+          if (latestByKey.get(oldKey) === s) {
+            if (s.prev) latestByKey.set(oldKey, s.prev); else latestByKey.delete(oldKey);
+          }
+          s.key = newKey;
+          s.species = baseSpecies(parts[2]);
+          s.prev = latestByKey.get(newKey);
+          latestByKey.set(newKey, s);
+        }
+      } else if (cmd === "swap") {
+        // Ally Switch: the Pokemon in this slot moves to position N; the other one takes its place
+        const from = slotOf(parts[1]);
+        const to = from && from.slice(0, 2) + "abc"[Number(parts[2])];
+        if (from && to && from !== to) [slots[from], slots[to]] = [slots[to], slots[from]];
       } else if (cmd === "turn" || cmd === "upkeep") {
         mover = null;
         if (cmd === "turn") destinyBond = null;
       } else if (cmd === "move") {
-        mover = monKey(parts[1]);
+        mover = stintOf(parts[1]);
         const move = norm(parts[2]);
         if (DELAYED_MOVES.has(move) && parts[3]) delayedSrc.set(parts[3].slice(0, 2) + "|" + move, mover);
       } else if (cmd === "-end" && parts[2] && DELAYED_MOVES.has(norm(parts[2]))) {
@@ -135,7 +201,7 @@
       } else if (cmd === "-status") {
         const target = monKey(parts[1]);
         const frm = tags.from || "";
-        if ("of" in tags) statusSrc.set(target, monKey(tags.of));
+        if ("of" in tags) statusSrc.set(target, stintOf(tags.of));
         else if (frm.startsWith("item:")) statusSrc.set(target, null); // Flame Orb / Toxic Orb
         else if (mover) statusSrc.set(target, mover);
         else statusSrc.set(target, hazardSrc.get(sideOf(target) + "|toxicspikes") || null);
@@ -145,8 +211,8 @@
         const target = monKey(parts[1]);
         let effect = parts[2] ? norm(parts[2]) : "";
         if (effect.startsWith("perish")) effect = "perish";
-        const src = "of" in tags ? monKey(tags.of) : mover;
-        if (cmd === "-activate" && effect === "destinybond") destinyBond = target;
+        const src = "of" in tags ? stintOf(tags.of) : mover;
+        if (cmd === "-activate" && effect === "destinybond") destinyBond = stintOf(parts[1]);
         else if (src && !effectSrc.has(target + "|" + effect)) effectSrc.set(target + "|" + effect, src);
       } else if (cmd === "-sidestart") {
         hazardSrc.set(parts[1].slice(0, 2) + "|" + norm(parts[2]), mover);
@@ -154,7 +220,7 @@
         hazardSrc.delete(parts[1].slice(0, 2) + "|" + norm(parts[2]));
       } else if (cmd === "-weather" && !("upkeep" in tags)) {
         if (norm(parts[1]) === "none") weatherSrc = null;
-        else weatherSrc = "of" in tags ? monKey(tags.of) : mover;
+        else weatherSrc = "of" in tags ? stintOf(tags.of) : mover;
       } else if (cmd === "-damage") {
         const target = monKey(parts[1]);
         let source, kind;
@@ -164,29 +230,29 @@
           const frm = norm(tags.from);
           kind = "passive";
           if (STATUS_DAMAGE.has(frm)) source = statusSrc.get(target);
-          else if ("of" in tags && monKey(tags.of) !== target) source = monKey(tags.of); // Leech Seed, Rocky Helmet...
+          else if ("of" in tags && monKey(tags.of) !== target) source = stintOf(tags.of); // Leech Seed, Rocky Helmet...
           else if (HAZARDS.has(frm)) source = hazardSrc.get(sideOf(target) + "|" + frm);
           else if (WEATHERS.has(frm)) source = weatherSrc;
           else if (effectSrc.has(target + "|" + frm)) source = effectSrc.get(target + "|" + frm); // Salt Cure, Curse, binding
           else source = null; // recoil, Life Orb, confusion, etc.
         }
-        if (source && sideOf(source) !== sideOf(target)) lastOppHit.set(target, source);
+        if (source && source.side !== sideOf(target)) lastOppHit.set(target, source);
         if ((parts[2] || "").startsWith("0")) pendingKo.set(target, credit(target, source, kind));
       } else if (cmd === "faint") {
-        const victim = monKey(parts[1]);
-        statOf(victim).deaths += 1;
+        const victim = stintOf(parts[1]);
+        victim.deaths += 1;
         let killer, kind;
-        if (pendingKo.has(victim)) {
-          [killer, kind] = pendingKo.get(victim);
-          pendingKo.delete(victim);
-        } else if (destinyBond && sideOf(destinyBond) !== sideOf(victim)) {
+        if (pendingKo.has(victim.key)) {
+          [killer, kind] = pendingKo.get(victim.key);
+          pendingKo.delete(victim.key);
+        } else if (destinyBond && destinyBond.side !== victim.side) {
           [killer, kind] = [destinyBond, "direct"];
-        } else if (effectSrc.has(victim + "|perish")) {
-          [killer, kind] = credit(victim, effectSrc.get(victim + "|perish"), "passive");
+        } else if (effectSrc.has(victim.key + "|perish")) {
+          [killer, kind] = credit(victim.key, effectSrc.get(victim.key + "|perish"), "passive");
         } else {
           [killer, kind] = [null, "none"]; // Explosion, Memento, Final Gambit...
         }
-        if (killer && (kind === "direct" || kind === "passive")) statOf(killer)[kind] += 1;
+        if (killer && (kind === "direct" || kind === "passive")) killer[kind] += 1;
         kills.push([killer, kind, victim]);
       } else if (cmd === "-message" && (parts[1] || "").includes("forfeited")) {
         forfeited = true;
@@ -195,7 +261,20 @@
       }
     }
 
-    return { players, preview, species, stats, winner, forfeited, kills };
+    // Sum stints per Pokemon (keys resolved after any Illusion reveal)
+    const species = new Map();          // mon key -> species (insertion order = first seen)
+    const stats = new Map();            // mon key -> {direct, passive, deaths}
+    for (const s of stints) {
+      if (!species.has(s.key) && s.species) species.set(s.key, s.species);
+      if (!stats.has(s.key)) stats.set(s.key, { direct: 0, passive: 0, deaths: 0 });
+      const st = stats.get(s.key);
+      st.direct += s.direct; st.passive += s.passive; st.deaths += s.deaths;
+    }
+    const keyOf = (s) => (s ? s.key : null);
+    return {
+      players, preview, species, stats, winner, forfeited,
+      kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
+    };
   }
 
   // ---------- rows ----------

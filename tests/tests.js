@@ -42,6 +42,13 @@
     "gen9nationaldex-2705121899": { rows: 12, winner: "Ezclapperez132", mons: {
       "stringcheezus1710|Ninetales": [0, 0, 1], "stringcheezus1710|Venusaur": [0, 0, 1],
       "stringcheezus1710|Dragonite": [0, 0, 0], "Ezclapperez132|Maushold": [2, 0, 0] } },
+    // Nat Dex with Illusion: Zoroark-Hisui leads disguised as Gardevoir and is KO'd by Primarina;
+    // the real Gardevoir comes in later. Volcarona's Flame Body burn KOs Primarina (passive).
+    "gen9nationaldex-2705111047": { rows: 12, winner: "jinrachi", mons: {
+      "jinrachi|Zoroark-Hisui": [0, 0, 1], "jinrachi|Volcarona": [1, 1, 1], "jinrachi|Gardevoir": [0, 0, 1],
+      "jinrachi|Garchomp": [0, 0, 1], "jinrachi|Mamoswine": [1, 0, 1], "jinrachi|Kingambit": [3, 0, 0],
+      "flomarV2|Primarina": [3, 0, 1], "flomarV2|Exeggutor": [1, 1, 1], "flomarV2|Amoonguss": [0, 0, 1],
+      "flomarV2|Excadrill": [0, 0, 1], "flomarV2|Sableye": [0, 0, 1], "flomarV2|Weavile": [0, 0, 1] } },
   };
 
   for (const [id, exp] of Object.entries(REAL)) {
@@ -167,6 +174,39 @@
   for (const [name, [body, expected]] of Object.entries(CASES)) {
     const got = RS.parseBattle(HEAD + body.replace(/^\n/, "")).kills;
     check(`rule: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
+  }
+
+  // ---- Illusion: a disguised stint moves to Zoroark, the real Pokemon keeps its own stints ----
+  {
+    const b = RS.parseBattle(`|player|p1|Alice|
+|player|p2|Bob|
+|switch|p1a: Gardy|Gardevoir, L50|100/100
+|switch|p2a: Foe|Garchomp, L50|100/100
+|turn|1
+|move|p1a: Gardy|Moonblast|p2a: Foe
+|-damage|p2a: Foe|0 fnt
+|faint|p2a: Foe
+|switch|p2a: Foe2|Dragonite, L50|100/100
+|turn|2
+|switch|p1a: Gardy|Gardevoir, L50|100/100
+|move|p1a: Gardy|Will-O-Wisp|p2a: Foe2
+|-status|p2a: Foe2|brn
+|move|p2a: Foe2|Outrage|p1a: Gardy
+|-damage|p1a: Gardy|0 fnt
+|replace|p1a: Zoro|Zoroark-Hisui, L50
+|-end|p1a: Zoro|Illusion
+|faint|p1a: Zoro
+|switch|p1a: Gardy|Gardevoir, L50|100/100
+|turn|3
+|-damage|p2a: Foe2|0 fnt|[from] brn
+|faint|p2a: Foe2`);
+    const expected = [["p1: Gardy", "direct", "p2: Foe"], ["p2: Foe2", "direct", "p1: Zoro"], ["p1: Zoro", "passive", "p2: Foe2"]];
+    check("illusion: kills and the disguised burn go to Zoroark", same(b.kills, expected),
+      `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(b.kills)}`);
+    check("illusion: real Gardevoir keeps its own kill, no death", same(b.stats.get("p1: Gardy"), { direct: 1, passive: 0, deaths: 0 }),
+      JSON.stringify(b.stats.get("p1: Gardy")));
+    check("illusion: species", b.species.get("p1: Zoro") === "Zoroark-Hisui" && b.species.get("p1: Gardy") === "Gardevoir",
+      JSON.stringify([...b.species]));
   }
 
   // ---- link parsing ----
