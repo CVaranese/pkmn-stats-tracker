@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Replay Kill Tracker</title>
+  <meta name="description" content="Paste Pokémon Showdown replay links and get kills and deaths per Pokémon, ready for Google Sheets.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Replay Kill Tracker</h1>
+      <p class="lede">Paste Pokémon Showdown replay links to count kills and deaths per Pokémon. Works for singles and doubles. Copy the table into Google Sheets or download it as a CSV.</p>
+    </header>
+
+    <section class="input">
+      <label for="links">Replay links or IDs</label>
+      <textarea id="links" rows="6" spellcheck="false"
+        placeholder="https://replay.pokemonshowdown.com/gen9vgc2026regf-1234567890&#10;https://replay.pokemonshowdown.com/gen9ou-1234567891"></textarea>
+      <div class="row">
+        <button id="run" class="primary" type="button">Get stats</button>
+        <button id="clear" type="button">Clear</button>
+        <button id="share" type="button" title="Copies a link to this page with these replays filled in">Copy share link</button>
+        <span id="status" class="status" role="status" aria-live="polite"></span>
+      </div>
+      <ul id="errors" class="errors" hidden></ul>
+    </section>
+
+    <section id="results" class="results" hidden>
+      <div class="toolbar">
+        <div class="tabs" role="tablist">
+          <button role="tab" data-view="summary" aria-selected="true" type="button">Leaderboard</button>
+          <button role="tab" data-view="games" aria-selected="false" type="button">Per game</button>
+        </div>
+        <label class="inline" id="group-wrap">Group by
+          <select id="group">
+            <option value="player">Player + Pokémon</option>
+            <option value="pokemon">Pokémon only</option>
+          </select>
+        </label>
+        <label class="inline">Player
+          <select id="player"><option value="">All players</option></select>
+        </label>
+        <span class="spacer"></span>
+        <button id="copy" type="button">Copy for Google Sheets</button>
+        <button id="download" type="button">Download CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table id="table"></table>
+      </div>
+    </section>
+
+    <details class="rules">
+      <summary>How kills are counted</summary>
+      <ul>
+        <li><b>Direct kill:</b> the Pokémon whose attack landed the KO hit. A spread move that KOs two Pokémon earns two kills. Destiny Bond counts as direct.</li>
+        <li><b>Passive kill:</b> indirect damage goes to whoever caused it: who inflicted the burn or poison, who set Stealth Rock, Spikes or the weather, the Leech Seed / Salt Cure / Curse user, the Rocky Helmet or Rough Skin holder, the Perish Song user.</li>
+        <li><b>Self-inflicted KOs:</b> recoil, Life Orb, confusion, the Pokémon's own weather, or a hit from its own ally. The last opponent that damaged it gets a passive kill. If no opponent ever damaged it, nobody gets the kill.</li>
+        <li><b>Explosion, Memento, Final Gambit, Healing Wish:</b> a death, no kill.</li>
+        <li><b>Forfeits:</b> Pokémon still standing are not counted as deaths.</li>
+        <li><b>Random Battles</b> have no team preview, so only Pokémon that were sent out are listed.</li>
+      </ul>
+    </details>
+  </main>
+
+  <script src="parser.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

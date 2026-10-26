@@ -1,0 +1,39 @@
+{
+  "block": [
+    {
+      "tools": ["Bash", "PowerShell"],
+      "pattern": "git\\s+push\\b[^\\n]*\\s(--force|-f)(\\s|$)",
+      "unless": "--force-with-lease",
+      "message": "Don't force-push: use --force-with-lease, or ask the user first."
+    }
+  ],
+  "check": [
+    {
+      "path": "\\.py$",
+      "command": ["python", "-I", "-m", "py_compile", "{file}"],
+      "message": "Python syntax check failed"
+    }
+  ],
+  "reminders": [
+    {
+      "name": "changelog",
+      "on_edit": ["(^|/)site/"],
+      "docs": ["CHANGELOG.md"],
+      "message": "This session changed the site or parser (site/) but CHANGELOG.md has no newer edit. Add a line under Unreleased, or say why this change doesn't need one."
+    },
+    {
+      "name": "knowledge",
+      "once_per_session": true,
+      "on_url": ["^https?://(replay\\.|play\\.)?pokemonshowdown\\.com|^https?://(raw\\.githubusercontent\\.com|github\\.com)/(smogon|pkmn)/"],
+      "on_search": ["showdown|smogon|draft league|replay"],
+      "docs": ["docs/knowledge"],
+      "message": "This session researched Showdown (replays, protocol, draft-league rules) but docs/knowledge/ has no newer edit. Record what was learned (tested / researched / guess, with evidence), or say why nothing new was learned."
+    },
+    {
+      "name": "review-queue",
+      "on_edit": ["(^|/)site/.*\\.(html|css)$"],
+      "docs": ["docs/REVIEW_QUEUE.md"],
+      "message": "This session changed the page's look or layout (site/*.html or *.css) but docs/REVIEW_QUEUE.md has no newer edit. Add what the user should check by eye, or say why nothing needs checking."
+    }
+  ]
+}
