@@ -13,9 +13,11 @@ Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts k
 - Run tests headless (no Node installed on this machine; Edge is):
   `msedge --headless=new --disable-gpu --user-data-dir=%TEMP%\edge-headless-rs --virtual-time-budget=15000 --dump-dom http://127.0.0.1:8765/tests/index.html`
   The page title is `PASS`, `FAIL (n)` or `CRASH`.
+- `tests/corpus/` (gitignored): 30 recent Nat Dex replays for surveys and smoke tests; re-download with `search.json?format=gen9nationaldex`.
 - A new real fixture: save `https://replay.pokemonshowdown.com/<id>.json` into `tests/fixtures/`, count kills by hand from the log, then add it to `REAL` in `tests/tests.js`.
 
 ## Project docs
+- Feature list / roadmap: `docs/FEATURES.md` — keep it current (status, new ideas). Focus format is gen9nationaldex.
 - Changelog: `CHANGELOG.md` (under Unreleased).
 - Knowledge: `docs/knowledge/` — replay format facts and kill-rule decisions, marked tested / researched / guess.
 - Review list: `docs/REVIEW_QUEUE.md` — things only the user can check.

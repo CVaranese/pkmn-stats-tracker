@@ -38,6 +38,10 @@
       "Stolemyusername|Galvantula": [0, 1, 1], "Stolemyusername|Blissey": [0, 0, 0],
       "Blattur|Dondozo": [1, 0, 1], "Blattur|Glimmora": [0, 0, 1], "Blattur|Gouging Fire": [0, 0, 1],
       "Blattur|Iron Jugulis": [0, 0, 1], "Blattur|Moltres-Galar": [0, 0, 1], "Blattur|Zekrom": [0, 0, 1] } },
+    // Nat Dex (the league's format); 7-hit Population Bomb KOs, then p1 loses to the timer
+    "gen9nationaldex-2705121899": { rows: 12, winner: "Ezclapperez132", mons: {
+      "stringcheezus1710|Ninetales": [0, 0, 1], "stringcheezus1710|Venusaur": [0, 0, 1],
+      "stringcheezus1710|Dragonite": [0, 0, 0], "Ezclapperez132|Maushold": [2, 0, 0] } },
   };
 
   for (const [id, exp] of Object.entries(REAL)) {
