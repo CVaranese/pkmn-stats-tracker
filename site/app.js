@@ -105,7 +105,6 @@
   let savedSheets = [];
   try { savedSheets = JSON.parse(localStorage.getItem(SHEETS_KEY) || "[]"); } catch (e) { /* storage blocked */ }
   for (const text of savedSheets) addSheetBox(text);
-  $("sheets-wrap").open = savedSheets.length > 0;
   $("add-sheet").addEventListener("click", () => addSheetBox("").querySelector("textarea").focus());
 
   $("run").addEventListener("click", run);
@@ -234,6 +233,7 @@
     $("one-link").value = RS.REPLAY_HOST + id;
     $("one-link").dispatchEvent(new Event("input"));
     setMode("one");
+    $("sheets-wrap").open = false;
     window.scrollTo(0, 0);
   }
 
@@ -477,7 +477,6 @@
     const cards = players.map((p) => teamCard(p, rows.filter((r) => r.player === p)));
     box.replaceChildren(el("h2", "section-title", "This game"), head, videoButtons(g.replay_id), el("div", "team-grid"));
     box.lastChild.append(...cards);
-    box.classList.toggle("simple", !detailed);
   }
 
   // short league name for video titles, e.g. "PPPPP Week 6 Big Large Vs Nezergy" (PeterPikmon's videos)
@@ -545,6 +544,7 @@
   function teamCard(player, rs) {
     const brought = rs.filter((r) => r.brought);
     const card = el("article", "team-card");
+    card.classList.toggle("simple", !detailed);
     const h = el("h3", "team-name");
     h.append(el("span", "", player), el("span", rs[0].won ? "badge win" : "badge loss", rs[0].won ? "Won" : "Lost"));
     card.appendChild(h);
@@ -556,6 +556,7 @@
     const show = (r) => {
       for (const b of buttons) b.setAttribute("aria-pressed", String(b.row === r));
       detail.replaceChildren(...monDetail(r));
+      syncDetail(card);
     };
     for (const r of rs) {
       const s = sprite(r.pokemon, ["gen5/"], "small");
@@ -612,7 +613,7 @@
     who.appendChild(el("span", "mon-best", best ? `Best move: ${best.move}` +
       (best.kos ? `, ${best.kos} KO${best.kos > 1 ? "s" : ""}` : "") : " "));
     const grid = el("div", "stats");
-    // .adv: only in the detailed view (see setDetailed)
+    // .adv: only in the detailed view (see toggleDetail)
     const adv = (node) => { node.classList.add("adv"); return node; };
     grid.append(
       stat("Kills", r.kills + (r.passive_kills ? ` (${r.passive_kills} passive)` : ""), "kills"),
@@ -627,22 +628,24 @@
     const mz = megaZ(r);
     if (mz) mark.appendChild(el("span", "mark " + (r.mega ? "mega" : "z"), mz)); else mark.textContent = "\u00a0";
     const more = Object.assign(el("button", "small detail-toggle"), { type: "button" });
-    more.addEventListener("click", () => setDetailed(!detailed));
-    more.textContent = detailed ? "Less detail" : "More detail";
-    more.setAttribute("aria-pressed", String(detailed));
+    more.addEventListener("click", () => toggleDetail(more.closest(".team-card")));
     return [sprite(r.pokemon, ["ani/", "dex/", "gen5/"], "big"), who, mark, grid, adv(moveList(r, best)), luck, more];
   }
 
   // simple view (name, best move, kills, damage, survived) or detailed (+ turns, healing, damage sources, luck);
-  // one switch for both team cards, remembered in the browser
+  // per team card (opening one doesn't shift the other); the last choice is remembered as the default for new games
   const DETAIL_KEY = "replay-kill-tracker.detailed";
   let detailed = false;
   try { detailed = localStorage.getItem(DETAIL_KEY) === "1"; } catch (e) { /* storage blocked */ }
-  function setDetailed(on) {
-    detailed = on;
-    try { localStorage.setItem(DETAIL_KEY, on ? "1" : "0"); } catch (e) { /* storage blocked */ }
-    $("teams").classList.toggle("simple", !on);
-    for (const b of document.querySelectorAll(".detail-toggle")) {
+  function toggleDetail(card) {
+    detailed = card.classList.contains("simple");
+    try { localStorage.setItem(DETAIL_KEY, detailed ? "1" : "0"); } catch (e) { /* storage blocked */ }
+    card.classList.toggle("simple", !detailed);
+    syncDetail(card);
+  }
+  function syncDetail(card) {
+    const on = !card.classList.contains("simple");
+    for (const b of card.querySelectorAll(".detail-toggle")) {
       b.textContent = on ? "Less detail" : "More detail";
       b.setAttribute("aria-pressed", String(on));
     }
@@ -758,6 +761,8 @@
       });
       hr.appendChild(th);
     }
+    const label = LABELS[sort.field] || sort.field;
+    $("sort-note").textContent = DESCRIPTIONS[sort.field] ? `${label}: ${DESCRIPTIONS[sort.field]}` : "";
     const tbody = document.createElement("tbody");
     for (const r of data) {
       const tr = tbody.insertRow();
@@ -830,7 +835,7 @@
         try {
           const resp = await fetch(`mock/${id}-${player}.txt`);
           const text = resp.ok ? (await resp.text()).trim() : "";
-          if (text && !have.has(text)) { addSheetBox(text); have.add(text); $("sheets-wrap").open = true; }
+          if (text && !have.has(text)) { addSheetBox(text); have.add(text); }
         } catch (e) { /* no saved sheet: the game still loads */ }
       }
     }
@@ -941,7 +946,8 @@
     let timer = 0;
     document.addEventListener("click", (e) => {
       const t = e.target.closest("[title]");
-      if (!t || !t.title || t.matches(".lib-row")) { tip.hidden = true; return; }  // a game row opens the game
+      // a game row opens the game; a header sorts, and the note above the table explains it
+      if (!t || !t.title || t.matches(".lib-row, th")) { tip.hidden = true; return; }
       tip.textContent = t.title;
       tip.hidden = false;
       const r = t.getBoundingClientRect();
@@ -950,6 +956,6 @@
       tip.style.top = window.scrollY + r.bottom + 6 + "px";
       clearTimeout(timer);
       timer = setTimeout(() => { tip.hidden = true; }, 5000);
-    });
+    }, true);  // capture: measure before the element's own click handler can re-render it
   }
 })();

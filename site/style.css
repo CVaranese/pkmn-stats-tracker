@@ -146,6 +146,8 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .tabs button { border: 0; border-radius: 0; }
 .tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-text); }
 
+.sort-note { margin: 10px 0 0; }
+.sort-note:empty { display: none; }
 .table-wrap {
   margin-top: 12px;
   overflow-x: auto;
@@ -230,7 +232,7 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .move-row.unused .move-bar { visibility: hidden; }
 .move-list h4 { cursor: help; }
 /* simple view: the detailed-only parts hidden; the switch sits under the stats */
-.teams.simple .adv { display: none; }
+.team-card.simple .adv { display: none; }
 .detail-toggle { grid-column: 1 / -1; justify-self: start; }
 .move-row .mark { padding: 0 4px; border-radius: 3px; font-size: 11px; font-weight: 700; }
 .move-none { margin: 0; font-size: 14px; color: var(--muted); }

@@ -2,7 +2,7 @@
 
 Things only a person can check. Remove an item once checked.
 
-- [ ] Phone fixes (docs/knowledge/mobile.md, 7 items): tapping the replay link / team sheet / filters doesn't zoom the page; tabs on one line; Games list stacked with Watch / Stats reachable; buttons and fold-out headings easy to tap; tapping a column header (sorts and) shows its explanation, tapping a luck word shows the score, tapping a sprite shows its name; team card moves readable under "More detail"; no hover highlight left on after a tap. Also: Copy for Google Sheets, Copy share link and Download CSV work in iPhone Safari. Headless screenshots can't go narrower than ~500px or emulate touch, so the 44px sizes and the tap tips were never seen.
+- [ ] Phone, round 2: opening a game from Games leaves Team sheets closed; "More detail" on one card leaves the other alone; the line above the table explains the column you sorted by (useful, or noise on desktop?); tapping a luck word / Performance / a sprite shows its box right under it. Copy for Google Sheets, Copy share link and Download CSV in iPhone Safari still untested.
 
 - [ ] Phone, after the 2026-10-27 fixes: the tab row fits without the Hide button; tapping a game row in Games opens it; "Hide links and sheets" (now after Download CSV) hides and shows the links; "How each column is counted" under "Every Pokémon" is easy to find. The table area wasn't in any screenshot (headless Edge cut off above it).
 - [ ] Header text: "Kills, damage, MVPs and luck from Pinecord's Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets." Right wording? Should the title "Replay Kill Tracker" change too?

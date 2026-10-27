@@ -44,6 +44,7 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
 - Inputs, textareas and selects are 16px on phones (iPhone zooms in under that). Never block zoom.
 - Tap targets 44px tall on touch screens (`@media (pointer: coarse)`), small buttons 40px.
 - No information only in a `title`: phones show titles through the tap tip (`.tap-tip`), so keep titles short.
+  Table headers are the exception: tapping sorts, and the line above the table (`#sort-note`) explains the sorted column.
 - Hover styles go inside `@media (hover: hover)`.
 - Anything in a row must still fit at 320px wide: stack it under `max-width: 600px` instead of scrolling sideways
   (only big data tables scroll, inside `.table-wrap`).
