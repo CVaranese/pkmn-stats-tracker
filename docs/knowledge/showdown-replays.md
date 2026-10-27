@@ -56,3 +56,29 @@ Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond 
 ## Hidden Zoroark (2026-10-26)
 - **Tested:** `|teamsize|p1|4` gives how many Pokémon a side brought (4 in VGC, 6 in Nat Dex).
 - Decision (not asked): a side is flagged when Zoroark is at team preview, Zoroark never appears as itself, and fewer species were seen than brought. A Zoroark revealed once may still have hidden in another stint; that isn't flagged.
+
+## Sprites (team summary, 2026-10-26)
+- **Tested:** `https://play.pokemonshowdown.com/sprites/gen5/<id>.png` and `ani/<id>.gif` loaded for all 12
+  Pokémon of gen9nationaldex-2705117998 (Iron Crown, Tapu Koko, Zamazenta, Kingambit… included).
+- **Guess (from Showdown's naming):** `<id>` = species ID, plus `-` + form ID for forms: `urshifu-rapidstrike`,
+  `necrozma-dawnwings`, `latios-mega`. Names whose hyphen is part of the species have none: `hooh`, `porygonz`,
+  `kommoo`, `chienpao`, `nidoranf`. Only the gen9nationaldex-2705117998 team was checked; `app.js` falls back to
+  initials when a sprite fails.
+- **Tested:** team preview can show `Zamazenta-*` while plain `Zamazenta` is sent out, so `-*` must also match the
+  base form, not only `Zamazenta-Crowned`.
+
+## Offline move / Pokédex data (2026-10-26)
+- **Tested:** `site/data/moves.json` and `pokedex.json` were made from the `pokemon-showdown` npm package 0.11.11
+  (`dist/data/moves.js`, `dist/data/pokedex.js` on cdn.jsdelivr.net, published 2026-07-28), read as text by `tools/showdown_data.py`, a Python
+  script (functions skipped, the JS isn't run) and trimmed to the fields luck.js / teams.js read. Spot checks:
+  Thunder 70% acc / 30% par, Scale Shot 2-5 hits, Triple Axel multiaccuracy, Seismic Toss `damage: "level"`,
+  base HP Garchomp 108, Blissey 255, Shedinja 1, Zamazenta-Crowned 92. Luck on 2705117998 matched the live site.
+- **Tested:** cosmetic forms (Gastrodon-East, Burmy-Sandy…) have no stats in pokedex.js; filled from the base species.
+- **Guess:** the live `play.pokemonshowdown.com/data/moves.json` is built from the same server data, so field
+  names match; not compared side by side (Showdown was down).
+
+## Luck score spread (2026-10-26, 30-game corpus + 4 Nat Dex fixtures)
+- **Tested:** player luck (own minus opponent's) over 68 player-games: p10 -2.51, p25 -0.92, median 0, p75 0.87, p90 1.85, range ±3.05.
+  Pokémon luck over 352 brought Pokémon: p10 -0.34, p25 -0.12, median -0.04, p75 0, p90 0.20, range -2.08..1.88.
+  Used for the word cut-offs in app.js (`LUCK_STEPS`).
+- **Tested:** all 164 species in the corpus and fixtures have a gen5 sprite at the id app.js builds (all returned 200).

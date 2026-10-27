@@ -2,6 +2,15 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Performance: on games you know, is each Team MVP who you'd pick now that damage taken and turns on field count instead of healing? Say if taken (0.5 per 100%) or turns (0.05 each) should weigh more or less.
+- [ ] Luck words: the cut-offs (player Fair within ±0.75, Very beyond ±2; Pokémon ±0.25 / ±0.75) come from 34 saved games. Do the words feel right on games where you remember the luck? Is a die the right emblem?
+- [ ] Click through a team's Pokémon in the summary; the selected one is outlined and its stats replace the MVP's. Check on a phone (tap).
+- [ ] One game / Several games tabs: switch between them, paste a link in One game and press Enter, check the share link opens the right tab. Does One game have what you want, and is anything missing from Several games now?
+- [ ] Local luck numbers: they come from Showdown's npm data, not the live moves.json. On 2705117998 they matched the live site (0.02 / -0.02); compare another game's luck locally and live once Showdown is back.
+- [ ] League theme: does it look how you wanted, in light and dark mode and on a phone? Is the banner the right size next to the title, and are the tables still easy to read on cream? (Light and dark were screenshotted at desktop width only.)
+- [ ] Team summary: load one replay (gen9nationaldex-2705117998). Two cards above the table, winner first: right sprites for all 6 (Iron Crown dimmed as not brought), Volcarona / Garchomp as MVP. Check it looks right in light mode and on a real phone (only dark mode at desktop width was screenshotted; headless Edge couldn't do a true phone width). Load two replays: the cards disappear. Is this the info you wanted on the cards?
+- [ ] Column tooltips: hover a few column names in both tables; the text makes sense. (Hover can't be tested headless; the `title` text was checked in code.) Tooltips don't show on phones.
+
 - [ ] "Copy for Google Sheets" then paste into a Sheet: columns land in separate cells, accented names (Pokémon) look right. (Clipboard needs a real click, so this wasn't tested headless.)
 - [ ] "Download CSV" opens correctly in Excel / imports into Sheets.
 - [ ] Light mode looks right (only dark mode was screenshotted), and the page is usable on a phone.

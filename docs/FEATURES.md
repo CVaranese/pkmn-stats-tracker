@@ -43,6 +43,13 @@ Status: `todo` · `in progress` · `done`. Source: **user** = asked for, **idea*
 | todo | Momentum | Turn-by-turn "Pokémon remaining" / total HP chart per game. |
 | todo | Head-to-head | Player vs player records across the season. |
 | todo | Season view | Combine many replays, filter by week / player, standings table. |
+| done | Team summary (one game) | Requested 2026-10-26: a card per team above the table, MVP card with damage dealt / taken etc., team info, sprites. Done 2026-10-26: only shown when one replay is loaded; Showdown sprites (gen5 for the team strip, ani → dex → gen5 for the MVP), initials if a sprite fails. |
+| done | Column tooltips | Requested 2026-10-26: hovering a column name explains it. Done 2026-10-26 (`title` on each header, also on the team-summary stats). |
+| done | League theme | Requested 2026-10-26: colours, logo or background from the league banner. Done 2026-10-26: banner in the header (`site/img/pinecord-banner.webp`), tiled wall background, cream panels, striped-floor divider, light and dark. |
+| done | One game / Several games tabs | Requested 2026-10-26: focus on one game, with a tab for a collection (playoffs ~2026-11-09). Done 2026-10-26. |
+| todo | Several leagues, each with its own theme | User 2026-10-26: another section with a different theme later, unsure how: separate links or a league selector. Suggestion: one config per league (name, banner, colours) picked by the link (`?league=pinecord` or `/pinecord/`), so each league shares its own link and there's no selector to explain. |
+| todo | Animated sprites in the local version | The live site shows Showdown's animated sprite for the selected Pokémon; the local version only has the still gen5 copies in `site/sprites/gen5/`. Save `sprites/ani/<id>.gif` for the saved games when there's time (slow download). |
+| todo | Readability of the tables | User 2026-10-26: "hard to read", open to suggestions. Ideas: column groups (Kills / Damage / Healing / Switches / Luck / Survival) to show or hide, Player + Pokémon columns that stay put while scrolling sideways, dim zeros, a colour per player. |
 
 ## Done
 - Kills (direct / passive) and deaths per Pokémon, wins, brought vs not.

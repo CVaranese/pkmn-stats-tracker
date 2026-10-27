@@ -774,8 +774,10 @@
         };
       };
       for (const sp of b.preview[side] || []) {
-        const prefix = sp.replace(/\*$/, ""); // 'Urshifu-*' at team preview
-        const hit = brought.find(([k, s]) => !seen.has(k) && (s === sp || s.startsWith(prefix)));
+        // 'Urshifu-*' at team preview: the base form or any form of it
+        const base = sp.replace(/-\*$/, "");
+        const hit = brought.find(([k, s]) => !seen.has(k) &&
+          (s === sp || (base !== sp && (s === base || s.startsWith(base + "-")))));
         if (hit) seen.add(hit[0]);
         rows.push(row(hit ? hit[0] : null, hit ? hit[1] : sp));
       }
@@ -794,8 +796,9 @@
     const best = {};
     for (const r of rows) {
       if (!r.brought) { r.mvp_score = ""; r.mvp = 0; continue; }
-      r.mvp_score = Math.round((r.damage_dealt_pct / 100 + r.kills +
-        0.5 * (r.healing_pct + r.healing_given_pct) / 100 + (r.deaths ? 0 : 0.5)) * 100) / 100;
+      // shown as "Performance"; damage taken and turns on field reward staying in and tanking
+      r.mvp_score = Math.round((r.damage_dealt_pct / 100 + r.kills + 0.5 * r.damage_taken_pct / 100 +
+        0.05 * r.turns_on_field + (r.deaths ? 0 : 0.5)) * 100) / 100;
       r.mvp = 0;
       const b = best[r.player];
       if (!b || r.mvp_score > b.mvp_score || (r.mvp_score === b.mvp_score && (r.kills > b.kills ||
@@ -906,7 +909,13 @@
    * come back as the response, for the caller to explain.
    */
   async function fetchChecked(url, fetchFn = root.fetch, timeoutMs = FETCH_TIMEOUT_MS) {
-    const host = new URL(url).hostname;
+    let host = new URL(url).hostname;
+    if (localOnly) {
+      // Showdown's move / Pokedex data: the copies in site/data/ (made from the pokemon-showdown npm package)
+      const data = url.match(/^https:\/\/play\.pokemonshowdown\.com\/data\/(moves|pokedex)\.json$/);
+      if (data) { url = new URL("data/" + data[1] + ".json", root.location.href).href; host = "this computer"; }
+      else if (/(^|\.)pokemonshowdown\.com$/.test(host)) throw new Error(`${host} isn't contacted in the local version`);
+    }
     const down = (why) => Object.assign(new Error(`${host} ${why}; the site may be down, try again in a few minutes`), { down: true });
     const ctrl = typeof AbortController === "function" ? new AbortController() : null;
     let timer;
@@ -927,6 +936,10 @@
     }
   }
 
+  // local version (page served from 127.0.0.1 / localhost): never contact Showdown; set by app.js
+  let localOnly = false;
+  const setLocalOnly = (on) => { localOnly = !!on; };
+
   async function fetchReplay(id, fetchFn = root.fetch, timeoutMs = FETCH_TIMEOUT_MS) {
     if (MOCK_REPLAYS.has(id)) {
       const mock = await fetchFn("mock/" + id + ".json");
@@ -940,7 +953,7 @@
 
   const api = {
     REPLAY_HOST, GAME_FIELDS, SUMMARY_FIELDS, HP_FIELDS, LUCK_FIELDS, norm,
-    replayIdFrom, replayIdsFromText, parseBattle, gameRows, addDamageHp, summarize, toCsv, toTsv, fetchChecked, fetchReplay,
+    replayIdFrom, replayIdsFromText, parseBattle, gameRows, addDamageHp, summarize, toCsv, toTsv, fetchChecked, fetchReplay, setLocalOnly,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ReplayStats = api;

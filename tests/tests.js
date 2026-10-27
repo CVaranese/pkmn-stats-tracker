@@ -554,6 +554,16 @@ Ability: Screen Cleaner
       Garchomp: [0, 0, 0, 0, 0, 1], Mimikyu: [0, 0, 0, 0, 0, 1], Terapagos: [0, 0, 0, 0, 0, 1] };
     check("2705117998: healing and switches", same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
     check("2705117998: no hidden Zoroark", rows.every((r) => r.hidden_zoroark === 0));
+    // local version: Showdown requests are refused before fetch is called
+    RS.setLocalOnly(true);
+    let called = false;
+    const local = await RS.fetchReplay("x-1", async () => { called = true; return { ok: true, status: 200, json: async () => ({}) }; }, 50)
+      .then(() => "loaded", (e) => e.message);
+    RS.setLocalOnly(false);
+    check("local version: no Showdown request", !called && /isn't contacted/.test(local), local);
+    // team preview shows 'Zamazenta-*'; the base form Zamazenta came in, so it's one brought row, not two
+    const p2 = rows.filter((r) => r.player === "RevivalSludge24").map((r) => r.pokemon + (r.brought ? "" : " (not brought)"));
+    check("2705117998: 'Zamazenta-*' matches base Zamazenta", p2.length === 6 && p2.includes("Zamazenta"), JSON.stringify(p2));
   }
   {
     const b = RS.parseBattle(HEAD + `|move|p1a: Burner|Wish|p1a: Burner
@@ -872,7 +882,8 @@ ${switchIn}`).hiddenZoroark;
     check("luck summary: blank when a game has no score", RS.summarize(rows).every((a) => a.luck === ""));
   }
 
-  // ---- MVP: +1 per 100% dealt, +1 per kill, +0.5 per 100% healed, +0.5 for surviving; one per team ----
+  // ---- Performance (mvp_score): +1 per 100% dealt, +1 per kill, +0.5 per 100% taken, +0.05 per turn on field,
+  // +0.5 for surviving; the top one per team is Team MVP ----
   {
     const log = "|poke|p1|Pelipper|\n|poke|p1|Blissey|\n|poke|p2|Garchomp|\n|poke|p2|Dragonite|\n" + lhead() +
       "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|40/100\n|move|p2a: B|Earthquake|p1a: A\n|-damage|p1a: A|50/100\n|turn|2\n" +
@@ -881,11 +892,12 @@ ${switchIn}`).hiddenZoroark;
       "|move|p2a: D|Extreme Speed|p1a: C\n|-damage|p1a: C|70/100\n|move|p1a: C|Soft-Boiled|p1a: C\n|-heal|p1a: C|100/100\n|win|Bob";
     const rows = RS.gameRows({ id: "test-mvp", log });
     const got = Object.fromEntries(rows.map((r) => [r.pokemon, [r.mvp_score, r.mvp]]));
-    // A: 100% + 1 KO = 2; C: 30% healed x0.5 + survived = 0.65; B: 50% = 0.5; D: 80% + 1 KO + survived = 2.3
-    const exp = { Pelipper: [2, 1], Blissey: [0.65, 0], Garchomp: [0.5, 0], Dragonite: [2.3, 1] };
+    // Performance: A: 100% dealt + 1 KO + 100% taken x0.5 + 3 turns x0.05 = 2.65; C: 30% taken x0.5 + 1 turn + survived = 0.7;
+    // B: 50% dealt + 100% taken x0.5 + 2 turns = 1.1; D: 80% dealt + 1 KO + 2 turns + survived = 2.4
+    const exp = { Pelipper: [2.65, 1], Blissey: [0.7, 0], Garchomp: [1.1, 0], Dragonite: [2.4, 1] };
     check("mvp: score and one MVP per team", same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
     const d = RS.summarize(rows).find((a) => a.pokemon === "Dragonite");
-    check("mvp summary: MVPs and score per game", d.mvps === 1 && d.mvp_score_per_game === 2.3 && !("mvp" in d), JSON.stringify(d));
+    check("mvp summary: MVPs and score per game", d.mvps === 1 && d.mvp_score_per_game === 2.4 && !("mvp" in d), JSON.stringify(d));
     const bad = [];
     for (const id of Object.keys(REAL)) {
       const rs = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());

@@ -1,6 +1,18 @@
 # Changelog
 
 ## Unreleased
+- Team summary: switching Pokémon no longer moves anything (the Team MVP, nickname and Mega / Z lines keep their space when empty); Mega tags are black and Z tags porcelain (the urinal colour); the Team totals sit in their own tinted strip with a bigger heading.
+- Team summary: click any brought Pokémon on a team to see its stats (Team MVP shown first). Mega / Z-move is a tag on the sprite and a line in that Pokémon's stats ("Mega Evolved on turn 1") instead of a note at the bottom. Luck shows as a die (1 to 5 pips) and a word: Very unlucky, Unlucky, Fair, Lucky, Very lucky; hover for the score. The summary has its own band, "This game", above "Every Pokémon".
+- MVP score is now called Performance and counts damage taken (+0.5 per 100%) and turns on field (+0.05 per turn) instead of healing. Team MVP is the best Performance on the team. CSV columns keep their old names (mvp_score, mvp_score_per_game).
+- Local version: sprites for the Pokémon in the saved replays are saved in `site/sprites/gen5/`, so they show without Showdown.
+- Two tabs: One game (the default: one replay link, the team summary, and a table of that game's Pokémon without the per-game columns already shown above it) and Several games (the links box with Leaderboard / Per game, as before). A share link with one replay opens One game, with more opens Several games.
+- Local version: luck and max HP work without Showdown, from copies of its move and Pokédex data in `site/data/` (taken from the pokemon-showdown npm package). Add `?online` to the local address to use Showdown instead.
+- Team summary looks plainer: "Team MVP" in normal case, square-cornered Won / Lost labels.
+- League theme from the Pinecord Pokémon Pissfest banner: the banner at the top, mint tiled wall behind the page, cream panels with dark outlines, a striped-floor divider and a teal accent; a darker teal version in dark mode.
+- Team summary: with exactly one replay loaded, a card per team above the table shows win / loss, the six team-preview sprites (dimmed if not brought, red-outlined if fainted), the Team MVP with its sprite and stats (kills, dealt, taken, healed, turns on field, survived), team totals (kills, lost, dealt, healed, hazards set, switches, crits, player luck) and any Mega / Z-move used. Sprites come from Showdown; if they don't load, initials show instead.
+- Local version: when the page is served from this computer (127.0.0.1 / localhost) it never contacts Showdown. Only replays saved in `site/mock/` load, sprites show as initials, and luck / max HP from the Pokédex are unavailable (each says so). The live site is unchanged.
+- Column headers have a tooltip saying what the column counts (hover the dotted-underlined name).
+- Fix: a team-preview `Zamazenta-*` (or any `-*` species) now matches the base form when that's what was sent out. Before, the base form got a second, "not brought" row in Per game.
 - Temporary, during the 2026-10-26 Showdown outage: four Nat Dex replays (gen9nationaldex-2705099074, -2705111047, -2705117998, -2705121899) load from copies bundled with the site, so the page can be tried without Showdown. To be removed.
 - When Pokémon Showdown (or Pokepaste) is down or not answering, loading now gives up after 15 s per request with a clear message, instead of hanging or showing a bare "HTTP 522". Once Showdown looks down, the remaining replays are skipped and reported in one line.
 - Survival per Pokémon: Turns on field, Survived (standing at the end) and KO'd before moving. Mega / Z-move: Mega + Mega turn, Z-move + Z turn per game; Megas, Mega wins, Z-moves, Z wins in the leaderboard. Also in exports.
