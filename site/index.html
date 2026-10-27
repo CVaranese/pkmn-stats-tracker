@@ -25,6 +25,13 @@
         <span id="status" class="status" role="status" aria-live="polite"></span>
       </div>
       <ul id="errors" class="errors" hidden></ul>
+
+      <details class="sheets" id="sheets-wrap">
+        <summary>Team sheets <span class="muted">(optional)</span></summary>
+        <p class="hint">Add a Pokepaste link or a Showdown export (Teambuilder → Import/Export) for a team. A sheet is used for every game where all six Pokémon at team preview are on it, and adds Max HP, item, ability and moves to the Per game table. Press Get stats after changing sheets.</p>
+        <div id="sheets"></div>
+        <div class="row"><button id="add-sheet" type="button">Add team sheet</button></div>
+      </details>
     </section>
 
     <section id="results" class="results" hidden>
@@ -65,6 +72,7 @@
   </main>
 
   <script src="parser.js"></script>
+  <script src="teams.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

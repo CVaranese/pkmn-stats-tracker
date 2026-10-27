@@ -209,6 +209,90 @@
       JSON.stringify([...b.species]));
   }
 
+  // ---- team sheets ----
+  const TS = window.TeamSheets;
+  const EXPORT = `=== [gen9nationaldex] League ===
+
+Chompy (Garchomp) (M) @ Rocky Helmet
+Ability: Rough Skin
+EVs: 252 HP / 4 Def / 252 Spe
+Jolly Nature
+- Stealth Rock
+- Earthquake
+- Dragon Tail
+- Spikes
+
+Blissey (F) @ Heavy-Duty Boots\r
+Ability: Natural Cure\r
+Level: 50\r
+EVs: 252 HP / 252 Def / 4 SpD\r
+IVs: 0 Atk\r
+Bold Nature\r
+- Soft-Boiled\r
+
+Shedinja @ Focus Sash
+Ability: Wonder Guard
+EVs: 252 HP
+- Shadow Sneak
+
+Zamazenta-Crowned @ Rusted Shield
+Ability: Dauntless Shield
+IVs: 20 HP
+- Body Press
+
+Mr. Mime-Galar
+Ability: Screen Cleaner
+- Rapid Spin
+`;
+  const sets = TS.parseTeam(EXPORT);
+  check("sheet: 5 sets", sets.length === 5, JSON.stringify(sets.map((s) => s.species)));
+  check("sheet: nickname, gender, item, EVs, nature, moves", same(sets[0], {
+    nickname: "Chompy", species: "Garchomp", gender: "M", item: "Rocky Helmet", ability: "Rough Skin",
+    level: 100, nature: "Jolly", evs: { hp: 252, def: 4, spe: 252 }, ivs: {},
+    moves: ["Stealth Rock", "Earthquake", "Dragon Tail", "Spikes"] }), JSON.stringify(sets[0]));
+  check("sheet: level, IVs, CRLF lines", sets[1].species === "Blissey" && sets[1].nickname === "" &&
+    sets[1].gender === "F" && sets[1].level === 50 && same(sets[1].ivs, { atk: 0 }) && sets[1].nature === "Bold",
+    JSON.stringify(sets[1]));
+  check("sheet: species with a dot, no item", sets[4].species === "Mr. Mime-Galar" && sets[4].item === "",
+    JSON.stringify(sets[4]));
+  // base HP from Showdown's pokedex.json: Garchomp 108, Blissey 255, Shedinja 1, Zamazenta-Crowned 92, Mr. Mime-Galar 50
+  const DEX = { garchomp: { baseStats: { hp: 108 } }, blissey: { baseStats: { hp: 255 } },
+    shedinja: { baseStats: { hp: 1 } }, zamazentacrowned: { baseStats: { hp: 92 } },
+    mrmimegalar: { baseStats: { hp: 50 } } };
+  const hp = sets.map((s) => TS.maxHp(s, DEX));
+  check("max HP: 420, 362, 1, 314, 241", same(hp, [420, 362, 1, 314, 241]), JSON.stringify(hp));
+  check("max HP: unknown species -> null", TS.maxHp({ species: "Missingno", evs: {}, ivs: {} }, DEX) === null);
+
+  const PASTES = [
+    ["https://pokepast.es/0123456789abcdef", "0123456789abcdef"],
+    ["pokepast.es/ABCDEF0123456789/raw", "abcdef0123456789"],
+    ["https://pokepast.es/1234", "1234"],
+    ["Garchomp @ Choice Scarf", null],
+  ];
+  for (const [input, want] of PASTES) {
+    const got = TS.pokepasteIdFrom(input);
+    check(`pokepaste link: ${input}`, got === want, `got ${got}`);
+  }
+  const FITS = [["Zamazenta-*", "Zamazenta-Crowned", 1], ["Zamazenta-*", "Zamazenta", 1], ["Mew", "Mewtwo", 0],
+    ["Zacian-Crowned", "Zacian", 1], ["Garchomp", "Garchomp", 2], ["Rotom-Wash", "Rotom-Heat", 0]];
+  for (const [a, b, want] of FITS) check(`species fit: ${a} / ${b}`, TS.speciesFit(a, b) === want);
+  const mews = TS.pairSets(["Mewtwo", "Mew"], TS.parseTeam("Mew\n\nMewtwo"));
+  check("pair sets: Mew and Mewtwo not swapped", mews && mews[0].species === "Mewtwo" && mews[1].species === "Mew");
+
+  {
+    const replay = await (await fetch("fixtures/gen9nationaldex-2705111047.json")).json();
+    const rows = RS.gameRows(replay);
+    const jin = TS.parseTeam("Kingambit @ Black Glasses\n\nZoroark-Hisui @ Choice Specs\n\nGarchomp\n\n" +
+      "Volcarona\n\nMamoswine\n\nGardevoir @ Choice Scarf");
+    const flomarFive = TS.parseTeam("Weavile\n\nAmoonguss\n\nExcadrill\n\nSableye\n\nPrimarina");
+    const matches = TS.attachSheets(rows, [{ sets: flomarFive }, { sets: jin }]);
+    check("attach: only the full 6 matches", same(matches, [[], [["gen9nationaldex-2705111047", "jinrachi"]]]),
+      JSON.stringify(matches));
+    const item = (p, sp) => { const r = rows.find((x) => x.player === p && x.pokemon === sp); return r.set ? r.set.item : null; };
+    check("attach: each row gets its own set", item("jinrachi", "Zoroark-Hisui") === "Choice Specs" &&
+      item("jinrachi", "Gardevoir") === "Choice Scarf" && item("flomarV2", "Primarina") === null);
+  }
+
   // ---- link parsing ----
   const LINKS = [
     ["https://replay.pokemonshowdown.com/gen9randombattle-2704944065", "gen9randombattle-2704944065"],

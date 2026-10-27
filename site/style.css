@@ -77,6 +77,15 @@ button.primary { background: var(--accent); color: var(--accent-text); border-co
   overflow-wrap: anywhere;
 }
 
+.sheets { margin-top: 16px; }
+.sheets summary { cursor: pointer; font-weight: 600; }
+.muted, .hint { color: var(--muted); font-weight: 400; }
+.hint { margin: 8px 0; max-width: 80ch; font-size: 14px; }
+.sheet { margin-top: 10px; }
+.sheet .row { margin-top: 4px; }
+.sheet .status { font-size: 14px; overflow-wrap: anywhere; }
+.sheet .status.bad { color: var(--error); }
+
 .results { margin-top: 24px; }
 .tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .tabs button { border: 0; border-radius: 0; }
