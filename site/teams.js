@@ -142,9 +142,12 @@
 
   // ---------- fetching ----------
 
+  // parser.js's fetch with a time limit and "site is down" errors (parser.js loads first on every page)
+  const fetchChecked = (url, fetchFn) => (root.ReplayStats || require("./parser.js")).fetchChecked(url, fetchFn);
+
   /** Plain export text of a Pokepaste (its /raw page allows cross-origin requests). */
   async function fetchPokepaste(id, fetchFn = root.fetch) {
-    const resp = await fetchFn(PASTE_HOST + id + "/raw");
+    const resp = await fetchChecked(PASTE_HOST + id + "/raw", fetchFn);
     if (resp.status === 404) throw new Error("Pokepaste not found");
     if (!resp.ok) throw new Error("Pokepaste HTTP " + resp.status);
     return resp.text();
@@ -154,7 +157,7 @@
   /** Showdown's Pokedex (base stats), fetched once per page visit. */
   function loadDex(fetchFn = root.fetch) {
     if (!dexPromise) {
-      dexPromise = fetchFn(DEX_URL).then((r) => {
+      dexPromise = fetchChecked(DEX_URL, fetchFn).then((r) => {
         if (!r.ok) throw new Error("Pokedex HTTP " + r.status);
         return r.json();
       });

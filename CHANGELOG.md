@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- When Pokémon Showdown (or Pokepaste) is down or not answering, loading now gives up after 15 s per request with a clear message, instead of hanging or showing a bare "HTTP 522". Once Showdown looks down, the remaining replays are skipped and reported in one line.
 - Survival per Pokémon: Turns on field, Survived (standing at the end) and KO'd before moving. Mega / Z-move: Mega + Mega turn, Z-move + Z turn per game; Megas, Mega wins, Z-moves, Z wins in the leaderboard. Also in exports.
 - MVP: every brought Pokémon gets an MVP score (+1 per 100% dealt, +1 per kill, +0.5 per 100% healed, +0.5 for surviving) and the top one on each team is Team MVP. Per game: MVP score / Team MVP; leaderboard: MVPs and MVP score / game. Also in exports.
 - Luck: multi-hit moves count (number of hits for 2-5 hit moves, every accuracy roll of Triple Axel / Population Bomb; needs the item known, from a sheet or the log). Rolls an unrevealed ability could have changed (Inner Focus, Super Luck, Serene Grace...) are skipped unless a team sheet or the log says which ability it has.

@@ -942,6 +942,23 @@ ${switchIn}`).hiddenZoroark;
       JSON.stringify([s("p1: A"), s("p1: C"), s("p2: B")]));
   }
 
+  // ---- fetching: time limit and "site is down" errors (fake fetch functions, 50 ms limit) ----
+  {
+    const fail = async (fetchFn) => {
+      try { await RS.fetchReplay("x-1", fetchFn, 50); return null; } catch (e) { return [!!e.down, e.message]; }
+    };
+    const hang = await fail(() => new Promise(() => {}));
+    check("fetch: no answer -> times out as down", hang && hang[0] && hang[1].includes("didn't answer within 0.05 s"), JSON.stringify(hang));
+    const cf = await fail(async () => ({ ok: false, status: 522 }));
+    check("fetch: Cloudflare 522 -> down", cf && cf[0] && cf[1].includes("HTTP 522"), JSON.stringify(cf));
+    const net = await fail(async () => { throw new TypeError("Failed to fetch"); });
+    check("fetch: network error -> down", net && net[0] && net[1].includes("couldn't be reached"), JSON.stringify(net));
+    const nf = await fail(async () => ({ ok: false, status: 404 }));
+    check("fetch: 404 is not 'down'", nf && !nf[0] && nf[1].startsWith("not found"), JSON.stringify(nf));
+    const okReplay = await RS.fetchReplay("x-1", async () => ({ ok: true, status: 200, json: async () => ({ id: "x-1" }) }), 50);
+    check("fetch: 200 returns the replay", okReplay.id === "x-1", JSON.stringify(okReplay));
+  }
+
   // ---- CSV / TSV escaping ----
   const csv = RS.toCsv(["a", "b"], [{ a: 'x,"y"', b: "Pokémon" }]);
   check("csv escaping", csv === 'a,b\r\n"x,""y""",Pokémon\r\n', JSON.stringify(csv));

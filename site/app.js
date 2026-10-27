@@ -104,21 +104,30 @@
     // a few at a time, to be gentle on Showdown's server
     const results = new Array(ids.length);
     let next = 0;
+    let down = null;                    // first "Showdown is down" error: skip the rest, report it once
+    let notTried = 0;
     async function worker() {
       while (next < ids.length) {
         const i = next++;
         const id = ids[i];
         try {
-          if (!cache.has(id)) cache.set(id, await RS.fetchReplay(id));
+          if (!cache.has(id)) {
+            if (down) { notTried++; done++; status(); continue; }
+            cache.set(id, await RS.fetchReplay(id));
+          }
           results[i] = cache.get(id);
         } catch (e) {
-          errors.push(`${id}: ${e.message || e}`);
+          if (e.down) { down = down || e; notTried++; } else errors.push(`${id}: ${e.message || e}`);
         }
         done++;
         status();
       }
     }
     await Promise.all([worker(), worker(), worker(), worker()]);
+    if (down) {
+      errors.unshift(`Pokémon Showdown isn't responding, so ${notTried} replay${notTried === 1 ? " wasn't" : "s weren't"} loaded: ` +
+        `${down.message}.`);
+    }
 
     rows = [];
     for (const replay of results) {
@@ -133,7 +142,7 @@
     await applyLuck(errors);
     const ok = results.filter(Boolean).length;
     $("status").textContent = `Loaded ${ok} replay${ok === 1 ? "" : "s"}` +
-      (errors.length ? `, ${errors.length} failed.` : ".");
+      (ids.length > ok ? `, ${ids.length - ok} failed.` : ".");
     $("errors").hidden = !errors.length;
     $("errors").replaceChildren(...errors.map((t) => Object.assign(document.createElement("li"), { textContent: t })));
     const zoroarks = [...new Set(rows.filter((r) => r.hidden_zoroark).map((r) => `${r.replay_id}: ${r.player}`))];
