@@ -27,4 +27,5 @@ with the user's key, kept in `%USERPROFILE%\.challonge_key` (never in the repo).
 says who is who.
 
 The three games in site/games/ before this (2705117998, 2705111047, 2705121899, labelled Week 1 / Week 2) were test
-entries and were removed 2026-10-27. They stay as test fixtures and local mocks.
+entries. The user asked to keep them for trying the site while Showdown is down: they're under week "Samples" with
+the note "Test game, not league".
