@@ -34,9 +34,12 @@ $png = Join-Path $OutDir "$Name-$Theme-$Width.png"
 if (Test-Path $png) { Remove-Item $png -Force -Confirm:$false }
 # Blink's preferredColorScheme: 0 = dark, 1 = light
 $scheme = if ($Theme -eq "dark") { 0 } else { 1 }
+# a fresh Edge profile each run, so nothing comes from its cache
+$profileDir = Join-Path $env:TEMP ("edge-rs-" + [guid]::NewGuid())
 # through cmd: PowerShell 5.1 turns Edge's "bytes written" stderr line into an error
-cmd /c "`"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`" --headless=new --disable-gpu --hide-scrollbars --user-data-dir=`"$env:TEMP\edge-headless-rs-shot`" --blink-settings=preferredColorScheme=$scheme --window-size=$Width,$Height --virtual-time-budget=15000 --screenshot=`"$png`" `"$url`" >nul 2>nul"
+cmd /c "`"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`" --headless=new --disable-gpu --hide-scrollbars --user-data-dir=`"$profileDir`" --blink-settings=preferredColorScheme=$scheme --window-size=$Width,$Height --virtual-time-budget=15000 --screenshot=`"$png`" `"$url`" >nul 2>nul"
 for ($i = 0; $i -lt 20 -and -not (Test-Path $png); $i++) { Start-Sleep -Milliseconds 250 }
+Remove-Item $profileDir -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
 if (-not (Test-Path $png)) { throw "No screenshot written for $url" }
 "url: $url"
 $png

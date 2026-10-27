@@ -32,6 +32,7 @@
 
     <nav class="modes" role="tablist" aria-label="View">
       <button role="tab" data-mode="one" aria-selected="true" type="button">One game</button>
+      <button role="tab" data-mode="games" aria-selected="false" type="button">Games</button>
       <button role="tab" data-mode="many" aria-selected="false" type="button">Playoffs</button>
       <button role="tab" data-mode="bet" aria-selected="false" type="button">Gambling</button>
       <button id="collapse" class="collapse" type="button" aria-controls="inputs" aria-expanded="true">Hide links and sheets</button>
@@ -40,6 +41,20 @@
     <section id="gambling" class="gambling" hidden>
       <h2 class="section-title">Gambling</h2>
       <p>Bets on league games, settled from the replays. Not open yet.</p>
+    </section>
+
+    <section id="library" class="library" hidden>
+      <div class="toolbar">
+        <label class="inline">Player
+          <select id="lib-player"><option value="">Everyone</option></select>
+        </label>
+        <label class="inline">Week
+          <select id="lib-week"><option value="">All weeks</option></select>
+        </label>
+        <span id="lib-count" class="muted"></span>
+      </div>
+      <p id="lib-empty" class="hint" hidden></p>
+      <div id="lib-list"></div>
     </section>
 
     <section class="input" id="inputs">
@@ -72,6 +87,11 @@
 
     <section id="results" class="results" hidden>
       <div id="teams" class="teams" hidden></div>
+      <details id="watch" class="watch" hidden>
+        <summary>Watch the battle</summary>
+        <p id="watch-note" class="hint" hidden></p>
+        <iframe id="watch-frame" title="Replay player" hidden></iframe>
+      </details>
       <h2 class="section-title" id="table-title">Every Pokémon</h2>
       <div class="toolbar">
         <div class="tabs" role="tablist">

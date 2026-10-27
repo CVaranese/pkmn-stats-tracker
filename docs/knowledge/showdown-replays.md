@@ -82,3 +82,8 @@ Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond 
   Pokémon luck over 352 brought Pokémon: p10 -0.34, p25 -0.12, median -0.04, p75 0, p90 0.20, range -2.08..1.88.
   Used for the word cut-offs in app.js (`LUCK_STEPS`).
 - **Tested:** all 164 species in the corpus and fixtures have a gen5 sprite at the id app.js builds (all returned 200).
+
+## Replay player embed (2026-10-27)
+- **Researched (read the script):** `https://play.pokemonshowdown.com/js/replay-embed.js` (MIT, "can also be used by third parties to embed PS replays") plays a battle from a log on any page. It reads the log from `<script type="text/plain" class="battle-log-data">`, uses an existing `.wrapper` (with `.battle`, `.battle-log`, `.replay-controls`, `.replay-controls-2`) or appends one, and starts on `window.onload` (`Replays.init()`). It pulls jQuery, `battle.js`, data files, CSS and sprites from play.pokemonshowdown.com, so it only works while Showdown is up. Downloaded replay HTML files use the same script.
+- **Guess (built, not yet seen playing):** `site/watch.html` sets its own `window.onload` after the script (overriding the embed's), waits for the saved log, inserts it, then calls `Replays.init()`; the log can come in after the page loaded. Running it in an iframe keeps Showdown's jQuery and CSS off the main page.
+- **Tested (2026-10-27, during an outage):** with Showdown half down, `battledata.js` (which defines `BattleTextParser`) timed out while `battle.js` loaded, so `Replays.init()` threw "BattleTextParser is not a constructor"; watch.html shows its "Showdown may be down" message. The embed also loads `teambuilder-tables.js` (about 15 MB), so the player is only loaded when Watch is opened.

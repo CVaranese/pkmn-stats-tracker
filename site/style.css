@@ -121,6 +121,15 @@ button.primary { background: var(--accent); color: var(--accent-text); border-co
 .modes .collapse { margin-left: auto; align-self: center; margin-bottom: 4px; border: 1px solid var(--border);
   border-radius: 6px; padding: 5px 10px; font-weight: 500; font-size: 14px; background: var(--surface); color: var(--text); }
 .gambling { padding: 8px 0 24px; }
+.library { padding: 4px 0 24px; }
+.lib-table .lib-week th { position: static; cursor: default; font-size: 15px; padding-top: 16px; background: var(--bg); }
+.lib-table .lib-week:first-child th { padding-top: 8px; }
+.lib-table td:first-child { width: 100%; }
+.lib-table .lib-actions button { padding: 4px 10px; font-size: 13px; margin-left: 6px; }
+.watch { margin: 0 0 24px; }
+.watch summary { cursor: pointer; font-weight: 600; }
+.watch iframe { display: block; width: 100%; height: 640px; margin-top: 10px; border: 2px solid var(--outline);
+  border-radius: 6px; background: var(--surface); }
 .modes button[aria-selected="true"] { background: var(--bg); color: var(--text); border-color: var(--outline);
   border-bottom: 2px solid var(--bg); }
 .tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }

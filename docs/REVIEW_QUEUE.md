@@ -2,6 +2,7 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Games tab: open `?tab=games`, pick a player and a week in the filters, press Stats on a game (opens in One game) and Watch (opens the player under the team cards). Is the list what you wanted (week, players with the winner in bold, turns, date, note)? The player couldn't be checked: Showdown was timing out on its scripts (2026-10-27). Check it plays, its size fits the page, and its light / dark switch.
 - [ ] Discord preview: paste the site link in Discord; the banner, "Replay Kill Tracker" and the description show. (Discord caches previews; a link it saw before may need `?v=2` on the end.)
 - [ ] Performance: on games you know, is each Team MVP who you'd pick now that damage taken and turns on field count instead of healing? Say if taken (0.5 per 100%) or turns (0.05 each) should weigh more or less.
 - [ ] Luck words: the cut-offs (player Fair within ±0.75, Very beyond ±2; Pokémon ±0.25 / ±0.75) come from 34 saved games. Do the words feel right on games where you remember the luck? Is a die the right emblem?

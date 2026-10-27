@@ -1,0 +1,19 @@
+---
+name: add-game
+description: Add league games to the site's game library (site/games/) from Showdown replay links, with a week label. Use when the user gives league replay links to save, or asks to relabel a stored game.
+---
+
+# Add games to the library
+
+For each replay (link or id):
+```
+python -I tools/add_game.py <link> --week "Week 3" [--note "Game 2"] [--league pinecord]
+```
+- `--week` is required and is the group shown in the Games tab ("Week 3", "Playoffs R1", "Finals"). Ask the user
+  if they didn't say; never guess a week.
+- Running it again for the same game updates its labels (no duplicate). Games show newest-added first within a week,
+  and weeks in the order they were first added (latest on top), so add them in play order.
+- Showdown down: the script falls back to a copy in `site/mock/` or `tests/fixtures/`, else stops with a message;
+  `--file <saved.json>` uses a copy the user downloaded.
+- Check each printed line (players, winner, turns) looks right, run the `test` skill, take a `screenshot` with
+  `-Query tab=games`, then commit `site/games/` with a message listing the games added.

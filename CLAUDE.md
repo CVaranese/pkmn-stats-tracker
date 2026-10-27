@@ -4,6 +4,7 @@ Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts k
 
 ## Layout
 - `site/` — everything that gets published: `index.html`, `style.css`, `app.js` (page logic), `parser.js` (log parsing + kill rules, no DOM, also loadable from Node), `teams.js` (team sheet parsing, sheet-to-game matching, max HP; no DOM), `luck.js` (luck score from the rolls parser.js records, with Showdown move data; no DOM).
+- `site/games/` — the league's game library: `index.json` (id, league, week, players, winner, date, turns, note) and a saved copy of each replay. Add games with `python -I tools/add_game.py <link> --week "Week 3"` (the `add-game` skill). `site/watch.html` is the replay player (Showdown's replay-embed.js, in a frame on One game).
 - `tests/` — `index.html` + `tests.js` run the parser against real replays in `tests/fixtures/` (hand-counted expectations) and synthetic logs for rules no real replay covers yet.
 - `.github/workflows/pages.yml` — deploys only `site/` on pushes to `main`.
 - `replay_stats.py`, `test_replay_stats.py` — the original Python CLI. Not kept in sync with `site/parser.js`.

@@ -14,8 +14,11 @@ if (-not (Test-Server)) {
   if (-not (Test-Server)) { throw "Local server didn't start on 8765" }
 }
 
+# a fresh Edge profile each run, so nothing comes from its cache
+$profileDir = Join-Path $env:TEMP ("edge-rs-" + [guid]::NewGuid())
 # through cmd: PowerShell 5.1 loses Edge's stdout and turns its stderr into errors
-$dom = cmd /c "`"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`" --headless=new --disable-gpu --user-data-dir=`"$env:TEMP\edge-headless-rs`" --virtual-time-budget=15000 --dump-dom $base/tests/index.html 2>nul"
+$dom = cmd /c "`"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`" --headless=new --disable-gpu --user-data-dir=`"$profileDir`" --virtual-time-budget=15000 --dump-dom $base/tests/index.html 2>nul"
+Remove-Item $profileDir -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
 $dom = $dom -join "`n"
 $title = if ($dom -match "<title>([^<]*)</title>") { $Matches[1] } else { "NO TITLE (page didn't load?)" }
 Add-Type -AssemblyName System.Web

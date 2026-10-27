@@ -561,6 +561,15 @@ Ability: Screen Cleaner
       .then(() => "loaded", (e) => e.message);
     RS.setLocalOnly(false);
     check("local version: no Showdown request", !called && /isn't contacted/.test(local), local);
+    // game library: a stored game loads from site/games/, even in the local version
+    RS.setLibrary(["x-2"]);
+    RS.setLocalOnly(true);
+    const asked = [];
+    const stored = await RS.fetchReplay("x-2", async (url) => { asked.push(url); return { ok: true, status: 200, json: async () => ({ id: "x-2" }) }; }, 50)
+      .then((r) => r.id, (e) => e.message);
+    RS.setLocalOnly(false);
+    RS.setLibrary([]);
+    check("game library: loads the stored copy", stored === "x-2" && asked.join() === "games/x-2.json", `${stored} ${asked}`);
     // team preview shows 'Zamazenta-*'; the base form Zamazenta came in, so it's one brought row, not two
     const p2 = rows.filter((r) => r.player === "RevivalSludge24").map((r) => r.pokemon + (r.brought ? "" : " (not brought)"));
     check("2705117998: 'Zamazenta-*' matches base Zamazenta", p2.length === 6 && p2.includes("Zamazenta"), JSON.stringify(p2));

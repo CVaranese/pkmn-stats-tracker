@@ -954,7 +954,15 @@
   let localOnly = false;
   const setLocalOnly = (on) => { localOnly = !!on; };
 
+  // the game library (site/games/): replays saved with the site, loaded from there instead of Showdown; set by app.js
+  let library = new Set();
+  const setLibrary = (ids) => { library = new Set(ids); };
+
   async function fetchReplay(id, fetchFn = root.fetch, timeoutMs = FETCH_TIMEOUT_MS) {
+    if (library.has(id)) {
+      const saved = await fetchFn("games/" + id + ".json").catch(() => null);
+      if (saved && saved.ok) return saved.json();
+    }
     if (MOCK_REPLAYS.has(id)) {
       const mock = await fetchFn("mock/" + id + ".json");
       if (mock.ok) return mock.json();
@@ -967,7 +975,7 @@
 
   const api = {
     REPLAY_HOST, GAME_FIELDS, SUMMARY_FIELDS, HP_FIELDS, LUCK_FIELDS, norm,
-    replayIdFrom, replayIdsFromText, parseBattle, gameRows, addDamageHp, summarize, toCsv, toTsv, fetchChecked, fetchReplay, setLocalOnly,
+    replayIdFrom, replayIdsFromText, parseBattle, gameRows, addDamageHp, summarize, toCsv, toTsv, fetchChecked, fetchReplay, setLocalOnly, setLibrary,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ReplayStats = api;

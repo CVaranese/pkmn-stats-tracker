@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Games tab: the league's games, saved with the site (`site/games/`, added with `tools/add_game.py`), listed by week with a player and week filter. Stats opens a game in One game, loaded from the saved copy, so it works while Showdown is down. `?tab=games` links straight to the list.
+- Watch the battle: One game has a "Watch the battle" section that plays the replay in Showdown's own player (needs Showdown online; not in the local version).
 - Link previews: sharing the site in Discord (or anywhere that reads Open Graph tags) shows the league banner, title and a one-line description.
 - Tabs are now One game, Playoffs (was Several games) and Gambling (a placeholder for now). A "Hide links and sheets" button collapses the input box, for cleaner screenshots.
 - Temporary: the saved test game (gen9nationaldex-2705117998) fills in both team sheets when loaded, so HP columns and sets show while Showdown is down.

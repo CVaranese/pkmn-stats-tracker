@@ -109,23 +109,26 @@
   $("run").addEventListener("click", run);
   // One game (the default) or Several games; each has its own input, remembered separately
   let mode = "one";
-  try { mode = ["many", "bet"].includes(localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : "one"; } catch (e) { /* storage blocked */ }
+  try { mode = ["many", "games", "bet"].includes(localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : "one"; } catch (e) { /* storage blocked */ }
   try { $("one-link").value = localStorage.getItem(ONE_KEY) || ""; } catch (e) { /* storage blocked */ }
   $("one-link").addEventListener("input", () => {
     try { localStorage.setItem(ONE_KEY, $("one-link").value); } catch (e) { /* storage blocked */ }
   });
   $("one-link").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
   const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
-  const activeIds = () => (mode === "bet" ? [] : RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
+  const activeIds = () => (mode === "bet" || mode === "games" ? [] :
+    RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
   function setMode(m, load = true) {
     mode = m;
     try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
     for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.setAttribute("aria-selected", String(tab.dataset.mode === m));
+    const noInputs = m === "bet" || m === "games";
     $("one-input").hidden = m !== "one";
     $("many-input").hidden = m !== "many";
     $("gambling").hidden = m !== "bet";
-    $("collapse").hidden = m === "bet";
-    $("inputs").hidden = m === "bet" || collapsed;
+    $("library").hidden = m !== "games";
+    $("collapse").hidden = noInputs;
+    $("inputs").hidden = noInputs || collapsed;
     view = m === "one" ? "games" : "summary";
     sort = m === "one" ? { field: "player", dir: 1 } : { field: "kills", dir: -1 };
     rows = [];
@@ -136,6 +139,102 @@
     if (load && activeIds().length) run();
   }
   for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.addEventListener("click", () => setMode(tab.dataset.mode));
+
+  // ---------- game library (site/games/, added with tools/add_game.py) ----------
+
+  let library = [];
+  const libraryReady = fetch("games/index.json")
+    .then((r) => (r.ok ? r.json() : { games: [] }))
+    .catch(() => ({ games: [] }))
+    .then((index) => {
+      library = index.games || [];
+      RS.setLibrary(library.map((g) => g.id));
+      const players = [...new Set(library.flatMap((g) => g.players))].sort((a, b) => a.localeCompare(b));
+      const weeks = [...new Set(library.map((g) => g.week))];
+      $("lib-player").append(...players.map((p) => new Option(p, p)));
+      $("lib-week").append(...weeks.map((w) => new Option(w, w)));
+      renderLibrary();
+    });
+  $("lib-player").addEventListener("change", renderLibrary);
+  $("lib-week").addEventListener("change", renderLibrary);
+
+  /** Games grouped by week, the latest week first (weeks in the order they were added). */
+  function renderLibrary() {
+    const player = $("lib-player").value, week = $("lib-week").value;
+    const shown = library.filter((g) => (!player || g.players.includes(player)) && (!week || g.week === week));
+    $("lib-count").textContent = library.length ? `${shown.length} of ${library.length} games` : "";
+    $("lib-empty").hidden = shown.length > 0;
+    $("lib-empty").textContent = library.length ? "No games match." : "No games saved yet.";
+    // one table, a heading row per week, so the columns line up across weeks
+    const weeks = [...new Set(shown.map((g) => g.week))].reverse();
+    const table = document.createElement("table");
+    table.className = "lib-table";
+    for (const w of weeks) {
+      const head = document.createElement("tr");
+      head.className = "lib-week";
+      head.append(Object.assign(document.createElement("th"), { colSpan: 5, scope: "colgroup", textContent: w }));
+      table.append(head, ...shown.filter((g) => g.week === w).reverse().map(libraryRow));
+    }
+    const wrap = document.createElement("div");
+    wrap.className = "table-wrap";
+    wrap.append(table);
+    $("lib-list").replaceChildren(...(shown.length ? [wrap] : []));
+  }
+
+  function libraryRow(g) {
+    const tr = document.createElement("tr");
+    const who = document.createElement("td");
+    g.players.forEach((p, i) => {
+      if (i) who.append(" vs ");
+      who.append(p === g.winner ? Object.assign(document.createElement("b"), { textContent: p }) : p);
+    });
+    const cell = (text, cls) => Object.assign(document.createElement("td"), { textContent: text, className: cls || "" });
+    const open = (watch) => {
+      const b = Object.assign(document.createElement("button"), { type: "button", textContent: watch ? "Watch" : "Stats" });
+      b.addEventListener("click", () => openGame(g.id, watch));
+      return b;
+    };
+    const actions = cell("", "lib-actions");
+    actions.append(open(false), open(true));
+    tr.append(who, cell(g.turns + " turns", "num"), cell(g.date), cell(g.note, "muted"), actions);
+    return tr;
+  }
+
+  /** Open a stored game in One game; with watch, also open the replay player. */
+  function openGame(id, watch) {
+    $("one-link").value = RS.REPLAY_HOST + id;
+    $("one-link").dispatchEvent(new Event("input"));
+    watchWanted = watch;
+    setMode("one");
+    window.scrollTo(0, 0);
+  }
+
+  // ---------- replay player (watch.html in a frame: Showdown's replay-embed.js, needs Showdown online) ----------
+
+  let watchWanted = false;
+  let watchId = "";
+  function updateWatch() {
+    const id = mode === "one" && rows.length ? rows[0].replay_id : "";
+    $("watch").hidden = !id;
+    if (id !== watchId) {
+      watchId = id;
+      $("watch").open = false;
+      $("watch-frame").hidden = true;
+      $("watch-frame").removeAttribute("src");
+    }
+    if (id && watchWanted) $("watch").open = true;
+    watchWanted = false;
+  }
+  $("watch").addEventListener("toggle", () => {
+    if (!$("watch").open || !watchId) return;
+    if (LOCAL) {
+      $("watch-note").hidden = false;
+      $("watch-note").textContent = "The replay player comes from Pokémon Showdown, so it isn't in the local version. Add ?online to the address to use it.";
+      return;
+    }
+    if (!$("watch-frame").src) $("watch-frame").src = "watch.html?id=" + encodeURIComponent(watchId);
+    $("watch-frame").hidden = false;
+  });
   // hide the links / sheets box (cleaner screenshots); the results stay
   let collapsed = false;
   $("collapse").addEventListener("click", () => {
@@ -179,9 +278,13 @@
   if (shared.length === 1) $("one-link").value = RS.REPLAY_HOST + shared[0];
   else if (shared.length) $("links").value = shared.map((id) => RS.REPLAY_HOST + id).join("\n");
   if (shared.length) activeInput().dispatchEvent(new Event("input"));
+  // ?tab=games (or many / bet) opens that tab, e.g. a link to the game list
+  const tabParam = params.get("tab");
+  if (["one", "games", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
   setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
 
   async function run() {
+    await libraryReady;  // stored games load from site/games/, not Showdown
     const ids = activeIds();
     const errors = [];
     if (!ids.length) {
@@ -251,6 +354,7 @@
 
     $("results").hidden = !rows.length;
     renderTeams();
+    updateWatch();
     render();
   }
 
