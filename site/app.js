@@ -758,13 +758,13 @@
       if (numeric.has(f)) th.className = "num";
       if (sort.field === f) th.setAttribute("aria-sort", sort.dir < 0 ? "descending" : "ascending");
       th.addEventListener("click", () => {
+        if (TOUCH && th.title && tipKey !== "th:" + f) { showTip(th, th.title + " Tap again to sort.", "th:" + f); return; }
+        hideTip();
         sort = sort.field === f ? { field: f, dir: -sort.dir } : { field: f, dir: numeric.has(f) ? -1 : 1 };
         render();
       });
       hr.appendChild(th);
     }
-    const label = LABELS[sort.field] || sort.field;
-    $("sort-note").textContent = DESCRIPTIONS[sort.field] ? `${label}: ${DESCRIPTIONS[sort.field]}` : "";
     const tbody = document.createElement("tbody");
     for (const r of data) {
       const tr = tbody.insertRow();
@@ -939,25 +939,36 @@
     setTimeout(() => { btn.textContent = old; }, 1800);
   }
 
-  // phones can't hover: a tap on anything with a title (column headers, luck words, sprites…) shows it in a tip
-  if (matchMedia("(hover: none)").matches) {
-    const tip = el("div", "tap-tip");
-    tip.hidden = true;
-    tip.setAttribute("role", "status");
-    document.body.append(tip);
-    let timer = 0;
+  // phones can't hover: a tap on anything with a title (luck words, sprites…) shows it in a tip under it.
+  // Headers call showTip themselves (first tap explains, second sorts). var: render() may run before this line.
+  var TOUCH = matchMedia("(hover: none)").matches, tip = null, tipTimer = 0, tipKey = "";
+  function showTip(target, text, key = "") {
+    if (!tip) {
+      tip = el("div", "tap-tip");
+      tip.setAttribute("role", "status");
+      document.body.append(tip);
+    }
+    tip.textContent = text;
+    tip.hidden = false;
+    tipKey = key;
+    const r = target.getBoundingClientRect();
+    const maxLeft = document.documentElement.clientWidth - tip.offsetWidth - 8;
+    tip.style.left = window.scrollX + Math.max(8, Math.min(r.left, maxLeft)) + "px";
+    tip.style.top = window.scrollY + r.bottom + 6 + "px";
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(hideTip, 5000);
+  }
+  function hideTip() {
+    if (tip) tip.hidden = true;
+    tipKey = "";
+  }
+  if (TOUCH) {
     document.addEventListener("click", (e) => {
       const t = e.target.closest("[title]");
-      // a game row opens the game; a header sorts, and the note above the table explains it
-      if (!t || !t.title || t.matches(".lib-row, th")) { tip.hidden = true; return; }
-      tip.textContent = t.title;
-      tip.hidden = false;
-      const r = t.getBoundingClientRect();
-      const maxLeft = document.documentElement.clientWidth - tip.offsetWidth - 8;
-      tip.style.left = window.scrollX + Math.max(8, Math.min(r.left, maxLeft)) + "px";
-      tip.style.top = window.scrollY + r.bottom + 6 + "px";
-      clearTimeout(timer);
-      timer = setTimeout(() => { tip.hidden = true; }, 5000);
+      if (t && t.matches("th")) return;  // its own handler decides: explain or sort
+      // a game row opens the game
+      if (!t || !t.title || t.matches(".lib-row")) { hideTip(); return; }
+      showTip(t, t.title);
     }, true);  // capture: measure before the element's own click handler can re-render it
   }
 })();

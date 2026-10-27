@@ -5,7 +5,8 @@
 - Games tab: the Player filter treats Showdown names the way Showdown does, ignoring case and spaces, so "Nezergy" and "nezergy" are one player.
 - Team sheets stay closed when a game opens (from Games, or a saved sheet); only a share link that brings sheets opens them.
 - "More detail" opens only that team's card, so the other card no longer jumps. The last choice is still the default for the next game.
-- The sorted column is explained in a line above the table (e.g. "Kills: …"). On phones, tapping a header only sorts; the tap box is for luck words, Performance and sprites, and now appears under what you tapped (it showed in the top-left corner).
+- Phones: the first tap on a table header shows what the column means ("… Tap again to sort."), a second tap on the same header sorts. The tap box (headers, luck words, Performance, sprites) now appears under what you tapped (it showed in the top-left corner).
+- Phones: the Games list shows each team as two lines of three sprites, the two teams side by side.
 - Phones: text boxes and filters use 16px text, so iPhone Safari no longer zooms in when you tap them.
 - Phones: the Games list stacks each game (players under each other, buttons below) instead of scrolling sideways; the main tabs fit on one line; team card moves put the damage bar on its own line so move names have room.
 - Touch screens: buttons, filters and fold-out headings are taller (44px, small buttons 40px) and table headers easier to tap. Hover highlights only on devices with a mouse, so they don't stay on after a tap.

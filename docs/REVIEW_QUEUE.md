@@ -2,7 +2,7 @@
 
 Things only a person can check. Remove an item once checked.
 
-- [ ] Phone, round 2: opening a game from Games leaves Team sheets closed; "More detail" on one card leaves the other alone; the line above the table explains the column you sorted by (useful, or noise on desktop?); tapping a luck word / Performance / a sprite shows its box right under it. Copy for Google Sheets, Copy share link and Download CSV in iPhone Safari still untested.
+- [ ] Phone, round 2: opening a game from Games leaves Team sheets closed; "More detail" on one card leaves the other alone; first tap on a header explains it, second tap sorts; Games list teams in two lines of three, side by side (long names like "chicken parm karm" wrap?); tapping a luck word / Performance / a sprite shows its box right under it. Copy for Google Sheets, Copy share link and Download CSV in iPhone Safari still untested.
 
 - [ ] Phone, after the 2026-10-27 fixes: the tab row fits without the Hide button; tapping a game row in Games opens it; "Hide links and sheets" (now after Download CSV) hides and shows the links; "How each column is counted" under "Every Pokémon" is easy to find. The table area wasn't in any screenshot (headless Edge cut off above it).
 - [ ] Header text: "Kills, damage, MVPs and luck from Pinecord's Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets." Right wording? Should the title "Replay Kill Tracker" change too?
