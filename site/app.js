@@ -109,20 +109,23 @@
   $("run").addEventListener("click", run);
   // One game (the default) or Several games; each has its own input, remembered separately
   let mode = "one";
-  try { mode = localStorage.getItem(MODE_KEY) === "many" ? "many" : "one"; } catch (e) { /* storage blocked */ }
+  try { mode = ["many", "bet"].includes(localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : "one"; } catch (e) { /* storage blocked */ }
   try { $("one-link").value = localStorage.getItem(ONE_KEY) || ""; } catch (e) { /* storage blocked */ }
   $("one-link").addEventListener("input", () => {
     try { localStorage.setItem(ONE_KEY, $("one-link").value); } catch (e) { /* storage blocked */ }
   });
   $("one-link").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
   const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
-  const activeIds = () => RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity);
+  const activeIds = () => (mode === "bet" ? [] : RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
   function setMode(m, load = true) {
     mode = m;
     try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
-    for (const tab of document.querySelectorAll(".modes button")) tab.setAttribute("aria-selected", String(tab.dataset.mode === m));
+    for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.setAttribute("aria-selected", String(tab.dataset.mode === m));
     $("one-input").hidden = m !== "one";
     $("many-input").hidden = m !== "many";
+    $("gambling").hidden = m !== "bet";
+    $("collapse").hidden = m === "bet";
+    $("inputs").hidden = m === "bet" || collapsed;
     view = m === "one" ? "games" : "summary";
     sort = m === "one" ? { field: "player", dir: 1 } : { field: "kills", dir: -1 };
     rows = [];
@@ -132,7 +135,15 @@
     $("status").textContent = "";
     if (load && activeIds().length) run();
   }
-  for (const tab of document.querySelectorAll(".modes button")) tab.addEventListener("click", () => setMode(tab.dataset.mode));
+  for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.addEventListener("click", () => setMode(tab.dataset.mode));
+  // hide the links / sheets box (cleaner screenshots); the results stay
+  let collapsed = false;
+  $("collapse").addEventListener("click", () => {
+    collapsed = !collapsed;
+    $("inputs").hidden = collapsed;
+    $("collapse").textContent = collapsed ? "Show links and sheets" : "Hide links and sheets";
+    $("collapse").setAttribute("aria-expanded", String(!collapsed));
+  });
 
   $("clear").addEventListener("click", () => {
     activeInput().value = "";
@@ -219,6 +230,7 @@
         errors.push(`${replay.id}: could not read the battle log (${e.message || e})`);
       }
     }
+    await addMockSheets(ids);
     await applySheets(errors);
     await applyLuck(errors);
     const ok = results.filter(Boolean).length;
@@ -542,6 +554,22 @@
   }
 
   // ---------- team sheets ----------
+
+  // TEMPORARY (Showdown outage): the saved test game comes with both team sheets, from site/mock/
+  const MOCK_SHEETS = { "gen9nationaldex-2705117998": ["Phlegathon", "RevivalSludge24"] };
+  async function addMockSheets(ids) {
+    const have = new Set(sheetInputs().map((t) => t.trim()));
+    for (const id of ids) {
+      for (const player of MOCK_SHEETS[id] || []) {
+        try {
+          const resp = await fetch(`mock/${id}-${player}.txt`);
+          const text = resp.ok ? (await resp.text()).trim() : "";
+          if (text && !have.has(text)) { addSheetBox(text); have.add(text); $("sheets-wrap").open = true; }
+        } catch (e) { /* no saved sheet: the game still loads */ }
+      }
+    }
+    saveSheets();
+  }
 
   function addSheetBox(text) {
     const box = document.createElement("div");

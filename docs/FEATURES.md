@@ -49,6 +49,11 @@ Status: `todo` · `in progress` · `done`. Source: **user** = asked for, **idea*
 | done | One game / Several games tabs | Requested 2026-10-26: focus on one game, with a tab for a collection (playoffs ~2026-11-09). Done 2026-10-26. |
 | todo | Several leagues, each with its own theme | User 2026-10-26: another section with a different theme later, unsure how: separate links or a league selector. Suggestion: one config per league (name, banner, colours) picked by the link (`?league=pinecord` or `/pinecord/`), so each league shares its own link and there's no selector to explain. |
 | todo | Animated sprites in the local version | The live site shows Showdown's animated sprite for the selected Pokémon; the local version only has the still gen5 copies in `site/sprites/gen5/`. Save `sprites/ani/<id>.gif` for the saved games when there's time (slow download). |
+| todo | YouTube title button (for Pikmon) | Requested 2026-10-27: a button that writes a video title for the loaded game (players, result, standout Pokémon). Format to agree with Pikmon. |
+| todo | Thumbnail info button (for Fingy) | Requested 2026-10-27: a button that gathers what a thumbnail needs (players, teams / sprites, result, MVPs), ready to copy. Which fields: ask Fingy. |
+| todo | Game library per league | Requested 2026-10-27: store and group games so they can be browsed per league, with labels (week, playoffs, players). Needs somewhere to keep them (a file in the repo, or shared storage). Ties in with "Several leagues". |
+| todo | Player stats | Requested 2026-10-27: a page per player across their games, including all of their drafted Pokémon (also ones they never brought). Needs the draft lists. |
+| in progress | Gambling / sportsbook | Requested 2026-10-27: betting on league games. Placeholder Gambling tab added 2026-10-27 (next to One game / Playoffs); rules, odds and settling from replays to design. |
 | todo | Readability of the tables | User 2026-10-26: "hard to read", open to suggestions. Ideas: column groups (Kills / Damage / Healing / Switches / Luck / Survival) to show or hide, Player + Pokémon columns that stay put while scrolling sideways, dim zeros, a colour per player. |
 
 ## Done

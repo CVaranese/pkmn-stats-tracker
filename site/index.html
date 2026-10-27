@@ -20,10 +20,17 @@
 
     <nav class="modes" role="tablist" aria-label="View">
       <button role="tab" data-mode="one" aria-selected="true" type="button">One game</button>
-      <button role="tab" data-mode="many" aria-selected="false" type="button">Several games</button>
+      <button role="tab" data-mode="many" aria-selected="false" type="button">Playoffs</button>
+      <button role="tab" data-mode="bet" aria-selected="false" type="button">Gambling</button>
+      <button id="collapse" class="collapse" type="button" aria-controls="inputs" aria-expanded="true">Hide links and sheets</button>
     </nav>
 
-    <section class="input">
+    <section id="gambling" class="gambling" hidden>
+      <h2 class="section-title">Gambling</h2>
+      <p>Bets on league games, settled from the replays. Not open yet.</p>
+    </section>
+
+    <section class="input" id="inputs">
       <div id="one-input">
         <label for="one-link">Replay link</label>
         <input id="one-link" type="text" spellcheck="false" autocomplete="off"
