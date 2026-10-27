@@ -100,6 +100,43 @@
       JSON.stringify(onMimi));
   }
 
+  // per-move uses, damage, KOs (counted by hand from the log); the parts add up to Dealt %
+  {
+    const rows = RS.gameRows(await (await fetch("fixtures/gen9nationaldex-2705117998.json")).json());
+    const moves = (sp) => Object.fromEntries(rows.find((r) => r.pokemon === sp).move_stats
+      .map((m) => [m.move, [m.uses, m.kos, m.z ? "Z" : ""]]));
+    check("moves: Volcarona Quiver Dance 1, Flamethrower 1 + KO, Bug Buzz 1 + KO", same(moves("Volcarona"),
+      { Flamethrower: [1, 1, ""], "Bug Buzz": [1, 1, ""], "Quiver Dance": [1, 0, ""] }), JSON.stringify(moves("Volcarona")));
+    const chomp = moves("Garchomp");
+    check("moves: Garchomp Earthquake KO, Stealth Rock no damage, Rough Skin / Rocky Helmet as named sources",
+      same(chomp.Earthquake, [1, 1, ""]) && same(chomp["Stealth Rock"], [1, 0, ""]) && same(chomp["Rough Skin (ability)"], [0, 0, ""]) &&
+      same(chomp["Rocky Helmet (item)"], [0, 0, ""]) && !("" in chomp), JSON.stringify(chomp));
+    check("moves: Kyurem's Tectonic Rage is a Z-move", same(moves("Kyurem")["Tectonic Rage"], [1, 0, "Z"]),
+      JSON.stringify(moves("Kyurem")));
+    const off = rows.filter((r) => r.brought && Math.abs(r.move_stats.reduce((t, m) => t + m.dealt_pct, 0) - r.damage_dealt_pct) > 0.05 ||
+      r.move_stats.reduce((t, m) => t + m.kos, 0) !== r.kills).map((r) => r.pokemon);
+    check("moves: per-move damage and KOs add up to Dealt % and Kills", off.length === 0, JSON.stringify(off));
+  }
+  {
+    const b = RS.parseBattle(`|player|p1|Alice|
+|player|p2|Bob|
+|switch|p1a: Burner|Sableye, L50|100/100
+|switch|p2a: Victim|Garchomp, L50|100/100
+|turn|1
+|move|p1a: Burner|Leech Seed|p2a: Victim
+|-start|p2a: Victim|move: Leech Seed
+|turn|2
+|-damage|p2a: Victim|88/100|[from] Leech Seed|[of] p1a: Burner
+|move|p2a: Victim|Spikes|p1a: Burner
+|-sidestart|p1: Alice|Spikes
+|turn|3
+|switch|p1a: Fresh|Garchomp, L50|100/100
+|-damage|p1a: Fresh|88/100|[from] Spikes`);
+    const seed = b.moves.get("p1: Burner").get("Leech Seed"), spikes = b.moves.get("p2: Victim").get("Spikes");
+    check("moves: Leech Seed and Spikes damage go to the move", seed.dealt === 12 && seed.uses === 1 &&
+      spikes.dealt === 12 && spikes.uses === 1, JSON.stringify([seed, spikes]));
+  }
+
   // raw HP: % drop x the target's max HP. Only jinrachi has a sheet (max HP set by hand here).
   {
     const rows = RS.gameRows(await (await fetch("fixtures/gen9nationaldex-2705111047.json")).json());
@@ -122,6 +159,17 @@
     check("summary: damage totals, HP blank when unknown", prim.damage_dealt_pct === 300 && prim.damage_dealt_hp === 1029 &&
       prim.damage_taken_hp === "" && volc.damage_dealt_pct === 148 && volc.damage_dealt_hp === "" &&
       volc.damage_taken_hp === 375, JSON.stringify([prim, volc]));
+    // per-move HP adds up to Dealt HP (Primarina: all targets have a sheet)
+    const primRow = rows.find((r) => r.pokemon === "Primarina");
+    check("moves: per-move HP adds up to Dealt HP", Math.abs(primRow.move_stats.reduce((t, m) => t + m.dealt_hp, 0) - 1029) <= 2,
+      JSON.stringify(primRow.move_stats));
+  }
+  // every real game: each Pokémon's per-move damage and KOs add up to its Dealt % and Kills
+  for (const id of Object.keys(REAL)) {
+    const rows = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
+    const off = rows.filter((r) => Math.abs(r.move_stats.reduce((t, m) => t + m.dealt_pct, 0) - r.damage_dealt_pct) > 0.05 ||
+      r.move_stats.reduce((t, m) => t + m.kos, 0) !== r.kills).map((r) => r.pokemon);
+    check(`${id}: per-move damage and KOs add up`, off.length === 0, JSON.stringify(off));
   }
 
   // ---- summary across the three Fayz/Ryan + soupy games ----

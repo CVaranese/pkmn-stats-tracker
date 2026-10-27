@@ -122,6 +122,9 @@
   const ENTRY_HAZARDS = new Set([...HAZARDS, "stickyweb"]); // counted as set / removed / turns up
   const WEATHERS = new Set(["sandstorm", "hail", "snow"]);
   const STATUS_DAMAGE = new Set(["brn", "psn", "tox"]);
+  // damage with no move behind it, named for the per-move list: "Rough Skin (ability)", "Burn (status)"...
+  const STATUS_NAMES = { brn: "Burn", psn: "Poison", tox: "Poison" };
+  const isSource = (name) => / \((ability|item|status|weather)\)$/.test(name);
   const DELAYED_MOVES = new Set(["futuresight", "doomdesire"]);
   const HEAL_WISHES = new Set(["healingwish", "lunardance"]); // heal the user's replacement
   const SILENT_HEALS = new Set(["rest", "leechseed"]);        // the only real heals logged [silent]
@@ -149,6 +152,7 @@
     const latestByKey = new Map();      // mon key -> its most recent stint
 
     let mover = null;                   // stint whose move is resolving
+    let moveName = null;                // that move, as the log names it (per-move damage / KOs)
     // Per-target state, keyed by mon key (it survives switching out); values are stints.
     const statusSrc = new Map();        // mon key -> who inflicted its status
     const effectSrc = new Map();        // 'key|effect' -> source (Leech Seed, Salt Cure, perish...)
@@ -162,7 +166,7 @@
     let ejected = null;                 // stint whose Eject Button / Eject Pack just went off
     let prevFrom = "";                  // [from] of the previous line (what a [silent] heal follows)
     const kills = [];                   // [killer stint or null, kind, victim stint]
-    const hits = [];                    // [dealer stint or null, target stint, % of max HP lost]
+    const hits = [];                    // [dealer stint or null, target stint, % of max HP lost, by hazard, move or null]
     const heals = [];                   // [healer stint, target stint, % of max HP restored]
 
     // Luck: every random roll the log shows, with what luck.js needs to work out its odds.
@@ -181,7 +185,7 @@
     let zPending = null;                // stint whose |-zpower| line came just before its Z-move
 
     function newStint(key, sp) {
-      const s = { key, side: sideOf(key), species: sp, hp: 100, ...zeroCounts(), prev: latestByKey.get(key),
+      const s = { key, side: sideOf(key), species: sp, hp: 100, ...zeroCounts(), prev: latestByKey.get(key), moves: new Map(),
         form: sp, types: null, boosts: { accuracy: 0, evasion: 0 }, critBoost: 0, laser: false, semiInv: false };
       stints.push(s);
       latestByKey.set(key, s);
@@ -210,11 +214,11 @@
     }
 
     /** Record HP lost by a stint; the dealer only when it is an opponent. */
-    function hit(target, source, newHp, hazard = false) {
+    function hit(target, source, newHp, hazard = false, move = null) {
       const lost = Math.round((target.hp - newHp) * 100) / 100;
       target.hp = newHp;
       const dealer = source && source.side !== target.side ? source : null;
-      if (lost > 0) hits.push([dealer, target, lost, hazard && !!dealer]);
+      if (lost > 0) hits.push([dealer, target, lost, hazard && !!dealer, dealer ? move : null]);
     }
 
     /** Record HP restored to a stint; a healer from the other side doesn't count (heals itself). */
@@ -397,6 +401,11 @@
         turnPlayed();
         mover = stintOf(parts[1]);
         if (zPending === mover && !mover.zMove) [mover.zMove, mover.zTurn] = [parts[2], turns];
+        moveName = parts[2];
+        const used = mover.moves.get(moveName) || { uses: 0, z: false };
+        used.uses += 1;
+        if (zPending === mover) used.z = true;
+        mover.moves.set(moveName, used);
         zPending = null;
         const move = norm(parts[2]);
         mover.semiInv = false; // its Fly / Dig turn is over
@@ -422,6 +431,7 @@
         // Future Sight landing: the damage line that follows belongs to its user
         endMove();
         mover = delayedSrc.get(parts[1].slice(0, 2) + "|" + norm(parts[2])) || null;
+        moveName = parts[2].replace(/^move: /, "");
       } else if (cmd === "-status") {
         const target = monKey(parts[1]);
         const frm = tags.from || "";
@@ -591,29 +601,34 @@
       } else if (cmd === "-sethp") {
         // Pain Split: HP going down is damage by the move's user
         const hp = hpOf(parts[2]);
-        if (hp !== null) hit(stintOf(parts[1]), mover, hp);
+        if (hp !== null) hit(stintOf(parts[1]), mover, hp, false, moveName);
       } else if (cmd === "-damage") {
         const target = monKey(parts[1]);
         let source, kind, hazard = false;
+        let move = null;                // the move it counts for: the one resolving, or a hazard / Leech Seed...
         if (!("from" in tags) || /^pokemon:/i.test(tags.from)) { // no tag, or Disguise bust
-          source = mover; kind = "direct";
+          source = mover; kind = "direct"; move = moveName;
         } else {
           const frm = norm(tags.from);
           kind = "passive";
-          if (STATUS_DAMAGE.has(frm)) source = statusSrc.get(target);
-          else if ("of" in tags && monKey(tags.of) !== target) source = stintOf(tags.of); // Leech Seed, Rocky Helmet...
-          else if (HAZARDS.has(frm)) { source = hazardSrc.get(sideOf(target) + "|" + frm); hazard = true; }
-          else if (WEATHERS.has(frm)) source = weatherSrc;
-          else if (effectSrc.has(target + "|" + frm)) source = effectSrc.get(target + "|" + frm); // Salt Cure, Curse, binding
+          const named = tags.from.replace(/^move: /, "");
+          if (STATUS_DAMAGE.has(frm)) { source = statusSrc.get(target); move = STATUS_NAMES[frm] + " (status)"; }
+          else if ("of" in tags && monKey(tags.of) !== target) { // Leech Seed, Rocky Helmet...
+            source = stintOf(tags.of);
+            const ai = /^(ability|item): (.+)$/.exec(tags.from);
+            move = ai ? `${ai[2]} (${ai[1]})` : named;
+          } else if (HAZARDS.has(frm)) { source = hazardSrc.get(sideOf(target) + "|" + frm); hazard = true; move = named; }
+          else if (WEATHERS.has(frm)) { source = weatherSrc; move = named + " (weather)"; }
+          else if (effectSrc.has(target + "|" + frm)) { source = effectSrc.get(target + "|" + frm); move = named; } // Salt Cure, Curse, binding
           else source = null; // recoil, Life Orb, confusion, etc.
         }
         if (source && source.side !== sideOf(target)) lastOppHit.set(target, source);
         if ((parts[2] || "").startsWith("0")) {
           const [killer, k] = credit(target, source, kind);
-          pendingKo.set(target, [killer, k, hazard && killer === source]);
+          pendingKo.set(target, [killer, k, hazard && killer === source, killer === source ? move : null]);
         }
         const hp = hpOf(parts[2]);
-        if (hp !== null) hit(stintOf(parts[1]), source, hp, hazard);
+        if (hp !== null) hit(stintOf(parts[1]), source, hp, hazard, move);
         if (!("from" in tags) && ctx && mover === ctx.actor) moveHit(stintOf(parts[1]), false, parts[2]);
         if (ctx && stintOf(parts[1]) === ctx.actor && hpOf(parts[2]) === 0) ctx.actorFainted = true; // Rocky Helmet...
         if (norm(tags.from || "") === "confusion") {
@@ -625,21 +640,22 @@
         victim.deaths += 1;
         if (!victim.acted) victim.koBeforeMoving += 1;
         statusOf.delete(victim.key);
-        let killer, kind, byHazard = false;
+        let killer, kind, byHazard = false, move = null;
         if (pendingKo.has(victim.key)) {
-          [killer, kind, byHazard] = pendingKo.get(victim.key);
+          [killer, kind, byHazard, move] = pendingKo.get(victim.key);
           pendingKo.delete(victim.key);
         } else if (destinyBond && destinyBond.side !== victim.side) {
-          [killer, kind] = [destinyBond, "direct"];
+          [killer, kind, move] = [destinyBond, "direct", "Destiny Bond"];
         } else if (effectSrc.has(victim.key + "|perish")) {
           [killer, kind] = credit(victim.key, effectSrc.get(victim.key + "|perish"), "passive");
+          if (killer === effectSrc.get(victim.key + "|perish")) move = "Perish Song";
         } else {
           [killer, kind] = [null, "none"]; // Explosion, Memento, Final Gambit...
         }
         if (killer && (kind === "direct" || kind === "passive")) killer[kind] += 1;
         if (killer && byHazard) killer.hazardKills += 1;
-        hit(victim, kind === "direct" || kind === "passive" ? killer : null, 0); // HP left at a faint with no 0 HP hit
-        kills.push([killer, kind, victim]);
+        hit(victim, kind === "direct" || kind === "passive" ? killer : null, 0, false, move); // HP left at a faint with no 0 HP hit
+        kills.push([killer, kind, victim, move]);
       } else if (cmd === "-message" && (parts[1] || "").includes("forfeited")) {
         forfeited = true;
       } else if (cmd === "-message" && / lost due to inactivity\.$/.test(parts[1] || "")) {
@@ -698,6 +714,23 @@
     }
     const healing = new Map();          // mon key -> {self, given} in % of the healed Pokemon's max HP
     for (const [h, t, pct] of heals) add(healing, NO_HEALING, h.key, h.key === t.key ? "self" : "given", pct);
+    // mon key -> move name ("" = no move: Rough Skin, Rocky Helmet, burn...) -> {uses, z, dealt %, kos}
+    const moves = new Map();
+    const moveOf = (key, name) => {
+      if (!moves.has(key)) moves.set(key, new Map());
+      const m = moves.get(key);
+      if (!m.has(name)) m.set(name, { uses: 0, z: false, dealt: 0, kos: 0 });
+      return m.get(name);
+    };
+    for (const s of stints) {
+      for (const [name, u] of s.moves) {
+        const m = moveOf(s.key, name);
+        m.uses += u.uses;
+        m.z = m.z || u.z;
+      }
+    }
+    for (const [d, , pct, , mv] of hits) if (d) { const m = moveOf(d.key, mv || ""); m.dealt = round2(m.dealt + pct); }
+    for (const [k, kind, , mv] of kills) if (k && (kind === "direct" || kind === "passive")) moveOf(k.key, mv || "").kos += 1;
 
     // Zoroark at team preview that never showed itself, while fewer Pokemon were seen than brought
     // (else it stayed home, e.g. bring 4 of 6): its disguised stints may sit on other Pokemon
@@ -713,9 +746,9 @@
     return {
       // alive at the end: its latest stay on the field didn't end in a faint (Revival Blessing brings one back)
       alive: new Set([...latestByKey].filter(([, st]) => !st.deaths).map(([k]) => k)),
-      players, preview, species, stats, damage, healing, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark,
+      players, preview, species, stats, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
-      hits: hits.map(([d, t, pct, hz]) => [keyOf(d), keyOf(t), pct, hz]),
+      hits: hits.map(([d, t, pct, hz, mv]) => [keyOf(d), keyOf(t), pct, hz, mv]),
       heals: heals.map(([h, t, pct]) => [keyOf(h), keyOf(t), pct]),
       rolls: rolls.map((r) => ({ ...r, actor: keyOf(r.actor), ...(r.target ? { target: keyOf(r.target) } : {}) })),
     };
@@ -768,7 +801,12 @@
           hidden_zoroark: b.hiddenZoroark[side] ? 1 : 0,
           replay_url: REPLAY_HOST + rid,
           // not exported: what addDamageHp needs once max HP is known
-          mon_key: key, hits_dealt: b.hits.filter(([d]) => d && d === key).map(([, t, pct, hz]) => [t, pct, hz]),
+          mon_key: key, hits_dealt: b.hits.filter(([d]) => d && d === key).map(([, t, pct, hz, mv]) => [t, pct, hz, mv || ""]),
+          // per move, most damage first, then the other sources ("Rough Skin (ability)"..., source: true), then ""
+          // (damage credited with no source named, e.g. a passive KO); dealt_hp added by addDamageHp
+          move_stats: [...((key && b.moves.get(key)) || [])].map(([move, m]) => ({ move, source: isSource(move), uses: m.uses,
+            z: m.z, dealt_pct: m.dealt, kos: m.kos, dealt_hp: "" })).sort((a, b) => (a.move === "") - (b.move === "") ||
+            a.source - b.source || b.dealt_pct - a.dealt_pct || b.kos - a.kos || b.uses - a.uses),
           rolls: b.rolls, // the whole game's, shared by its rows
           heals_given: b.heals.filter(([h, t]) => h && h === key && t !== key).map(([, t, pct]) => [t, pct]),
         };
@@ -834,6 +872,7 @@
       const dealt = oppKnown ? hpSum(hits) : "";
       r.damage_dealt_hp = dealt;
       r.hazard_damage_hp = dealt === "" ? "" : hpSum(hits.filter(([, , hz]) => hz));
+      for (const m of r.move_stats || []) m.dealt_hp = dealt === "" ? "" : hpSum(hits.filter(([, , , mv]) => mv === m.move));
       // healing stays within the team, so its own sheet covers both
       r.healing_hp = own ? Math.round((r.healing_pct * r.max_hp) / 100) : "";
       r.healing_given_hp = own ? hpSum(r.heals_given || []) : "";

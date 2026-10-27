@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Team cards: a "Best move" line (the move that did the most damage), and, under "More detail", the Pokémon's moves and damage sources, one line each: times used, a bar for its share of all its damage, damage, KOs (HP with team sheets). Abilities, items, status and weather are named ("Rough Skin (ability)", "Burn (status)"). With a sheet, moves it never used show as "not used".
+- Team cards open in a simple view (Kills, Dealt, Taken, Survived, best move); "More detail" adds turns, healing, moves and luck for both cards and is remembered in the browser.
 - Team cards: a nicknamed Pokémon shows its nickname as the name, with the species under it (and "Nickname (Species)" in the sprite tooltip).
 - With team sheets, damage, hazard damage and healing show in HP only: the team cards drop the % (Dealt, Taken, Healed), and the tables (and Copy for Google Sheets / CSV) drop the Dealt % / Taken % / Hazard % / Healed % / Heal given % columns when every brought Pokémon has the HP number.
 - One game: "Copy YouTube title" (e.g. "PPPPP Week 6 Big Large Vs Nezergy") and "Copy thumbnail info" (player names and each team's MVP) buttons under the game line.

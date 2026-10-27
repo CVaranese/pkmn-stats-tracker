@@ -467,6 +467,7 @@
     const cards = players.map((p) => teamCard(p, rows.filter((r) => r.player === p)));
     box.replaceChildren(el("h2", "section-title", "This game"), head, videoButtons(g.replay_id), el("div", "team-grid"));
     box.lastChild.append(...cards);
+    box.classList.toggle("simple", !detailed);
   }
 
   // short league name for video titles, e.g. "PPPPP Week 6 Big Large Vs Nezergy" (PeterPikmon's videos)
@@ -597,21 +598,93 @@
     const perf = el("span", "mon-perf", `Performance ${r.mvp_score}`);
     perf.title = DESCRIPTIONS.mvp_score;
     who.appendChild(perf);
+    const best = bestMove(r);
+    who.appendChild(el("span", "mon-best", best ? `Best move: ${best.move}` +
+      (best.kos ? `, ${best.kos} KO${best.kos > 1 ? "s" : ""}` : "") : " "));
     const grid = el("div", "stats");
+    // .adv: only in the detailed view (see setDetailed)
+    const adv = (node) => { node.classList.add("adv"); return node; };
     grid.append(
       stat("Kills", r.kills + (r.passive_kills ? ` (${r.passive_kills} passive)` : ""), "kills"),
       amountStat("Dealt", [r], ["damage_dealt_pct"]),
       amountStat("Taken", [r], ["damage_taken_pct"]),
-      stat("Turns on field", r.turns_on_field, "turns_on_field"),
       stat("Survived", r.survived ? "yes" : "no", "survived"),
-      amountStat("Healed", [r], ["healing_pct", "healing_given_pct"]));
-    const luck = el("div", "mon-luck");
+      adv(stat("Turns on field", r.turns_on_field, "turns_on_field")),
+      adv(amountStat("Healed", [r], ["healing_pct", "healing_given_pct"])));
+    const luck = el("div", "mon-luck adv");
     luck.append(el("span", "stat-label", "Luck"), luckBadge(r.luck, "pokemon"));
     const mark = el("p", "mon-mark");
     const mz = megaZ(r);
     if (mz) mark.appendChild(el("span", "mark " + (r.mega ? "mega" : "z"), mz)); else mark.textContent = "\u00a0";
-    return [sprite(r.pokemon, ["ani/", "dex/", "gen5/"], "big"), who, mark, grid, luck];
+    const more = Object.assign(el("button", "small detail-toggle"), { type: "button" });
+    more.addEventListener("click", () => setDetailed(!detailed));
+    more.textContent = detailed ? "Less detail" : "More detail";
+    more.setAttribute("aria-pressed", String(detailed));
+    return [sprite(r.pokemon, ["ani/", "dex/", "gen5/"], "big"), who, mark, grid, adv(moveList(r, best)), luck, more];
   }
+
+  // simple view (name, best move, kills, damage, survived) or detailed (+ turns, healing, damage sources, luck);
+  // one switch for both team cards, remembered in the browser
+  const DETAIL_KEY = "replay-kill-tracker.detailed";
+  let detailed = false;
+  try { detailed = localStorage.getItem(DETAIL_KEY) === "1"; } catch (e) { /* storage blocked */ }
+  function setDetailed(on) {
+    detailed = on;
+    try { localStorage.setItem(DETAIL_KEY, on ? "1" : "0"); } catch (e) { /* storage blocked */ }
+    $("teams").classList.toggle("simple", !on);
+    for (const b of document.querySelectorAll(".detail-toggle")) {
+      b.textContent = on ? "Less detail" : "More detail";
+      b.setAttribute("aria-pressed", String(on));
+    }
+  }
+
+  /** The move that did the most damage (ties: more KOs); none when no move did damage. */
+  function bestMove(r) {
+    const used = (r.move_stats || []).filter((m) => m.move && !m.source && (m.dealt_pct > 0 || m.kos > 0));
+    return used.sort((a, b) => b.dealt_pct - a.dealt_pct || b.kos - a.kos)[0] || null;
+  }
+
+  /**
+   * Its moves, one line each: name and times used, a bar for its share of the damage (longest = the move that
+   * did the most), damage, KOs. With a team sheet, the sheet moves it never used are listed greyed out.
+   */
+  function moveList(r, best) {
+    const key = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const all = r.move_stats || [];
+    const ms = all.filter((m) => m.move && !m.source);
+    const sources = all.filter((m) => m.source && (m.dealt_pct > 0 || m.kos > 0));
+    const other = all.find((m) => !m.move && (m.dealt_pct > 0 || m.kos > 0));
+    const unused = r.set ? r.set.moves.filter((n) => !ms.some((m) => key(m.move) === key(n))) : [];
+    const total = all.reduce((t, m) => t + m.dealt_pct, 0);
+    const box = el("div", "move-list");
+    const h = el("h4", "", "Moves and damage sources");
+    h.title = "Each bar is that line's share of all the damage this Pokémon did.";
+    box.appendChild(h);
+    const line = (m, name, cls, title) => {
+      const row = el("div", "move-row " + cls);
+      const who = el("span", "move-name", name);
+      if (m && m.z) who.append(" ", el("span", "mark z", "Z"));
+      if (m && m.uses) who.append(" ", el("span", "move-uses", "×" + m.uses));
+      if (title) who.title = title;
+      const bar = el("span", "move-bar");
+      const fill = el("span", "");
+      const share = m && total ? (100 * m.dealt_pct) / total : 0;
+      fill.style.width = share + "%";
+      if (m && total) bar.title = `${Math.round(share)}% of its damage`;
+      bar.appendChild(fill);
+      const dealt = el("span", "move-num", m && m.dealt_pct ? dealtText(m) : m ? "–" : "not used");
+      const kos = el("span", "move-num", m && m.kos ? `${m.kos} KO${m.kos > 1 ? "s" : ""}` : "");
+      row.append(who, bar, dealt, kos);
+      box.appendChild(row);
+    };
+    for (const m of ms) line(m, m.move, m === best ? "best" : "");
+    for (const m of sources) line(m, m.move, "other");
+    if (other) line(other, "Other", "other", "Damage or a KO credited to it with no move or effect named in the log.");
+    for (const n of unused) line(null, n, "unused"); // sheet moves it never used: last
+    if (!ms.length && !unused.length && !sources.length && !other) box.appendChild(el("p", "move-none", "It didn't use a move."));
+    return box;
+  }
+  const dealtText = (m) => (typeof m.dealt_hp === "number" ? m.dealt_hp + " HP" : pct(m.dealt_pct));
 
   /** The rows and columns currently shown (also what copy/download export). */
   function currentTable() {
