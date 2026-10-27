@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- Games tab: tap anywhere on a game's row to open it in One game (same as Stats).
+- "Hide links and sheets" moved from the tab row (it ran off the screen on phones) to the results toolbar, next to Download CSV. Changing tabs shows the links again.
+- "How kills and damage are counted" is now "How each column is counted", right under the table's title instead of at the bottom of every tab.
+- New header text: what the site gives (kills, damage, MVPs, luck) and where to start (Games, or a replay link).
 - Games tab: a "Bracket" section (closed by default, since it shows results) with the league's Challonge bracket, loaded only when opened.
 - Games tab: the three test games are now grouped as "Samples" (were Week 1 / Week 2), so the site can be tried while Showdown is down. League weeks will list above them.
 - Team cards: a "Best move" line (the move that did the most damage), and, under "More detail", the Pokémon's moves and damage sources, one line each: times used, a bar for its share of all its damage, damage, KOs (HP with team sheets). Abilities, items, status and weather are named ("Rough Skin (ability)", "Burn (status)"). With a sheet, moves it never used show as "not used".

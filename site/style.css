@@ -120,13 +120,13 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .modes { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--outline); }
 .modes button { border: 2px solid transparent; border-bottom: 0; border-radius: 6px 6px 0 0; margin-bottom: -2px;
   background: transparent; padding: 8px 16px; font-weight: 600; color: var(--muted); }
-.modes .collapse { margin-left: auto; align-self: center; margin-bottom: 4px; border: 1px solid var(--border);
-  border-radius: 6px; padding: 5px 10px; font-weight: 500; font-size: 14px; background: var(--surface); color: var(--text); }
 .gambling { padding: 8px 0 24px; }
 .library { padding: 4px 0 24px; }
 .lib-table .lib-week th { position: static; cursor: default; font-size: 15px; padding-top: 16px; background: var(--bg); }
 .lib-table .lib-week:first-child th { padding-top: 8px; }
 .lib-table td:first-child { width: 100%; }
+.lib-row { cursor: pointer; }
+.lib-row:hover td { background: var(--row-alt); }
 .lib-table .lib-actions button { margin-left: 6px; }
 .lib-match { display: flex; align-items: center; gap: 14px; }
 .lib-name { font-weight: 600; margin-bottom: 2px; }
@@ -251,7 +251,7 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .die.level-0 circle, .die.level-1 circle { fill: var(--error); }
 .die.level-3 circle, .die.level-4 circle { fill: var(--accent); }
 
-.rules { margin-top: 28px; color: var(--muted); max-width: 80ch; }
+.rules { margin: 0 0 12px; color: var(--muted); max-width: 80ch; }
 .rules summary { cursor: pointer; color: var(--text); font-weight: 600; }
 .rules li { margin: 4px 0; }
 

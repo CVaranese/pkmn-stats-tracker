@@ -2,6 +2,9 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Phone, after the 2026-10-27 fixes: the tab row fits without the Hide button; tapping a game row in Games opens it; "Hide links and sheets" (now after Download CSV) hides and shows the links; "How each column is counted" under "Every Pokémon" is easy to find. The table area wasn't in any screenshot (headless Edge cut off above it).
+- [ ] Header text: "Kills, damage, MVPs and luck from Pinecord's Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets." Right wording? Should the title "Replay Kill Tracker" change too?
+
 - [ ] Bracket (Games tab): open "Bracket". Does the Challonge bracket load in the frame, is 640px tall enough, and does it look right on a phone? Only the closed state was screenshotted.
 
 - [ ] Simple / detailed view: cards open simple; press "More detail" on one card: both cards switch, and it stays after reloading. Is the split right (what's in simple vs detailed)? Is the button's place (bottom of the Pokémon box) OK? "Moves and damage sources": Garchomp shows Rocky Helmet (item) 115 HP and Rough Skin (ability) 84 HP as their own lines; bars are each line's share of all its damage (hover a bar for the %). Move table and Best move: open `?r=gen9nationaldex-2705117998` (with the two sample sheets) and `?r=gen9nationaldex-2705111047` (no sheets). Click through each team's Pokémon. On a game you remember, are the uses, damage and KOs per move right? Is "No move" a clear name for Rough Skin / Rocky Helmet / burn damage? Cards now stretch so both Team bands line up: OK? Phone width not checked.

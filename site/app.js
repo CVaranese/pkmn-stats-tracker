@@ -41,7 +41,7 @@
     megas: "Megas", mega_wins: "Mega wins", z_moves: "Z-moves", z_wins: "Z wins",
     mvp_score: "Performance", mvp: "Team MVP", mvps: "MVPs", mvp_score_per_game: "Performance / game",
   };
-  // column header tooltips (title text); "How kills and damage are counted" has the full rules
+  // column header tooltips (title text); "How each column is counted" has the full rules
   const DESCRIPTIONS = {
     replay_id: "Showdown replay ID.", date: "Day the replay was uploaded.", format: "Showdown format.",
     player: "The player who brought this Pokémon.", opponent: "The other player in that game.",
@@ -129,8 +129,8 @@
     $("many-input").hidden = m !== "many";
     $("gambling").hidden = m !== "bet";
     $("library").hidden = m !== "games";
-    $("collapse").hidden = noInputs;
-    $("inputs").hidden = noInputs || collapsed;
+    setCollapsed(false);  // the button lives with the results, which a mode change hides
+    $("inputs").hidden = noInputs;
     view = m === "one" ? "games" : "summary";
     sort = m === "one" ? { field: "player", dir: 1 } : { field: "kills", dir: -1 };
     rows = [];
@@ -222,6 +222,10 @@
     actions.append(open("Watch", "Play the battle here, without the result", () => watchHere(g)),
       open("Stats", "Open in One game (shows the result)", () => openGame(g.id)));
     tr.append(match, el("td", "num", results ? g.turns + " turns" : ""), el("td", "", g.date), el("td", "muted", g.note), actions);
+    // the whole row opens the game, like Stats (its own buttons keep their action)
+    tr.className = "lib-row";
+    tr.title = "Open in One game (shows the result)";
+    tr.addEventListener("click", (e) => { if (!e.target.closest("button")) openGame(g.id); });
     return tr;
   }
 
@@ -283,13 +287,12 @@
     $("watch-frame").hidden = false;
   });
   // hide the links / sheets box (cleaner screenshots); the results stay
-  let collapsed = false;
-  $("collapse").addEventListener("click", () => {
-    collapsed = !collapsed;
-    $("inputs").hidden = collapsed;
-    $("collapse").textContent = collapsed ? "Show links and sheets" : "Hide links and sheets";
-    $("collapse").setAttribute("aria-expanded", String(!collapsed));
-  });
+  function setCollapsed(on) {
+    $("inputs").hidden = on;
+    $("collapse").textContent = on ? "Show links and sheets" : "Hide links and sheets";
+    $("collapse").setAttribute("aria-expanded", String(!on));
+  }
+  $("collapse").addEventListener("click", () => setCollapsed($("collapse").getAttribute("aria-expanded") === "true"));
 
   $("clear").addEventListener("click", () => {
     activeInput().value = "";

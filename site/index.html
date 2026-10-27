@@ -26,7 +26,7 @@
         alt="Peter Pikmon's Pinecord Pokémon Pissfest: a Pineco in a urinal on a mint tiled wall">
       <div>
       <h1>Replay Kill Tracker</h1>
-      <p class="lede">Paste Pokémon Showdown replay links to count kills and deaths per Pokémon. Works for singles and doubles. Copy the table into Google Sheets or download it as a CSV.</p>
+      <p class="lede">Kills, damage, MVPs and luck from Pinecord's Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets.</p>
       </div>
     </header>
 
@@ -35,7 +35,6 @@
       <button role="tab" data-mode="games" aria-selected="false" type="button">Games</button>
       <button role="tab" data-mode="many" aria-selected="false" type="button">Playoffs</button>
       <button role="tab" data-mode="bet" aria-selected="false" type="button">Gambling</button>
-      <button id="collapse" class="collapse" type="button" aria-controls="inputs" aria-expanded="true">Hide links and sheets</button>
     </nav>
 
     <section id="gambling" class="gambling" hidden>
@@ -108,6 +107,30 @@
         <iframe id="watch-frame" title="Replay player" hidden></iframe>
       </details>
       <h2 class="section-title" id="table-title">Every Pokémon</h2>
+      <details class="rules">
+        <summary>How each column is counted</summary>
+        <ul>
+          <li><b>Direct kill:</b> the Pokémon whose attack landed the KO hit. A spread move that KOs two Pokémon earns two kills. Destiny Bond counts as direct.</li>
+          <li><b>Passive kill:</b> indirect damage goes to whoever caused it: who inflicted the burn or poison, who set Stealth Rock, Spikes or the weather, the Leech Seed / Salt Cure / Curse user, the Rocky Helmet or Rough Skin holder, the Perish Song user.</li>
+          <li><b>Self-inflicted KOs:</b> recoil, Life Orb, confusion, the Pokémon's own weather, or a hit from its own ally. The last opponent that damaged it gets a passive kill. If no opponent ever damaged it, nobody gets the kill.</li>
+          <li><b>Explosion, Memento, Final Gambit, Healing Wish:</b> a death, no kill.</li>
+          <li><b>Forfeits:</b> Pokémon still standing are not counted as deaths.</li>
+          <li><b>Random Battles</b> have no team preview, so only Pokémon that were sent out are listed.</li>
+          <li><b>Damage dealt / taken:</b> HP lost per hit, credited like kills (direct hits to the attacker, indirect damage to its cause). Overkill doesn't count: a hit only counts the HP the target had left. Healing doesn't count, but later damage after a heal does.</li>
+          <li><b>Self-inflicted damage</b> (recoil, Life Orb, confusion, Substitute's cost, own weather, an ally's hit) counts as taken, with no dealer. Hits on a Substitute count 0; Mimikyu's Disguise breaking counts for the attacker.</li>
+          <li><b>Damage in %</b> is % of the target's max HP. <b>Damage in HP</b> needs team sheets: % × the target's max HP. Public replays round HP to whole %, so each hit is only accurate to about ±1% of max HP (about ±4 HP on a 400 HP Pokémon). Leaderboard HP totals are blank unless every game in the row has a sheet.</li>
+          <li><b>Hazards:</b> Hazard % / HP is the part of damage dealt done by Stealth Rock, Spikes or Steelsurge the Pokémon set; Hazard KOs is the part of its passive kills. Hazards set counts each layer. Hazards removed counts hazards cleared from its own side (Defog, Rapid Spin…), not Defog clearing its own team's hazards from the other side. After Court Change, the swapped hazards count as the Court Change user's. Hazard turns (per player): turns that ended with a hazard on the opponent's side.</li>
+          <li><b>Healing:</b> Healed % is HP a Pokémon restored to itself (Leftovers, Recover, Rest, draining moves, Poison Heal, berries, Grassy Terrain…). Heal given % is HP it restored to a teammate (Wish, Healing Wish, Lunar Dance, Heal Pulse…). Both are in % of the healed Pokémon's max HP, and in HP with team sheets. Regenerator doesn't show up as a heal in replays, so it isn't counted.</li>
+          <li><b>Switches</b> are counted on the Pokémon that left: Switches = switched out by choice, Pivots = left through its own move (U-turn, Volt Switch, Flip Turn, Parting Shot, Teleport…), Forced out = Roar, Whirlwind, Dragon Tail, Red Card, Eject Button or Emergency Exit. In after KO counts on the Pokémon that came in to replace a fainted teammate.</li>
+          <li><b>Luck counts:</b> Crits / Crits taken, Misses (its moves that missed) / Dodged (opponents' moves that missed it), Full paras, Sleep turns, Flinched, Hit itself (confusion), Effects landed (statuses and flinches its attacks caused).</li>
+          <li><b>Luck score:</b> each random roll counts as the result minus its odds, for the Pokémon it helped. A 70% move hitting is +0.3, missing is −0.7; a crit is +0.96, a normal hit −0.04; a full para is −0.75, moving through paralysis +0.25. Rolls counted: accuracy, crits, status and flinch chances of attacks, paralysis, waking up, thawing, confusion, and multi-hit moves (2–5 hit moves: 2 hits −0.65 … 5 hits +0.85; Triple Axel and Population Bomb: every hit's accuracy). Luck = its own rolls; Luck against = opponents' rolls aimed at it (high = they got lucky against it); Player luck (per game) = the player's luck minus the opponent's. About 0 means average luck. A roll that an unknown ability could have changed (a Dragonite that might have Inner Focus, a Togekiss that might have Super Luck) is skipped; a team sheet or the replay showing the ability brings it back. Items (Scope Lens, Covert Cloak…) count when the replay or a sheet shows them; multi-hit luck needs the item known, because of Loaded Dice.</li>
+          <li><b>Survival:</b> Turns on field counts the turns a Pokémon started on the field (a turn the game was forfeited at the start of doesn't count). Survived = still standing when the game ended, forfeits included. KO'd before moving = fainted during a stay on the field before it got to act (switched in and taken out the same turn, or outsped right after replacing a fainted teammate).</li>
+          <li><b>Mega / Z-move:</b> Mega and Mega turn when it Mega Evolved; Z-move and Z turn when it used one (status Z-moves show as "Z-Hypnosis" and so on). The leaderboard counts games with a Mega / Z-move and the wins among them.</li>
+          <li><b>Performance and Team MVP:</b> roughly how many KOs' worth a Pokémon did: +1 per 100% damage dealt, +1 per kill (direct or passive), +0.5 per 100% damage taken, +0.05 per turn on the field, +0.5 for not fainting. Uses %, so it works without team sheets; luck, switches and healing don't count. Team MVP (per game) is the best Performance on each team among the Pokémon brought; ties go to more kills, then more damage. The leaderboard shows MVPs (times Team MVP) and Performance / game.</li>
+          <li><b>Luck in words:</b> the team summary turns luck scores into Very unlucky / Unlucky / Fair / Lucky / Very lucky (a die with 1 to 5 pips). For a player (their luck minus the opponent's): Fair within ±0.75, Very beyond ±2. For a Pokémon: Fair within ±0.25, Very beyond ±0.75. Hover the word for the score.</li>
+          <li><b>Hidden Zoroark:</b> while disguised, Zoroark shows up as the Pokémon it copies. If its disguise never breaks, the replay can't tell them apart, so its kills and damage go to that Pokémon. Games where a team had a Zoroark that never showed itself are listed above the table and marked in Per game.</li>
+        </ul>
+      </details>
       <div class="toolbar">
         <div class="tabs" role="tablist">
           <button role="tab" data-view="summary" aria-selected="true" type="button">Leaderboard</button>
@@ -125,36 +148,12 @@
         <span class="spacer"></span>
         <button id="copy" type="button">Copy for Google Sheets</button>
         <button id="download" type="button">Download CSV</button>
+        <button id="collapse" type="button" aria-controls="inputs" aria-expanded="true">Hide links and sheets</button>
       </div>
       <div class="table-wrap">
         <table id="table"></table>
       </div>
     </section>
-
-    <details class="rules">
-      <summary>How kills and damage are counted</summary>
-      <ul>
-        <li><b>Direct kill:</b> the Pokémon whose attack landed the KO hit. A spread move that KOs two Pokémon earns two kills. Destiny Bond counts as direct.</li>
-        <li><b>Passive kill:</b> indirect damage goes to whoever caused it: who inflicted the burn or poison, who set Stealth Rock, Spikes or the weather, the Leech Seed / Salt Cure / Curse user, the Rocky Helmet or Rough Skin holder, the Perish Song user.</li>
-        <li><b>Self-inflicted KOs:</b> recoil, Life Orb, confusion, the Pokémon's own weather, or a hit from its own ally. The last opponent that damaged it gets a passive kill. If no opponent ever damaged it, nobody gets the kill.</li>
-        <li><b>Explosion, Memento, Final Gambit, Healing Wish:</b> a death, no kill.</li>
-        <li><b>Forfeits:</b> Pokémon still standing are not counted as deaths.</li>
-        <li><b>Random Battles</b> have no team preview, so only Pokémon that were sent out are listed.</li>
-        <li><b>Damage dealt / taken:</b> HP lost per hit, credited like kills (direct hits to the attacker, indirect damage to its cause). Overkill doesn't count: a hit only counts the HP the target had left. Healing doesn't count, but later damage after a heal does.</li>
-        <li><b>Self-inflicted damage</b> (recoil, Life Orb, confusion, Substitute's cost, own weather, an ally's hit) counts as taken, with no dealer. Hits on a Substitute count 0; Mimikyu's Disguise breaking counts for the attacker.</li>
-        <li><b>Damage in %</b> is % of the target's max HP. <b>Damage in HP</b> needs team sheets: % × the target's max HP. Public replays round HP to whole %, so each hit is only accurate to about ±1% of max HP (about ±4 HP on a 400 HP Pokémon). Leaderboard HP totals are blank unless every game in the row has a sheet.</li>
-        <li><b>Hazards:</b> Hazard % / HP is the part of damage dealt done by Stealth Rock, Spikes or Steelsurge the Pokémon set; Hazard KOs is the part of its passive kills. Hazards set counts each layer. Hazards removed counts hazards cleared from its own side (Defog, Rapid Spin…), not Defog clearing its own team's hazards from the other side. After Court Change, the swapped hazards count as the Court Change user's. Hazard turns (per player): turns that ended with a hazard on the opponent's side.</li>
-        <li><b>Healing:</b> Healed % is HP a Pokémon restored to itself (Leftovers, Recover, Rest, draining moves, Poison Heal, berries, Grassy Terrain…). Heal given % is HP it restored to a teammate (Wish, Healing Wish, Lunar Dance, Heal Pulse…). Both are in % of the healed Pokémon's max HP, and in HP with team sheets. Regenerator doesn't show up as a heal in replays, so it isn't counted.</li>
-        <li><b>Switches</b> are counted on the Pokémon that left: Switches = switched out by choice, Pivots = left through its own move (U-turn, Volt Switch, Flip Turn, Parting Shot, Teleport…), Forced out = Roar, Whirlwind, Dragon Tail, Red Card, Eject Button or Emergency Exit. In after KO counts on the Pokémon that came in to replace a fainted teammate.</li>
-        <li><b>Luck counts:</b> Crits / Crits taken, Misses (its moves that missed) / Dodged (opponents' moves that missed it), Full paras, Sleep turns, Flinched, Hit itself (confusion), Effects landed (statuses and flinches its attacks caused).</li>
-        <li><b>Luck score:</b> each random roll counts as the result minus its odds, for the Pokémon it helped. A 70% move hitting is +0.3, missing is −0.7; a crit is +0.96, a normal hit −0.04; a full para is −0.75, moving through paralysis +0.25. Rolls counted: accuracy, crits, status and flinch chances of attacks, paralysis, waking up, thawing, confusion, and multi-hit moves (2–5 hit moves: 2 hits −0.65 … 5 hits +0.85; Triple Axel and Population Bomb: every hit's accuracy). Luck = its own rolls; Luck against = opponents' rolls aimed at it (high = they got lucky against it); Player luck (per game) = the player's luck minus the opponent's. About 0 means average luck. A roll that an unknown ability could have changed (a Dragonite that might have Inner Focus, a Togekiss that might have Super Luck) is skipped; a team sheet or the replay showing the ability brings it back. Items (Scope Lens, Covert Cloak…) count when the replay or a sheet shows them; multi-hit luck needs the item known, because of Loaded Dice.</li>
-        <li><b>Survival:</b> Turns on field counts the turns a Pokémon started on the field (a turn the game was forfeited at the start of doesn't count). Survived = still standing when the game ended, forfeits included. KO'd before moving = fainted during a stay on the field before it got to act (switched in and taken out the same turn, or outsped right after replacing a fainted teammate).</li>
-        <li><b>Mega / Z-move:</b> Mega and Mega turn when it Mega Evolved; Z-move and Z turn when it used one (status Z-moves show as "Z-Hypnosis" and so on). The leaderboard counts games with a Mega / Z-move and the wins among them.</li>
-        <li><b>Performance and Team MVP:</b> roughly how many KOs' worth a Pokémon did: +1 per 100% damage dealt, +1 per kill (direct or passive), +0.5 per 100% damage taken, +0.05 per turn on the field, +0.5 for not fainting. Uses %, so it works without team sheets; luck, switches and healing don't count. Team MVP (per game) is the best Performance on each team among the Pokémon brought; ties go to more kills, then more damage. The leaderboard shows MVPs (times Team MVP) and Performance / game.</li>
-        <li><b>Luck in words:</b> the team summary turns luck scores into Very unlucky / Unlucky / Fair / Lucky / Very lucky (a die with 1 to 5 pips). For a player (their luck minus the opponent's): Fair within ±0.75, Very beyond ±2. For a Pokémon: Fair within ±0.25, Very beyond ±0.75. Hover the word for the score.</li>
-        <li><b>Hidden Zoroark:</b> while disguised, Zoroark shows up as the Pokémon it copies. If its disguise never breaks, the replay can't tell them apart, so its kills and damage go to that Pokémon. Games where a team had a Zoroark that never showed itself are listed above the table and marked in Per game.</li>
-      </ul>
-    </details>
   </main>
 
   <script src="parser.js"></script>
