@@ -510,11 +510,16 @@ Ability: Screen Cleaner
     ["https://replay.pokemonshowdown.com/gen9ou-2704944065-abc123xyzpw", "gen9ou-2704944065-abc123xyzpw"],
     ["https://example.com/not-a-replay", null],
     ["hello", null],
+    ["video-d5ivr2s_7de", "video-d5ivr2s_7de"],   // a stored game rebuilt from its stream (tools/add_game.py)
+    ["video-short", null],
   ];
   for (const [input, want] of LINKS) {
     const got = RS.replayIdFrom(input);
     check(`link: ${input}`, got === want, `got ${got}`);
   }
+  check("video game: replay_url is the video", RS.gameRows({ id: "video-d5ivr2s_7de", video: "https://youtu.be/d5iVr2s_7dE",
+    log: ["|player|p1|A|", "|player|p2|B|", "|poke|p1|Pikachu|", "|poke|p2|Eevee|", "|start",
+      "|switch|p1a: Pikachu|Pikachu|100/100", "|switch|p2a: Eevee|Eevee|100/100", "|turn|1", "|win|A"].join("\n") })[0].replay_url === "https://youtu.be/d5iVr2s_7dE");
   check("links: pasted block with duplicates", same(RS.replayIdsFromText(
     "gen9ou-1, https://replay.pokemonshowdown.com/gen9ou-2\n\ngen9ou-1 junk"), ["gen9ou-1", "gen9ou-2"]));
 

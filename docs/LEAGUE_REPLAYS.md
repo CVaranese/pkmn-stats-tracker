@@ -16,6 +16,26 @@ Add them with `python -I tools/add_game.py <link> --week "<week>"` (the `add-gam
 Weeks confirmed 2026-10-27 from each replay's date and winner against the bracket (Week N = Swiss round N).
 No replay given for weeks 1, 2 or 7.
 
+## Stream videos (no replay; rebuilt with tools/video_to_replay.py)
+
+Playlists: Week 1 https://youtube.com/playlist?list=PLe1tROU59cYo, Week 2 https://www.youtube.com/playlist?list=PLc3TezsXgkoE.
+
+| Video | Week | Match | In site/games/ |
+|---|---|---|---|
+| https://youtu.be/9STJZ-Xvmj8 | Week 7 | Sneez vs Karm | yes, 2026-10-27 |
+| https://youtu.be/7RgyqzI7yNI | Week 1 | DEJIME vs Fingy | yes, 2026-10-27 |
+| https://youtu.be/ff5WImD_i3k | Week 1 | Bad Bully vs Big Large | yes, 2026-10-27 |
+| https://youtu.be/OA6m3wXIO6s | Week 1 | Pikmon vs Dox | no: dark theme, OCR can't read it |
+| https://youtu.be/0ML97b25TdI | Week 1 | PotatoesAreYum vs Nezergy | has a replay (2677227914) |
+| https://youtu.be/XmltgmaqObg | Week 1 | Sneez vs Zololab | yes, 2026-10-27 (last KO hand-filled: Future Sight) |
+| https://youtu.be/d5iVr2s_7dE | Week 1 | Cloudburst vs Karm | yes, 2026-10-27 |
+| https://youtu.be/d1nX5QVh-CA | Week 2 | Sneez vs Nezergy | yes, 2026-10-27 |
+| https://youtu.be/yytUZXI96hg | Week 2 | Cloudburst vs Fingy | yes, 2026-10-27 |
+| https://youtu.be/dk3Loza-MK4 | Week 2 | PotatoesAreYum vs Zololab | yes, 2026-10-27 |
+| https://youtu.be/Yj0PgVbcblI | Week 2 | DEJIME vs Karm | yes, 2026-10-27 (Kingambit faints twice: Revival Blessing) |
+| https://youtu.be/JJaCbPX4g2E | Week 2 | Pikmon vs Big Large | yes, 2026-10-27 (dark theme read with invert) |
+| https://youtu.be/4fACABLYaoc | Week 2 | Bad Bully vs Dox | yes, 2026-10-27 (small text garbled; HP numbers rougher) |
+
 Given 2026-10-27 as "all the replays we have for the draft league to this date". Not downloaded that day:
 Showdown's replay server was down (`tools/showdown_status.py`: Replays timed out, twice). A background retry
 saved them later that day; added with `--file`.

@@ -216,6 +216,338 @@
    "date": "2026-10-27",
    "turns": 19,
    "note": ""
+  },
+  {
+   "id": "video-7rgyqzi7yni",
+   "league": "pinecord",
+   "week": "Week 1",
+   "players": [
+    "DEJIME17",
+    "FingerStripes"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Raging Bolt",
+     "Azumarill",
+     "Basculegion-F",
+     "Swampert",
+     "Overqwil"
+    ],
+    [
+     "Tapu Koko",
+     "Hydreigon",
+     "Suicune",
+     "Toedscool",
+     "Hawlucha",
+     "Iron Moth"
+    ]
+   ],
+   "winner": "DEJIME17",
+   "date": "2026-09-08",
+   "turns": 18,
+   "note": "From the stream video",
+   "video": "https://youtu.be/7RgyqzI7yNI"
+  },
+  {
+   "id": "video-d5ivr2s_7de",
+   "league": "pinecord",
+   "week": "Week 1",
+   "players": [
+    "azpmCloudburst",
+    "chicken parm karm"
+   ],
+   "teams": [
+    [
+     "Mawile",
+     "Venusaur",
+     "Torkoal",
+     "Zapdos",
+     "Dondozo",
+     "Garchomp"
+    ],
+    [
+     "Gholdengo",
+     "Alomomola",
+     "Greninja",
+     "Glimmora",
+     "Nidoking",
+     "Hydrapple"
+    ]
+   ],
+   "winner": "chicken parm karm",
+   "date": "2026-09-08",
+   "turns": 24,
+   "note": "From the stream video",
+   "video": "https://youtu.be/d5iVr2s_7dE"
+  },
+  {
+   "id": "video-xmltgmaqobg",
+   "league": "pinecord",
+   "week": "Week 1",
+   "players": [
+    "zololab",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Scrafty",
+     "Latios",
+     "Pecharunt",
+     "Diancie",
+     "Incineroar",
+     "Iron Treads"
+    ],
+    [
+     "Slowking-Galar",
+     "Arctovish",
+     "Weavile",
+     "Ninetales-Alola",
+     "Gliscor",
+     "Charizard"
+    ]
+   ],
+   "winner": "pee nation",
+   "date": "2026-09-08",
+   "turns": 56,
+   "note": "From the stream video",
+   "video": "https://youtu.be/XmltgmaqObg"
+  },
+  {
+   "id": "video-ff5wimd_i3k",
+   "league": "pinecord",
+   "week": "Week 1",
+   "players": [
+    "ElkG Big Large",
+    "weedinmyhonda"
+   ],
+   "teams": [
+    [
+     "Mamoswine",
+     "Rotom-Heat",
+     "Zamazenta",
+     "Slowking",
+     "Scizor",
+     "Hoopa-Unbound"
+    ],
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian",
+     "Talonflame",
+     "Maushold"
+    ]
+   ],
+   "winner": "ElkG Big Large",
+   "date": "2026-09-08",
+   "turns": 27,
+   "note": "From the stream video",
+   "video": "https://youtu.be/ff5WImD_i3k"
+  },
+  {
+   "id": "video-9stjz-xvmj8",
+   "league": "pinecord",
+   "week": "Week 7",
+   "players": [
+    "pee nation",
+    "chicken parm karm"
+   ],
+   "teams": [
+    [
+     "Slowking-Galar",
+     "Ninetales-Alola",
+     "Charizard",
+     "Arctozolt",
+     "Weavile",
+     "Gliscor"
+    ],
+    [
+     "Metagross",
+     "Primarina",
+     "Gholdengo",
+     "Aerodactyl",
+     "Glimmora",
+     "Araquanid"
+    ]
+   ],
+   "winner": "chicken parm karm",
+   "date": "2026-10-21",
+   "turns": 16,
+   "note": "From the stream video",
+   "video": "https://youtu.be/9STJZ-Xvmj8"
+  },
+  {
+   "id": "video-d1nx5qvh-ca",
+   "league": "pinecord",
+   "week": "Week 2",
+   "players": [
+    "Nezergy",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Iron Valiant",
+     "Corviknight",
+     "Tapu Fini",
+     "Zeraora",
+     "Meowscarada"
+    ],
+    [
+     "Slowking-Galar",
+     "Ninetales-Alola",
+     "Gliscor",
+     "Charizard",
+     "Arctozolt"
+    ]
+   ],
+   "winner": "pee nation",
+   "date": "2026-09-15",
+   "turns": 45,
+   "note": "From the stream video",
+   "video": "https://youtu.be/d1nX5QVh-CA"
+  },
+  {
+   "id": "video-yytuzxi96hg",
+   "league": "pinecord",
+   "week": "Week 2",
+   "players": [
+    "FingerStripes",
+    "azpmCloudburst"
+   ],
+   "teams": [
+    [
+     "Tapu Koko",
+     "Heatran",
+     "Iron Moth",
+     "Hydreigon",
+     "Hawlucha"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Zapdos",
+     "Garchomp",
+     "Blaziken",
+     "Dondozo"
+    ]
+   ],
+   "winner": "FingerStripes",
+   "date": "2026-09-15",
+   "turns": 18,
+   "note": "From the stream video",
+   "video": "https://youtu.be/yytUZXI96hg"
+  },
+  {
+   "id": "video-dk3loza-mk4",
+   "league": "pinecord",
+   "week": "Week 2",
+   "players": [
+    "zololab",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Serperior",
+     "Diancie",
+     "Latios",
+     "Iron Treads",
+     "Vaporeon",
+     "Pecharunt"
+    ],
+    [
+     "Tyranitar",
+     "Lycanroc",
+     "Bronzong",
+     "Enamorus-Therian",
+     "Ursaluna"
+    ]
+   ],
+   "winner": "zololab",
+   "date": "2026-09-15",
+   "turns": 28,
+   "note": "From the stream video",
+   "video": "https://youtu.be/dk3Loza-MK4"
+  },
+  {
+   "id": "video-yj0pgvbcbli",
+   "league": "pinecord",
+   "week": "Week 2",
+   "players": [
+    "DEJIME17",
+    "chicken parm karm"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Kingambit",
+     "Raging Bolt",
+     "Swampert",
+     "Pawmot"
+    ],
+    [
+     "Araquanid",
+     "Greninja",
+     "Hydrapple",
+     "Gholdengo",
+     "Glimmora"
+    ]
+   ],
+   "winner": "chicken parm karm",
+   "date": "2026-09-15",
+   "turns": 26,
+   "note": "From the stream video",
+   "video": "https://youtu.be/Yj0PgVbcblI"
+  },
+  {
+   "id": "video-jjacbpx4g2e",
+   "league": "pinecord",
+   "week": "Week 2",
+   "players": [
+    "PeterPikmon",
+    "ElkG Big Large"
+   ],
+   "teams": [
+    [],
+    []
+   ],
+   "winner": "ElkG Big Large",
+   "date": "2026-09-15",
+   "turns": 36,
+   "note": "From the stream video",
+   "video": "https://youtu.be/JJaCbPX4g2E"
+  },
+  {
+   "id": "video-4facablyaoc",
+   "league": "pinecord",
+   "week": "Week 2",
+   "players": [
+    "doxsego",
+    "weedinmyhonda"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Lopunny",
+     "Enamorus",
+     "Ceruledge",
+     "Slowbro",
+     "Flygon"
+    ],
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian",
+     "Talonflame",
+     "Muk-Alola"
+    ]
+   ],
+   "winner": "doxsego",
+   "date": "2026-09-15",
+   "turns": 19,
+   "note": "From the stream video",
+   "video": "https://youtu.be/4fACABLYaoc"
   }
  ]
 }

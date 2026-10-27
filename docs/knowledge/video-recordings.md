@@ -86,3 +86,16 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   before ")!" ("Go! Diancie (Diancie-Mega"), a cut "(Latios lost 42% of its health" (now completed). Team
   preview "Marv'lle" matched Marill instead of Mawile (fixed by hand; the preview match has no check against the
   Pokémon later sent out). "The opposing is exerting its pressure!" (name dropped) made a bogus p1 mon (removed by hand).
+- **Tested** (2026-10-27, Week 2 playlist PLc3TezsXgkoE, all 6 converted): four streams have the log further right
+  (`--log-box 752,56,488,664 --scene-box 126,440,500,46`); Pikmon vs Big Large is dark theme and read fine with
+  `--filter "invert(1) grayscale(1) contrast(2)" --log-box 740,56,500,664 --scene-box 124,480,480,40` (the Week 1
+  dark video was a narrower, smaller log); Bad Bully vs Dox (`--log-box 662,56,560,664 --scene-box 116,384,480,44`)
+  is zoomed out, so its small-font lines (damage numbers, item / ability notes) OCR badly; kills still came out
+  right after the fixes below. Its stream ends in the lobby: the win is only in the message box.
+- **Tested**: Edge's decoder wedged in 3 of 6 long files (no seek finishes, not even on a new `<video>`).
+  `video_frames.py` now ends Edge when no frame arrives for 30 s and starts a new one from the next frame
+  (one 5-s frame lost each time). Runs took 1.5-3 min per game after that.
+- **Tested**: new rules: switch lines wrapped onto a second line ("(Bronzong)!", "Therian)!"), Wish, Haze,
+  substitute fail, Electric Terrain block, partial-trap damage (Magma Storm, 1/8, credited to its user through
+  `[of]`), "6600" = 66%, a damage line garbled around the number rebuilt from "<name> lost N% ... health",
+  "The" read as "e" / "lhe" / "I he", "doesn t". Revival Blessing: a Pokémon can faint twice (DEJIME vs Karm).

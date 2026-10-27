@@ -49,8 +49,8 @@
     text = text.split("?")[0].split("#")[0].replace(/\/+$/, "");
     text = text.slice(text.lastIndexOf("/") + 1).toLowerCase();
     text = text.replace(/\.(json|log)$/, "");
-    // optional '-<password>pw' suffix on private replays
-    return /^[a-z0-9]+(-[a-z0-9]+)*-\d+(-[a-z0-9]+pw)?$/.test(text) ? text : null;
+    // optional '-<password>pw' suffix on private replays; "video-<youtube id>": a stored game rebuilt from its stream
+    return /^[a-z0-9]+(-[a-z0-9]+)*-\d+(-[a-z0-9]+pw)?$/.test(text) || /^video-[a-z0-9_-]{11}$/.test(text) ? text : null;
   }
 
   /** All replay IDs found in a block of pasted text (links separated by lines, spaces or commas). */
@@ -796,7 +796,7 @@
           sleep_turns: st.sleepTurns, flinched: st.flinched, confusion_hits: st.confusionHits, procs: st.procs,
           luck: "", luck_against: "", player_luck: "", // filled by Luck.addLuck once move data is loaded
           hidden_zoroark: b.hiddenZoroark[side] ? 1 : 0,
-          replay_url: REPLAY_HOST + rid,
+          replay_url: replay.video || REPLAY_HOST + rid,
           // not exported: what addDamageHp needs once max HP is known
           mon_key: key, hits_dealt: b.hits.filter(([d]) => d && d === key).map(([, t, pct, hz, mv]) => [t, pct, hz, mv || ""]),
           // per move, most damage first, then the other sources ("Rough Skin (ability)"..., source: true), then ""

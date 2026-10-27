@@ -149,7 +149,8 @@
     .then((r) => (r.ok ? r.json() : { games: [] }))
     .catch(() => ({ games: [] }))
     .then((index) => {
-      library = index.games || [];
+      // by date (the order added when the same): games added late, e.g. rebuilt from stream videos, sit in their week
+      library = (index.games || []).sort((a, b) => (a.date || "").localeCompare(b.date || ""));
       RS.setLibrary(library.map((g) => g.id));
       // Showdown names ignore case and spaces ("Nezergy" = "nezergy"): one entry per name, as first spelled
       const players = new Map();
@@ -291,8 +292,18 @@
   }
 
   /** Open a stored game in One game (stats, so the result shows). */
+  /** What goes in the link box: a Showdown link, or the bare id of a game rebuilt from its stream video. */
+  const linkFor = (id) => (id.startsWith("video-") ? id : RS.REPLAY_HOST + id);
+  /** The player for a game: Showdown's replay player, or the YouTube video for a game rebuilt from it. */
+  function watchSrc(id) {
+    const g = library.find((x) => x.id === id);
+    const yt = g && g.video && g.video.match(/(?:youtu\.be\/|[?&]v=)([\w-]{11})/);
+    return yt ? "https://www.youtube-nocookie.com/embed/" + yt[1] : "watch.html?id=" + encodeURIComponent(id);
+  }
+  const isVideo = (id) => library.some((x) => x.id === id && x.video);
+
   function openGame(id) {
-    $("one-link").value = RS.REPLAY_HOST + id;
+    $("one-link").value = linkFor(id);
     $("one-link").dispatchEvent(new Event("input"));
     setMode("one");
     $("sheets-wrap").open = false;
@@ -303,11 +314,13 @@
   function watchHere(g) {
     $("lib-watch").hidden = false;
     $("lib-watch-title").textContent = `${g.week}: ${g.players.join(" vs ")}`;
-    if (LOCAL) {
+    if (LOCAL && !g.video) {
       $("lib-watch-note").hidden = false;
       $("lib-watch-note").textContent = "The replay player comes from Pokémon Showdown, so it isn't in the local version. Add ?online to the address to use it.";
     } else {
-      $("lib-watch-frame").src = "watch.html?id=" + encodeURIComponent(g.id);
+      $("lib-watch-note").hidden = true;
+      $("lib-watch-frame").allowFullscreen = true;
+      $("lib-watch-frame").src = watchSrc(g.id);
       $("lib-watch-frame").hidden = false;
     }
     $("lib-watch").scrollIntoView({ block: "start" });
@@ -340,12 +353,13 @@
   }
   $("watch").addEventListener("toggle", () => {
     if (!$("watch").open || !watchId) return;
-    if (LOCAL) {
+    if (LOCAL && !isVideo(watchId)) {
       $("watch-note").hidden = false;
       $("watch-note").textContent = "The replay player comes from Pokémon Showdown, so it isn't in the local version. Add ?online to the address to use it.";
       return;
     }
-    if (!$("watch-frame").src) $("watch-frame").src = "watch.html?id=" + encodeURIComponent(watchId);
+    $("watch-frame").allowFullscreen = true;
+    if (!$("watch-frame").src) $("watch-frame").src = watchSrc(watchId);
     $("watch-frame").hidden = false;
   });
   // hide the links / sheets box (cleaner screenshots); the results stay
@@ -387,8 +401,8 @@
   if (sharedPastes.length) { $("sheets-wrap").open = true; saveSheets(); }
   // one replay in the link opens One game, more open Several games
   const shared = RS.replayIdsFromText(params.get("r") || "");
-  if (shared.length === 1) $("one-link").value = RS.REPLAY_HOST + shared[0];
-  else if (shared.length) $("links").value = shared.map((id) => RS.REPLAY_HOST + id).join("\n");
+  if (shared.length === 1) $("one-link").value = linkFor(shared[0]);
+  else if (shared.length) $("links").value = shared.map(linkFor).join("\n");
   if (shared.length) activeInput().dispatchEvent(new Event("input"));
   // ?tab=games (or many / bet) opens that tab, e.g. a link to the game list
   const tabParam = params.get("tab");

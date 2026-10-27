@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Games tab: league games that have no Showdown replay, rebuilt from their YouTube streams (`tools/video_to_replay.py`, added with `tools/add_game.py <youtube link> --file ... --date ...`). They're marked "From the stream video"; Watch plays the YouTube video, and the replay link column points at it. Kills, faints and winners were checked against the video; hazard, burn, Leftovers, Regenerator and drain amounts aren't shown on stream, so some HP / damage numbers are estimates. Dated by the stream's upload day.
+- Games tab: weeks and games are in date order, so a game added later sits in its own week.
 - Game cards: a team's six Pokémon stay on one row on phones (they wrapped 5 + 1); the sprites shrink to fit.
 - Luck: hovering (or tapping) Team luck or a Pokémon's Luck now lists the biggest contributors, up to 3, e.g. "their Latios-Mega: Draco Meteor missed (+0.90)" or "no crits ×3 (−0.29)".
 - Gambling tab: every fantasy column header explains itself (hover, or tap on a phone). Taps on headers outside the main stats table showed nothing before.

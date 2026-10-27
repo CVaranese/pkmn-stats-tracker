@@ -14,12 +14,16 @@ STATUSES = {"brn", "par", "psn", "tox", "slp", "frz"}
 SKIP_KEYS = {"name", "desc", "shortDesc", "statName", "statShortName", "weatherName"}
 FRAGMENTS = {"pokemon", "opposingPokemon", "team", "opposingTeam", "party", "opposingParty"}  # parts of messages
 # HP % for damage / healing the spectator log shows no number for (guesses from the game's fractions)
+TRAP_MOVES = {"Bind", "Wrap", "Fire Spin", "Clamp", "Whirlpool", "Sand Tomb", "Magma Storm", "Infestation", "Snap Trap",
+              "Thunder Cage"}
 PASSIVE_PCT = {"psn": 12.5, "brn": 6.25, "Life Orb": 10, "Sandstorm": 6.25, "Hail": 6.25, "Spikes": 12.5,
                "Rocky Helmet": 16.7, "Rough Skin": 12.5, "Iron Barbs": 12.5, "Leech Seed": 12.5, "Salt Cure": 12.5,
                "Black Sludge": 12.5, "Mimikyu-Busted": 12.5}
 HEAL_PCT = {"Leftovers": 6.25, "Black Sludge": 6.25, "Poison Heal": 12.5, "Sitrus Berry": 25, "default": 50}
-TIMER_RE = re.compile(r"^.+ has \d+ seconds? left\W?$|^.+ turned on the timer\W?$|^.+ turned off the timer\W?$",
-                      re.I)
+TIMER_RE = re.compile(r"^.+ has \d+ seconds? left\W?$|^.+ turned on the timer\W?$|^.+ turned off the timer\W?$"
+                      r"|time'?s up\b.*requested by", re.I)
+# the end of a switch line wrapped onto its own line: "(Bronzong)!" or "Therian)!" after "... (Enamorus-"
+WRAP_TAIL = re.compile(r"^\(?(?!the )[^()\s]+(?: [^()\s]+)?\)\W{0,2}[l'!]?$", re.I)
 CHAT_RE = re.compile(r"^[^\s:()\[\]][^:()\[\]]{0,20}: \S")   # spectator chat "name: text"
 ROCK_WEAK, ROCK_RESIST = {"Fire", "Ice", "Flying", "Bug"}, {"Fighting", "Ground", "Steel"}
 
@@ -80,14 +84,20 @@ def variants(t):
     """The line as read, then with common OCR slips undone."""
     t = re.sub(r"[^\x20-\x7e]", "", t).strip()
     t2 = t.replace("VV", "W")
+    t2 = re.sub(r"\b(doesn|can|isn|wasn|didn|won) t\b", r"\1't", t2)   # apostrophe not read
     if re.match(r"^\(.+'s .+\)$", t2) and "lost" not in t2:  # "[X's Ability]" read with round brackets
         t2 = "[" + t2[1:-1] + "]"
     if t2.startswith("["):
         t2 = re.sub(r"^\[(.+?)\s?is ", r"[\1's ", t2)
     if t2.endswith(")") and not t2.startswith("(") and "(" not in t2:   # "(" of "(X lost N%...)" not read
         t2 = "(" + t2
+    t2 = re.sub(r"lost (?!100 )(\d{1,2})00 of", r"lost \1% of", t2)   # "6600": "%" read as "00" (usually "0/0")
     if re.match(r"^\(.+ lost \d+% of its health$", t2):   # "!)" at the end not read
         t2 += "!)"
+    # a damage line garbled around the number ("10<t 0% ot its", "lost 70% of itfi health"): rebuild it
+    m = re.match(r"^\W*(.+?)\s+(?:lost|lo[s5<]t|10[s5<]t|105t)\s+(\d{1,3})\s*%.*heal", t2)
+    if m and not re.search(r"lost \d+% of its health", t2):
+        t2 = f"({m.group(1)} lost {m.group(2)}% of its health!)"
     for base in dict.fromkeys([t, t2]):
         yield base
         yield re.sub(r"[l'I1|i]$", "!", base)
@@ -152,7 +162,8 @@ class Converter:
 
     def mon(self, text):
         """'the opposing Metagross' / 'short king' -> ('p2', 'Metagross')"""
-        t = re.sub(r"^the\s+o\S*\s+", "", text.strip(), flags=re.I)
+        # "The" misread: "e opposing", "lhe opposinq", "I he opposing", "-l he"
+        t = re.sub(r"^\W*(?:[tli1|]\s?he\s+o\S*|h?e\s+opp\S*)\s+", "", text.strip(), flags=re.I)
         side = self.foe(self.own_side()) if t != text.strip() else self.own_side()
         nick = self.close(t, self.nicks[side], 0.5) or t
         return side, nick
@@ -181,6 +192,8 @@ class Converter:
         self.emit(*(["-heal", self.ref(side, nick), self.hp_str(key)] + (["[from] " + frm] if frm else [])))
 
     def passive_pct(self, side, nick, cause):
+        if cause in TRAP_MOVES:
+            return 12.5
         if cause == "psn" and self.status.get((side, nick)) == "tox":
             n = self.toxic.get((side, nick), 0) + 1
             self.toxic[(side, nick)] = n
@@ -223,6 +236,17 @@ class Converter:
         self.emit("teampreview")
         self.emit("start")
         pending = None   # a "lost N%" line, emitted when the next line comes
+        joined = []   # a long line wrapped in the log panel: two pieces that only match together
+        for kind, t in events:
+            prev = joined[-1][1] if joined and joined[-1][0] == "text" else ""
+            if kind == "text" and WRAP_TAIL.match(t) and re.search(r"sent out |^Go! ", prev) and not re.search(r"\)\W*[l'i]?\W*$", prev):
+                joined[-1] = ("text", prev + ("" if prev.endswith("-") else " ") + t)
+            elif (kind == "text" and joined and joined[-1][0] == "text" and not match(self.comp, joined[-1][1])[0]
+                    and not match(self.comp, t)[0] and match(self.comp, joined[-1][1] + " " + t)[0]):
+                joined[-1] = ("text", joined[-1][1] + " " + t)
+            else:
+                joined.append((kind, t))
+        events = joined
         for kind, t in events:
             if kind == "turn":
                 self.flush(pending); pending = None
@@ -273,6 +297,14 @@ class Converter:
         """A passive-damage line -> (side, nick, [from] text, [of] text or None)."""
         if (sect, key) == ("default", "damageFromItem"):
             return self.mon(s["POKEMON"]) + ("item: " + (self.close(s["ITEM"], self.items) or s["ITEM"]), None)
+        if (sect, key) == ("default", "damageFromPartialTrapping"):   # Magma Storm, Fire Spin...: 1/8, no number shown
+            side, nick = self.mon(s["POKEMON"])
+            move = s["MOVE"].strip()
+            mid = re.sub(r"[^a-z0-9]", "", move.lower())
+            user = next((l.split("|")[2] for l in reversed(self.out) if l.startswith("|move|")
+                         and re.sub(r"[^a-z0-9]", "", l.split("|")[3].lower()) == mid
+                         and not l.split("|")[2].startswith(side)), None)
+            return side, nick, "move: " + move, user
         if (sect, key) == ("default", "damageFromPokemon"):
             return self.mon(s["POKEMON"]) + ("item: " + (self.close(s["ITEM"], self.items) or s["ITEM"]),
                                              self.ref(*self.mon(s["SOURCE"])))
@@ -291,6 +323,8 @@ class Converter:
         if sect == "default":
             if key in ("startBattle", "switchOut", "switchOutOwn"):
                 return
+            if key == "clearAllBoost":   # Haze
+                return self.emit("-clearallboost")
             if key == "winBattle":
                 return self.emit("win", self.close(s["TRAINER"], self.players, 0.5) or s["TRAINER"])
             if key in ("switchIn", "switchInOwn"):
@@ -418,6 +452,11 @@ class Converter:
             return self.heal(side, nick, pct, "drain")
         elif sect in ("moves", "abilities", "items"):
             label = {"moves": "move: ", "abilities": "ability: ", "items": "item: "}[sect] + name
+            if (eid, key) == ("wish", "heal"):   # "X's wish came true!": heals whoever is in on X's side
+                side = self.mon(s["NICKNAME"])[0]
+                return self.heal(side, self.active[side], HEAL_PCT["default"], label)
+            if eid == "substitute" and key == "fail":   # not enough HP left to make one
+                return self.emit("-fail", self.ref(*self.last_mover), label)
             if (eid, key) == ("disguise", "transform"):
                 side, nick = P()
                 self.nicks[side][nick] = "Mimikyu-Busted"
@@ -441,6 +480,8 @@ class Converter:
                 return self.emit({"start": "-start", "end": "-end"}.get(key, "-activate"), self.ref(*P()), label)
             if key in ("start", "end"):
                 return self.emit("-fieldstart" if key == "start" else "-fieldend", label)
+        if key == "block" and "POKEMON" in s:   # "X is protected by the Electric Terrain!"
+            return self.emit("-activate", self.ref(*P()), "move: " + name)
         self.unparsed.append((f"no rule for {sect}.{eid}.{key}", text))
 
     def switch(self, side, full):
