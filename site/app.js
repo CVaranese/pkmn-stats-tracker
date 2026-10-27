@@ -159,9 +159,17 @@
   $("lib-week").addEventListener("change", renderLibrary);
   // spoiler-free by default: no winner, no turn count (a 3-turn game was a forfeit) until "Show results" is ticked
   const SPOILERS_KEY = "replay-kill-tracker.show-results";
-  try { $("lib-spoilers").checked = localStorage.getItem(SPOILERS_KEY) === "1"; } catch (e) { /* storage blocked */ }
-  $("lib-spoilers").addEventListener("change", () => {
-    try { localStorage.setItem(SPOILERS_KEY, $("lib-spoilers").checked ? "1" : "0"); } catch (e) { /* storage blocked */ }
+  let showResults = false;
+  try { showResults = localStorage.getItem(SPOILERS_KEY) === "1"; } catch (e) { /* storage blocked */ }
+  function setShowResults(on) {
+    showResults = on;
+    $("lib-spoilers").setAttribute("aria-pressed", String(on));
+    $("lib-spoilers").textContent = on ? "Hide results" : "Show results";
+  }
+  setShowResults(showResults);
+  $("lib-spoilers").addEventListener("click", () => {
+    setShowResults(!showResults);
+    try { localStorage.setItem(SPOILERS_KEY, showResults ? "1" : "0"); } catch (e) { /* storage blocked */ }
     renderLibrary();
   });
 
@@ -190,7 +198,7 @@
 
   /** One game: each player with their team-preview sprites; winner and turns only with "Show results". */
   function libraryRow(g) {
-    const results = $("lib-spoilers").checked;
+    const results = showResults;
     const tr = document.createElement("tr");
     const match = el("td", "lib-match");
     g.players.forEach((p, i) => {
@@ -204,7 +212,7 @@
       match.append(side);
     });
     const open = (label, title, onClick) => {
-      const b = Object.assign(el("button", "", label), { type: "button", title });
+      const b = Object.assign(el("button", "small", label), { type: "button", title });
       b.addEventListener("click", onClick);
       return b;
     };

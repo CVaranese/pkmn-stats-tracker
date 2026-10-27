@@ -77,6 +77,8 @@ button { padding: 7px 14px; cursor: pointer; }
 button:hover { border-color: var(--muted); }
 button:disabled { opacity: 0.5; cursor: default; }
 button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+/* secondary actions inside toolbars and table rows */
+button.small { padding: 4px 10px; font-size: 13px; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .row, .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; }
@@ -125,7 +127,7 @@ button.primary { background: var(--accent); color: var(--accent-text); border-co
 .lib-table .lib-week th { position: static; cursor: default; font-size: 15px; padding-top: 16px; background: var(--bg); }
 .lib-table .lib-week:first-child th { padding-top: 8px; }
 .lib-table td:first-child { width: 100%; }
-.lib-table .lib-actions button { padding: 4px 10px; font-size: 13px; margin-left: 6px; }
+.lib-table .lib-actions button { margin-left: 6px; }
 .lib-match { display: flex; align-items: center; gap: 14px; }
 .lib-name { font-weight: 600; margin-bottom: 2px; }
 .lib-vs { color: var(--muted); font-size: 13px; }
@@ -136,7 +138,6 @@ button.primary { background: var(--accent); color: var(--accent-text); border-co
 .lib-watch h3 { font-size: 16px; margin: 0; }
 .lib-watch iframe, .watch iframe { display: block; width: 100%; height: 640px; margin-top: 10px;
   border: 2px solid var(--outline); border-radius: 6px; background: var(--surface); }
-.check input { margin: 0 4px 0 0; vertical-align: -2px; }
 .watch { margin: 0 0 24px; }
 .watch summary { cursor: pointer; font-weight: 600; }
 .modes button[aria-selected="true"] { background: var(--bg); color: var(--text); border-color: var(--outline);

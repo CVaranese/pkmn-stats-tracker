@@ -2,7 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
-- [ ] Spoiler-free Games tab: the list hides winners and turn counts by default; tick "Show results" and check the Won tag and turns appear, and that it's still ticked after reloading. Press Watch: the player opens at the top of the Games tab with no result shown around it (needs Showdown up; not seen working yet). Are the team sprites (team preview's six) the preview you had in mind, or did you mean only the Pokémon that were sent out?
+- [ ] Style guide: read `docs/STYLE.md` and open `http://127.0.0.1:8765/tests/style.html` (both themes). Anything listed that you don't like, or a rule missing?
+- [ ] Spoiler-free Games tab: the list hides winners and turn counts by default; press "Show results" and check the Won tag and turns appear, the button now says "Hide results", and it stays that way after reloading. Press Watch: the player opens at the top of the Games tab with no result shown around it (needs Showdown up; not seen working yet). Are the team sprites (team preview's six) the preview you had in mind, or did you mean only the Pokémon that were sent out?
 - [ ] Games tab: open `?tab=games`, pick a player and a week in the filters, press Stats on a game (opens in One game) and Watch (opens the player under the team cards). Is the list what you wanted (week, players with the winner in bold, turns, date, note)? The player couldn't be checked: Showdown was timing out on its scripts (2026-10-27). Check it plays, its size fits the page, and its light / dark switch.
 - [ ] Discord preview: paste the site link in Discord; the banner, "Replay Kill Tracker" and the description show. (Discord caches previews; a link it saw before may need `?v=2` on the end.)
 - [ ] Performance: on games you know, is each Team MVP who you'd pick now that damage taken and turns on field count instead of healing? Say if taken (0.5 per 100%) or turns (0.05 each) should weigh more or less.

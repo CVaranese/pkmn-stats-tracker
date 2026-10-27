@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Style sheet samples</title>
+  <!-- Every control from docs/STYLE.md, with the site's real stylesheet. Not published (tests/ isn't deployed).
+       Screenshot: shot.ps1 -Page tests/style.html (dark and -Theme light). -->
+  <link rel="stylesheet" href="../site/style.css">
+  <style>
+    .sample { margin: 0 0 22px; }
+    .sample > h2 { font-size: 15px; margin: 0 0 8px; color: var(--muted); }
+    .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+    .swatch { width: 104px; font-size: 12px; }
+    .swatch span { display: block; height: 36px; border: 2px solid var(--outline); border-radius: 6px; margin-bottom: 3px; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="sample">
+      <h2>Colours</h2>
+      <div class="swatches" id="swatches"></div>
+    </section>
+
+    <section class="sample">
+      <h2>Main tabs (.modes)</h2>
+      <nav class="modes" role="tablist">
+        <button role="tab" aria-selected="true" type="button">One game</button>
+        <button role="tab" aria-selected="false" type="button">Games</button>
+        <button role="tab" aria-selected="false" type="button">Playoffs</button>
+        <button class="collapse" type="button" aria-pressed="false">Hide links and sheets</button>
+      </nav>
+    </section>
+
+    <section class="sample">
+      <h2>Buttons, on/off, select, sub-tabs</h2>
+      <div class="toolbar">
+        <button class="primary" type="button">Get stats</button>
+        <button type="button">Clear</button>
+        <button type="button" disabled>Disabled</button>
+        <button class="small" type="button">Watch</button>
+        <button class="small" type="button" aria-pressed="false">Show results</button>
+        <button class="small" type="button" aria-pressed="true">Hide results</button>
+      </div>
+      <div class="toolbar">
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true" type="button">Leaderboard</button>
+          <button role="tab" aria-selected="false" type="button">Per game</button>
+        </div>
+        <label class="inline">Player <select><option>Everyone</option><option>Phlegathon</option></select></label>
+      </div>
+      <div class="row"><input type="text" value="https://replay.pokemonshowdown.com/gen9nationaldex-2705117998"></div>
+      <p class="hint">A hint: muted help text, at most 80 characters wide, in plain words.</p>
+      <ul class="errors"><li>gen9nationaldex-1: not found (deleted, private, or never saved)</li></ul>
+      <ul class="warnings"><li>A warning: something to know about the results.</li></ul>
+    </section>
+
+    <section class="sample">
+      <h2>Table</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th aria-sort="descending">Pokémon</th><th class="num" title="Explained on hover">Kills</th><th class="num">Dealt %</th></tr></thead>
+          <tbody>
+            <tr><td>Volcarona</td><td class="num">2</td><td class="num">157</td></tr>
+            <tr><td>Garchomp</td><td class="num">1</td><td class="num">116</td></tr>
+            <tr class="not-brought"><td>Iron Crown</td><td class="num">0</td><td class="num">0</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sample">
+      <h2>Badges, tags, sprites, luck</h2>
+      <div class="row">
+        <span class="team-name">Phlegathon <span class="badge win">Won</span></span>
+        <span class="team-name">RevivalSludge24 <span class="badge">Lost</span></span>
+      </div>
+      <div class="team-strip">
+        <span class="slot"><span class="sprite small"><img src="../site/sprites/gen5/diancie-mega.png" alt="Diancie"></span><span class="mark mega">Mega</span></span>
+        <span class="slot"><span class="sprite small"><img src="../site/sprites/gen5/kyurem.png" alt="Kyurem"></span><span class="mark z">Z</span></span>
+        <span class="slot fainted"><span class="sprite small"><img src="../site/sprites/gen5/garchomp.png" alt="Garchomp"></span></span>
+        <span class="slot not-brought"><span class="sprite small"><img src="../site/sprites/gen5/ironcrown.png" alt="Iron Crown"></span></span>
+      </div>
+      <div class="row">
+        <span class="sprite tiny"><img src="../site/sprites/gen5/volcarona.png" alt="Volcarona"></span>
+        <span class="sprite small"><img src="../site/sprites/gen5/volcarona.png" alt="Volcarona"></span>
+        <span class="sprite big"><img src="../site/sprites/gen5/volcarona.png" alt="Volcarona"></span>
+        <span class="sprite small">TK</span>
+      </div>
+      <div class="row" id="dice"></div>
+    </section>
+
+    <section class="sample">
+      <h2>Team card stats, band</h2>
+      <div class="team-card">
+        <div class="stats">
+          <div class="stat"><span class="stat-value">2</span><span class="stat-label">Kills</span></div>
+          <div class="stat"><span class="stat-value">157% (522 HP)</span><span class="stat-label">Dealt</span></div>
+          <div class="stat"><span class="stat-value">yes</span><span class="stat-label">Survived</span></div>
+        </div>
+        <div class="team-totals"><h4>Team</h4><div class="stats">
+          <div class="stat"><span class="stat-value">5</span><span class="stat-label">Kills</span></div>
+        </div></div>
+      </div>
+    </section>
+
+    <details class="rules" open>
+      <summary>Collapsible extras (details)</summary>
+      <ul><li>Rules and explanations go in a list like this.</li></ul>
+    </details>
+  </main>
+  <script>
+    // colour swatches straight from the tokens, so they follow the stylesheet
+    const css = getComputedStyle(document.documentElement);
+    for (const t of ["bg", "surface", "text", "muted", "border", "outline", "accent", "accent-text", "row-alt", "band", "porcelain", "error", "error-bg"]) {
+      const d = document.createElement("div");
+      d.className = "swatch";
+      d.innerHTML = `<span style="background: var(--${t})"></span>--${t}<br>${css.getPropertyValue("--" + t).trim()}`;
+      document.getElementById("swatches").append(d);
+    }
+    // the luck die, built like app.js does: 5 levels, Very unlucky .. Very lucky
+    const PIPS = [[50, 50], [25, 25, 75, 75], [25, 25, 50, 50, 75, 75], [25, 25, 75, 25, 25, 75, 75, 75],
+      [25, 25, 75, 25, 50, 50, 25, 75, 75, 75]];
+    const WORDS = ["Very unlucky", "Unlucky", "Fair", "Lucky", "Very lucky"];
+    PIPS.forEach((pips, level) => {
+      const box = document.createElement("span");
+      box.className = "luck";
+      let inner = '<rect x="4" y="4" width="92" height="92" rx="18"/>';
+      for (let i = 0; i < pips.length; i += 2) inner += `<circle cx="${pips[i]}" cy="${pips[i + 1]}" r="10"/>`;
+      box.innerHTML = `<svg class="die level-${level}" viewBox="0 0 100 100" aria-hidden="true">${inner}</svg><span>${WORDS[level]}</span>`;
+      document.getElementById("dice").append(box);
+    });
+  </script>
+</body>
+</html>

@@ -22,6 +22,7 @@ Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts k
 - A new real fixture: save `https://replay.pokemonshowdown.com/<id>.json` into `tests/fixtures/`, count kills by hand from the log, then add it to `REAL` in `tests/tests.js`.
 
 ## Project docs
+- Style guide: `docs/STYLE.md` — read it before any `site/*.html|css` change. Its samples page is `tests/style.html` (screenshot it, dark and light, next to any new control).
 - Feature list / roadmap: `docs/FEATURES.md` — keep it current (status, new ideas). Focus format is gen9nationaldex.
 - Changelog: `CHANGELOG.md` (under Unreleased).
 - Knowledge: `docs/knowledge/` — replay format facts and kill-rule decisions, marked tested / researched / guess.
