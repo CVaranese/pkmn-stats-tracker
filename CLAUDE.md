@@ -11,7 +11,7 @@ Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts k
 
 ## Commands
 - Serve locally: `python -m http.server 8765 --bind 127.0.0.1` from the repo root, then open `http://127.0.0.1:8765/site/` and `http://127.0.0.1:8765/tests/` (fetching fixtures needs http, not file://).
-- Served from 127.0.0.1 / localhost, the site never contacts Showdown (`RS.setLocalOnly`, set in `app.js`): only replays in `site/mock/` load, move / Pokédex data come from `site/data/` (regenerate from the pokemon-showdown npm package, see docs/knowledge/showdown-replays.md), no sprites. `?online` turns it off. To drop local mode: remove the `localOnly` block in `fetchChecked` and the `LOCAL` lines in app.js, then `site/data/` and `site/mock/`. The tests page doesn't turn this on.
+- Served from 127.0.0.1 / localhost, the site never contacts Showdown (`RS.setLocalOnly`, set in `app.js`): only replays saved in `site/games/` load (team sheets for them in `site/mock/<id>-<player>.txt`), move / Pokédex data come from `site/data/` (regenerate from the pokemon-showdown npm package, see docs/knowledge/showdown-replays.md), no sprites. `?online` turns it off. To drop local mode: remove the `localOnly` block in `fetchChecked` and the `LOCAL` lines in app.js, then `site/data/`. The tests page doesn't turn this on.
 - Run tests headless (no Node installed on this machine; Edge is):
   `msedge --headless=new --disable-gpu --user-data-dir=%TEMP%\edge-headless-rs --virtual-time-budget=15000 --dump-dom http://127.0.0.1:8765/tests/index.html`
   The page title is `PASS`, `FAIL (n)` or `CRASH`. `msedge` isn't on PATH in PowerShell: use `& "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"`.

@@ -39,9 +39,6 @@
   "use strict";
 
   const REPLAY_HOST = "https://replay.pokemonshowdown.com/";
-  // TEMPORARY (Showdown outage, 2026-10-26): these replays load from site/mock/ instead of Showdown. Remove after.
-  const MOCK_REPLAYS = new Set(["gen9nationaldex-2705099074", "gen9nationaldex-2705111047",
-    "gen9nationaldex-2705117998", "gen9nationaldex-2705121899"]);
 
   // ---------- input ----------
 
@@ -1001,10 +998,6 @@
     if (library.has(id)) {
       const saved = await fetchFn("games/" + id + ".json").catch(() => null);
       if (saved && saved.ok) return saved.json();
-    }
-    if (MOCK_REPLAYS.has(id)) {
-      const mock = await fetchFn("mock/" + id + ".json");
-      if (mock.ok) return mock.json();
     }
     const resp = await fetchChecked(REPLAY_HOST + id + ".json", fetchFn, timeoutMs);
     if (resp.status === 404) throw new Error("not found (deleted, private, or never saved)");

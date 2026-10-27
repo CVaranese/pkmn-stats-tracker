@@ -30,7 +30,6 @@
       const get = (url) => fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))));
       const replay = !ok ? Promise.reject(new Error("no replay id")) :
         get("games/" + id + ".json")
-          .catch(() => get("mock/" + id + ".json"))
           .catch(() => get("https://replay.pokemonshowdown.com/" + id + ".json"));
       // replaces the embed's own onload: start once the page's scripts and the log are both here
       window.onload = function () {

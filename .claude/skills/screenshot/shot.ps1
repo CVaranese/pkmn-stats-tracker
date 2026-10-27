@@ -2,7 +2,7 @@
 # Starts `python -m http.server 8765` from the repo root if nothing answers there.
 # Prints the PNG path on the last line.
 param(
-  [string]$Replays = "",          # comma-separated replay ids from site/mock/ (1 = One game tab, 2+ = Playoffs tab)
+  [string]$Replays = "",          # comma-separated replay ids from site/games/ (1 = One game tab, 2+ = Playoffs tab)
   [ValidateSet("dark", "light")][string]$Theme = "dark",
   [int]$Width = 1400,
   [int]$Height = 2200,

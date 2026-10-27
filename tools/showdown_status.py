@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 TIMEOUT = 6
 PLAY = "https://play.pokemonshowdown.com/"
 CHECKS = [
-    ("Replays (stats, add_game.py)", "https://replay.pokemonshowdown.com/gen9nationaldex-2705117998.json"),
+    ("Replays (stats, add_game.py)", "https://replay.pokemonshowdown.com/gen9nationaldex-2705157049.json"),
     ("Move data (luck)", PLAY + "data/moves.json"),
     ("Pokedex data (max HP)", PLAY + "data/pokedex.json"),
     ("Sprites", PLAY + "sprites/gen5/pikachu.png"),

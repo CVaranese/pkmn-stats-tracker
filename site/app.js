@@ -5,7 +5,7 @@
   const TS = window.TeamSheets;
   const LK = window.Luck;
   const $ = (id) => document.getElementById(id);
-  // served from this computer: no requests to Showdown at all (replays only from site/mock/, move / Pokedex data from
+  // served from this computer: no requests to Showdown at all (replays only from site/games/, move / Pokedex data from
   // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
   const LOCAL = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname) &&
     !new URLSearchParams(location.search).has("online");
@@ -829,8 +829,7 @@
   // ---------- team sheets ----------
 
   // games that come with both team sheets (site/mock/<id>-<player>.txt), filled in when the game loads
-  const MOCK_SHEETS = { "gen9nationaldex-2705117998": ["Phlegathon", "RevivalSludge24"],
-    "gen9nationaldex-2705157049": ["peterpikmon", "weedinmyhonda"] };  // Week 8, sheets from the user
+  const MOCK_SHEETS = { "gen9nationaldex-2705157049": ["peterpikmon", "weedinmyhonda"] };  // Week 8, sheets from the user
   async function addMockSheets(ids) {
     const have = new Set(sheetInputs().map((t) => t.trim()));
     for (const id of ids) {
