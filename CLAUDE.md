@@ -3,7 +3,7 @@
 Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts kills/deaths per Pokémon for spreadsheets. Singles and doubles.
 
 ## Layout
-- `site/` — everything that gets published: `index.html`, `style.css`, `app.js` (page logic), `parser.js` (log parsing + kill rules, no DOM, also loadable from Node).
+- `site/` — everything that gets published: `index.html`, `style.css`, `app.js` (page logic), `parser.js` (log parsing + kill rules, no DOM, also loadable from Node), `teams.js` (team sheet parsing, sheet-to-game matching, max HP; no DOM).
 - `tests/` — `index.html` + `tests.js` run the parser against real replays in `tests/fixtures/` (hand-counted expectations) and synthetic logs for rules no real replay covers yet.
 - `.github/workflows/pages.yml` — deploys only `site/` on pushes to `main`.
 - `replay_stats.py`, `test_replay_stats.py` — the original Python CLI. Not kept in sync with `site/parser.js`.

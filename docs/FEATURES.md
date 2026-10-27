@@ -33,7 +33,7 @@ Status: `todo` · `in progress` · `done`. Source: **user** = asked for, **idea*
 ## More features (agreed 2026-10-26)
 | Status | Feature | Notes |
 |---|---|---|
-| todo | Team sheet import | Pokepaste link or pasted export per player. **Prerequisite for raw-HP damage**; also enables damage-roll luck and full sets. |
+| done | Team sheet import | Pokepaste link or pasted Showdown export, one box per team. Matched to a side when all 6 team-preview Pokémon are on the sheet; adds Max HP (from `pokedex.json` base HP + EVs/IVs/level), item, ability, moves to the per-game table. Pokepaste links go into share links (`&t=`); pasted text is kept in the browser only. **Prerequisite for raw-HP damage** (next). Idea: read `|showteam|` (open team sheets) from the replay itself when present. |
 | todo | MVP per game | Weighted score from kills, damage, healing, survival. User: "great". |
 | todo | Mega / Z-move usage | Which Pokémon Mega Evolved / used a Z-move, which Z-move, on which turn, win rate when used. Nat Dex specific. |
 | todo | KO matrix | Which Pokémon KO'd which most often across a season. |

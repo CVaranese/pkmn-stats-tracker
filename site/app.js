@@ -2,10 +2,13 @@
 (function () {
   "use strict";
   const RS = window.ReplayStats;
+  const TS = window.TeamSheets;
   const $ = (id) => document.getElementById(id);
   const STORAGE_KEY = "replay-kill-tracker.links";
+  const SHEETS_KEY = "replay-kill-tracker.sheets";
 
   const cache = new Map();   // replay id -> replay json (for this page visit)
+  const pasteCache = new Map(); // pokepaste id -> export text
   let rows = [];             // game rows from the last run
   let view = "summary";
   let sort = { field: "kills", dir: -1 };
@@ -15,17 +18,26 @@
     won: "Won", pokemon: "Pokémon", nickname: "Nickname", brought: "Brought", kills: "Kills",
     direct_kills: "Direct", passive_kills: "Passive", deaths: "Deaths", replay_url: "Link",
     games_brought: "Games", wins_when_brought: "Wins", kills_per_game: "Kills / game",
+    max_hp: "Max HP", item: "Item", ability: "Ability", moves: "Moves",
   };
   const NUMERIC = new Set(["won", "brought", "kills", "direct_kills", "passive_kills", "deaths",
-    "games_brought", "wins_when_brought", "kills_per_game"]);
+    "games_brought", "wins_when_brought", "kills_per_game", "max_hp"]);
   const GAME_VIEW_FIELDS = ["date", "player", "opponent", "won", "pokemon", "nickname", "brought",
     "kills", "direct_kills", "passive_kills", "deaths", "replay_url"];
+  const SHEET_FIELDS = ["max_hp", "item", "ability", "moves"]; // per game, once any sheet matched
 
   // remember pasted links between visits (convenience only; the page works without it)
   try { $("links").value = localStorage.getItem(STORAGE_KEY) || ""; } catch (e) { /* storage blocked */ }
   $("links").addEventListener("input", () => {
     try { localStorage.setItem(STORAGE_KEY, $("links").value); } catch (e) { /* storage blocked */ }
   });
+
+  // team sheets: one box each, remembered like the links
+  let savedSheets = [];
+  try { savedSheets = JSON.parse(localStorage.getItem(SHEETS_KEY) || "[]"); } catch (e) { /* storage blocked */ }
+  for (const text of savedSheets) addSheetBox(text);
+  $("sheets-wrap").open = savedSheets.length > 0;
+  $("add-sheet").addEventListener("click", () => addSheetBox("").querySelector("textarea").focus());
 
   $("run").addEventListener("click", run);
   $("clear").addEventListener("click", () => {
@@ -49,8 +61,14 @@
   $("download").addEventListener("click", downloadCsv);
   $("share").addEventListener("click", copyShareLink);
 
-  // ?r=id1,id2 opens with those replays filled in and loaded (shareable leaderboard link)
-  const shared = RS.replayIdsFromText(new URLSearchParams(location.search).get("r") || "");
+  // ?r=id1,id2 opens with those replays filled in and loaded (shareable leaderboard link);
+  // &t=paste1,paste2 adds those Pokepaste team sheets
+  const params = new URLSearchParams(location.search);
+  const sharedPastes = (params.get("t") || "").split(",").map((t) => TS.pokepasteIdFrom(TS.PASTE_HOST + t.trim()))
+    .filter((id) => id && !sheetInputs().some((s) => TS.pokepasteIdFrom(s) === id));
+  for (const id of sharedPastes) addSheetBox(TS.PASTE_HOST + id);
+  if (sharedPastes.length) { $("sheets-wrap").open = true; saveSheets(); }
+  const shared = RS.replayIdsFromText(params.get("r") || "");
   if (shared.length) {
     $("links").value = shared.map((id) => RS.REPLAY_HOST + id).join("\n");
     run();
@@ -96,6 +114,7 @@
         errors.push(`${replay.id}: could not read the battle log (${e.message || e})`);
       }
     }
+    await applySheets(errors);
     const ok = results.filter(Boolean).length;
     $("status").textContent = `Loaded ${ok} replay${ok === 1 ? "" : "s"}` +
       (errors.length ? `, ${errors.length} failed.` : ".");
@@ -123,7 +142,7 @@
       fields = RS.SUMMARY_FIELDS.filter((f) => byPlayer || f !== "player");
     } else {
       data = filtered.slice();
-      fields = GAME_VIEW_FIELDS;
+      fields = rows.some((r) => r.set) ? GAME_VIEW_FIELDS.concat(SHEET_FIELDS) : GAME_VIEW_FIELDS;
     }
     const { field, dir } = sort;
     if (fields.includes(field)) {
@@ -207,13 +226,91 @@
 
   async function copyShareLink() {
     const ids = RS.replayIdsFromText($("links").value);
-    const url = location.origin + location.pathname + "?r=" + ids.join(",");
+    const pastes = sheetInputs().map(TS.pokepasteIdFrom).filter(Boolean);
+    const url = location.origin + location.pathname + "?r=" + ids.join(",") +
+      (pastes.length ? "&t=" + pastes.join(",") : "");
     try {
       await navigator.clipboard.writeText(url);
       flash($("share"), "Link copied");
     } catch (e) {
       flash($("share"), "Copy failed");
     }
+  }
+
+  // ---------- team sheets ----------
+
+  function addSheetBox(text) {
+    const box = document.createElement("div");
+    box.className = "sheet";
+    const ta = document.createElement("textarea");
+    ta.rows = 3;
+    ta.spellcheck = false;
+    ta.setAttribute("aria-label", "Team sheet: Pokepaste link or Showdown export");
+    ta.placeholder = "https://pokepast.es/…  or paste the export:\nGarchomp @ Rocky Helmet\nAbility: Rough Skin\n…";
+    ta.value = text;
+    ta.addEventListener("input", saveSheets);
+    const status = Object.assign(document.createElement("span"), { className: "status" });
+    const remove = Object.assign(document.createElement("button"), { type: "button", textContent: "Remove" });
+    remove.addEventListener("click", () => { box.remove(); saveSheets(); });
+    const row = document.createElement("div");
+    row.className = "row";
+    row.append(remove, status);
+    box.append(ta, row);
+    $("sheets").appendChild(box);
+    return box;
+  }
+
+  function sheetInputs() {
+    return [...$("sheets").querySelectorAll("textarea")].map((t) => t.value);
+  }
+
+  function saveSheets() {
+    try { localStorage.setItem(SHEETS_KEY, JSON.stringify(sheetInputs().filter((t) => t.trim()))); } catch (e) { /* storage blocked */ }
+  }
+
+  /** Read every sheet box, match the sheets to the loaded games, add max HP / item / ability / moves to rows. */
+  async function applySheets(errors) {
+    const boxes = [...$("sheets").querySelectorAll(".sheet")];
+    const sheets = await Promise.all(boxes.map(async (box) => {
+      const text = box.querySelector("textarea").value;
+      if (!text.trim()) return { sets: [], note: "" };
+      const id = TS.pokepasteIdFrom(text);
+      try {
+        if (id && !pasteCache.has(id)) pasteCache.set(id, await TS.fetchPokepaste(id));
+        const sets = TS.parseTeam(id ? pasteCache.get(id) : text);
+        if (!sets.length) return { sets, bad: true, note: "No Pokémon found. Paste a Pokepaste link or a Showdown export." };
+        return { sets, note: (id ? "Pokepaste: " : "") + sets.map((s) => s.species).join(", ") };
+      } catch (e) {
+        return { sets: [], bad: true, note: String(e.message || e) };
+      }
+    }));
+    const matches = TS.attachSheets(rows, sheets);
+
+    let dex = null;
+    if (rows.some((r) => r.set)) {
+      try { dex = await TS.loadDex(); } catch (e) { errors.push(`Pokédex (for max HP): ${e.message || e}`); }
+    }
+    for (const r of rows) {
+      const s = r.set;
+      r.max_hp = s && dex ? (TS.maxHp(s, dex) ?? "") : "";
+      r.item = s ? s.item : "";
+      r.ability = s ? s.ability : "";
+      r.moves = s ? s.moves.join(" / ") : "";
+    }
+
+    boxes.forEach((box, i) => {
+      const st = box.querySelector(".status");
+      const sh = sheets[i];
+      let used = "";
+      if (sh.sets.length && rows.length) {
+        const players = [...new Set(matches[i].map(([, p]) => p))];
+        used = matches[i].length
+          ? ` · used for ${players.join(", ")} in ${matches[i].length} game${matches[i].length === 1 ? "" : "s"}`
+          : " · no loaded game has exactly this team";
+      }
+      st.textContent = sh.note + used;
+      st.classList.toggle("bad", !!sh.bad);
+    });
   }
 
   function flash(btn, text) {
