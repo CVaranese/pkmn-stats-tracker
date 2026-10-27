@@ -39,7 +39,9 @@
     let cur = null;
     for (const raw of String(text || "").split(/\r?\n/)) {
       const line = raw.trim();
-      if (!line || line.startsWith("===")) { cur = null; continue; } // blank line or '=== [gen9] Team ==='
+      // blank line, '=== [gen9] Team ===', or the ``` lines around each set when copied off a Pokepaste page
+      if (!line || line.startsWith("===") || line.startsWith("```")) { cur = null; continue; }
+      if (/^(https?:\/\/|pokepast\.es\/)/i.test(line)) continue; // a link pasted along with the team
       if (!cur) {
         let head = line, item = "";
         const at = head.lastIndexOf(" @ ");

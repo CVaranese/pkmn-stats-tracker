@@ -263,6 +263,26 @@ Ability: Screen Cleaner
   check("max HP: 420, 362, 1, 314, 241", same(hp, [420, 362, 1, 314, 241]), JSON.stringify(hp));
   check("max HP: unknown species -> null", TS.maxHp({ species: "Missingno", evs: {}, ivs: {} }, DEX) === null);
 
+  // the user's league team, as copied off its Pokepaste page (``` around each set, trailing spaces)
+  const FENCED = "```\nCeruledge @ Weakness Policy  \nAbility: Weak Armor  \nHappiness: 0  \nEVs: 4 HP / 252 Atk / 252 Spe  \n" +
+    "Adamant Nature  \n- Will-O-Wisp  \n\n\n```\n\n\n```\nLopunny-Mega @ Lopunnite  \nAbility: Limber  \n" +
+    "EVs: 252 Atk / 4 SpD / 252 Spe  \n\n\n```\n\n\n```\nSlowbro @ Heavy-Duty Boots  \nEVs: 248 HP / 252 Def / 8 SpD  \n" +
+    "IVs: 0 Atk / 0 Spe  \n\n```\n\n```\nEnamorus (F) @ Choice Scarf  \nEVs: 4 HP / 252 SpA / 252 Spe  \n```\n\n```\n" +
+    "Tinkaton @ Air Balloon  \nTera Type: Water  \nEVs: 4 HP / 252 SpD / 252 Spe  \n```\n\n```\nFlygon @ Life Orb  \n" +
+    "EVs: 4 HP / 252 Atk / 252 Spe  \n\nhttps://pokepast.es/64b1ebbc35388025\n\n```\n";
+  const league = TS.parseTeam(FENCED);
+  // base HP (pokedex.json): Ceruledge 75, Lopunny-Mega 65, Slowbro 95, Enamorus 74, Tinkaton 85, Flygon 80
+  const LDEX = { ceruledge: { baseStats: { hp: 75 } }, lopunnymega: { baseStats: { hp: 65 } },
+    slowbro: { baseStats: { hp: 95 } }, enamorus: { baseStats: { hp: 74 } }, tinkaton: { baseStats: { hp: 85 } },
+    flygon: { baseStats: { hp: 80 } } };
+  check("fenced paste: 6 sets, items kept", same(league.map((s) => s.species + "@" + s.item), ["Ceruledge@Weakness Policy",
+    "Lopunny-Mega@Lopunnite", "Slowbro@Heavy-Duty Boots", "Enamorus@Choice Scarf", "Tinkaton@Air Balloon", "Flygon@Life Orb"]),
+    JSON.stringify(league.map((s) => s.species + "@" + s.item)));
+  const lhp = league.map((s) => TS.maxHp(s, LDEX));
+  check("fenced paste: max HP 292, 271, 393, 290, 312, 302", same(lhp, [292, 271, 393, 290, 312, 302]), JSON.stringify(lhp));
+  check("fenced paste: Lopunny at team preview pairs with Lopunny-Mega",
+    !!TS.pairSets(["Lopunny", "Ceruledge", "Slowbro", "Enamorus", "Tinkaton", "Flygon"], league));
+
   const PASTES = [
     ["https://pokepast.es/0123456789abcdef", "0123456789abcdef"],
     ["pokepast.es/ABCDEF0123456789/raw", "abcdef0123456789"],
