@@ -269,11 +269,13 @@
     return rows;
   }
 
+  // parser.js's fetch with a time limit and "site is down" errors (parser.js loads first on every page)
+  const fetchChecked = (url, fetchFn) => (root.ReplayStats || require("./parser.js")).fetchChecked(url, fetchFn);
   const cache = {};
   /** Fetch a Showdown data file once per page visit (a failure allows a retry on the next run). */
   function load(url, fetchFn = root.fetch) {
     if (!cache[url]) {
-      cache[url] = fetchFn(url).then((r) => {
+      cache[url] = fetchChecked(url, fetchFn).then((r) => {
         if (!r.ok) throw new Error("HTTP " + r.status);
         return r.json();
       });

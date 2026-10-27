@@ -895,8 +895,37 @@
   const toCsv = (fields, rows) => toDelimited(fields, rows, ",");
   const toTsv = (fields, rows) => toDelimited(fields, rows, "\t");
 
-  async function fetchReplay(id, fetchFn = root.fetch) {
-    const resp = await fetchFn(REPLAY_HOST + id + ".json");
+  const FETCH_TIMEOUT_MS = 15000;      // a replay normally loads in under a second
+
+  /**
+   * fetch with a time limit. Throws an Error with .down = true when the server doesn't answer in time,
+   * can't be reached, or answers 5xx (Cloudflare's 52x: the site behind it is down). Other statuses
+   * come back as the response, for the caller to explain.
+   */
+  async function fetchChecked(url, fetchFn = root.fetch, timeoutMs = FETCH_TIMEOUT_MS) {
+    const host = new URL(url).hostname;
+    const down = (why) => Object.assign(new Error(`${host} ${why}; the site may be down, try again in a few minutes`), { down: true });
+    const ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    let timer;
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        reject(down(`didn't answer within ${timeoutMs / 1000} s`));
+        if (ctrl) ctrl.abort();
+      }, timeoutMs);
+    });
+    try {
+      const resp = await Promise.race([fetchFn(url, ctrl ? { signal: ctrl.signal } : undefined), timeout]);
+      if (resp.status >= 500) throw down(`is down or overloaded (HTTP ${resp.status})`);
+      return resp;
+    } catch (e) {
+      throw e.down ? e : down("couldn't be reached (check your internet connection)");
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function fetchReplay(id, fetchFn = root.fetch, timeoutMs = FETCH_TIMEOUT_MS) {
+    const resp = await fetchChecked(REPLAY_HOST + id + ".json", fetchFn, timeoutMs);
     if (resp.status === 404) throw new Error("not found (deleted, private, or never saved)");
     if (!resp.ok) throw new Error("HTTP " + resp.status);
     return resp.json();
@@ -904,7 +933,7 @@
 
   const api = {
     REPLAY_HOST, GAME_FIELDS, SUMMARY_FIELDS, HP_FIELDS, LUCK_FIELDS, norm,
-    replayIdFrom, replayIdsFromText, parseBattle, gameRows, addDamageHp, summarize, toCsv, toTsv, fetchReplay,
+    replayIdFrom, replayIdsFromText, parseBattle, gameRows, addDamageHp, summarize, toCsv, toTsv, fetchChecked, fetchReplay,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ReplayStats = api;
