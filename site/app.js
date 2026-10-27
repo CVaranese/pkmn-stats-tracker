@@ -577,7 +577,7 @@
   const PIPS = [[50, 50], [25, 25, 75, 75], [25, 25, 50, 50, 75, 75], [25, 25, 75, 25, 25, 75, 75, 75],
     [25, 25, 75, 25, 50, 50, 25, 75, 75, 75]];
   /** A die face (1 pip = very unlucky ... 5 = very lucky) and the word; the number is in the tooltip. */
-  function luckBadge(v, kind) {
+  function luckBadge(v, kind, top = []) {
     const box = el("span", "luck");
     if (typeof v !== "number") { box.textContent = "–"; box.title = "No luck score (move data didn't load)."; return box; }
     const [a, b] = LUCK_STEPS[kind];
@@ -593,7 +593,8 @@
     box.append(svg, el("span", "", LUCK_WORDS[level]));
     box.title = `Luck score ${v > 0 ? "+" : ""}${v.toFixed(2)}. ` + (kind === "player"
       ? "This player's rolls (hits, crits, status chances…) against the opponent's: about 0 is fair."
-      : "Its own rolls (hits, crits, status chances…): about 0 is fair.");
+      : "Its own rolls (hits, crits, status chances…): about 0 is fair.") +
+      (top.length ? " Biggest: " + top.map((g) => `${g.label}${g.n > 1 ? " ×" + g.n : ""} (${g.v > 0 ? "+" : "−"}${Math.abs(g.v).toFixed(2)})`).join("; ") + "." : "");
     return box;
   }
   function megaZ(r) {
@@ -652,7 +653,7 @@
       stat("Switches", sum(brought, "switches") + sum(brought, "pivots"), "switches"),
       stat("Crits", sum(brought, "crits"), "crits"));
     const luck = el("div", "team-luck");
-    luck.append(el("span", "stat-label", "Team luck"), luckBadge(rs[0].player_luck, "player"));
+    luck.append(el("span", "stat-label", "Team luck"), luckBadge(rs[0].player_luck, "player", rs[0].player_luck_top));
     team.append(el("h4", "", "Team"), nums, luck);
     card.appendChild(team);
     return card;
@@ -684,7 +685,7 @@
       adv(stat("Turns on field", r.turns_on_field, "turns_on_field")),
       adv(amountStat("Healed", [r], ["healing_pct", "healing_given_pct"])));
     const luck = el("div", "mon-luck adv");
-    luck.append(el("span", "stat-label", "Luck"), luckBadge(r.luck, "pokemon"));
+    luck.append(el("span", "stat-label", "Luck"), luckBadge(r.luck, "pokemon", r.luck_top));
     const mark = el("p", "mon-mark");
     const mz = megaZ(r);
     if (mz) mark.appendChild(el("span", "mark " + (r.mega ? "mega" : "z"), mz)); else mark.textContent = "\u00a0";

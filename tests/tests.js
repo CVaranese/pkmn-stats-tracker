@@ -931,6 +931,13 @@ ${switchIn}`).hiddenZoroark;
     LK.addLuck(rows, { moves: L_MOVES, dex: L_DEX });
     const lr = rows.map((r) => [r.player, r.luck, r.luck_against, r.player_luck]);
     check("luck rows: luck, luck against, player luck", same(lr, [["Alice", -0.75, 0.96, -1.71], ["Bob", 0.96, 0, 1.71]]), JSON.stringify(lr));
+    // what the hover lists (moves without a name in the data show their id)
+    const top = (r, f) => r[f].map((g) => `${g.label} ${g.v} ${g.n}`).join("; ");
+    check("luck top: a Pokémon's own rolls", top(rows[0], "luck_top") === "fully paralyzed -0.75 1", top(rows[0], "luck_top"));
+    check("luck top: player's view, opponent's rolls counted against", top(rows[0], "player_luck_top") ===
+      "their Garchomp: crit with tackle -0.96 1; Pelipper: fully paralyzed -0.75 1", top(rows[0], "player_luck_top"));
+    const grouped = LK.topContributors([{ label: "no crits", v: -0.04 }, { label: "no crits", v: -0.04 }, { label: "x", v: 0.01 }], () => 1);
+    check("luck top: same label adds up, tiny ones dropped", JSON.stringify(grouped) === '[{"label":"no crits","v":-0.08,"n":2}]', JSON.stringify(grouped));
     const sum = RS.summarize(rows);
     check("luck summary: totals per Pokémon", sum.find((a) => a.player === "Bob").luck === 0.96, JSON.stringify(sum.map((a) => a.luck)));
     LK.addLuck(rows, null);

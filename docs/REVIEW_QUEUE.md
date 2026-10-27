@@ -2,7 +2,9 @@
 
 Things only a person can check. Remove an item once checked.
 
-- [ ] Gambling tab: fantasy points with draft cost (scoring 3 a KO, 1 per 100% damage, 1 alive at the end, 1 for a win; top 20) and Swiss records from Challonge. Is the scoring right? Draft tiers in `site/games/draft.json` follow the sheet's sprite rows (Sableye-Mega, Rotom-Wash, Blacephalon in UUBL). Fingy's pool totals 52, not 51: missing or wrong Pokémon? It gives results away while Games hides them: OK? Phone width not checked.
+- [ ] Luck hover lists the biggest contributors: hover (or tap) Team luck and a Pokémon's Luck on a game. Up to 3 entries, e.g. "Altaria-Mega: burn from Flamethrower (+0.90); their Latios-Mega: Draco Meteor missed (+0.90); Ogerpon-Wellspring: no crits ×3 (−0.29)". Clear enough? Is the tap tip too long on a phone?
+
+- [ ] Gambling tab: fantasy points with draft cost (scoring 3 a KO, 1 per 100% damage, 1 alive at the end, 1 for a win; top 20) and Swiss records from Challonge. Is the scoring right? Draft tiers in `site/games/draft.json` follow the sheet's sprite rows (Sableye-Mega, Rotom-Wash, Blacephalon in UUBL). It gives results away while Games hides them: OK? Phone width not checked.
 
 - [ ] Phone, round 2: opening a game from Games leaves Team sheets closed; "More detail" on one card leaves the other alone; first tap on a header explains it, second tap sorts; Games list teams in two lines of three, side by side (long names like "chicken parm karm" wrap?); tapping a luck word / Performance / a sprite shows its box right under it. Copy for Google Sheets, Copy share link and Download CSV in iPhone Safari still untested.
 

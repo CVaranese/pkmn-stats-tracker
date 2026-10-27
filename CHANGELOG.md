@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Luck: hovering (or tapping) Team luck or a Pokémon's Luck now lists the biggest contributors, up to 3, e.g. "their Latios-Mega: Draco Meteor missed (+0.90)" or "no crits ×3 (−0.29)".
 - Gambling tab: every fantasy column header explains itself (hover, or tap on a phone). Taps on headers outside the main stats table showed nothing before.
 - Games: Week 1, Nezergy vs potatoesareyum (2677227914), saved from a copy downloaded while Showdown was down. Its draft pool and Aron (brought in Week 1, no longer on the draft sheet) are in `site/games/draft.json`.
 - Gambling tab (first draft): Pokémon fantasy points from every league game (3 a KO, 1 per 100% damage, 1 for surviving, 1 for a win) with each Pokémon's draft tier, cost and points per draft point, plus each player's Swiss record from the Challonge bracket under its names (`site/games/records.json`, made by `python -I tools/challonge_records.py`). A note says the points aren't exact until we have team sheets. Draft pools and tiers are in `site/games/draft.json`. No win odds: too few games. It shows results.

@@ -31,6 +31,7 @@
   const RAIN_SURE = new Set(["thunder", "hurricane", "bleakwindstorm", "wildboltstorm", "sandsearstorm"]);
   const SUN_HALF = new Set(["thunder", "hurricane"]);
   const CRIT_ODDS = [0, 1 / 24, 1 / 8, 1 / 2];   // by stage; 4+ always crits
+  const STATUS_NAMES = { brn: "burn", par: "paralysis", psn: "poison", tox: "bad poison", frz: "freeze", slp: "sleep" };
   const STATUS_BLOCK = {                         // abilities that stop a status
     brn: ["Water Veil", "Water Bubble", "Thermal Exchange"], par: ["Limber"], psn: ["Immunity", "Pastel Veil"],
     tox: ["Immunity", "Pastel Veil"], frz: ["Magma Armor"], slp: ["Insomnia", "Vital Spirit", "Sweet Veil"],
@@ -53,6 +54,7 @@
     const moves = data.moves || {}, dex = data.dex || {};
     const byMon = new Map();
     const bySide = { p1: 0, p2: 0 };
+    const events = [];  // every scored roll: {actor, form, v, label}, for "biggest contributors"
     const add = (key, f, v) => {
       if (!byMon.has(key)) byMon.set(key, { luck: 0, against: 0 });
       byMon.get(key)[f] += v;
@@ -89,16 +91,18 @@
     }
 
     /** Add v (positive = went the actor's way) to the actor's luck, and to the target's 'against' when aimed at it. */
-    function scoreValue(r, v, aimed) {
+    function scoreValue(r, v, aimed, label) {
+      events.push({ actor: r.actor, form: r.aForm || "", v, label });
       add(r.actor, "luck", v);
       if (aimed) add(r.target, "against", v);
       bySide[r.actor.slice(0, 2)] += v;
     }
     /** good: the roll went the actor's way; p: chance it would. */
-    function score(r, good, p, aimed) {
+    function score(r, good, p, aimed, label) {
       if (p === null || p === undefined || p <= 0 || p >= 1) return;
-      scoreValue(r, good ? 1 - p : -p, aimed);
+      scoreValue(r, good ? 1 - p : -p, aimed, label);
     }
+    const moveName = (r) => (moves[r.move] && moves[r.move].name) || r.move || "a move";
 
     /** Chance the move hits, or null when it can't miss / isn't known. */
     function hitChance(r) {
@@ -179,9 +183,9 @@
         if (typeof sec.chance !== "number") continue;
         const p = Math.min(100, sec.chance * (aA === "Serene Grace" ? 2 : 1)) / 100;
         if (sec.status) {
-          if (canStatus(r, sec.status)) out.push([r.status === sec.status, p]);
+          if (canStatus(r, sec.status)) out.push([r.status === sec.status, p, STATUS_NAMES[sec.status] || sec.status]);
         } else if (sec.volatileStatus === "flinch") {
-          if (r.flinch !== null && !r.fainted && tA !== "Inner Focus") out.push([r.flinch, p]);
+          if (r.flinch !== null && !r.fainted && tA !== "Inner Focus") out.push([r.flinch, p, "flinch"]);
         }
       }
       return out;
@@ -212,29 +216,49 @@
     for (const r of rolls) {
       if (r.kind === "acc") {
         const p = agree(r, () => hitChance(r));
-        score(r, !r.missed, p, true);
+        const mv = moveName(r);
+        score(r, !r.missed, p, true, mv + (r.missed ? " missed" : " hit"));
         const later = p === undefined ? undefined : agree(r, () => laterHits(r));
         if (later) {
-          for (let i = 0; i < later.ok; i++) score(r, true, p, true);
-          if (later.failed) score(r, false, p, true);
+          for (let i = 0; i < later.ok; i++) score(r, true, p, true, mv + " hit");
+          if (later.failed) score(r, false, p, true, mv + " missed");
         }
       } else if (r.kind === "hit") {
-        score(r, r.crit, agree(r, () => critChance(r)), true);
-        for (const [good, p] of agree(r, () => secondaries(r)) || []) score(r, good, p, true);
+        score(r, r.crit, agree(r, () => critChance(r)), true, r.crit ? "crit with " + moveName(r) : "no crits");
+        for (const [good, p, what] of agree(r, () => secondaries(r)) || []) {
+          score(r, good, p, true, (good ? "" : "no ") + what + " from " + moveName(r));
+        }
       } else if (r.kind === "hits") {
         const v = agree(r, () => hitCountLuck(r));
-        if (typeof v === "number" && Math.abs(v) > 1e-9) scoreValue(r, v, true);
+        if (typeof v === "number" && Math.abs(v) > 1e-9) scoreValue(r, v, true, `${moveName(r)} hit ${r.count} times`);
       }
-      else if (r.kind === "par") score(r, !r.fullPara, 3 / 4, false);
-      else if (r.kind === "frz") score(r, r.thawed, 1 / 5, false);
-      else if (r.kind === "conf") score(r, !r.selfHit, 67 / 100, false);
+      else if (r.kind === "par") score(r, !r.fullPara, 3 / 4, false, r.fullPara ? "fully paralyzed" : "moved through paralysis");
+      else if (r.kind === "frz") score(r, r.thawed, 1 / 5, false, r.thawed ? "thawed out" : "stayed frozen");
+      else if (r.kind === "conf") score(r, !r.selfHit, 67 / 100, false, r.selfHit ? "hit itself in confusion" : "attacked through confusion");
       else if (r.kind === "slp" && !r.rest) {
         // chance to wake on this attempt: 1/3 on the 2nd, 1/2 on the 3rd (1st never, 4th always)
         score(r, r.woke, agree(r, () => (ability(r, "a") === "Early Bird" ? null
-          : r.attempt === 2 ? 1 / 3 : r.attempt === 3 ? 1 / 2 : null)), false);
+          : r.attempt === 2 ? 1 / 3 : r.attempt === 3 ? 1 / 2 : null)), false, r.woke ? "woke up early" : "stayed asleep");
       }
     }
-    return { byMon, bySide };
+    return { byMon, bySide, events };
+  }
+
+  /** The rolls that moved a score most: events grouped by label (sign: +1 for the player, -1 for the opponent),
+      biggest total first. [{label, v, n}] */
+  function topContributors(events, sign, howMany = 3) {
+    const by = new Map();
+    for (const e of events) {
+      const s = sign(e);
+      if (!s) continue;
+      const label = e.prefix ? e.prefix + e.label : e.label;
+      if (!by.has(label)) by.set(label, { label, v: 0, n: 0 });
+      const g = by.get(label);
+      g.v += s * e.v;
+      g.n++;
+    }
+    return [...by.values()].filter((g) => Math.abs(g.v) >= 0.05)
+      .sort((a, b) => Math.abs(b.v) - Math.abs(a.v)).slice(0, howMany).map((g) => ({ ...g, v: round2(g.v) }));
   }
 
   const round2 = (x) => Math.round(x * 100) / 100;
@@ -256,14 +280,19 @@
         continue;
       }
       const sets = new Map(group.filter((r) => r.mon_key && r.set).map((r) => [r.mon_key, r.set]));
-      const { byMon, bySide } = scoreGame(rolls, data, sets);
+      const { byMon, bySide, events } = scoreGame(rolls, data, sets);
       const sideOf = new Map(group.filter((r) => r.mon_key).map((r) => [r.player, r.mon_key.slice(0, 2)]));
+      const sideEv = (side) => events.map((e) => ({ ...e,
+        prefix: (e.actor.slice(0, 2) === side ? "" : "their ") + (e.form || e.actor.slice(5)) + ": " }));
       for (const r of group) {
         const m = (r.mon_key && byMon.get(r.mon_key)) || { luck: 0, against: 0 };
         r.luck = r.brought ? round2(m.luck) : "";
         r.luck_against = r.brought ? round2(m.against) : "";
         const side = sideOf.get(r.player) || (sideOf.get(r.opponent) === "p1" ? "p2" : "p1");
         r.player_luck = round2(bySide[side] - bySide[side === "p1" ? "p2" : "p1"]);
+        // not exported: what the hover lists
+        r.luck_top = r.mon_key ? topContributors(events, (e) => (e.actor === r.mon_key ? 1 : 0)) : [];
+        r.player_luck_top = topContributors(sideEv(side), (e) => (e.actor.slice(0, 2) === side ? 1 : -1));
       }
     }
     return rows;
@@ -285,7 +314,7 @@
   }
   const loadMoves = (fetchFn) => load(MOVES_URL, fetchFn);
 
-  const api = { MOVES_URL, DEX_URL, scoreGame, addLuck, loadMoves };
+  const api = { MOVES_URL, DEX_URL, scoreGame, topContributors, addLuck, loadMoves };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.Luck = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);
