@@ -13,6 +13,9 @@
  *   self-KO  Explosion / Memento / Final Gambit / Healing Wish: a death, no kill.
  *   forfeit  Pokemon left standing after a forfeit are not counted as deaths.
  *
+ * How a game ended (end_reason): "forfeit" (-message "X forfeited."), "timer" (-message
+ *   "X lost due to inactivity."), "normal" (a |win| with neither), "tie" (|tie|), "unfinished".
+ *
  * Damage rules (same credit as kills): each -damage line is a hit of (HP % before - HP % after),
  *   so overkill never counts. Direct hits go to the attacker, indirect damage to its cause (as
  *   above). Self-inflicted damage (recoil, Life Orb, confusion, Substitute cost, own weather, an
@@ -106,6 +109,9 @@
     const preview = { p1: [], p2: [] }; // species at team preview
     let winner = null;
     let forfeited = false;
+    let timedOut = false;               // lost to the battle timer
+    let tie = false;
+    let turns = 0;                      // last |turn| number
 
     // A "stint" is one stay on the field: {key, side, species, direct, passive, deaths, hp}.
     // Credit goes to stints, so an Illusion reveal can re-assign one stint without touching
@@ -216,7 +222,7 @@
         if (from && to && from !== to) [slots[from], slots[to]] = [slots[to], slots[from]];
       } else if (cmd === "turn" || cmd === "upkeep") {
         mover = null;
-        if (cmd === "turn") destinyBond = null;
+        if (cmd === "turn") { destinyBond = null; turns = Number(parts[1]) || turns; }
       } else if (cmd === "move") {
         mover = stintOf(parts[1]);
         const move = norm(parts[2]);
@@ -292,8 +298,12 @@
         kills.push([killer, kind, victim]);
       } else if (cmd === "-message" && (parts[1] || "").includes("forfeited")) {
         forfeited = true;
+      } else if (cmd === "-message" && / lost due to inactivity\.$/.test(parts[1] || "")) {
+        timedOut = true;
       } else if (cmd === "win") {
         winner = parts[1];
+      } else if (cmd === "tie") {
+        tie = true;
       }
     }
 
@@ -314,8 +324,9 @@
       dmg(t.key).taken = round2(dmg(t.key).taken + pct);
     }
     const keyOf = (s) => (s ? s.key : null);
+    const endReason = forfeited ? "forfeit" : timedOut ? "timer" : winner ? "normal" : tie ? "tie" : "unfinished";
     return {
-      players, preview, species, stats, damage, winner, forfeited,
+      players, preview, species, stats, damage, winner, forfeited, endReason, turns,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
       hits: hits.map(([d, t, pct]) => [keyOf(d), keyOf(t), pct]),
     };
@@ -323,7 +334,7 @@
 
   // ---------- rows ----------
 
-  const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "pokemon", "nickname",
+  const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "end_reason", "turns", "pokemon", "nickname",
     "brought", "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct", "replay_url"];
 
   /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
@@ -342,7 +353,7 @@
         const dm = (key && b.damage.get(key)) || { dealt: 0, taken: 0 };
         return {
           replay_id: rid, date, format: replay.format || "", player, opponent,
-          won: b.winner === player ? 1 : 0,
+          won: b.winner === player ? 1 : 0, end_reason: b.endReason, turns: b.turns,
           pokemon: sp, nickname: key ? key.slice(4) : "", brought: key ? 1 : 0,
           kills: st.direct + st.passive, direct_kills: st.direct, passive_kills: st.passive,
           deaths: st.deaths, damage_dealt_pct: dm.dealt, damage_taken_pct: dm.taken, replay_url: REPLAY_HOST + rid,
