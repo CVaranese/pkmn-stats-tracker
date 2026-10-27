@@ -13,6 +13,13 @@
  *   self-KO  Explosion / Memento / Final Gambit / Healing Wish: a death, no kill.
  *   forfeit  Pokemon left standing after a forfeit are not counted as deaths.
  *
+ * Hazards: hazard_damage_pct is the part of damage_dealt_pct done by Stealth Rock / Spikes /
+ *   Steelsurge, hazard_kills the part of passive kills. hazards_set counts each layer set on the
+ *   opponent's side (Sticky Web and Toxic Spikes too), hazards_removed each hazard cleared from its
+ *   own side (Defog clearing the opponent's side doesn't count). After Court Change the swapped
+ *   hazards count as the Court Change user's. hazard_turns (per player): turns that ended with any
+ *   hazard on the opponent's side, the turn the game ended in included.
+ *
  * How a game ended (end_reason): "forfeit" (-message "X forfeited."), "timer" (-message
  *   "X lost due to inactivity."), "normal" (a |win| with neither), "tie" (|tie|), "unfinished".
  *
@@ -100,6 +107,7 @@
   }
 
   const HAZARDS = new Set(["stealthrock", "spikes", "toxicspikes", "gmaxsteelsurge", "steelsurge"]);
+  const ENTRY_HAZARDS = new Set([...HAZARDS, "stickyweb"]); // counted as set / removed / turns up
   const WEATHERS = new Set(["sandstorm", "hail", "snow"]);
   const STATUS_DAMAGE = new Set(["brn", "psn", "tox"]);
   const DELAYED_MOVES = new Set(["futuresight", "doomdesire"]);
@@ -112,6 +120,7 @@
     let timedOut = false;               // lost to the battle timer
     let tie = false;
     let turns = 0;                      // last |turn| number
+    const hazardTurns = { p1: 0, p2: 0 }; // turns that ended with hazards on the opponent's side
 
     // A "stint" is one stay on the field: {key, side, species, direct, passive, deaths, hp}.
     // Credit goes to stints, so an Illusion reveal can re-assign one stint without touching
@@ -135,7 +144,7 @@
 
     function newStint(key, sp) {
       const s = { key, side: sideOf(key), species: sp, direct: 0, passive: 0, deaths: 0, hp: 100,
-        prev: latestByKey.get(key) };
+        hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0, prev: latestByKey.get(key) };
       stints.push(s);
       latestByKey.set(key, s);
       return s;
@@ -163,10 +172,21 @@
     }
 
     /** Record HP lost by a stint; the dealer only when it is an opponent. */
-    function hit(target, source, newHp) {
+    function hit(target, source, newHp, hazard = false) {
       const lost = Math.round((target.hp - newHp) * 100) / 100;
       target.hp = newHp;
-      if (lost > 0) hits.push([source && source.side !== target.side ? source : null, target, lost]);
+      const dealer = source && source.side !== target.side ? source : null;
+      if (lost > 0) hits.push([dealer, target, lost, hazard && !!dealer]);
+    }
+
+    /** At the end of a turn: each player with an entry hazard on the opponent's side gets a turn. */
+    function countHazardTurns() {
+      for (const side of ["p1", "p2"]) {
+        const opp = side === "p1" ? "p2" : "p1";
+        if ([...hazardSrc.keys()].some((k) => k.startsWith(opp + "|") && ENTRY_HAZARDS.has(k.slice(3)))) {
+          hazardTurns[side] += 1;
+        }
+      }
     }
 
     function moveKey(map, from, to) {
@@ -222,7 +242,11 @@
         if (from && to && from !== to) [slots[from], slots[to]] = [slots[to], slots[from]];
       } else if (cmd === "turn" || cmd === "upkeep") {
         mover = null;
-        if (cmd === "turn") { destinyBond = null; turns = Number(parts[1]) || turns; }
+        if (cmd === "turn") {
+          destinyBond = null;
+          if (turns > 0) countHazardTurns(); // the turn before this one just ended
+          turns = Number(parts[1]) || turns;
+        }
       } else if (cmd === "move") {
         mover = stintOf(parts[1]);
         const move = norm(parts[2]);
@@ -247,9 +271,20 @@
         if (cmd === "-activate" && effect === "destinybond") destinyBond = stintOf(parts[1]);
         else if (src && !effectSrc.has(target + "|" + effect)) effectSrc.set(target + "|" + effect, src);
       } else if (cmd === "-sidestart") {
-        hazardSrc.set(parts[1].slice(0, 2) + "|" + norm(parts[2]), mover);
+        const side = parts[1].slice(0, 2), hazard = norm(parts[2]);
+        hazardSrc.set(side + "|" + hazard, mover);
+        if (mover && mover.side !== side && ENTRY_HAZARDS.has(hazard)) mover.hazardsSet += 1; // each layer
       } else if (cmd === "-sideend") {
-        hazardSrc.delete(parts[1].slice(0, 2) + "|" + norm(parts[2]));
+        const side = parts[1].slice(0, 2), hazard = norm(parts[2]);
+        hazardSrc.delete(side + "|" + hazard);
+        // Defog / Rapid Spin / Mortal Spin / Tidy Up: only clearing its own side counts
+        const remover = "of" in tags ? stintOf(tags.of) : mover;
+        if ("from" in tags && remover && remover.side === side && ENTRY_HAZARDS.has(hazard)) remover.hazardsRemoved += 1;
+      } else if (cmd === "-swapsideconditions") {
+        // Court Change: hazards move to the other side and now count as the Court Change user's
+        const swapped = [...hazardSrc].map(([k, v]) => [(k.startsWith("p1") ? "p2" : "p1") + k.slice(2), mover || v]);
+        hazardSrc.clear();
+        for (const [k, v] of swapped) hazardSrc.set(k, v);
       } else if (cmd === "-weather" && !("upkeep" in tags)) {
         if (norm(parts[1]) === "none") weatherSrc = null;
         else weatherSrc = "of" in tags ? stintOf(tags.of) : mover;
@@ -262,7 +297,7 @@
         if (hp !== null) hit(stintOf(parts[1]), mover, hp);
       } else if (cmd === "-damage") {
         const target = monKey(parts[1]);
-        let source, kind;
+        let source, kind, hazard = false;
         if (!("from" in tags) || /^pokemon:/i.test(tags.from)) { // no tag, or Disguise bust
           source = mover; kind = "direct";
         } else {
@@ -270,21 +305,24 @@
           kind = "passive";
           if (STATUS_DAMAGE.has(frm)) source = statusSrc.get(target);
           else if ("of" in tags && monKey(tags.of) !== target) source = stintOf(tags.of); // Leech Seed, Rocky Helmet...
-          else if (HAZARDS.has(frm)) source = hazardSrc.get(sideOf(target) + "|" + frm);
+          else if (HAZARDS.has(frm)) { source = hazardSrc.get(sideOf(target) + "|" + frm); hazard = true; }
           else if (WEATHERS.has(frm)) source = weatherSrc;
           else if (effectSrc.has(target + "|" + frm)) source = effectSrc.get(target + "|" + frm); // Salt Cure, Curse, binding
           else source = null; // recoil, Life Orb, confusion, etc.
         }
         if (source && source.side !== sideOf(target)) lastOppHit.set(target, source);
-        if ((parts[2] || "").startsWith("0")) pendingKo.set(target, credit(target, source, kind));
+        if ((parts[2] || "").startsWith("0")) {
+          const [killer, k] = credit(target, source, kind);
+          pendingKo.set(target, [killer, k, hazard && killer === source]);
+        }
         const hp = hpOf(parts[2]);
-        if (hp !== null) hit(stintOf(parts[1]), source, hp);
+        if (hp !== null) hit(stintOf(parts[1]), source, hp, hazard);
       } else if (cmd === "faint") {
         const victim = stintOf(parts[1]);
         victim.deaths += 1;
-        let killer, kind;
+        let killer, kind, byHazard = false;
         if (pendingKo.has(victim.key)) {
-          [killer, kind] = pendingKo.get(victim.key);
+          [killer, kind, byHazard] = pendingKo.get(victim.key);
           pendingKo.delete(victim.key);
         } else if (destinyBond && destinyBond.side !== victim.side) {
           [killer, kind] = [destinyBond, "direct"];
@@ -294,6 +332,7 @@
           [killer, kind] = [null, "none"]; // Explosion, Memento, Final Gambit...
         }
         if (killer && (kind === "direct" || kind === "passive")) killer[kind] += 1;
+        if (killer && byHazard) killer.hazardKills += 1;
         hit(victim, kind === "direct" || kind === "passive" ? killer : null, 0); // HP left at a faint with no 0 HP hit
         kills.push([killer, kind, victim]);
       } else if (cmd === "-message" && (parts[1] || "").includes("forfeited")) {
@@ -307,35 +346,39 @@
       }
     }
 
+    if (turns > 0) countHazardTurns(); // the last turn (the game ended during it)
+
     // Sum stints per Pokemon (keys resolved after any Illusion reveal)
     const species = new Map();          // mon key -> species (insertion order = first seen)
     const stats = new Map();            // mon key -> {direct, passive, deaths}
     for (const s of stints) {
       if (!species.has(s.key) && s.species) species.set(s.key, s.species);
-      if (!stats.has(s.key)) stats.set(s.key, { direct: 0, passive: 0, deaths: 0 });
+      if (!stats.has(s.key)) stats.set(s.key, { direct: 0, passive: 0, deaths: 0, hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0 });
       const st = stats.get(s.key);
-      st.direct += s.direct; st.passive += s.passive; st.deaths += s.deaths;
+      for (const f of ["direct", "passive", "deaths", "hazardKills", "hazardsSet", "hazardsRemoved"]) st[f] += s[f];
     }
-    const damage = new Map();           // mon key -> {dealt, taken} in % of max HP
-    const dmg = (key) => damage.get(key) || damage.set(key, { dealt: 0, taken: 0 }).get(key);
+    const damage = new Map();           // mon key -> {dealt, taken, hazard} in % of max HP
+    const dmg = (key) => damage.get(key) || damage.set(key, { dealt: 0, taken: 0, hazard: 0 }).get(key);
     const round2 = (x) => Math.round(x * 100) / 100;
-    for (const [d, t, pct] of hits) {
+    for (const [d, t, pct, hz] of hits) {
       if (d) dmg(d.key).dealt = round2(dmg(d.key).dealt + pct);
+      if (hz) dmg(d.key).hazard = round2(dmg(d.key).hazard + pct);
       dmg(t.key).taken = round2(dmg(t.key).taken + pct);
     }
     const keyOf = (s) => (s ? s.key : null);
     const endReason = forfeited ? "forfeit" : timedOut ? "timer" : winner ? "normal" : tie ? "tie" : "unfinished";
     return {
-      players, preview, species, stats, damage, winner, forfeited, endReason, turns,
+      players, preview, species, stats, damage, winner, forfeited, endReason, turns, hazardTurns,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
-      hits: hits.map(([d, t, pct]) => [keyOf(d), keyOf(t), pct]),
+      hits: hits.map(([d, t, pct, hz]) => [keyOf(d), keyOf(t), pct, hz]),
     };
   }
 
   // ---------- rows ----------
 
   const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "end_reason", "turns", "pokemon", "nickname",
-    "brought", "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct", "replay_url"];
+    "brought", "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
+    "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "replay_url"];
 
   /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
   function gameRows(replay) {
@@ -349,16 +392,18 @@
       const brought = [...b.species].filter(([k]) => sideOf(k) === side);
       const seen = new Set();
       const row = (key, sp) => {
-        const st = (key && b.stats.get(key)) || { direct: 0, passive: 0, deaths: 0 };
-        const dm = (key && b.damage.get(key)) || { dealt: 0, taken: 0 };
+        const st = (key && b.stats.get(key)) || { direct: 0, passive: 0, deaths: 0, hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0 };
+        const dm = (key && b.damage.get(key)) || { dealt: 0, taken: 0, hazard: 0 };
         return {
           replay_id: rid, date, format: replay.format || "", player, opponent,
           won: b.winner === player ? 1 : 0, end_reason: b.endReason, turns: b.turns,
           pokemon: sp, nickname: key ? key.slice(4) : "", brought: key ? 1 : 0,
           kills: st.direct + st.passive, direct_kills: st.direct, passive_kills: st.passive,
-          deaths: st.deaths, damage_dealt_pct: dm.dealt, damage_taken_pct: dm.taken, replay_url: REPLAY_HOST + rid,
+          deaths: st.deaths, damage_dealt_pct: dm.dealt, damage_taken_pct: dm.taken,
+          hazard_damage_pct: dm.hazard, hazard_kills: st.hazardKills, hazards_set: st.hazardsSet,
+          hazards_removed: st.hazardsRemoved, hazard_turns: b.hazardTurns[side], replay_url: REPLAY_HOST + rid,
           // not exported: what addDamageHp needs once max HP is known
-          mon_key: key, hits_dealt: b.hits.filter(([d]) => d && d === key).map(([, t, pct]) => [t, pct]),
+          mon_key: key, hits_dealt: b.hits.filter(([d]) => d && d === key).map(([, t, pct, hz]) => [t, pct, hz]),
         };
       };
       for (const sp of b.preview[side] || []) {
@@ -383,24 +428,28 @@
     for (const r of rows) {
       const own = r.mon_key && r.max_hp;
       r.damage_taken_hp = own ? Math.round((r.damage_taken_pct * r.max_hp) / 100) : "";
-      let dealt = 0;
-      for (const [t, pct] of r.hits_dealt || []) {
+      let dealt = 0, hazard = 0;
+      for (const [t, pct, hz] of r.hits_dealt || []) {
         const m = maxHp.get(r.replay_id + "\u0000" + t);
         if (!m) { dealt = null; break; }
         dealt += (pct * m) / 100;
+        if (hz) hazard += (pct * m) / 100;
       }
       // a Pokemon that dealt nothing still needs the opposing side's sheet to show 0
       const oppKnown = rows.some((o) => o.replay_id === r.replay_id && o.player === r.opponent && o.max_hp);
       r.damage_dealt_hp = dealt === null || !oppKnown ? "" : Math.round(dealt);
+      r.hazard_damage_hp = dealt === null || !oppKnown ? "" : Math.round(hazard);
     }
     return rows;
   }
 
   const SUMMARY_FIELDS = ["player", "pokemon", "games_brought", "wins_when_brought", "kills",
     "direct_kills", "passive_kills", "deaths", "kills_per_game", "damage_dealt_pct", "damage_taken_pct",
-    "damage_dealt_hp", "damage_taken_hp"];
-  const SUM_FIELDS = ["kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct"];
-  const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp"];
+    "damage_dealt_hp", "damage_taken_hp", "hazard_damage_pct", "hazard_damage_hp", "hazard_kills",
+    "hazards_set", "hazards_removed"];
+  const SUM_FIELDS = ["kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
+    "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed"];
+  const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp", "hazard_damage_hp"];
 
   /** Totals per player + Pokemon (or per Pokemon only when byPlayer is false), most kills first. */
   function summarize(rows, byPlayer = true) {
@@ -411,7 +460,8 @@
       if (!agg.has(k)) {
         agg.set(k, { player: byPlayer ? r.player : "", pokemon: r.pokemon, games_brought: 0,
           wins_when_brought: 0, kills: 0, direct_kills: 0, passive_kills: 0, deaths: 0, kills_per_game: 0,
-          damage_dealt_pct: 0, damage_taken_pct: 0, damage_dealt_hp: 0, damage_taken_hp: 0 });
+          damage_dealt_pct: 0, damage_taken_pct: 0, damage_dealt_hp: 0, damage_taken_hp: 0,
+          hazard_damage_pct: 0, hazard_damage_hp: 0, hazard_kills: 0, hazards_set: 0, hazards_removed: 0 });
       }
       const a = agg.get(k);
       a.games_brought += 1;
@@ -425,6 +475,7 @@
       a.kills_per_game = Math.round((a.kills / a.games_brought) * 100) / 100;
       a.damage_dealt_pct = Math.round(a.damage_dealt_pct * 100) / 100;
       a.damage_taken_pct = Math.round(a.damage_taken_pct * 100) / 100;
+      a.hazard_damage_pct = Math.round(a.hazard_damage_pct * 100) / 100;
     }
     out.sort((x, y) => y.kills - x.kills || x.deaths - y.deaths ||
       x.player.toLowerCase().localeCompare(y.player.toLowerCase()) || x.pokemon.localeCompare(y.pokemon));

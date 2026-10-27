@@ -20,14 +20,19 @@
     games_brought: "Games", wins_when_brought: "Wins", kills_per_game: "Kills / game",
     max_hp: "Max HP", item: "Item", ability: "Ability", moves: "Moves",
     damage_dealt_pct: "Dealt %", damage_taken_pct: "Taken %", damage_dealt_hp: "Dealt HP", damage_taken_hp: "Taken HP",
+    hazard_damage_pct: "Hazard %", hazard_damage_hp: "Hazard HP", hazard_kills: "Hazard KOs",
+    hazards_set: "Hazards set", hazards_removed: "Hazards removed", hazard_turns: "Hazard turns",
   };
   const NUMERIC = new Set(["won", "turns", "brought", "kills", "direct_kills", "passive_kills", "deaths",
     "games_brought", "wins_when_brought", "kills_per_game", "max_hp",
-    "damage_dealt_pct", "damage_taken_pct", "damage_dealt_hp", "damage_taken_hp"]);
+    "damage_dealt_pct", "damage_taken_pct", "damage_dealt_hp", "damage_taken_hp",
+    "hazard_damage_pct", "hazard_damage_hp", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns"]);
   const GAME_VIEW_FIELDS = ["date", "player", "opponent", "won", "end_reason", "turns", "pokemon", "nickname", "brought",
-    "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct", "replay_url"];
+    "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
+    "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "replay_url"];
   const SHEET_FIELDS = ["max_hp", "item", "ability", "moves"]; // per game, once any sheet matched
-  const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp"];
+  const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp", "hazard_damage_hp"];
+  const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"] };
 
   // remember pasted links between visits (convenience only; the page works without it)
   try { $("links").value = localStorage.getItem(STORAGE_KEY) || ""; } catch (e) { /* storage blocked */ }
@@ -148,7 +153,7 @@
       data = filtered.slice();
       // with sheets: HP columns next to the % ones, set details at the end
       fields = rows.some((r) => r.set) ? GAME_VIEW_FIELDS.flatMap((f) =>
-        f === "damage_taken_pct" ? [f, ...HP_FIELDS] : [f]).concat(SHEET_FIELDS) : GAME_VIEW_FIELDS;
+        [f, ...(HP_AFTER[f] || [])]).concat(SHEET_FIELDS) : GAME_VIEW_FIELDS;
     }
     const { field, dir } = sort;
     if (fields.includes(field)) {
