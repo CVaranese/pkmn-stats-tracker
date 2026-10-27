@@ -24,12 +24,12 @@ FILTER = "grayscale(1) contrast(2)"  # 4x + contrast read every "lost N%" on the
 
 # ---------------------------------------------------------------- 1-2. frames and OCR
 
-def grab(video, out_dir, times, box, jsonl):
+def grab(video, out_dir, times, box, jsonl, filt=FILTER):
     if os.path.exists(jsonl):
         return
     subprocess.run([sys.executable, "-I", os.path.join(HERE, "video_frames.py"), video, out_dir,
                     "--times", ",".join(f"{t:g}" for t in times), "--box", box, "--scale", "4",
-                    f"--filter={FILTER}"], check=True)
+                    f"--filter={filt}"], check=True)
     subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                     os.path.join(HERE, "ocr_frames.ps1"), out_dir, jsonl], check=True)
 
@@ -223,6 +223,9 @@ def main():
     ap.add_argument("--templates", help="folder with default.js moves.js abilities.js items.js")
     ap.add_argument("--url", default="")
     ap.add_argument("--length", type=float, required=True, help="video length in seconds")
+    ap.add_argument("--log-box", default=LOG_BOX, help="x,y,w,h of the battle log in the 1280x720 frame")
+    ap.add_argument("--scene-box", default=SCENE_BOX, help="x,y,w,h of the scene's message box")
+    ap.add_argument("--filter", default=FILTER, help="CSS filter before OCR; add invert(1) for a dark theme")
     args = ap.parse_args()
     os.makedirs(args.work, exist_ok=True)
     w = lambda *p: os.path.join(args.work, *p)
@@ -234,7 +237,7 @@ def main():
             import urllib.request
             urllib.request.urlretrieve(f"https://cdn.jsdelivr.net/npm/pokemon-showdown@0.11.11/dist/data/text/{kind}.js", dest)
 
-    grab(args.video, w("log"), [t * 5 for t in range(int(args.length // 5) + 1)], LOG_BOX, w("log.jsonl"))
+    grab(args.video, w("log"), [t * 5 for t in range(int(args.length // 5) + 1)], args.log_box, w("log.jsonl"), args.filter)
     log_frames = load_frames(w("log.jsonl"))
     best, end = -1, 0   # where the battle got furthest: the last frame showing the highest turn header
     for f, obs in log_frames.items():
@@ -243,7 +246,7 @@ def main():
             if m and int(m.group(1).replace(" ", "")) >= best:
                 best, end = int(m.group(1).replace(" ", "")), frame_time(f)
     scene_times = [t for t in (round(end - 40 + i * 0.5, 1) for i in range(100)) if 0 <= t <= args.length]
-    grab(args.video, w("scene"), scene_times, SCENE_BOX, w("scene.jsonl"))
+    grab(args.video, w("scene"), scene_times, args.scene_box, w("scene.jsonl"), args.filter)
     scene_frames = load_frames(w("scene.jsonl"))
 
     comp = vc.compile_templates(vc.load_templates(args.templates))
