@@ -203,9 +203,13 @@ def merge(log_frames, scene_frames, score, move_names=()):
         key = prev[-1]
         ratio = [difflib.SequenceMatcher(None, m, key).ratio() for m in msgs]
         best = max(i for i, r in enumerate(ratio) if r >= max(ratio) - 0.05)   # the latest of the best matches
-        if ratio[best] > 0.6:
-            prev[-1] = msgs[best]   # the box's reading of the log's last (often cut-off) line
-            extra = msgs[best + 1:]
+        stem = key.rstrip("!l'i ").lower()
+        # a cut-off line is the start of the box's reading ("Pecharunt used Hex" is not "Pecharunt fainted!")
+        same = ratio[best] > 0.8 or (ratio[best] > 0.6 and msgs[best].lower().startswith(stem))
+        if same or "won the battle" in msgs[-1]:
+            if same:
+                prev[-1] = msgs[best]   # the box's reading of the log's last (often cut-off) line
+            extra = msgs[best + 1:] if same else msgs   # no match: the box only caught the turn's end
             stop = next((i for i, t in enumerate(extra) if re.search(r"won the battle|^Battle started", t)), len(extra) - 1)
             extra = [t for t in extra[:stop + 1] if not t.startswith("Battle started")]
             kept = [prev[-1]]
@@ -248,13 +252,18 @@ def main():
 
     grab(args.video, w("log"), [t * 5 for t in range(int(args.length // 5) + 1)], args.log_box, w("log.jsonl"), args.filter)
     log_frames = load_frames(w("log.jsonl"))
-    best, end = -1, 0   # where the battle got furthest: the last frame showing the highest turn header
-    for f, obs in log_frames.items():
+    best, first, end = -1, 0, 0   # the highest turn header: the first and last frame showing it
+    for f, obs in sorted(log_frames.items(), key=lambda kv: frame_time(kv[0])):
         for o in obs:
             m = TURN.match(clean(o["text"]))
             if m and int(m.group(1).replace(" ", "")) >= best:
-                best, end = int(m.group(1).replace(" ", "")), frame_time(f)
-    scene_times = [t for t in (round(end - 40 + i * 0.5, 1) for i in range(100)) if 0 <= t <= args.length]
+                n = int(m.group(1).replace(" ", ""))
+                first = frame_time(f) if n > best else first
+                best, end = n, frame_time(f)
+    # the last turn plays out after its header first shows; by the last frame the box may already show the win
+    start = max(0, min(end - 40, first))
+    stop = min(end + 10, start + 200)
+    scene_times = [t for t in (round(start + i * 0.5, 1) for i in range(int((stop - start) * 2) + 1)) if t <= args.length]
     grab(args.video, w("scene"), scene_times, args.scene_box, w("scene.jsonl"), args.filter)
     scene_frames = load_frames(w("scene.jsonl"))
 

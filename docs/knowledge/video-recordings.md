@@ -69,3 +69,20 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
 - **Guess**: other league videos may differ: a live battle instead of a replay, another streamer's layout (the crop
   boxes are fixed numbers), spectator chat in the log ("peterpikmon: g2g" sat in team preview here), moves and
   messages this game didn't have. Check every new video's report.txt; expect a few rules per new message type.
+- **Tested** (2026-10-27, playlist PLe1tROU59cYo, Week 1): three more light-theme full-screen videos with the
+  Bad Bully layout (`--scene-box 110,344,480,76`): DEJIME vs Fingy (7RgyqzI7yNI; DEJIME17 vs FingerStripes),
+  Cloudburst vs Karm (d5iVr2s_7dE; azpmCloudburst vs chicken parm karm), Sneez vs Zololab (XmltgmaqObg, 40 min;
+  pee nation vs zololab). Every faint, killer and winner matches the video text. 34 s, 53 s and ~10 min per run.
+- **Tested**: a seek in the 40-min file never fired `seeked` at 2:20 and the grab sat until its 25-min overall
+  timeout. `video_grab.html` now gives each seek 8 s, retries 0.5 s later, then skips the frame.
+- **Tested**: in Sneez vs Zololab the log panel never scrolled past "Pecharunt used Hex" and the old message-box
+  window (40 s before the *last* frame with the top turn header) only saw the win. The window now starts where the
+  last turn header first shows (capped at 200 s). The box still showed only "Pecharunt fainted!" then the win;
+  the Future Sight landing that KO'd it (Slowking, turn 54) was added by hand (a guess from timing and typing).
+  The box line replaces the log's last line only when it starts with it or matches > 0.8 ("Pecharunt used Hex"
+  matched "Pecharunt fainted!" at 0.65).
+- **Tested**: new wordings and slips: "[X] had its energy drained!" (`[SOURCE]`; heal guessed at half the target's
+  loss), "became confused due to fatigue", "Ninetales-AIoIa" (l read as I; species now fixed), a switch line cut
+  before ")!" ("Go! Diancie (Diancie-Mega"), a cut "(Latios lost 42% of its health" (now completed). Team
+  preview "Marv'lle" matched Marill instead of Mawile (fixed by hand; the preview match has no check against the
+  Pokémon later sent out). "The opposing is exerting its pressure!" (name dropped) made a bogus p1 mon (removed by hand).

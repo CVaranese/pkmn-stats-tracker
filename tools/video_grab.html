@@ -20,9 +20,14 @@ window.onerror = (m) => done("ERR " + m);
   g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
   if (q.get("filter")) g.filter = q.get("filter");  // e.g. "grayscale(1) contrast(1.6)"
   const sx = v.videoWidth / 1280, sy = v.videoHeight / 720;
-  for (const t of times) {
+  // A seek in a long file sometimes never fires "seeked"; retry a little off the time, then skip the frame.
+  const seek = (t) => new Promise((r) => {
+    const timer = setTimeout(() => r(false), 8000);
+    v.addEventListener("seeked", () => { clearTimeout(timer); r(true); }, { once: true });
     v.currentTime = t;
-    await new Promise((r) => v.addEventListener("seeked", r, { once: true }));
+  });
+  for (const t of times) {
+    if (!(await seek(t)) && !(await seek(t + 0.5))) continue;
     g.drawImage(v, bx * sx, by * sy, bw * sx, bh * sy, 0, 0, c.width, c.height);
     const blob = await new Promise((r) => c.toBlob(r, "image/png"));
     await fetch("/save?name=f" + String(Math.round(t * 10)).padStart(5, "0") + ".png", { method: "POST", body: blob });

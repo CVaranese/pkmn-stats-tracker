@@ -86,6 +86,8 @@ def variants(t):
         t2 = re.sub(r"^\[(.+?)\s?is ", r"[\1's ", t2)
     if t2.endswith(")") and not t2.startswith("(") and "(" not in t2:   # "(" of "(X lost N%...)" not read
         t2 = "(" + t2
+    if re.match(r"^\(.+ lost \d+% of its health$", t2):   # "!)" at the end not read
+        t2 += "!)"
     for base in dict.fromkeys([t, t2]):
         yield base
         yield re.sub(r"[l'I1|i]$", "!", base)
@@ -168,6 +170,7 @@ class Converter:
     # -- HP
     def damage(self, side, nick, pct, frm=None, of=None):
         key = (side, nick)
+        self.last_damage = pct
         self.hp[key] = self.hp.get(key, 100) - pct
         self.emit(*(["-damage", self.ref(side, nick), self.hp_str(key)] + (["[from] " + frm] if frm else [])
                     + (["[of] " + of] if of else [])))
@@ -405,6 +408,14 @@ class Converter:
             return self.emit("cant", self.ref(*P()), sect)
         elif sect == "confusion" and key in ("start", "activate", "end"):
             return self.emit("-" + key, self.ref(*P()), "confusion")
+        elif sect == "confusion" and key == "startFromFatigue":   # Outrage / Petal Dance ending
+            return self.emit("-start", self.ref(*P()), "confusion", "[fatigue]")
+        elif sect == "drain" and key == "heal":
+            # Half the damage just dealt; the target's % stands in for the user's (max HP differ), so a guess.
+            side, nick = P("SOURCE" if "SOURCE" in s else "POKEMON")
+            pct = round(getattr(self, "last_damage", 0) / 2, 1)
+            self.guessed.append(f"{nick} drained: +{pct}% (half the target's loss)")
+            return self.heal(side, nick, pct, "drain")
         elif sect in ("moves", "abilities", "items"):
             label = {"moves": "move: ", "abilities": "ability: ", "items": "item: "}[sect] + name
             if (eid, key) == ("disguise", "transform"):
@@ -439,8 +450,9 @@ class Converter:
             if "Regenerator" in abilities and self.hp.get((side, out), 100) < 100:   # not in a spectator log
                 self.hp[(side, out)] = min(100, self.hp[(side, out)] + 100 / 3)
                 self.guessed.append(f"{out} switched out: +33% (can have Regenerator)")
-        m = re.match(r"^(.*?)\s*\((.+?)\)\W*$", full)
+        m = re.match(r"^(.*?)\s*\(([^()]+?)(?:\)\W*[li]?|\W*)$", full)   # ")!" may be cut off
         nick, sp = (m.group(1), m.group(2)) if m else (re.sub(r"\W+$", "", full),) * 2
+        sp = re.sub(r"(?<=[A-Za-z])I", "l", sp)   # "NinetaIes-AIoIa": OCR reads l as I
         # a form name the dex lacks ("Maushold-Three" is plain "Maushold") -> its base species, before a loose match
         sp = self.close(sp, self.species, 0.85) or self.close(sp.rsplit("-", 1)[0], self.species, 0.8) \
             or self.close(sp, self.species, 0.5) or sp
