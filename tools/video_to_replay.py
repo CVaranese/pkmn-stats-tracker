@@ -128,9 +128,16 @@ def scene_messages(frames):
     """Message-box readings in time order, one entry per change; wrapped lines joined."""
     out = []
     for f, obs in frames.items():
+        rows = []   # OCR splits a line at wide gaps, pieces at slightly different y: group by centre, then x
+        for o in sorted(obs, key=lambda o: o["y"] + o["h"] / 2):
+            c = o["y"] + o["h"] / 2
+            if rows and abs(c - rows[-1][0]) < 20:
+                rows[-1][1].append(o)
+            else:
+                rows.append((c, [o]))
         lines, cur = [], ""
-        for o in obs:
-            t = clean(o["text"])
+        for _, row in rows:
+            t = clean(" ".join(o["text"] for o in sorted(row, key=lambda o: o["x"])))
             cur = (cur + " " + t).strip()
             if re.search(r"[!.)\]']$|\.\.\.$", t):
                 lines.append(cur)
@@ -144,12 +151,29 @@ def scene_messages(frames):
     return out
 
 
-def merge(log_frames, scene_frames, score):
+def drop_tooltip(lines, move_names, score):
+    """A move tooltip (hovered move button) drawn over the log: "Barb Barrage POISON", then its description.
+    Drops that line and up to 3 following lines that match no message; True if anything was dropped."""
+    for i, t in enumerate(lines):
+        m = re.match(r"^(.+?)\s+[A-Z]{4}", t)
+        if (m and m.group(1).lower() in move_names) or re.search(r"Base power|Accuracy\s+PP", t, re.I):
+            j = i + 1
+            while j < len(lines) and j <= i + 3 and not score(lines[j])[0] and not TURN.match(lines[j]):
+                j += 1
+            del lines[i:j]
+            drop_tooltip(lines, move_names, score)
+            return True
+    return False
+
+
+def merge(log_frames, scene_frames, score, move_names=()):
     complete = collections.defaultdict(list)
     heads = collections.defaultdict(list)
     preview = []
+    skipped = 0
     for f, obs in log_frames.items():
         lines = log_lines(obs)
+        skipped += drop_tooltip(lines, move_names, score)
         c, head, _ = sections(lines)
         for n, ls in c.items():
             complete[n].append(ls)
@@ -158,7 +182,7 @@ def merge(log_frames, scene_frames, score):
         if any(t.startswith("Battle started") for t in lines) and not preview:
             preview = lines[:[i for i, t in enumerate(lines) if t.startswith("Battle started")][0]]
     last = max(list(complete) + list(heads))
-    turns, notes = [], []
+    turns, notes = [], [f"{skipped} log frames had a move tooltip over the log (its lines dropped)"] if skipped else []
     for n in range(last + 1):
         if n in complete:
             ls, k = vote(complete[n], score)
@@ -172,12 +196,13 @@ def merge(log_frames, scene_frames, score):
         turns.append(ls)
     # the end of the last turn: message-box readings after the last line the log showed
     msgs = scene_messages(scene_frames) if scene_frames else []
-    if msgs and turns[-1]:
-        key = turns[-1][-1]
+    prev = turns[-1] or (turns[-2] if len(turns) > 1 else [])   # last turn's header at the bottom, no lines yet
+    if msgs and prev:
+        key = prev[-1]
         ratio = [difflib.SequenceMatcher(None, m, key).ratio() for m in msgs]
         best = max(i for i, r in enumerate(ratio) if r >= max(ratio) - 0.05)   # the latest of the best matches
         if ratio[best] > 0.6:
-            turns[-1][-1] = msgs[best]   # the box's reading of the log's last (often cut-off) line
+            prev[-1] = msgs[best]   # the box's reading of the log's last (often cut-off) line
             extra = msgs[best + 1:]
             stop = next((i for i, t in enumerate(extra) if re.search(r"won the battle|^Battle started", t)), len(extra) - 1)
             extra = [t for t in extra[:stop + 1] if not t.startswith("Battle started")]
@@ -223,7 +248,9 @@ def main():
 
     comp = vc.compile_templates(vc.load_templates(args.templates))
     score = lambda v: (vc.match(comp, v)[0] is not None, "%" in v or "lost" not in v)
-    preview, turns, notes = merge(log_frames, scene_frames, score)
+    move_names = {m["name"].lower() for m in json.load(open(os.path.join(ROOT, "site", "data", "moves.json"),
+                                                            encoding="utf-8")).values()}
+    preview, turns, notes = merge(log_frames, scene_frames, score, move_names)
     with open(w("merged.txt"), "w", encoding="utf-8") as f:
         f.write("".join(l + "\n" for l in preview))
         for n, ls in enumerate(turns):
@@ -242,6 +269,7 @@ def main():
     with open(w("report.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(notes) + "\n\nUNPARSED\n" + "".join(f"{why}: {t}\n" for why, t in conv.unparsed))
         f.write("\nGUESSED\n" + "".join(g + "\n" for g in conv.guessed))
+        f.write("\nDROPPED (timer / chat)\n" + "".join(f"{why}: {t}\n" for why, t in conv.dropped))
     print(f"turns {len(turns) - 1}, protocol lines {len(conv.out)}, unparsed {len(conv.unparsed)}, "
           f"guessed {len(conv.guessed)}\n  {w(args.id + '.json')}\n  {w('report.txt')}")
 

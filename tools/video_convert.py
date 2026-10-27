@@ -17,7 +17,10 @@ FRAGMENTS = {"pokemon", "opposingPokemon", "team", "opposingTeam", "party", "opp
 PASSIVE_PCT = {"psn": 12.5, "brn": 6.25, "Life Orb": 10, "Sandstorm": 6.25, "Hail": 6.25, "Spikes": 12.5,
                "Rocky Helmet": 16.7, "Rough Skin": 12.5, "Iron Barbs": 12.5, "Leech Seed": 12.5, "Salt Cure": 12.5,
                "Black Sludge": 12.5}
-HEAL_PCT = {"Leftovers": 6.25, "Black Sludge": 6.25, "Poison Heal": 12.5, "default": 50}
+HEAL_PCT = {"Leftovers": 6.25, "Black Sludge": 6.25, "Poison Heal": 12.5, "Sitrus Berry": 25, "default": 50}
+TIMER_RE = re.compile(r"^.+ has \d+ seconds? left\W?$|^.+ turned on the timer\W?$|^.+ turned off the timer\W?$",
+                      re.I)
+CHAT_RE = re.compile(r"^[^\s:()\[\]][^:()\[\]]{0,20}: \S")   # spectator chat "name: text"
 ROCK_WEAK, ROCK_RESIST = {"Fire", "Ice", "Flying", "Bug"}, {"Fighting", "Ground", "Steel"}
 
 
@@ -81,6 +84,8 @@ def variants(t):
         t2 = "[" + t2[1:-1] + "]"
     if t2.startswith("["):
         t2 = re.sub(r"^\[(.+?)\s?is ", r"[\1's ", t2)
+    if t2.endswith(")") and not t2.startswith("(") and "(" not in t2:   # "(" of "(X lost N%...)" not read
+        t2 = "(" + t2
     for base in dict.fromkeys([t, t2]):
         yield base
         yield re.sub(r"[l'I1|i]$", "!", base)
@@ -123,7 +128,7 @@ class Converter:
         self.species = {v["name"]: v for v in dex.values()}
         self.move_names = [m["name"] for m in moves.values()]
         self.items, self.abilities = items, abilities
-        self.out, self.unparsed, self.guessed = [], [], []
+        self.out, self.unparsed, self.guessed, self.dropped = [], [], [], []
         self.players, self.own = ["", ""], 0   # own: index of the player whose side says "Go!"
         self.nicks = {"p1": {}, "p2": {}}      # nick -> species
         self.active = {"p1": None, "p2": None}
@@ -225,10 +230,16 @@ class Converter:
                 self.flush(pending); pending = None
                 self.emit("-message", (self.close(m.group(1), self.players, 0.5) or m.group(1)) + " forfeited.")
                 continue
+            if TIMER_RE.match(t):
+                self.dropped.append(("timer", t))
+                continue
             info, slots = match(self.comp, t, fuzzy=True)
             if not info:
                 self.flush(pending); pending = None
-                self.unparsed.append(("no template", t))
+                if CHAT_RE.match(t):
+                    self.dropped.append(("chat", t))
+                else:
+                    self.unparsed.append(("no template", t))
                 continue
             sect, eid, name, key = info
             if (sect, key) == ("default", "damagePercentage"):
@@ -337,6 +348,27 @@ class Converter:
                 return self.emit("-enditem", self.ref(*P()), self.close(s["ITEM"], self.items) or s["ITEM"])
             if key == "hitCount":
                 return self.emit("-hitcount", foe_active(), s["NUMBER"])
+            if key in ("mega", "megaNoItem"):
+                side, nick = P()
+                item = self.close(s.get("ITEM", ""), self.items) or s.get("ITEM", "")
+                return self.emit("-mega", self.ref(side, nick), self.nicks[side].get(nick, nick), item)
+            if key == "transformMega":
+                side, nick = P()
+                m = re.match(r"^(.+?) ([XY])$", s["SPECIES"].strip())
+                sp = f"{m.group(1)}-Mega-{m.group(2)}" if m else s["SPECIES"].strip() + "-Mega"
+                sp = self.close(sp, self.species, 0.8) or sp
+                self.nicks[side][nick] = sp
+                return self.emit("detailschange", self.ref(side, nick), sp)
+            if key == "zPower":
+                return self.emit("-zpower", self.ref(*P()))
+            if key == "zEffect":
+                return
+            if key == "healFromEffect":
+                side, nick = P()
+                eff = self.close(s["EFFECT"], self.items) or s["EFFECT"]
+                pct = HEAL_PCT.get(eff, HEAL_PCT["default"])
+                self.guessed.append(f"{nick} healed by {eff}: {pct}% (no number shown)")
+                return self.heal(side, nick, pct, "item: " + eff if eff in self.items else None)
         elif sect == "status":
             ref = self.ref(*P())
             if key.startswith("start"):
@@ -357,6 +389,14 @@ class Converter:
                 return self.emit("-weather", w)
             if key in ("upkeep", "end"):
                 return self.emit("-weather", w, "[upkeep]") if key == "upkeep" else self.emit("-weather", "none")
+        elif sect.endswith("terrain") and key in ("start", "end"):
+            name = sect[:-7].title() + " Terrain"   # default.js has no name for these
+            if key == "end":
+                return self.emit("-fieldend", "move: " + name)
+            prev = self.out[-1].split("|")
+            if len(prev) > 3 and prev[1] == "-ability":
+                return self.emit("-fieldstart", "move: " + name, "[from] ability: " + prev[3], "[of] " + prev[2])
+            return self.emit("-fieldstart", "move: " + name)
         elif sect == "unboost" and key.startswith("fail"):
             return self.emit("-fail", self.ref(*P()), "unboost")
         elif sect in ("flinch", "recharge"):
