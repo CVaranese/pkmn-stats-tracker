@@ -184,7 +184,10 @@ th[title] { text-decoration: underline dotted var(--muted); text-underline-offse
 .badge { font-size: 12px; font-weight: 600; padding: 1px 7px; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); }
 .badge.win { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 
-.team-strip { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+/* one row of six that shrinks on narrow cards (it wrapped 5 + 1 on phones) */
+.team-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 56px)); gap: 6px; margin-bottom: 12px; }
+.team-strip .slot { min-width: 0; }
+.team-strip .sprite.small { width: 100%; height: auto; aspect-ratio: 1; }
 .slot { position: relative; display: inline-flex; padding: 0; border: 2px solid transparent; border-radius: 8px;
   background: var(--row-alt); }
 button.slot { cursor: pointer; }

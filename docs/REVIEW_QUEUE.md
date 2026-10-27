@@ -2,6 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Phone: a game's team row shows all six Pokémon on one line (it was 5 + 1). Checked in a 360px frame only, not on a real phone. Long nicknames ("InteriorKrookodile") run slightly past the MVP box at that width.
+
 - [ ] Luck hover lists the biggest contributors: hover (or tap) Team luck and a Pokémon's Luck on a game. Up to 3 entries, e.g. "Altaria-Mega: burn from Flamethrower (+0.90); their Latios-Mega: Draco Meteor missed (+0.90); Ogerpon-Wellspring: no crits ×3 (−0.29)". Clear enough? Is the tap tip too long on a phone?
 
 - [ ] Gambling tab: fantasy points with draft cost (scoring 3 a KO, 1 per 100% damage, 1 alive at the end, 1 for a win; top 20) and Swiss records from Challonge. Is the scoring right? Draft tiers in `site/games/draft.json` follow the sheet's sprite rows (Sableye-Mega, Rotom-Wash, Blacephalon in UUBL). It gives results away while Games hides them: OK? Phone width not checked.

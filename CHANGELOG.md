@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Game cards: a team's six Pokémon stay on one row on phones (they wrapped 5 + 1); the sprites shrink to fit.
 - Luck: hovering (or tapping) Team luck or a Pokémon's Luck now lists the biggest contributors, up to 3, e.g. "their Latios-Mega: Draco Meteor missed (+0.90)" or "no crits ×3 (−0.29)".
 - Gambling tab: every fantasy column header explains itself (hover, or tap on a phone). Taps on headers outside the main stats table showed nothing before.
 - Games: Week 1, Nezergy vs potatoesareyum (2677227914), saved from a copy downloaded while Showdown was down. Its draft pool and Aron (brought in Week 1, no longer on the draft sheet) are in `site/games/draft.json`.
