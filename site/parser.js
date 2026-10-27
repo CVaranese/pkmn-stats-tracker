@@ -108,7 +108,8 @@
 
   // per-stint counters, summed per Pokemon
   const COUNTS = ["direct", "passive", "deaths", "hazardKills", "hazardsSet", "hazardsRemoved",
-    "switches", "pivots", "forcedOut", "faintSwitchIns"];
+    "switches", "pivots", "forcedOut", "faintSwitchIns",
+    "crits", "critsTaken", "misses", "dodges", "fullParas", "sleepTurns", "flinched", "confusionHits", "procs"];
   const zeroCounts = () => Object.fromEntries(COUNTS.map((f) => [f, 0]));
   const NO_DAMAGE = { dealt: 0, taken: 0, hazard: 0 };
   const NO_HEALING = { self: 0, given: 0 };
@@ -120,6 +121,10 @@
   const DELAYED_MOVES = new Set(["futuresight", "doomdesire"]);
   const HEAL_WISHES = new Set(["healingwish", "lunardance"]); // heal the user's replacement
   const SILENT_HEALS = new Set(["rest", "leechseed"]);        // the only real heals logged [silent]
+  const SEMI_INVULNERABLE = new Set(["fly", "bounce", "dig", "dive", "phantomforce", "shadowforce", "skydrop"]);
+  const PROTECTS = /^move: (Protect|Detect|King's Shield|Spiky Shield|Baneful Bunker|Obstruct|Silk Trap|Burning Bulwark|Max Guard|Mat Block|Quick Guard|Wide Guard|Crafty Shield)$/;
+  // a 'cant' reason checked before flinching (sleep, freeze, recharge, Truant): the flinch roll stays unseen
+  const BEFORE_FLINCH = new Set(["slp", "frz", "recharge", "ability: Truant"]);
 
   function parseBattle(log) {
     const players = {};                 // 'p1' -> name
@@ -156,8 +161,22 @@
     const hits = [];                    // [dealer stint or null, target stint, % of max HP lost]
     const heals = [];                   // [healer stint, target stint, % of max HP restored]
 
+    // Luck: every random roll the log shows, with what luck.js needs to work out its odds.
+    const rolls = [];                   // {kind: acc / hit / par / slp / frz / conf, actor, target?, ...}
+    const statusOf = new Map();         // mon key -> 'par' / 'slp' / ... (kept while switched out)
+    const itemOf = new Map();           // mon key -> item the log revealed ("" once it's gone)
+    const abilityOf = new Map();        // mon key -> ability the log revealed
+    const sleepOf = new Map();          // mon key -> {rest, attempts} for its current sleep
+    const pendingFlinch = new Map();    // stint -> hit rolls on it this turn before it tried to move
+    const movedThisTurn = new Set();    // stints that tried to move this turn
+    const lastConf = new Map();         // stint -> its confusion roll this action
+    let weather = "", terrain = "", gravity = false;
+    let ctx = null;                     // the move resolving: {actor, move, targets, crits, lastHit, noRoll}
+    let prevParts = [];
+
     function newStint(key, sp) {
-      const s = { key, side: sideOf(key), species: sp, hp: 100, ...zeroCounts(), prev: latestByKey.get(key) };
+      const s = { key, side: sideOf(key), species: sp, hp: 100, ...zeroCounts(), prev: latestByKey.get(key),
+        form: sp, types: null, boosts: { accuracy: 0, evasion: 0 }, critBoost: 0, laser: false, semiInv: false };
       stints.push(s);
       latestByKey.set(key, s);
       return s;
@@ -213,6 +232,75 @@
       if (map.has(from)) { map.set(to, map.get(from)); map.delete(from); }
     }
 
+    /** What luck.js needs about both sides of a roll, as things stand right now. */
+    function snap(actor, target) {
+      return { actor, target, move: ctx.move, aForm: actor.form, tForm: target.form, aTypes: actor.types, tTypes: target.types,
+        aItem: itemOf.get(actor.key), tItem: itemOf.get(target.key),
+        aAbility: abilityOf.get(actor.key), tAbility: abilityOf.get(target.key), weather, terrain, gravity };
+    }
+
+    /** A roll on a Pokemon's own turn (paralysis, sleep, freeze, confusion): who, and its form / ability. */
+    const self = (s) => ({ actor: s, aForm: s.form, aAbility: abilityOf.get(s.key) });
+
+    /** Accuracy state of one opposing target of the move resolving. */
+    function aimed(t) {
+      if (!ctx.targets.has(t)) ctx.targets.set(t, { missed: false, blocked: false, hit: false, hits: 0, named: false, invulnerable: false });
+      return ctx.targets.get(t);
+    }
+
+    /** A hit of the move resolving on an opponent (or its Substitute): one crit roll, maybe secondary rolls. */
+    function moveHit(t, sub, hpText) {
+      if (!ctx || t.side === ctx.actor.side) return;
+      aimed(t).hit = true;
+      aimed(t).hits += 1;
+      const crit = ctx.crits.delete(t);
+      const r = { kind: "hit", ...snap(ctx.actor, t), crit, sub, statusBefore: statusOf.get(t.key) || "",
+        fainted: !sub && hpOf(hpText) === 0, status: "", flinch: null, critBoost: ctx.actor.critBoost,
+        laser: ctx.actor.laser, luckyChant: hazardSrc.has(t.side + "|luckychant"), safeguard: hazardSrc.has(t.side + "|safeguard") };
+      rolls.push(r);
+      ctx.lastHit.set(t, r);
+      if (crit) { ctx.actor.crits += 1; t.critsTaken += 1; }
+      if (!sub && !r.fainted && !movedThisTurn.has(t)) {
+        if (!pendingFlinch.has(t)) pendingFlinch.set(t, []);
+        pendingFlinch.get(t).push(r);
+      }
+    }
+
+    /** The move resolving is over: one accuracy roll per opposing target it was aimed at. */
+    function endMove() {
+      if (!ctx) return;
+      if (!ctx.noRoll) {
+        for (const [t, st] of ctx.targets) {
+          if (st.blocked || st.invulnerable || !(st.missed || st.named || st.hit)) continue;
+          // hits / cut: Triple Axel and Population Bomb roll accuracy again for each hit, and a miss there isn't logged
+          const last = ctx.lastHit.get(t);
+          rolls.push({ kind: "acc", ...snap(ctx.actor, t), missed: st.missed, hits: st.hits,
+            cut: !!(last && last.fainted) || ctx.actorFainted, accBoost: ctx.actor.boosts.accuracy,
+            evaBoost: t.boosts.evasion, targetMoved: ctx.targetMoved.has(t) });
+          if (st.missed) { ctx.actor.misses += 1; t.dodges += 1; }
+        }
+      }
+      if (ctx.move !== "laserfocus") ctx.actor.laser = false;
+      ctx = null;
+    }
+
+    /** A Pokemon tried to act (moved, or 'cant'): settles flinch rolls on it from earlier this turn. */
+    function acted(s, reason) {
+      const pending = pendingFlinch.get(s);
+      pendingFlinch.delete(s);
+      movedThisTurn.add(s);
+      if (!pending || BEFORE_FLINCH.has(reason)) return;
+      for (const r of pending) {
+        r.flinch = reason === "flinch";
+        if (r.flinch) r.actor.procs += 1;
+      }
+    }
+
+    /** Boost changes on accuracy / evasion (the only ones luck needs). */
+    function setBoost(s, stat, value) {
+      if (stat in s.boosts) s.boosts[stat] = Math.max(-6, Math.min(6, value));
+    }
+
     for (const line of String(log).split(/\r?\n/)) {
       if (!line.startsWith("|")) continue;
       const parts = line.split("|").slice(1);
@@ -226,11 +314,17 @@
       } else if (cmd === "poke") {
         (preview[parts[1]] = preview[parts[1]] || []).push(baseSpecies(parts[2]));
       } else if (cmd === "switch" || cmd === "drag") {
+        const out = slots[slotOf(parts[1])];
+        const passed = ctx && ctx.actor === out && ctx.move === "batonpass";
+        endMove();
         const s = newStint(monKey(parts[1]), baseSpecies(parts[2]));
+        s.form = parts[2].split(",")[0].trim();
         s.hp = hpOf(parts[3]) ?? 100;
+        const st = /\s(par|slp|frz|brn|psn|tox)$/.exec(parts[3] || "");
+        if (st) statusOf.set(s.key, st[1]); else statusOf.delete(s.key);
+        if (passed) { s.boosts = { ...out.boosts }; s.critBoost = out.critBoost; }
         s.entryState = targetState(s.key);
         // how the Pokemon in this slot left (nothing there for a lead)
-        const out = slots[slotOf(parts[1])];
         if (out) {
           if (out.deaths) s.faintSwitchIns += 1;
           else if (cmd === "drag" || out === ejected) out.forcedOut += 1; // Roar, Red Card, Eject Button, Emergency Exit
@@ -273,15 +367,32 @@
         if (from && to && from !== to) [slots[from], slots[to]] = [slots[to], slots[from]];
       } else if (cmd === "turn" || cmd === "upkeep") {
         mover = null;
+        endMove();
         if (cmd === "turn") ejected = null; // ejected but nothing to switch to
         if (cmd === "turn") {
+          movedThisTurn.clear();
+          pendingFlinch.clear(); // flinch rolls on Pokemon that never tried to move again can't be seen
+          lastConf.clear();
           destinyBond = null;
           if (turns > 0) countHazardTurns(); // the turn before this one just ended
           turns = Number(parts[1]) || turns;
         }
       } else if (cmd === "move") {
+        endMove();
         mover = stintOf(parts[1]);
         const move = norm(parts[2]);
+        mover.semiInv = false; // its Fly / Dig turn is over
+        // a move it chose itself went through the checks before moving: paralysis passed if it has it
+        if (!tags.from || norm(tags.from) === "lockedmove") {
+          acted(mover, "move");
+          if (statusOf.get(mover.key) === "par") rolls.push({ kind: "par", ...self(mover), fullPara: false });
+        }
+        ctx = { actor: mover, move, targets: new Map(), crits: new Set(), lastHit: new Map(),
+          targetMoved: new Set(movedThisTurn), noRoll: "notarget" in tags, actorFainted: false };
+        if (/^p\d[a-z]: /.test(parts[3] || "")) {
+          const t = stintOf(parts[3]);
+          if (t.side !== mover.side) aimed(t).named = true;
+        }
         if (DELAYED_MOVES.has(move) && parts[3]) delayedSrc.set(parts[3].slice(0, 2) + "|" + move, mover);
         if (HEAL_WISHES.has(move)) healWishSrc.set(mover.side, mover);
       } else if ((cmd === "-enditem" && /^Eject (Button|Pack)$/.test(parts[2] || "") && !("from" in tags)) ||
@@ -291,6 +402,7 @@
         healWishSrc.set(sideOf(monKey(parts[1])), stintOf(parts[1])); // Z-Memento / Z-Parting Shot
       } else if (cmd === "-end" && parts[2] && DELAYED_MOVES.has(norm(parts[2]))) {
         // Future Sight landing: the damage line that follows belongs to its user
+        endMove();
         mover = delayedSrc.get(parts[1].slice(0, 2) + "|" + norm(parts[2])) || null;
       } else if (cmd === "-status") {
         const target = monKey(parts[1]);
@@ -299,10 +411,127 @@
         else if (frm.startsWith("item:")) statusSrc.set(target, null); // Flame Orb / Toxic Orb
         else if (mover) statusSrc.set(target, mover);
         else statusSrc.set(target, hazardSrc.get(sideOf(target) + "|toxicspikes") || null);
+        statusOf.set(target, parts[2]);
+        if (parts[2] === "slp") sleepOf.set(target, { rest: norm(frm) === "rest", attempts: 0 });
+        // a damaging move's secondary effect (a status move makes no hit roll)
+        const t = stintOf(parts[1]);
+        if (ctx && !frm && ctx.lastHit.has(t)) { ctx.lastHit.get(t).status = parts[2]; ctx.actor.procs += 1; }
       } else if (cmd === "-curestatus") {
-        statusSrc.delete(monKey(parts[1]));
+        const key = monKey(parts[1]);
+        statusSrc.delete(key);
+        statusOf.delete(key);
+        // waking up / thawing on its own, right before moving (Chesto / Lum / Shed Skin show a line about it first)
+        const cause = (prevParts[0] === "-enditem" || prevParts[0] === "-activate") && monKey(prevParts[1] || "") === key;
+        if ("msg" in tags && !("from" in tags) && !cause && (parts[2] === "slp" || parts[2] === "frz")) {
+          const s = stintOf(parts[1]);
+          if (parts[2] === "frz") rolls.push({ kind: "frz", ...self(s), thawed: true });
+          else {
+            const sl = sleepOf.get(key) || { rest: false, attempts: 0 };
+            sl.attempts += 1;
+            rolls.push({ kind: "slp", ...self(s), attempt: sl.attempts, woke: true, rest: sl.rest });
+          }
+        }
+        sleepOf.delete(key);
+      } else if (cmd === "-cureteam") {
+        for (const k of [...statusOf.keys()]) if (sideOf(k) === sideOf(monKey(parts[1]))) statusOf.delete(k);
+      } else if (cmd === "cant") {
+        endMove();
+        const s = stintOf(parts[1]), reason = parts[2] || "";
+        acted(s, reason);
+        if (reason === "par") { rolls.push({ kind: "par", ...self(s), fullPara: true }); s.fullParas += 1; }
+        else if (reason === "frz") rolls.push({ kind: "frz", ...self(s), thawed: false });
+        else if (reason === "flinch") s.flinched += 1;
+        else if (reason === "slp") {
+          s.sleepTurns += 1;
+          const sl = sleepOf.get(s.key);
+          if (sl) {
+            sl.attempts += 1;
+            rolls.push({ kind: "slp", ...self(s), attempt: sl.attempts, woke: false, rest: sl.rest });
+          }
+        }
+      } else if (cmd === "-hitcount") {
+        // how many times a multi-hit move hit; cut short when the target or the user fainted first
+        if (ctx && parts[1]) {
+          const t = stintOf(parts[1]), last = ctx.lastHit.get(t);
+          if (t.side !== ctx.actor.side) {
+            rolls.push({ kind: "hits", ...snap(ctx.actor, t), count: Number(parts[2]) || 0,
+              cut: !!(last && last.fainted) || ctx.actorFainted });
+          }
+        }
+      } else if (cmd === "-crit") {
+        if (ctx) ctx.crits.add(stintOf(parts[1]));
+      } else if (cmd === "-miss") {
+        if (ctx && parts[2]) {
+          const t = stintOf(parts[2]);
+          if (t.side !== ctx.actor.side) {
+            const st = aimed(t);
+            if (!st.hit) st.missed = true; // a later hit of Triple Axel missing still hit
+            if (t.semiInv) st.invulnerable = true; // missed because it was in the air / underground
+          }
+        }
+      } else if (cmd === "-immune" || cmd === "-notarget") {
+        if (ctx && parts[1]) {
+          const t = stintOf(parts[1]);
+          if (t.side !== ctx.actor.side) aimed(t).blocked = true;
+          else if (cmd === "-notarget") ctx.noRoll = true;
+        } else if (ctx) ctx.noRoll = true;
+      } else if (cmd === "-fail") {
+        if (ctx && stintOf(parts[1]) === ctx.actor) ctx.noRoll = true; // failed before aiming (Sucker Punch...)
+      } else if (cmd === "-prepare") {
+        // a charge turn rolls nothing; Fly / Dig make the user dodge everything until it attacks
+        if (ctx && stintOf(parts[1]) === ctx.actor) {
+          ctx.noRoll = true;
+          if (SEMI_INVULNERABLE.has(norm(parts[2]))) ctx.actor.semiInv = true;
+        }
+      } else if (cmd === "-boost" || cmd === "-unboost") {
+        const s = stintOf(parts[1]), n = Number(parts[3]) || 0;
+        if (parts[2] in s.boosts) setBoost(s, parts[2], s.boosts[parts[2]] + (cmd === "-boost" ? n : -n));
+      } else if (cmd === "-setboost") {
+        setBoost(stintOf(parts[1]), parts[2], Number(parts[3]) || 0);
+      } else if (cmd === "-clearboost" || cmd === "-clearallboost" || cmd === "-clearnegativeboost" || cmd === "-invertboost") {
+        const targets = cmd === "-clearallboost" ? Object.values(slots) : [stintOf(parts[1])];
+        for (const s of targets) {
+          for (const stat of Object.keys(s.boosts)) {
+            const v = s.boosts[stat];
+            s.boosts[stat] = cmd === "-invertboost" ? -v : cmd === "-clearnegativeboost" ? Math.max(0, v) : 0;
+          }
+        }
+      } else if (cmd === "-copyboost") {
+        // Psych Up: the user (first) copies the target's boosts
+        if (parts[2]) stintOf(parts[1]).boosts = { ...stintOf(parts[2]).boosts };
+      } else if (cmd === "detailschange" || cmd === "-formechange") {
+        if (cmd === "detailschange") abilityOf.delete(monKey(parts[1] || "")); // Mega Evolution changes the ability
+        if (slotOf(parts[1] || "")) stintOf(parts[1]).form = (parts[2] || "").split(",")[0].trim();
+      } else if (cmd === "-fieldstart" || cmd === "-fieldend") {
+        const effect = norm(parts[1] || "");
+        if (effect === "gravity") gravity = cmd === "-fieldstart";
+        else if (effect.endsWith("terrain")) terrain = cmd === "-fieldstart" ? effect : "";
+      } else if (cmd === "-end" && /^(move: )?Substitute$/.test(parts[2] || "")) {
+        if (ctx && !("from" in tags) && mover === ctx.actor) moveHit(stintOf(parts[1]), true, "");
+      } else if (cmd === "-end" && parts[2] === "typechange") {
+        stintOf(parts[1]).types = null;
       } else if (cmd === "-start" || cmd === "-activate") {
         const target = monKey(parts[1]);
+        const s = stintOf(parts[1]);
+        if (cmd === "-activate" && parts[2] === "confusion") {
+          endMove(); // it is about to act
+          const r = { kind: "conf", ...self(s), selfHit: false };
+          rolls.push(r);
+          lastConf.set(s, r);
+          acted(s, "confusion");
+        } else if (cmd === "-activate" && /^(move: )?Substitute$/.test(parts[2] || "") && "damage" in tags) {
+          if (ctx && mover === ctx.actor) moveHit(s, true, "");
+        } else if (cmd === "-activate" && ctx && PROTECTS.test(parts[2] || "") && s.side !== ctx.actor.side) {
+          aimed(s).blocked = true;
+        } else if (cmd === "-start" && parts[2] === "typechange") {
+          s.types = (parts[3] || "").split("/").filter(Boolean);
+        } else if (cmd === "-start" && /^(move: )?Focus Energy$/.test(parts[2] || "")) {
+          s.critBoost = 2;
+        } else if (cmd === "-start" && /^(move: )?Dragon Cheer$/.test(parts[2] || "")) {
+          s.critBoost = 1; // +2 for Dragon types; luck.js doesn't know types here
+        } else if (cmd === "-start" && /^(move: )?Laser Focus$/.test(parts[2] || "")) {
+          s.laser = true;
+        }
         let effect = parts[2] ? norm(parts[2]) : "";
         if (effect.startsWith("perish")) effect = "perish";
         const src = "of" in tags ? stintOf(tags.of) : mover;
@@ -326,6 +555,7 @@
       } else if (cmd === "-weather" && !("upkeep" in tags)) {
         if (norm(parts[1]) === "none") weatherSrc = null;
         else weatherSrc = "of" in tags ? stintOf(tags.of) : mover;
+        weather = norm(parts[1]) === "none" ? "" : norm(parts[1]);
       } else if (cmd === "-heal" && hpOf(parts[2]) !== null) {
         const hp = hpOf(parts[2]), target = stintOf(parts[1]);
         if ("silent" in tags && !SILENT_HEALS.has(norm(prevFrom))) {
@@ -365,9 +595,16 @@
         }
         const hp = hpOf(parts[2]);
         if (hp !== null) hit(stintOf(parts[1]), source, hp, hazard);
+        if (!("from" in tags) && ctx && mover === ctx.actor) moveHit(stintOf(parts[1]), false, parts[2]);
+        if (ctx && stintOf(parts[1]) === ctx.actor && hpOf(parts[2]) === 0) ctx.actorFainted = true; // Rocky Helmet...
+        if (norm(tags.from || "") === "confusion") {
+          const s = stintOf(parts[1]), r = lastConf.get(s);
+          if (r && !r.selfHit) { r.selfHit = true; s.confusionHits += 1; }
+        }
       } else if (cmd === "faint") {
         const victim = stintOf(parts[1]);
         victim.deaths += 1;
+        statusOf.delete(victim.key);
         let killer, kind, byHazard = false;
         if (pendingKo.has(victim.key)) {
           [killer, kind, byHazard] = pendingKo.get(victim.key);
@@ -392,10 +629,25 @@
       } else if (cmd === "tie") {
         tie = true;
       }
+      // abilities and items the log shows (luck.js needs No Guard, Scope Lens, Covert Cloak...)
+      if (cmd === "-ability" && parts[2]) abilityOf.set(monKey(parts[1]), parts[2]);
+      else if (cmd === "-item" && parts[2]) itemOf.set(monKey(parts[1]), parts[2]);
+      else if (cmd === "-enditem" && parts[1]) {
+        itemOf.set(monKey(parts[1]), "");
+        if (parts[2] === "Power Herb" && ctx && stintOf(parts[1]) === ctx.actor) { ctx.noRoll = false; ctx.actor.semiInv = false; }
+      }
+      if (cmd !== "-ability" && cmd !== "-item" && cmd !== "-enditem" && /^p\d/.test(parts[1] || "")) {
+        const owner = "of" in tags ? monKey(tags.of) : monKey(parts[1]);
+        const frm = /^(ability|item):\s*(.+)$/.exec(tags.from || "");
+        if (frm) (frm[1] === "ability" ? abilityOf : itemOf).set(owner, frm[2]);
+        if (cmd === "-activate" && /^ability: /.test(parts[2] || "")) abilityOf.set(monKey(parts[1]), parts[2].slice(9));
+      }
       prevFrom = tags.from || "";
+      prevParts = parts;
     }
 
     if (turns > 0) countHazardTurns(); // the last turn (the game ended during it)
+    endMove();
 
     // Sum stints per Pokemon (keys resolved after any Illusion reveal)
     const species = new Map();          // mon key -> species (insertion order = first seen)
@@ -436,15 +688,22 @@
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
       hits: hits.map(([d, t, pct, hz]) => [keyOf(d), keyOf(t), pct, hz]),
       heals: heals.map(([h, t, pct]) => [keyOf(h), keyOf(t), pct]),
+      rolls: rolls.map((r) => ({ ...r, actor: keyOf(r.actor), ...(r.target ? { target: keyOf(r.target) } : {}) })),
     };
   }
 
   // ---------- rows ----------
 
+  // luck event counts (straight from the log) and the luck score (luck.js, needs Showdown's move data)
+  const LUCK_COUNT_FIELDS = ["crits", "crits_taken", "misses", "dodges", "full_paras", "sleep_turns", "flinched",
+    "confusion_hits", "procs"];
+  const LUCK_FIELDS = ["luck", "luck_against"];
+
   const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "end_reason", "turns", "pokemon", "nickname",
     "brought", "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
     "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "healing_pct",
-    "healing_given_pct", "switches", "pivots", "forced_out", "faint_switch_ins", "hidden_zoroark", "replay_url"];
+    "healing_given_pct", "switches", "pivots", "forced_out", "faint_switch_ins", ...LUCK_COUNT_FIELDS, "luck", "luck_against",
+    "player_luck", "hidden_zoroark", "replay_url"];
 
   /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
   function gameRows(replay) {
@@ -470,10 +729,15 @@
           hazard_damage_pct: dm.hazard, hazard_kills: st.hazardKills, hazards_set: st.hazardsSet,
           hazards_removed: st.hazardsRemoved, hazard_turns: b.hazardTurns[side],
           healing_pct: hl.self, healing_given_pct: hl.given, switches: st.switches, pivots: st.pivots,
-          forced_out: st.forcedOut, faint_switch_ins: st.faintSwitchIns, hidden_zoroark: b.hiddenZoroark[side] ? 1 : 0,
+          forced_out: st.forcedOut, faint_switch_ins: st.faintSwitchIns,
+          crits: st.crits, crits_taken: st.critsTaken, misses: st.misses, dodges: st.dodges, full_paras: st.fullParas,
+          sleep_turns: st.sleepTurns, flinched: st.flinched, confusion_hits: st.confusionHits, procs: st.procs,
+          luck: "", luck_against: "", player_luck: "", // filled by Luck.addLuck once move data is loaded
+          hidden_zoroark: b.hiddenZoroark[side] ? 1 : 0,
           replay_url: REPLAY_HOST + rid,
           // not exported: what addDamageHp needs once max HP is known
           mon_key: key, hits_dealt: b.hits.filter(([d]) => d && d === key).map(([, t, pct, hz]) => [t, pct, hz]),
+          rolls: b.rolls, // the whole game's, shared by its rows
           heals_given: b.heals.filter(([h, t]) => h && h === key && t !== key).map(([, t, pct]) => [t, pct]),
         };
       };
@@ -526,10 +790,10 @@
     "direct_kills", "passive_kills", "deaths", "kills_per_game", "damage_dealt_pct", "damage_taken_pct",
     "damage_dealt_hp", "damage_taken_hp", "hazard_damage_pct", "hazard_damage_hp", "hazard_kills",
     "hazards_set", "hazards_removed", "healing_pct", "healing_hp", "healing_given_pct", "healing_given_hp",
-    "switches", "pivots", "forced_out", "faint_switch_ins"];
+    "switches", "pivots", "forced_out", "faint_switch_ins", ...LUCK_COUNT_FIELDS, ...LUCK_FIELDS];
   const PCT_FIELDS = ["damage_dealt_pct", "damage_taken_pct", "hazard_damage_pct", "healing_pct", "healing_given_pct"];
   const SUM_FIELDS = ["kills", "direct_kills", "passive_kills", "deaths", "hazard_kills", "hazards_set",
-    "hazards_removed", "switches", "pivots", "forced_out", "faint_switch_ins", ...PCT_FIELDS];
+    "hazards_removed", "switches", "pivots", "forced_out", "faint_switch_ins", ...LUCK_COUNT_FIELDS, ...PCT_FIELDS];
   const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp", "hazard_damage_hp", "healing_hp", "healing_given_hp"];
 
   /** Totals per player + Pokemon (or per Pokemon only when byPlayer is false), most kills first. */
@@ -547,12 +811,12 @@
       a.wins_when_brought += r.won;
       for (const f of SUM_FIELDS) a[f] += r[f] || 0;
       // raw HP totals only when every game has it, so a blank never hides inside a sum
-      for (const f of HP_FIELDS) a[f] = a[f] === "" || r[f] === "" || r[f] === undefined ? "" : a[f] + r[f];
+      for (const f of [...HP_FIELDS, ...LUCK_FIELDS]) a[f] = a[f] === "" || r[f] === "" || r[f] === undefined ? "" : a[f] + r[f];
     }
     const out = [...agg.values()];
     for (const a of out) {
       a.kills_per_game = Math.round((a.kills / a.games_brought) * 100) / 100;
-      for (const f of PCT_FIELDS) a[f] = Math.round(a[f] * 100) / 100;
+      for (const f of [...PCT_FIELDS, ...LUCK_FIELDS]) if (a[f] !== "") a[f] = Math.round(a[f] * 100) / 100;
     }
     out.sort((x, y) => y.kills - x.kills || x.deaths - y.deaths ||
       x.player.toLowerCase().localeCompare(y.player.toLowerCase()) || x.pokemon.localeCompare(y.pokemon));
@@ -581,7 +845,7 @@
   }
 
   const api = {
-    REPLAY_HOST, GAME_FIELDS, SUMMARY_FIELDS, HP_FIELDS,
+    REPLAY_HOST, GAME_FIELDS, SUMMARY_FIELDS, HP_FIELDS, LUCK_FIELDS, norm,
     replayIdFrom, replayIdsFromText, parseBattle, gameRows, addDamageHp, summarize, toCsv, toTsv, fetchReplay,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

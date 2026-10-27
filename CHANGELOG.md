@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Luck: multi-hit moves count (number of hits for 2-5 hit moves, every accuracy roll of Triple Axel / Population Bomb; needs the item known, from a sheet or the log). Rolls an unrevealed ability could have changed (Inner Focus, Super Luck, Serene Grace...) are skipped unless a team sheet or the log says which ability it has.
+- Luck: per Pokémon Crits / Crits taken, Misses / Dodged, Full paras, Sleep turns, Flinched, Hit itself, Effects landed, and a Luck / Luck against score (each roll = result minus its odds, from Showdown move data); Player luck per game.
 - Healing per Pokémon: Healed % (HP it restored to itself: Leftovers, Recover, Rest, drain, Poison Heal, berries, Grassy Terrain…) and Heal given % (to teammates: Wish, Healing Wish, Lunar Dance, Heal Pulse, Z-move heals). Healed HP / Heal given HP with team sheets. In the leaderboard, the Per game table and exports.
 - Switches per Pokémon: Switches (by choice), Pivots (U-turn, Volt Switch, Flip Turn, Parting Shot…), Forced out (Roar, Whirlwind, Dragon Tail, Red Card, Eject Button, Emergency Exit) and In after KO. In the leaderboard, the Per game table and exports.
 - Hidden Zoroark: games where a team brought a Zoroark that never dropped its disguise are listed under the links box and marked `hidden_zoroark` in Per game rows, since its stats sit on the Pokémon it copied.
