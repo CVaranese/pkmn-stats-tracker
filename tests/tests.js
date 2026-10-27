@@ -338,9 +338,10 @@
     const expected = [["p1: Gardy", "direct", "p2: Foe"], ["p2: Foe2", "direct", "p1: Zoro"], ["p1: Zoro", "passive", "p2: Foe2"]];
     check("illusion: kills and the disguised burn go to Zoroark", same(b.kills, expected),
       `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(b.kills)}`);
-    check("illusion: real Gardevoir keeps its own kill, no death", same(b.stats.get("p1: Gardy"),
-      { direct: 1, passive: 0, deaths: 0, hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0,
-        switches: 1, pivots: 0, forcedOut: 0, faintSwitchIns: 1 }),
+    const gardy = { direct: 1, passive: 0, deaths: 0, hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0,
+      switches: 1, pivots: 0, forcedOut: 0, faintSwitchIns: 1 };
+    check("illusion: real Gardevoir keeps its own kill, no death", same(
+      Object.fromEntries(Object.keys(gardy).map((k) => [k, b.stats.get("p1: Gardy")[k]])), gardy),
       JSON.stringify(b.stats.get("p1: Gardy")));
     check("illusion: damage moves with the stint", same(b.damage.get("p1: Zoro"), { dealt: 100, taken: 100, hazard: 0 }) &&
       same(b.damage.get("p1: Gardy"), { dealt: 100, taken: 0, hazard: 0 }), JSON.stringify([...b.damage]));
@@ -690,6 +691,185 @@ ${switchIn}`).hiddenZoroark;
     RS.addDamageHp(rows);
     check("healing HP: self x own max, given x teammate's max", rows[0].healing_hp === 100 && rows[0].healing_given_hp === 150 &&
       rows[1].healing_given_hp === 0, JSON.stringify(rows.map((r) => [r.healing_hp, r.healing_given_hp])));
+  }
+
+  // ---- luck: event counts from real replays (hand-counted from each log; unlisted brought Pokemon all 0) ----
+  const LUCK_FIELDS = ["crits", "crits_taken", "misses", "dodges", "full_paras", "sleep_turns", "flinched", "confusion_hits", "procs"];
+  const LUCK_REAL = {
+    // Skeledirge's 2 Torch Song crits; Gardevoir's Focus Blast misses Snorlax; Snorlax sleeps 3 turns (Rest);
+    // Pelipper's Scald burns Snorlax (Shedinja's Will-O-Wisp is a status move, not a secondary)
+    "gen9nationaldex-2705099074": {
+      "keiner23|Skeledirge": { crits: 2 }, "Mrfarofazeze|Snorlax": { crits_taken: 1, dodges: 1, sleep_turns: 3 },
+      "Mrfarofazeze|Kingambit": { crits_taken: 1 }, "keiner23|Gardevoir": { misses: 1 }, "keiner23|Pelipper": { procs: 1 } },
+    // the disguised Zoroark-Hisui sleeps 2 turns from Spore; Garchomp sleeps 1 turn and wakes; Flame Body is an ability
+    "gen9nationaldex-2705111047": { "jinrachi|Zoroark-Hisui": { sleep_turns: 2 }, "jinrachi|Garchomp": { sleep_turns: 1 } },
+    "gen9nationaldex-2705117998": {},
+    "gen9nationaldex-2705121899": {},
+  };
+  for (const [id, exp] of Object.entries(LUCK_REAL)) {
+    let replay;
+    try {
+      replay = await (await fetch(`fixtures/${id}.json`)).json();
+    } catch (e) {
+      check(`${id}: load fixture`, false, String(e));
+      continue;
+    }
+    const got = {}, want = {};
+    for (const r of RS.gameRows(replay).filter((r) => r.brought)) {
+      const k = r.player + "|" + r.pokemon;
+      got[k] = Object.fromEntries(LUCK_FIELDS.map((f) => [f, r[f]]));
+      want[k] = Object.fromEntries(LUCK_FIELDS.map((f) => [f, (exp[k] || {})[f] || 0]));
+    }
+    const diff = Object.keys(want).filter((k) => !same(got[k], want[k]));
+    check(`${id}: luck counts`, !diff.length, diff.map((k) => `${k}: expected ${JSON.stringify(want[k])} got ${JSON.stringify(got[k])}`).join("\n"));
+  }
+
+  // ---- luck: scoring with a small move table (values worked out by hand from the odds) ----
+  const LK = window.Luck;
+  const L_MOVES = {
+    hurricane: { accuracy: 70, category: "Special", secondary: { chance: 30, volatileStatus: "confusion" } },
+    tackle: { accuracy: 100, category: "Physical" },
+    stoneedge: { accuracy: 80, category: "Physical", critRatio: 2 },
+    scald: { accuracy: 100, category: "Special", secondary: { chance: 30, status: "brn" } },
+    ironhead: { accuracy: 100, category: "Physical", secondary: { chance: 30, volatileStatus: "flinch" } },
+    toxic: { accuracy: 90, category: "Status" }, spore: { accuracy: 100, category: "Status" },
+    protect: { accuracy: true, category: "Status" }, rest: { accuracy: true, category: "Status" },
+    focusenergy: { accuracy: true, category: "Status" },
+    seismictoss: { accuracy: 100, category: "Physical", damage: "level" },
+    focusblast: { accuracy: 70, category: "Special", secondary: { chance: 10, boosts: { spd: -1 } } },
+    tripleaxel: { accuracy: 90, category: "Physical", multihit: 3, multiaccuracy: true },
+    bulletseed: { accuracy: 100, category: "Physical", multihit: [2, 5] },
+  };
+  const L_DEX = { pelipper: { types: ["Water", "Flying"] }, garchomp: { types: ["Dragon", "Ground"] },
+    toxapex: { types: ["Poison", "Water"] }, heatran: { types: ["Fire", "Steel"] },
+    dragonite: { types: ["Dragon", "Flying"], abilities: { 0: "Inner Focus", H: "Multiscale" } },
+    togekiss: { types: ["Fairy", "Flying"], abilities: { 0: "Hustle", 1: "Serene Grace", H: "Super Luck" } } };
+  const lhead = (a = "Pelipper, L50|100/100", b = "Garchomp, L50|100/100") =>
+    `|player|p1|Alice|\n|player|p2|Bob|\n|switch|p1a: A|${a}\n|switch|p2a: B|${b}\n|turn|1\n`;
+  const luckOf = (log, sets) => {
+    const { byMon } = LK.scoreGame(RS.parseBattle(log).rolls, { moves: L_MOVES, dex: L_DEX }, sets);
+    return Object.fromEntries([...byMon].map(([k, v]) => [k, [Math.round(v.luck * 1000) / 1000, Math.round(v.against * 1000) / 1000]]));
+  };
+  const hitB = "|-damage|p2a: B|60/100";
+  const LUCK_CASES = {
+    "70% move hits: +0.3 (and a normal hit -1/24)": [lhead() + `|move|p1a: A|Hurricane|p2a: B\n${hitB}`,
+      { "p1: A": [0.258, 0], "p2: B": [0, 0.258] }],
+    "70% move misses: -0.7": [lhead() + "|move|p1a: A|Hurricane|p2a: B|[miss]\n|-miss|p1a: A|p2a: B",
+      { "p1: A": [-0.7, 0], "p2: B": [0, -0.7] }],
+    "Hurricane in rain can't miss": [lhead() + `|-weather|RainDance\n|move|p1a: A|Hurricane|p2a: B\n${hitB}`,
+      { "p1: A": [-0.042, 0], "p2: B": [0, -0.042] }],
+    "Protect: no accuracy roll": [lhead() + "|move|p2a: B|Protect|p2a: B\n|-singleturn|p2a: B|Protect\n" +
+      "|move|p1a: A|Hurricane|p2a: B\n|-activate|p2a: B|move: Protect", {}],
+    "crit: +23/24": [lhead() + `|move|p1a: A|Tackle|p2a: B\n|-crit|p2a: B\n${hitB}`, { "p1: A": [0.958, 0], "p2: B": [0, 0.958] }],
+    "Stone Edge: 80% hit + 1/8 crit": [lhead() + `|move|p1a: A|Stone Edge|p2a: B\n|-crit|p2a: B\n${hitB}`,
+      { "p1: A": [1.075, 0], "p2: B": [0, 1.075] }],
+    "Focus Energy + Stone Edge always crits": [lhead() + "|move|p1a: A|Focus Energy|p1a: A\n|-start|p1a: A|move: Focus Energy\n" +
+      `|turn|2\n|move|p1a: A|Stone Edge|p2a: B\n|-crit|p2a: B\n${hitB}`, { "p1: A": [0.2, 0], "p2: B": [0, 0.2] }],
+    "Seismic Toss: no crit roll": [lhead() + `|move|p1a: A|Seismic Toss|p2a: B\n${hitB}`, {}],
+    "Scald burns: +0.7": [lhead() + `|move|p1a: A|Scald|p2a: B\n${hitB}\n|-status|p2a: B|brn`,
+      { "p1: A": [0.658, 0], "p2: B": [0, 0.658] }],
+    "Scald doesn't burn: -0.3": [lhead() + `|move|p1a: A|Scald|p2a: B\n${hitB}`, { "p1: A": [-0.342, 0], "p2: B": [0, -0.342] }],
+    "Scald on a Fire type: no burn roll": [lhead(undefined, "Heatran, L50|100/100") + `|move|p1a: A|Scald|p2a: B\n${hitB}`,
+      { "p1: A": [-0.042, 0], "p2: B": [0, -0.042] }],
+    "Scald on a statused target: no burn roll": [lhead(undefined, "Garchomp, L50|100/100 par") + `|move|p1a: A|Scald|p2a: B\n${hitB}`,
+      { "p1: A": [-0.042, 0], "p2: B": [0, -0.042] }],
+    "Iron Head flinches: +0.7": [lhead() + `|move|p1a: A|Iron Head|p2a: B\n${hitB}\n|cant|p2a: B|flinch`,
+      { "p1: A": [0.658, 0], "p2: B": [0, 0.658] }],
+    "Iron Head, target moves after: -0.3": [lhead() + `|move|p1a: A|Iron Head|p2a: B\n${hitB}\n|move|p2a: B|Tackle|p1a: A\n|-damage|p1a: A|50/100`,
+      { "p1: A": [-0.342, -0.042], "p2: B": [-0.042, -0.342] }],
+    "Iron Head after the target moved: no flinch roll": [lhead() + `|move|p2a: B|Tackle|p1a: A\n|-damage|p1a: A|50/100\n|move|p1a: A|Iron Head|p2a: B\n${hitB}`,
+      { "p1: A": [-0.042, -0.042], "p2: B": [-0.042, -0.042] }],
+    "paralysis: full para -0.75, moving +0.25": [lhead("Pelipper, L50|100/100 par") +
+      "|cant|p1a: A|par\n|turn|2\n|move|p1a: A|Protect|p1a: A", { "p1: A": [-0.5, 0] }],
+    "sleep: 1st turn no roll, stays asleep on the 2nd -1/3, wakes on the 3rd +1/2": [lhead() +
+      "|move|p2a: B|Spore|p1a: A\n|-status|p1a: A|slp|[from] move: Spore\n|turn|2\n|cant|p1a: A|slp\n|turn|3\n|cant|p1a: A|slp\n" +
+      "|turn|4\n|-curestatus|p1a: A|slp|[msg]\n|move|p1a: A|Protect|p1a: A", { "p1: A": [0.167, 0] }],
+    "Rest: fixed sleep, no luck": [lhead() + "|move|p1a: A|Rest|p1a: A\n|-status|p1a: A|slp|[from] move: Rest\n|turn|2\n" +
+      "|cant|p1a: A|slp\n|turn|3\n|cant|p1a: A|slp\n|turn|4\n|-curestatus|p1a: A|slp|[msg]\n|move|p1a: A|Protect|p1a: A", {}],
+    "Chesto Berry wake-up isn't a roll": [lhead() + "|move|p2a: B|Spore|p1a: A\n|-status|p1a: A|slp|[from] move: Spore\n|turn|2\n" +
+      "|cant|p1a: A|slp\n|turn|3\n|-enditem|p1a: A|Chesto Berry|[eat]\n|-curestatus|p1a: A|slp|[msg]\n|move|p1a: A|Protect|p1a: A", {}],
+    "confusion: self-hit -0.67, passing +0.33": [lhead() + "|-activate|p1a: A|confusion\n|-damage|p1a: A|80/100|[from] confusion\n" +
+      "|turn|2\n|-activate|p1a: A|confusion\n|move|p1a: A|Protect|p1a: A", { "p1: A": [-0.34, 0] }],
+    "freeze: stays frozen -0.2, thaws +0.8": [lhead("Pelipper, L50|100/100 frz") + "|cant|p1a: A|frz\n|turn|2\n" +
+      "|-curestatus|p1a: A|frz|[msg]\n|move|p1a: A|Protect|p1a: A", { "p1: A": [0.6, 0] }],
+    "Toxic by a Poison type can't miss": [lhead("Toxapex, L50|100/100") + "|move|p1a: A|Toxic|p2a: B\n|-status|p2a: B|tox", {}],
+    "Toxic by a non-Poison type: 90%": [lhead() + "|move|p1a: A|Toxic|p2a: B\n|-status|p2a: B|tox", { "p1: A": [0.1, 0], "p2: B": [0, 0.1] }],
+  };
+  for (const [name, [log, expected]] of Object.entries(LUCK_CASES)) {
+    const got = luckOf(log);
+    check(`luck: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
+  }
+  {
+    const hurricane = lhead() + `|move|p1a: A|Hurricane|p2a: B\n${hitB}`;
+    const ng = luckOf(hurricane, new Map([["p1: A", { ability: "No Guard", item: "" }]]));
+    check("luck: No Guard from a team sheet: no accuracy roll", same(ng, { "p1: A": [-0.042, 0], "p2: B": [0, -0.042] }), JSON.stringify(ng));
+    const ce = luckOf(lhead() + `|move|p1a: A|Focus Blast|p2a: B\n${hitB}`, new Map([["p1: A", { ability: "Compound Eyes", item: "" }]]));
+    check("luck: Compound Eyes 70% -> 91%", same(ce, { "p1: A": [0.048, 0], "p2: B": [0, 0.048] }), JSON.stringify(ce));
+    const revealed = luckOf(lhead() + "|-ability|p1a: A|No Guard\n" + `|move|p1a: A|Hurricane|p2a: B\n${hitB}`);
+    check("luck: No Guard revealed in the log", same(revealed, { "p1: A": [-0.042, 0], "p2: B": [0, -0.042] }), JSON.stringify(revealed));
+
+    // abilities nobody revealed: a roll counts only if every ability the species can have gives the same odds
+    const sheet = (key, ability, item = "") => new Map([[key, { ability, item }]]);
+    const dnite = lhead(undefined, "Dragonite, L50|100/100") + `|move|p1a: A|Iron Head|p2a: B\n${hitB}\n|cant|p2a: B|flinch`;
+    const AB_CASES = {
+      "maybe-Inner Focus Dragonite: no flinch roll": [dnite, undefined, { "p1: A": [-0.042, 0], "p2: B": [0, -0.042] }],
+      "Dragonite with Multiscale on its sheet: flinch counts": [dnite, sheet("p2: B", "Multiscale"),
+        { "p1: A": [0.658, 0], "p2: B": [0, 0.658] }],
+      "revealed Mold Breaker ignores Inner Focus": [lhead(undefined, "Dragonite, L50|100/100") + "|-ability|p1a: A|Mold Breaker\n" +
+        `|move|p1a: A|Iron Head|p2a: B\n${hitB}\n|cant|p2a: B|flinch`, undefined, { "p1: A": [0.658, 0], "p2: B": [0, 0.658] }],
+      "maybe-Super Luck Togekiss: no crit roll": [lhead("Togekiss, L50|100/100") + `|move|p1a: A|Tackle|p2a: B\n${hitB}`, undefined, {}],
+      "Togekiss with Serene Grace on its sheet: crit counts": [lhead("Togekiss, L50|100/100") + `|move|p1a: A|Tackle|p2a: B\n${hitB}`,
+        sheet("p1: A", "Serene Grace"), { "p1: A": [-0.042, 0], "p2: B": [0, -0.042] }],
+    };
+    // multi-hit: Triple Axel rolls accuracy per hit (an early stop is the unlogged miss); 2-5 hits score
+    // P(fewer) - P(more): 2 = -0.65, 3 = +0.05, 4 = +0.55, 5 = +0.85; Loaded Dice 4 = -0.5, 5 = +0.5
+    const axel = (n) => lhead() + "|move|p1a: A|Triple Axel|p2a: B\n" +
+      ["|-damage|p2a: B|80/100", "|-damage|p2a: B|60/100", "|-damage|p2a: B|40/100"].slice(0, n).join("\n") + `\n|-hitcount|p2a: B|${n}`;
+    const seed = (hps) => lhead() + "|move|p1a: A|Bullet Seed|p2a: B\n" + hps.map((h) => `|-damage|p2a: B|${h}`).join("\n") +
+      `\n|-hitcount|p2a: B|${hps.length}`;
+    const known = sheet("p1: A", "Drizzle", "Leftovers");
+    Object.assign(AB_CASES, {
+      "Triple Axel, item unknown: first accuracy roll only": [axel(2), undefined, { "p1: A": [0.017, 0], "p2: B": [0, 0.017] }],
+      "Triple Axel stops after 2 hits: +0.1 +0.1 -0.9": [axel(2), known, { "p1: A": [-0.783, 0], "p2: B": [0, -0.783] }],
+      "Triple Axel hits 3 times: 3 x +0.1": [axel(3), known, { "p1: A": [0.175, 0], "p2: B": [0, 0.175] }],
+      "Bullet Seed 5 hits: +0.85": [seed(["90/100", "80/100", "70/100", "60/100", "50/100"]), known,
+        { "p1: A": [0.642, 0], "p2: B": [0, 0.642] }],
+      "Bullet Seed, item unknown: no hit-count roll": [seed(["90/100", "80/100", "70/100", "60/100", "50/100"]), undefined,
+        { "p1: A": [-0.208, 0], "p2: B": [0, -0.208] }],
+      "Bullet Seed with Loaded Dice, 4 hits: -0.5": [seed(["90/100", "80/100", "70/100", "60/100"]), sheet("p1: A", "Drizzle", "Loaded Dice"),
+        { "p1: A": [-0.667, 0], "p2: B": [0, -0.667] }],
+      "Bullet Seed KOs on hit 3: count cut short, no roll": [seed(["50/100", "20/100", "0 fnt"]), known,
+        { "p1: A": [-0.125, 0], "p2: B": [0, -0.125] }],
+    });
+    for (const [name, [log, sets, expected]] of Object.entries(AB_CASES)) {
+      const got = luckOf(log, sets);
+      check(`luck: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
+    }
+
+    // the page's path: a sheet matched to a side (row.set) settles the ability for addLuck
+    {
+      const rows = RS.gameRows({ id: "test-2", log: "|poke|p1|Pelipper|\n|poke|p2|Dragonite|\n" + dnite + "\n|win|Alice" });
+      LK.addLuck(rows, { moves: L_MOVES, dex: L_DEX });
+      const before = rows.find((r) => r.player === "Alice").luck;
+      rows.find((r) => r.player === "Bob").set = { ability: "Multiscale", item: "" };
+      LK.addLuck(rows, { moves: L_MOVES, dex: L_DEX });
+      const after = rows.find((r) => r.player === "Alice").luck;
+      check("luck rows: a team sheet's ability turns the flinch roll on", before === -0.04 && after === 0.66, JSON.stringify([before, after]));
+    }
+
+    // rows: player_luck = own side's luck - the opponent's; blanks without move data
+    const replay = { id: "test-1", log: "|poke|p1|Pelipper|\n|poke|p2|Garchomp|\n" + lhead("Pelipper, L50|100/100 par") +
+      "|cant|p1a: A|par\n|turn|2\n|move|p2a: B|Tackle|p1a: A\n|-crit|p1a: A\n|-damage|p1a: A|10/100\n|win|Bob" };
+    const rows = RS.gameRows(replay);
+    LK.addLuck(rows, { moves: L_MOVES, dex: L_DEX });
+    const lr = rows.map((r) => [r.player, r.luck, r.luck_against, r.player_luck]);
+    check("luck rows: luck, luck against, player luck", same(lr, [["Alice", -0.75, 0.96, -1.71], ["Bob", 0.96, 0, 1.71]]), JSON.stringify(lr));
+    const sum = RS.summarize(rows);
+    check("luck summary: totals per Pokémon", sum.find((a) => a.player === "Bob").luck === 0.96, JSON.stringify(sum.map((a) => a.luck)));
+    LK.addLuck(rows, null);
+    check("luck rows: blank without move data", rows.every((r) => r.luck === "" && r.player_luck === ""),
+      JSON.stringify(rows.map((r) => r.luck)));
+    check("luck summary: blank when a game has no score", RS.summarize(rows).every((a) => a.luck === ""));
   }
 
   // ---- CSV / TSV escaping ----

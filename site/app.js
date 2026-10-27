@@ -3,6 +3,7 @@
   "use strict";
   const RS = window.ReplayStats;
   const TS = window.TeamSheets;
+  const LK = window.Luck;
   const $ = (id) => document.getElementById(id);
   const STORAGE_KEY = "replay-kill-tracker.links";
   const SHEETS_KEY = "replay-kill-tracker.sheets";
@@ -24,6 +25,9 @@
     hazards_set: "Hazards set", hazards_removed: "Hazards removed", hazard_turns: "Hazard turns",
     healing_pct: "Healed %", healing_hp: "Healed HP", healing_given_pct: "Heal given %", healing_given_hp: "Heal given HP",
     switches: "Switches", pivots: "Pivots", forced_out: "Forced out", faint_switch_ins: "In after KO",
+    crits: "Crits", crits_taken: "Crits taken", misses: "Misses", dodges: "Dodged", full_paras: "Full paras",
+    sleep_turns: "Sleep turns", flinched: "Flinched", confusion_hits: "Hit itself", procs: "Effects landed",
+    luck: "Luck", luck_against: "Luck against", player_luck: "Player luck",
     hidden_zoroark: "Hidden Zoroark",
   };
   const YES_NO = new Set(["won", "brought", "hidden_zoroark"]);
@@ -122,6 +126,7 @@
       }
     }
     await applySheets(errors);
+    await applyLuck(errors);
     const ok = results.filter(Boolean).length;
     $("status").textContent = `Loaded ${ok} replay${ok === 1 ? "" : "s"}` +
       (errors.length ? `, ${errors.length} failed.` : ".");
@@ -330,6 +335,20 @@
       st.textContent = sh.note + used;
       st.classList.toggle("bad", !!sh.bad);
     });
+  }
+
+  /** Luck score columns: need Showdown's move data (and the Pokedex for types); blank if they don't load. */
+  async function applyLuck(errors) {
+    let data = null;
+    if (rows.length) {
+      try {
+        const [moves, dex] = await Promise.all([LK.loadMoves(), TS.loadDex()]);
+        data = { moves, dex };
+      } catch (e) {
+        errors.push(`Move data (for the luck score): ${e.message || e}`);
+      }
+    }
+    LK.addLuck(rows, data);
   }
 
   function flash(btn, text) {
