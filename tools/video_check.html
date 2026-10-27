@@ -1,0 +1,25 @@
+<!doctype html><meta charset="utf-8"><title>loading</title>
+<!-- Runs a rebuilt replay through site/parser.js. Serve the repo root, open
+     /tools/video_check.html?replay=/tests/corpus/video/<id>.json (headless Edge with --dump-dom prints the table). -->
+<script src="../site/parser.js"></script>
+<pre id="out"></pre>
+<script>
+(async () => {
+  const RS = window.ReplayStats;
+  try {
+    const replay = await (await fetch(new URLSearchParams(location.search).get("replay"))).json();
+    const rows = RS.gameRows(replay);
+    RS.addDamageHp(rows);
+    const cols = ["player", "pokemon", "brought", "direct_kills", "passive_kills", "deaths", "won", "damage_dealt", "damage_taken"];
+    const have = cols.filter((c) => c in rows[0]);
+    const lines = [have.join("\t"), ...rows.map((r) => have.map((c) => r[c]).join("\t"))];
+    const b = RS.parseBattle(replay.log);
+    lines.push("", "kills: " + JSON.stringify((b.kills || []).map((k) => k.map((x) => (x && x.species) || x))));
+    document.getElementById("out").textContent = lines.join("\n");
+    document.title = "OK";
+  } catch (e) {
+    document.getElementById("out").textContent = e.stack;
+    document.title = "CRASH";
+  }
+})();
+</script>

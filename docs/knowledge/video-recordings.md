@@ -5,12 +5,42 @@
   battle log, readable at 720p: turn headers, "X used Move!", "(X lost 34% of its health!)", "fainted!",
   items and abilities as they're revealed ("Weakness Policy", "[… Clear Body]"), nicknames with species on switch-in
   ("Go! short king (Slowking-Galar)!"), team preview lists and the format rules. The battle side shows HP bars with %.
-- **Tested**: the log panel holds about 5 turns at a time and scrolls as the battle goes, so frames every ~10-15 s
-  should overlap enough to cover every line. After the battle the stream shows other things (the draft sheet at 10:40).
+- **Tested**: in this video the battle is a replay being played back (Pause / Skip turn buttons), shown twice: 0:00-8:00
+  and again 8:05-9:57, then the stream cuts to the draft sheet. The end of the log (the last faint, "won the battle")
+  scrolls below the frame; the scene's message box (720p box x 110-590, y 398-446) shows it.
 - **Tested**: download with yt-dlp (`-f 136`, 720p H.264 video only, 52 MB here; no ffmpeg needed). Frames: headless
   Edge playing the file from a local server that supports HTTP Range (Python's `http.server` doesn't, so `<video>`
   can't seek), on the real clock (seeking never finishes under `--virtual-time-budget`).
-- **Guess**: text-to-protocol conversion is feasible because Showdown's messages are templates, but the recorded log
-  is the spectator's: no exact HP numbers, no hidden-information lines. Windows' built-in OCR (Windows.Media.Ocr from
-  PowerShell) may read the panel crops without installing anything; not tried.
 - **Tested**: Showdown names seen: "pee nation" (Eric's draft pool) vs "chicken parm karm".
+
+## Pipeline (pilot, 2026-10-27): `tools/video_to_replay.py`
+
+`python -I tools/video_to_replay.py <video.mp4> <work_dir> --id video-<youtube id> --length <seconds> --url <link>`
+writes `<work_dir>/<id>.json` (a replay `site/parser.js` reads) and `report.txt` (vote counts per turn, unparsed
+lines, every guessed HP number). Check it with `tools/video_check.html?replay=<path>` (serve the repo root). Pieces:
+`tools/video_frames.py` + `video_grab.html` (crops via headless Edge, POSTed to the script's own server, no
+screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_convert.py` (sentences to protocol).
+
+- **Tested**: OCR on the log crop (720p box x 686-1280, y 56-720). Drawn at 4x with `grayscale(1) contrast(2)` it read
+  27 of 27 "lost N%" numbers on 15 test frames; 2x / 3x without the filter read 24 of 28, 3x with it 25. OCR reads
+  "%" as "0/0" ("130/0" = 13%, "80/0" = 8%), "!" at line ends as "l", "i" or "'", "W" as "VV", "Go!" as "Gol", and
+  "[X's Ability]" as "(X's Ability)". The fixes are in `clean()` / `variants()`.
+- **Tested**: frames every 5 s (164 frames) gave 6-34 readings of every turn; all readings of each complete turn had
+  the same line count, so voting per line between "Turn N" headers was enough (no fuzzy alignment needed). The
+  replay shown twice doubled the readings. Grab 20 s + OCR 22 s; the whole run is 48 s and gives the same log twice.
+- **Tested**: Showdown's English templates (pokemon-showdown 0.11.11 `dist/data/text/*.js` on jsDelivr) turned into
+  regexes matched every line of this game, plus one client wording the package lacks: "(The snow is blowing about!)"
+  (`EXTRA` in video_convert.py). Garbled lines ("EVIL fainte&…") fall back to 80%-alike fuzzy matching.
+- **Tested**: the client prints "lost N%" only for a move's hit. Poison, Toxic and Life Orb damage show no number, so
+  those are estimated (1/8, n/16, 1/10) and listed in report.txt. An early version credited Earthquake's "lost 13%"
+  to the poison line after it.
+- **Tested**: Regenerator's heal on switching out is invisible in a spectator log. Without it Slowking-Galar would
+  have been at 0% before it moved; the converter now adds 33% for any species that can have Regenerator (a guess when
+  the ability isn't revealed) and flags any Pokémon that moves at 0%.
+- **Tested**: result for this game: 16 turns, 146 protocol lines, 0 unparsed. parser.js: Metagross 5 direct kills
+  (Gliscor, Slowking-Galar, Ninetales-Alola, Weavile by Heavy Slam, Arctozolt by Earthquake), 5 pee nation faints,
+  "pee nation forfeited." with Charizard alive, chicken parm karm won (matches Challonge). Metagross ends at 7%, the
+  same as the HP bar on screen.
+- **Guess**: other league videos may differ: a live battle instead of a replay, another streamer's layout (the crop
+  boxes are fixed numbers), spectator chat in the log ("peterpikmon: g2g" sat in team preview here), moves and
+  messages this game didn't have. Check every new video's report.txt; expect a few rules per new message type.

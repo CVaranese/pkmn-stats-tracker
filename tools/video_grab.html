@@ -1,0 +1,32 @@
+<!doctype html><body><img src="/hold" style="display:none">
+<script>
+// Served by tools/video_frames.py. ?t=60,70&box=x,y,w,h&scale=2 : seeks /video.mp4 to each time, draws the box
+// (1280x720 frame coordinates) at `scale`, and POSTs it as PNG to /save?name=f<t*10>.png. Then POSTs a summary to /done.
+const q = new URLSearchParams(location.search);
+const times = q.get("t").split(",").map(Number);
+const [bx, by, bw, bh] = q.get("box").split(",").map(Number);
+const scale = Number(q.get("scale"));
+const done = (msg) => fetch("/done", { method: "POST", body: msg });
+window.onerror = (m) => done("ERR " + m);
+(async () => {
+  const v = document.createElement("video");
+  v.muted = true;
+  v.addEventListener("error", () => done("VIDEO ERR " + (v.error && v.error.code)));
+  v.src = "/video.mp4";
+  await new Promise((r) => v.addEventListener("loadeddata", r, { once: true }));
+  const c = document.createElement("canvas");
+  c.width = Math.round(bw * scale); c.height = Math.round(bh * scale);
+  const g = c.getContext("2d");
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+  if (q.get("filter")) g.filter = q.get("filter");  // e.g. "grayscale(1) contrast(1.6)"
+  const sx = v.videoWidth / 1280, sy = v.videoHeight / 720;
+  for (const t of times) {
+    v.currentTime = t;
+    await new Promise((r) => v.addEventListener("seeked", r, { once: true }));
+    g.drawImage(v, bx * sx, by * sy, bw * sx, bh * sy, 0, 0, c.width, c.height);
+    const blob = await new Promise((r) => c.toBlob(r, "image/png"));
+    await fetch("/save?name=f" + String(Math.round(t * 10)).padStart(5, "0") + ".png", { method: "POST", body: blob });
+  }
+  done("ok " + times.length + " frames, duration " + v.duration);
+})();
+</script>
