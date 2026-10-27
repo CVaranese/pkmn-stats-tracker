@@ -1,0 +1,360 @@
+{
+ "note": "Draft pools and tiers from the league's draft sheet (tier on draft day sets the cost). Only players whose Showdown name is known.",
+ "costs": {
+  "OU": 7,
+  "UUBL": 6,
+  "UU": 5,
+  "RUBL": 4,
+  "RU": 3,
+  "NFE": 2,
+  "LC": 1
+ },
+ "players": {
+  "Nezergy": [
+   {
+    "pokemon": "Iron Valiant",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Corviknight",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Meowscarada",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Tapu Fini",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Zeraora",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Latias-Mega",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Zoroark-Hisui",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Donphan",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Volcanion",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Tentacruel",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Slither Wing",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Glimmet",
+    "tier": "LC"
+   }
+  ],
+  "PeterPikmon": [
+   {
+    "pokemon": "Ogerpon-Wellspring",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Samurott-Hisui",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Tyranitar",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Excadrill",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Aegislash",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Altaria-Mega",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Latias",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Golisopod",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Skeledirge",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Fezandipiti",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Dracozolt",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Arcanine-Hisui",
+    "tier": "RU"
+   }
+  ],
+  "chicken parm karm": [
+   {
+    "pokemon": "Gholdengo",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Alomomola",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Greninja",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Glimmora",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Hydrapple",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Aerodactyl-Mega",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Primarina",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Nidoking",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Deoxys-Defense",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Araquanid",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Metagross",
+    "tier": "RU"
+   }
+  ],
+  "azpmCloudburst": [
+   {
+    "pokemon": "Garchomp",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Zapdos",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Mawile-Mega",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Blaziken",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Dondozo",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Gengar",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Venusaur",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Torkoal",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Whimsicott",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Clawitzer",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Cresselia",
+    "tier": "RU"
+   }
+  ],
+  "ElkG Big Large": [
+   {
+    "pokemon": "Zamazenta",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Scizor-Mega",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Hoopa-Unbound",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Blacephalon",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Slowking",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Keldeo-Resolute",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Mamoswine",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Tangrowth",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Rotom-Heat",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Cloyster",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Porygon2",
+    "tier": "NFE"
+   }
+  ],
+  "DEJIME": [
+   {
+    "pokemon": "Kingambit",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Raging Bolt",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Swampert-Mega",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Salamence",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Archaludon",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Azumarill",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Pelipper",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Sinistcha",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Pawmot",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Overqwil",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Basculegion-F",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Munkidori",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Scyther",
+    "tier": "NFE"
+   }
+  ],
+  "weedinmyhonda": [
+   {
+    "pokemon": "Landorus-Therian",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Ferrothorn",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Latios-Mega",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Blissey",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Mimikyu",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Muk-Alola",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Talonflame",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Krookodile",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Magnezone",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Starmie",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Maushold",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Solrock",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Hattrem",
+    "tier": "NFE"
+   }
+  ]
+ }
+}

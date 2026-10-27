@@ -138,6 +138,7 @@
     $("warnings").hidden = true;
     $("status").textContent = "";
     if (load && activeIds().length) run();
+    if (m === "bet") renderGambling();
   }
   for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.addEventListener("click", () => setMode(tab.dataset.mode));
 
@@ -228,6 +229,60 @@
     tr.title = "Open in One game (shows the result)";
     tr.addEventListener("click", (e) => { if (!e.target.closest("button")) openGame(g.id); });
     return tr;
+  }
+
+  // ---------- Gambling (bet.js): Pokémon fantasy points with draft costs, records ----------
+
+  let fantasyRows = null;  // every library game's rows, loaded the first time the tab opens
+  let draft = null;        // site/games/draft.json: each player's drafted Pokémon and tiers
+  /** A table with a header row; each cell is [text or node, "num" or ""], a header cell may add a title. */
+  function simpleTable(table, head, body) {
+    const tr = (cells, tag) => {
+      const r = document.createElement("tr");
+      r.append(...cells.map(([v, cls, title]) => { const c = el(tag, cls); c.append(v); if (title) c.title = title; return c; }));
+      return r;
+    };
+    table.replaceChildren(tr(head, "th"), ...body.map((cells) => tr(cells, "td")));
+  }
+  async function renderGambling() {
+    await libraryReady;
+    if (fantasyRows) return;
+    fantasyRows = [];
+    const saved = Bet.records(library);
+    const nameOf = (p) => (saved.find((r) => r.id === TS.toID(p)) || { name: p }).name;  // one spelling per player
+    // the bracket's records (tools/challonge_records.py); without them, the games saved here
+    let bracket = null;
+    try { bracket = await (await fetch("games/records.json")).json(); } catch (e) { /* not there */ }
+    const recs = bracket ? bracket.players : saved;
+    simpleTable($("bet-ranks"), [["Player", ""], ["Won", "num"], ["Lost", "num"]],
+      recs.map((p) => [[p.name, ""], [String(p.wins), "num"], [String(p.losses), "num"]]));
+    $("bet-records-note").textContent = bracket
+      ? `From the bracket (Swiss rounds), ${bracket.updated}.`
+      : `From the ${library.length} games saved here. The full bracket is under Games.`;
+    const s = Bet.SCORING;
+    $("bet-scoring").textContent = `Each Pokémon on each player's team: ${s.kill} points a KO, ${s.damagePer100} per 100% damage dealt, ` +
+      `${s.survived} for being alive at the end, ${s.won} when its team won. Cost is its draft price (OU 7, UUBL 6, UU 5, ` +
+      `RUBL 4, RU 3, NFE 2, LC 1, set by the tier on draft day); Per cost is points for each draft point spent. Top 20.`;
+    $("bet-status").textContent = "Loading games…";
+    try { draft = await (await fetch("games/draft.json")).json(); } catch (e) { draft = null; }
+    for (const g of library) {
+      try {
+        if (!cache.has(g.id)) cache.set(g.id, await RS.fetchReplay(g.id));
+        fantasyRows.push(...RS.gameRows(cache.get(g.id)));
+      } catch (e) { /* a game that won't load just isn't counted */ }
+    }
+    const games = new Set(fantasyRows.map((r) => r.replay_id)).size;
+    $("bet-status").textContent = (games < library.length ? `Counted ${games} of ${library.length} games (the rest didn't load). ` : "") +
+      (draft ? "" : "Draft costs didn't load.");
+    simpleTable($("bet-fantasy"), [["Pokémon", ""], ["Player", ""], ["Tier", ""], ["Cost", "num", "Draft points"], ["Games", "num"],
+      ["KOs", "num"], ["Damage", "num"], ["Points", "num"], ["Per game", "num"], ["Per cost", "num", "Points per draft point"]],
+      Bet.fantasy(fantasyRows, draft).slice(0, 20).map((f) => {
+        const mon = el("span", "bet-mon");
+        mon.append(sprite(f.pokemon, ["gen5/"], "tiny"), f.pokemon);
+        return [[mon, ""], [nameOf(f.player), ""], [f.tier || "–", ""], [f.cost ? String(f.cost) : "–", "num"], [String(f.games), "num"],
+          [String(f.kills), "num"], [pct(f.damage), "num"], [f.points.toFixed(1), "num"], [f.perGame.toFixed(1), "num"],
+          [f.perCost ? f.perCost.toFixed(1) : "–", "num"]];
+      }));
   }
 
   /** Open a stored game in One game (stats, so the result shows). */

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Gambling tab (first draft): Pokémon fantasy points from every league game (3 a KO, 1 per 100% damage, 1 for surviving, 1 for a win) with each Pokémon's draft tier, cost and points per draft point, plus each player's Swiss record from the Challonge bracket under its names (`site/games/records.json`, made by `python -I tools/challonge_records.py`). A note says the points aren't exact until we have team sheets. Draft pools and tiers are in `site/games/draft.json`. No win odds: too few games. It shows results.
 - Sprites: when Showdown's sprite server doesn't answer, the live site falls back to the copies saved with the site (`site/sprites/gen5/`). A team-preview "Zamazenta-*" now shows Zamazenta's sprite instead of initials.
 - Removed the three test games (the "Samples" group) from the Games tab, and the outage copies of four non-league replays from the local preview. The local preview now shows the league's games; Week 8 peterpikmon vs weedinmyhonda, the one game with both team sheets, is the main example.
 - Week 8, peterpikmon vs weedinmyhonda: both team sheets fill in when the game opens, so it shows HP, items, abilities and moves.

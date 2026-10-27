@@ -121,6 +121,9 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .modes button { border: 2px solid transparent; border-bottom: 0; border-radius: 6px 6px 0 0; margin-bottom: -2px;
   background: transparent; padding: 8px 16px; font-weight: 600; color: var(--muted); }
 .gambling { padding: 8px 0 24px; }
+.gambling .section-title { margin-top: 22px; }
+.bet-table { max-width: 360px; }
+.bet-mon { display: inline-flex; align-items: center; gap: 8px; }
 .library { padding: 4px 0 24px; }
 .lib-table .lib-week th { position: static; cursor: default; font-size: 15px; padding-top: 16px; background: var(--bg); }
 .lib-table .lib-week:first-child th { padding-top: 8px; }

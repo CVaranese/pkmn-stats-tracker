@@ -11,3 +11,21 @@
   the organiser typed (real first names here), not a Showdown username.
 - **Guess**: Showdown replay ids for gen9nationaldex rose about 4 million a week in Sep-Oct 2026 (ids are shared
   across all formats). Good enough to guess the week of a replay; confirm with its `uploadtime`.
+- **Tested** (2026-10-27): the tournament is `swiss`, state `underway`, 12 participants; 47 of 48 round 1-8 matches
+  complete. Each match also has `loser_id`. `tools/challonge_records.py` turns this into `site/games/records.json`
+  under the bracket's names (the user OK'd showing them on the site, 2026-10-27).
+
+## Draft sheet (Google Sheets)
+- **Tested** (2026-10-27): the league draft sheet exports without sign-in (`/export?format=xlsx`, or one tab as CSV with
+  `/gviz/tq?tqx=out:csv&sheet=<tab>`). Tabs: Rules, Draft table, New ZA Moves. Rules: 48 points, OU 7, UUBL 6, UU 5,
+  RUBL 4, RU 3, NFE 2, LC 1; cost is the tier on draft day; 2 OU max, 1 Mega max.
+- **Tested**: Draft table has one column per player (bracket first names) with the pool as one comma list; the tiers are
+  only shown by where each sprite image sits (one row per tier). Text has typos ("Slither Wings", "Basulegion-Female").
+- **Tested**: Showdown's natDexTier (pokemon-showdown 0.11.11 `formats-data.js`) matched the sheet's rows for all 141
+  picks except Sableye-Mega, Rotom-Wash and Blacephalon (sheet: UUBL; data: UU). Found by comparing tier counts per row,
+  then looking at the sprites.
+- **Tested** (user, 2026-10-27): 51 is right. After the 48-point draft a wheel gave everyone one random 3-point
+  Pokémon, and after Week 4 each player could trade one in for a 3-point-or-less Pokémon. One pool totals 52; the user
+  is checking it against the draft.
+- **Researched**: cost is the tier on draft day (sheet rules), so later Smogon tier changes don't change it; the sheet's
+  rows, not Showdown's current data, decide. All 36 team-preview Pokémon in the 6 saved games are in the sheet's pools.

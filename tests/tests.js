@@ -1033,6 +1033,28 @@ ${switchIn}`).hiddenZoroark;
   check("csv escaping", csv === 'a,b\r\n"x,""y""",Pokémon\r\n', JSON.stringify(csv));
   check("tsv strips tabs", RS.toTsv(["a"], [{ a: "x\ty" }]) === "a\r\nx y\r\n");
 
+  // ---- Gambling tab (bet.js) ----
+  const recs = Bet.records([
+    { players: ["Ann", "Bob"], winner: "ann" },
+    { players: ["Bob", "Cy"], winner: "Bob" },
+    { players: ["Cy", "Ann"], winner: "" },
+  ]);
+  check("bet: records, names ignore case, no winner skipped", recs.map((p) => `${p.name} ${p.wins}-${p.losses}`).join(", ") ===
+    "Ann 1-0, Bob 1-1, Cy 0-1", JSON.stringify(recs));
+  const draft = { costs: { OU: 7, UU: 5, RU: 3 }, players: { "ANN": [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Swampert-Mega", tier: "UU" }] } };
+  check("bet: a Mega seen as its base species finds its draft entry", (Bet.drafted(draft, "ann", "Swampert") || {}).tier === "UU");
+  check("bet: undrafted Pokémon has no entry", Bet.drafted(draft, "Ann", "Toxapex") === null && Bet.drafted(draft, "Bob", "Garchomp") === null);
+  const fan = Bet.fantasy([
+    { player: "Ann", pokemon: "Garchomp", brought: 1, kills: 2, damage_dealt_pct: 150, survived: 1, won: 1 },
+    { player: "ann", pokemon: "Garchomp", brought: 1, kills: 0, damage_dealt_pct: 50, survived: 0, won: 0 },
+    { player: "Bob", pokemon: "Garchomp", brought: 1, kills: 1, damage_dealt_pct: 0, survived: 0, won: 0 },
+    { player: "Bob", pokemon: "Toxapex", brought: 0, kills: 0, damage_dealt_pct: 0, survived: 0, won: 0 },
+  ], draft);
+  // Ann's: 2 KOs (6) + 200% damage (2) + survived once (1) + one win (1) = 10 over 2 games; OU costs 7 -> 1.4 a point
+  check("bet: fantasy per player's Pokémon, unbrought skipped, cost from the draft", fan.map((f) =>
+    `${f.player} ${f.pokemon} ${f.points} ${f.perGame} ${f.tier || "-"} ${f.cost} ${f.perCost}`).join(", ") ===
+    "Ann Garchomp 10 5 OU 7 1.4, Bob Garchomp 3 3 - null null", JSON.stringify(fan));
+
   // ---- report ----
   const failed = results.filter((r) => !r.ok);
   const out = document.getElementById("out");

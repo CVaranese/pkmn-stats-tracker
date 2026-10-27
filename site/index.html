@@ -38,8 +38,15 @@
     </nav>
 
     <section id="gambling" class="gambling" hidden>
-      <h2 class="section-title">Gambling</h2>
-      <p>Bets on league games, settled from the replays. Not open yet.</p>
+      <p class="hint">Fantasy points from every league game so far, so this tab gives results away. Nothing here takes real bets.</p>
+      <h2 class="section-title">Fantasy points</h2>
+      <p class="hint" id="bet-scoring"></p>
+      <p class="hint">Not exact yet: most games have no team sheets, so damage is a share of each Pokémon's HP, not real HP. Fantasy points will be counted better once we have the sheets.</p>
+      <p class="muted" id="bet-status"></p>
+      <div class="table-wrap"><table id="bet-fantasy"></table></div>
+      <h2 class="section-title">Records</h2>
+      <p class="hint" id="bet-records-note"></p>
+      <div class="table-wrap bet-table"><table id="bet-ranks"></table></div>
     </section>
 
     <section id="library" class="library" hidden>
@@ -159,6 +166,7 @@
   <script src="parser.js"></script>
   <script src="teams.js"></script>
   <script src="luck.js"></script>
+  <script src="bet.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
