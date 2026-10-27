@@ -702,8 +702,8 @@
   const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "end_reason", "turns", "pokemon", "nickname",
     "brought", "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
     "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "healing_pct",
-    "healing_given_pct", "switches", "pivots", "forced_out", "faint_switch_ins", ...LUCK_COUNT_FIELDS, "luck", "luck_against",
-    "player_luck", "hidden_zoroark", "replay_url"];
+    "healing_given_pct", "switches", "pivots", "forced_out", "faint_switch_ins", "mvp_score", "mvp", ...LUCK_COUNT_FIELDS,
+    "luck", "luck_against", "player_luck", "hidden_zoroark", "replay_url"];
 
   /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
   function gameRows(replay) {
@@ -750,6 +750,26 @@
       // no team preview (Random Battles) or no match: every Pokemon that appeared
       for (const [k, s] of brought) if (!seen.has(k)) rows.push(row(k, s));
     }
+    return addMvp(rows);
+  }
+
+  /**
+   * MVP score, in rough "KOs' worth": +1 per 100% dealt, +1 per kill, +0.5 per 100% healed (self or
+   * given), +0.5 for surviving. Brought Pokemon only. mvp = 1 for the top score on each team; ties go
+   * to more kills, then more damage, then team order.
+   */
+  function addMvp(rows) {
+    const best = {};
+    for (const r of rows) {
+      if (!r.brought) { r.mvp_score = ""; r.mvp = 0; continue; }
+      r.mvp_score = Math.round((r.damage_dealt_pct / 100 + r.kills +
+        0.5 * (r.healing_pct + r.healing_given_pct) / 100 + (r.deaths ? 0 : 0.5)) * 100) / 100;
+      r.mvp = 0;
+      const b = best[r.player];
+      if (!b || r.mvp_score > b.mvp_score || (r.mvp_score === b.mvp_score && (r.kills > b.kills ||
+        (r.kills === b.kills && r.damage_dealt_pct > b.damage_dealt_pct)))) best[r.player] = r;
+    }
+    for (const r of Object.values(best)) r.mvp = 1;
     return rows;
   }
 
@@ -787,7 +807,7 @@
   }
 
   const SUMMARY_FIELDS = ["player", "pokemon", "games_brought", "wins_when_brought", "kills",
-    "direct_kills", "passive_kills", "deaths", "kills_per_game", "damage_dealt_pct", "damage_taken_pct",
+    "direct_kills", "passive_kills", "deaths", "kills_per_game", "mvps", "mvp_score_per_game", "damage_dealt_pct", "damage_taken_pct",
     "damage_dealt_hp", "damage_taken_hp", "hazard_damage_pct", "hazard_damage_hp", "hazard_kills",
     "hazards_set", "hazards_removed", "healing_pct", "healing_hp", "healing_given_pct", "healing_given_hp",
     "switches", "pivots", "forced_out", "faint_switch_ins", ...LUCK_COUNT_FIELDS, ...LUCK_FIELDS];
@@ -810,12 +830,15 @@
       a.games_brought += 1;
       a.wins_when_brought += r.won;
       for (const f of SUM_FIELDS) a[f] += r[f] || 0;
+      a.mvps += r.mvp;
+      a.mvp_score_per_game += r.mvp_score;
       // raw HP totals only when every game has it, so a blank never hides inside a sum
       for (const f of [...HP_FIELDS, ...LUCK_FIELDS]) a[f] = a[f] === "" || r[f] === "" || r[f] === undefined ? "" : a[f] + r[f];
     }
     const out = [...agg.values()];
     for (const a of out) {
       a.kills_per_game = Math.round((a.kills / a.games_brought) * 100) / 100;
+      a.mvp_score_per_game = Math.round((a.mvp_score_per_game / a.games_brought) * 100) / 100;
       for (const f of [...PCT_FIELDS, ...LUCK_FIELDS]) if (a[f] !== "") a[f] = Math.round(a[f] * 100) / 100;
     }
     out.sort((x, y) => y.kills - x.kills || x.deaths - y.deaths ||

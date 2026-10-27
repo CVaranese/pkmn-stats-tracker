@@ -872,6 +872,31 @@ ${switchIn}`).hiddenZoroark;
     check("luck summary: blank when a game has no score", RS.summarize(rows).every((a) => a.luck === ""));
   }
 
+  // ---- MVP: +1 per 100% dealt, +1 per kill, +0.5 per 100% healed, +0.5 for surviving; one per team ----
+  {
+    const log = "|poke|p1|Pelipper|\n|poke|p1|Blissey|\n|poke|p2|Garchomp|\n|poke|p2|Dragonite|\n" + lhead() +
+      "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|40/100\n|move|p2a: B|Earthquake|p1a: A\n|-damage|p1a: A|50/100\n|turn|2\n" +
+      "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|0 fnt\n|faint|p2a: B\n|switch|p2a: D|Dragonite, L50|100/100\n|turn|3\n" +
+      "|move|p2a: D|Extreme Speed|p1a: A\n|-damage|p1a: A|0 fnt\n|faint|p1a: A\n|switch|p1a: C|Blissey, L50|100/100\n|turn|4\n" +
+      "|move|p2a: D|Extreme Speed|p1a: C\n|-damage|p1a: C|70/100\n|move|p1a: C|Soft-Boiled|p1a: C\n|-heal|p1a: C|100/100\n|win|Bob";
+    const rows = RS.gameRows({ id: "test-mvp", log });
+    const got = Object.fromEntries(rows.map((r) => [r.pokemon, [r.mvp_score, r.mvp]]));
+    // A: 100% + 1 KO = 2; C: 30% healed x0.5 + survived = 0.65; B: 50% = 0.5; D: 80% + 1 KO + survived = 2.3
+    const exp = { Pelipper: [2, 1], Blissey: [0.65, 0], Garchomp: [0.5, 0], Dragonite: [2.3, 1] };
+    check("mvp: score and one MVP per team", same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
+    const d = RS.summarize(rows).find((a) => a.pokemon === "Dragonite");
+    check("mvp summary: MVPs and score per game", d.mvps === 1 && d.mvp_score_per_game === 2.3 && !("mvp" in d), JSON.stringify(d));
+    const bad = [];
+    for (const id of Object.keys(REAL)) {
+      const rs = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
+      for (const p of new Set(rs.map((r) => r.player))) {
+        const n = rs.filter((r) => r.player === p && r.mvp).length;
+        if (n !== 1 || rs.some((r) => r.mvp && !r.brought)) bad.push(`${id} ${p}: ${n}`);
+      }
+    }
+    check("mvp: exactly one brought MVP per team in every real replay", !bad.length, bad.join("\n"));
+  }
+
   // ---- CSV / TSV escaping ----
   const csv = RS.toCsv(["a", "b"], [{ a: 'x,"y"', b: "Pokémon" }]);
   check("csv escaping", csv === 'a,b\r\n"x,""y""",Pokémon\r\n', JSON.stringify(csv));
