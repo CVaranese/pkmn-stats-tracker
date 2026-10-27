@@ -326,6 +326,11 @@ class Converter:
             if key == "clearAllBoost":   # Haze
                 return self.emit("-clearallboost")
             if key == "winBattle":
+                # the last KO's "fainted!" can scroll by unread (the box went from the hit to the win)
+                for side, nick in self.active.items():
+                    if nick and self.hp.get((side, nick), 100) <= 0 and f"|faint|{self.ref(side, nick)}" not in self.out:
+                        self.guessed.append(f"{nick} at 0 HP at the win: faint added")
+                        self.emit("faint", self.ref(side, nick))
                 return self.emit("win", self.close(s["TRAINER"], self.players, 0.5) or s["TRAINER"])
             if key in ("switchIn", "switchInOwn"):
                 side = self.own_side() if key == "switchInOwn" else self.foe(self.own_side())

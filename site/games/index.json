@@ -548,6 +548,38 @@
    "turns": 19,
    "note": "From the stream video",
    "video": "https://youtu.be/4fACABLYaoc"
+  },
+  {
+   "id": "video-oqam2awttbc",
+   "league": "pinecord",
+   "week": "Week 3",
+   "players": [
+    "Zololab",
+    "weedinmyhonda"
+   ],
+   "teams": [
+    [
+     "Diancie",
+     "Latios",
+     "Pecharunt",
+     "Serperior",
+     "Iron Treads",
+     "Scrafty"
+    ],
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian",
+     "Talonflame",
+     "Muk-Alola"
+    ]
+   ],
+   "winner": "Zololab",
+   "date": "2026-09-22",
+   "turns": 48,
+   "note": "From the stream video",
+   "video": "https://youtu.be/OQAm2AwTtBc"
   }
  ]
 }

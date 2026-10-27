@@ -99,3 +99,10 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   substitute fail, Electric Terrain block, partial-trap damage (Magma Storm, 1/8, credited to its user through
   `[of]`), "6600" = 66%, a damage line garbled around the number rebuilt from "<name> lost N% ... health",
   "The" read as "e" / "lhe" / "I he", "doesn t". Revival Blessing: a Pokémon can faint twice (DEJIME vs Karm).
+- **Tested** (2026-10-27, Week 3 Zololab vs Bad Bully, OQAm2AwTtBc): Week 1 layout (default `--log-box`). The message
+  box moves: mid-game it's a taller box at y 430-500 (move name + effect lines), at the win it's y 405-440
+  (`--scene-box 40,400,560,50` caught it; the lower box read the Download replay buttons). The box went from the
+  last hit ("lost 100%") straight to the win with no "fainted!": the converter now adds the faint for an active
+  Pokémon at 0 HP at the win (listed in report.txt).
+- **Tested**: after ~15 downloads in a day YouTube answered yt-dlp with "Sign in to confirm you're not a bot" for
+  downloads and metadata alike, and `--sleep-requests 3` didn't help.
