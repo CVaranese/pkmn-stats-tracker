@@ -33,3 +33,10 @@
 
 ## Kill rules (decided with the user, 2026-10-26)
 Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond counts as direct). Passive = indirect damage credited to its cause. If the cause is the victim itself or its own side (recoil, Life Orb, confusion, ally hit, own weather), the last opponent that damaged it gets a passive kill; no such opponent → no kill. Explosion/Memento etc.: death, no kill. Forfeit: survivors are not deaths.
+
+## Entry hazards (2026-10-26)
+- **Tested** (30 Nat Dex corpus replays): set as `|-sidestart|p2: Name|move: Stealth Rock` (Stealth Rock, Toxic Spikes, Sticky Web carry `move: `; Spikes is plain `Spikes`), one line per layer, right after the setter's `|move|`. 37 set in 30 games: 25 Stealth Rock, 8 Spikes, 2 Toxic Spikes, 2 Sticky Web.
+- **Tested:** removal is `|-sideend|p1: Name|Stealth Rock|[from] move: Defog|[of] p1a: Mon` (Rapid Spin the same). Gen 9 Defog clears both sides, so 2 of 20 removals were a Defog clearing the user's own team's hazards from the opponent's side; those don't count as "removed".
+- **Tested:** Court Change is `|move|...|Court Change` then `|-swapsideconditions` (no arguments) and `|-activate|...|move: Court Change`. 1 corpus game. Decision (user, 2026-10-26): the swapped hazards count as the Court Change user's.
+- **Guess:** Mortal Spin and Tidy Up use the same `[from] move: X|[of]` form as Rapid Spin; not seen in the corpus.
+- Decision: hazard turns = turns that ended with any entry hazard on the opponent's side, plus the turn the game ended in.

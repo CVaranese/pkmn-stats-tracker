@@ -96,7 +96,7 @@
   {
     const b = RS.parseBattle((await (await fetch("fixtures/gen9nationaldex-2705117998.json")).json()).log);
     const onMimi = b.hits.filter(([, t]) => t === "p1: Mimikyu");
-    check("disguise bust: 12% credited to Dragonite", onMimi.some((h) => same(h, ["p2: Dragonite", "p1: Mimikyu", 12])),
+    check("disguise bust: 12% credited to Dragonite", onMimi.some((h) => same(h.slice(0, 3), ["p2: Dragonite", "p1: Mimikyu", 12])),
       JSON.stringify(onMimi));
   }
 
@@ -307,7 +307,7 @@
       ["p2: Other", "p1: Rocker", 60], [null, "p2: Other", 100]]],
   };
   for (const [name, [body, expected]] of Object.entries(DAMAGE_CASES)) {
-    const got = RS.parseBattle(HEAD + body.replace(/^\n/, "")).hits;
+    const got = RS.parseBattle(HEAD + body.replace(/^\n/, "")).hits.map((h) => h.slice(0, 3)); // [dealer, target, %]
     check(`damage: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
   }
 
@@ -338,10 +338,11 @@
     const expected = [["p1: Gardy", "direct", "p2: Foe"], ["p2: Foe2", "direct", "p1: Zoro"], ["p1: Zoro", "passive", "p2: Foe2"]];
     check("illusion: kills and the disguised burn go to Zoroark", same(b.kills, expected),
       `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(b.kills)}`);
-    check("illusion: real Gardevoir keeps its own kill, no death", same(b.stats.get("p1: Gardy"), { direct: 1, passive: 0, deaths: 0 }),
+    check("illusion: real Gardevoir keeps its own kill, no death", same(b.stats.get("p1: Gardy"),
+      { direct: 1, passive: 0, deaths: 0, hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0 }),
       JSON.stringify(b.stats.get("p1: Gardy")));
-    check("illusion: damage moves with the stint", same(b.damage.get("p1: Zoro"), { dealt: 100, taken: 100 }) &&
-      same(b.damage.get("p1: Gardy"), { dealt: 100, taken: 0 }), JSON.stringify([...b.damage]));
+    check("illusion: damage moves with the stint", same(b.damage.get("p1: Zoro"), { dealt: 100, taken: 100, hazard: 0 }) &&
+      same(b.damage.get("p1: Gardy"), { dealt: 100, taken: 0, hazard: 0 }), JSON.stringify([...b.damage]));
     check("illusion: species", b.species.get("p1: Zoro") === "Zoroark-Hisui" && b.species.get("p1: Gardy") === "Gardevoir",
       JSON.stringify([...b.species]));
   }
@@ -486,6 +487,55 @@ Ability: Screen Cleaner
   check("end: no |win| -> unfinished", endOf("|turn|2").endReason === "unfinished");
   check("end: chat line naming 'inactivity' is not a timer loss",
     endOf("|-message|Bob lost due to inactivity. lol\n|win|Alice").endReason === "normal");
+
+  // ---- hazards, hand-counted: [hazard %, hazard KOs, set, removed] per brought Pokemon with any,
+  //      and hazard turns per player ----
+  const HAZARD_CASES = {
+    // Garchomp: Stealth Rock + 3 Spikes; all 134% it dealt was rocks/spikes, none of it a KO
+    "gen9nationaldex-2705111047": { mons: { "jinrachi|Garchomp": [134, 0, 4, 0] },
+      turns: { jinrachi: 11, flomarV2: 0 } },
+    // Garchomp's rocks (turn 11) Rapid Spun away by Terapagos on turn 13
+    "gen9nationaldex-2705117998": { mons: { "RevivalSludge24|Garchomp": [0, 0, 1, 0], "Phlegathon|Terapagos": [0, 0, 0, 1] },
+      turns: { RevivalSludge24: 2, Phlegathon: 0 } },
+  };
+  for (const [id, exp] of Object.entries(HAZARD_CASES)) {
+    const rows = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
+    const got = {}, turns = {};
+    for (const r of rows) {
+      turns[r.player] = r.hazard_turns;
+      const v = [r.hazard_damage_pct, r.hazard_kills, r.hazards_set, r.hazards_removed];
+      if (r.brought && v.some((x) => x)) got[`${r.player}|${r.pokemon}`] = v;
+    }
+    check(`${id}: hazards per Pokémon`, same(got, exp.mons), `expected ${JSON.stringify(exp.mons)}\ngot      ${JSON.stringify(got)}`);
+    check(`${id}: hazard turns`, same(turns, exp.turns), JSON.stringify(turns));
+  }
+  const cc = RS.parseBattle(HEAD + `|move|p2a: Victim|Stealth Rock|p1a: Burner
+|-sidestart|p1: Alice|move: Stealth Rock
+|turn|2
+|move|p1b: Rocker|Court Change|p1b: Rocker
+|-swapsideconditions
+|-activate|p1b: Rocker|move: Court Change
+|turn|3
+|switch|p2a: Third|Charizard, L50|20/100
+|-damage|p2a: Third|0 fnt|[from] Stealth Rock
+|faint|p2a: Third`);
+  const rocker = cc.stats.get("p1: Rocker");
+  check("hazards: Court Change user gets the swapped rocks' KO and damage",
+    rocker.hazardKills === 1 && rocker.passive === 1 && cc.damage.get("p1: Rocker").hazard === 20 &&
+    cc.stats.get("p2: Victim").hazardsSet === 1, JSON.stringify([rocker, cc.damage.get("p1: Rocker")]));
+  check("hazards: turns up follow the swap", same(cc.hazardTurns, { p1: 2, p2: 1 }), JSON.stringify(cc.hazardTurns));
+  const defog = RS.parseBattle(HEAD + `|move|p2a: Victim|Spikes|p1a: Burner
+|-sidestart|p1: Alice|Spikes
+|move|p1a: Burner|Stealth Rock|p2a: Victim
+|-sidestart|p2: Bob|move: Stealth Rock
+|turn|2
+|move|p2b: Other|Defog|p1a: Burner
+|-sideend|p1: Alice|Spikes|[from] move: Defog|[of] p2b: Other
+|-sideend|p2: Bob|Stealth Rock|[from] move: Defog|[of] p2b: Other
+|turn|3`);
+  check("hazards: Defog counts only its own side", defog.stats.get("p2: Other").hazardsRemoved === 1 &&
+    defog.stats.get("p1: Burner").hazardsSet === 1 && same(defog.hazardTurns, { p1: 1, p2: 1 }),
+    JSON.stringify([defog.stats.get("p2: Other"), defog.hazardTurns]));
 
   // ---- CSV / TSV escaping ----
   const csv = RS.toCsv(["a", "b"], [{ a: 'x,"y"', b: "Pokémon" }]);
