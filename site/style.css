@@ -77,6 +77,16 @@ button.primary { background: var(--accent); color: var(--accent-text); border-co
   overflow-wrap: anywhere;
 }
 
+.warnings {
+  margin: 12px 0 0;
+  padding: 10px 14px 10px 30px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
 .sheets { margin-top: 16px; }
 .sheets summary { cursor: pointer; font-weight: 600; }
 .muted, .hint { color: var(--muted); font-weight: 400; }

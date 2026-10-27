@@ -339,7 +339,8 @@
     check("illusion: kills and the disguised burn go to Zoroark", same(b.kills, expected),
       `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(b.kills)}`);
     check("illusion: real Gardevoir keeps its own kill, no death", same(b.stats.get("p1: Gardy"),
-      { direct: 1, passive: 0, deaths: 0, hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0 }),
+      { direct: 1, passive: 0, deaths: 0, hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0,
+        switches: 1, pivots: 0, forcedOut: 0, faintSwitchIns: 1 }),
       JSON.stringify(b.stats.get("p1: Gardy")));
     check("illusion: damage moves with the stint", same(b.damage.get("p1: Zoro"), { dealt: 100, taken: 100, hazard: 0 }) &&
       same(b.damage.get("p1: Gardy"), { dealt: 100, taken: 0, hazard: 0 }), JSON.stringify([...b.damage]));
@@ -536,6 +537,160 @@ Ability: Screen Cleaner
   check("hazards: Defog counts only its own side", defog.stats.get("p2: Other").hazardsRemoved === 1 &&
     defog.stats.get("p1: Burner").hazardsSet === 1 && same(defog.hazardTurns, { p1: 1, p2: 1 }),
     JSON.stringify([defog.stats.get("p2: Other"), defog.hazardTurns]));
+
+  // ---- healing and switches, hand-counted from gen9nationaldex-2705117998 ----
+  {
+    const rows = RS.gameRows(await (await fetch("fixtures/gen9nationaldex-2705117998.json")).json());
+    const got = {};
+    for (const r of rows) {
+      const v = [r.healing_pct, r.healing_given_pct, r.switches, r.pivots, r.forced_out, r.faint_switch_ins];
+      if (r.brought && v.some((x) => x)) got[r.pokemon] = v;
+    }
+    // Leftovers: Kingambit 6+7+6, Zamazenta 6+6+6+6+7; Terapagos' Tera Shift refill isn't healing.
+    // Kyurem, Zamazenta, Latios switched out once each; Tapu Koko U-turned; 7 came in after a KO.
+    const exp = { Kingambit: [19, 0, 0, 0, 0, 0], Zamazenta: [31, 0, 1, 0, 0, 1], Kyurem: [0, 0, 1, 0, 0, 0],
+      Latios: [0, 0, 1, 0, 0, 1], "Tapu Koko": [0, 0, 0, 1, 0, 1], Dragonite: [0, 0, 0, 0, 0, 1],
+      Garchomp: [0, 0, 0, 0, 0, 1], Mimikyu: [0, 0, 0, 0, 0, 1], Terapagos: [0, 0, 0, 0, 0, 1] };
+    check("2705117998: healing and switches", same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
+    check("2705117998: no hidden Zoroark", rows.every((r) => r.hidden_zoroark === 0));
+  }
+  {
+    const b = RS.parseBattle(HEAD + `|move|p1a: Burner|Wish|p1a: Burner
+|move|p2a: Victim|Earthquake|p1a: Burner
+|-damage|p1a: Burner|40/100
+|-damage|p1b: Rocker|50/100
+|move|p2b: Other|Giga Drain|p1b: Rocker
+|-damage|p1b: Rocker|30/100
+|-heal|p2b: Other|100/100|[from] drain|[of] p1b: Rocker
+|turn|2
+|-heal|p1a: Burner|90/100|[from] move: Wish|[wisher] Burner
+|move|p1b: Rocker|Heal Pulse|p1a: Burner
+|-heal|p1a: Burner|100/100
+|move|p1b: Rocker|Rest|p1b: Rocker
+|-status|p1b: Rocker|slp|[from] move: Rest
+|-heal|p1b: Rocker|100/100 slp|[silent]
+|move|p2a: Victim|Earthquake|p1a: Burner
+|-damage|p1a: Burner|60/100
+|-damage|p2b: Other|80/100
+|move|p1b: Rocker|Healing Wish|p1b: Rocker
+|faint|p1b: Rocker
+|turn|3
+|switch|p1b: Third|Clefable, L50|100/100
+|detailschange|p1b: Third|Clefable, L50
+|-heal|p1b: Third|100/100|[silent]
+|move|p1a: Burner|Wish|p1a: Burner
+|switch|p1a: Fourth|Blissey, L50|50/100
+|-heal|p1a: Fourth|100/100|[from] move: Healing Wish
+|turn|4
+|-heal|p1a: Fourth|100/100|[from] move: Wish|[wisher] Burner`);
+    const heal = (k) => b.healing.get(k) || { self: 0, given: 0 };
+    // Burner: Wish on itself 50; Rocker: Heal Pulse 10 + Healing Wish 50 given, Rest 70 self; Other: drain 0
+    // (it was at 100) then nothing; Third's forme-change refill and Fourth's capped Wish don't count
+    check("healing: self vs given, by source", same(heal("p1: Burner"), { self: 50, given: 0 }) &&
+      same(heal("p1: Rocker"), { self: 70, given: 60 }) && same(heal("p2: Other"), { self: 0, given: 0 }) &&
+      same(heal("p1: Third"), { self: 0, given: 0 }), JSON.stringify([...b.healing]));
+    check("healing: rows split self / given", b.heals.filter(([h]) => h === "p1: Rocker").length === 3, JSON.stringify(b.heals));
+  }
+  {
+    const b = RS.parseBattle(HEAD + `|move|p2a: Victim|Leech Seed|p1a: Burner
+|-start|p1a: Burner|move: Leech Seed
+|-damage|p2a: Victim|70/100
+|-damage|p1a: Burner|88/100|[from] Leech Seed|[of] p2a: Victim
+|-heal|p2a: Victim|82/100|[silent]
+|turn|2`);
+    check("healing: Leech Seed heals the seeder (logged [silent])", same(b.healing.get("p2: Victim"), { self: 12, given: 0 }),
+      JSON.stringify([...b.healing]));
+  }
+  {
+    const b = RS.parseBattle(HEAD + `|move|p1a: Burner|U-turn|p2a: Victim
+|-damage|p2a: Victim|80/100
+|switch|p1a: Fourth|Blissey, L50|100/100|[from] U-turn
+|move|p2a: Victim|Roar|p1a: Fourth
+|drag|p1a: Burner|Sableye, L50|100/100
+|turn|2
+|switch|p2a: Fifth|Kingambit, L50|100/100
+|move|p1a: Burner|Tackle|p2a: Fifth
+|-enditem|p2a: Fifth|Eject Button
+|switch|p2a: Victim|Garchomp, L50|80/100
+|move|p2b: Other|Knock Off|p1b: Rocker
+|-enditem|p1b: Rocker|Eject Button|[from] move: Knock Off|[of] p2b: Other
+|move|p2a: Victim|Earthquake|p1b: Rocker
+|-damage|p1b: Rocker|0 fnt
+|faint|p1b: Rocker
+|upkeep
+|switch|p1b: Third|Clefable, L50|100/100
+|turn|3`);
+    const sw = (k) => { const s = b.stats.get(k); return [s.switches, s.pivots, s.forcedOut, s.faintSwitchIns]; };
+    check("switches: pivot, dragged, ejected, voluntary, in after KO", same(sw("p1: Burner"), [0, 1, 0, 0]) &&
+      same(sw("p1: Fourth"), [0, 0, 1, 0]) && same(sw("p2: Victim"), [1, 0, 0, 0]) && same(sw("p2: Fifth"), [0, 0, 1, 0]) &&
+      same(sw("p1: Third"), [0, 0, 0, 1]) && same(sw("p1: Rocker"), [0, 0, 0, 0]),
+      JSON.stringify([...b.stats].map(([k, s]) => [k, s.switches, s.pivots, s.forcedOut, s.faintSwitchIns])));
+  }
+  {
+    const zoro = (switchIn) => RS.parseBattle(`|player|p1|Alice|
+|player|p2|Bob|
+|poke|p1|Zoroark-Hisui, L50|
+|poke|p1|Gardevoir, L50|
+|poke|p2|Garchomp, L50|
+|switch|p1a: Gardy|Gardevoir, L50|100/100
+|switch|p2a: Foe|Garchomp, L50|100/100
+|turn|1
+${switchIn}`).hiddenZoroark;
+    check("hidden Zoroark: flagged when it never shows itself", same(zoro(""), { p1: true, p2: false }));
+    check("hidden Zoroark: not flagged once revealed",
+      same(zoro("|replace|p1a: Zoro|Zoroark-Hisui, L50"), { p1: false, p2: false }));
+    // brought 1 of 2 and that one was seen: Zoroark stayed home
+    check("hidden Zoroark: not flagged when as many were seen as brought",
+      same(zoro("|teamsize|p1|1").p1, false) && same(zoro("|teamsize|p1|2").p1, true));
+  }
+  {
+    const b = RS.parseBattle(HEAD + `|move|p2a: Victim|Earthquake|p1a: Burner
+|-damage|p1a: Burner|40/100
+|-activate|p1a: Burner|ability: Emergency Exit
+|switch|p1a: Fourth|Blissey, L50|50/100
+|turn|2
+|-enditem|p2b: Other|Eject Pack
+|turn|3
+|switch|p2b: Fifth|Kingambit, L50|100/100
+|move|p1b: Rocker|Surf|p2a: Victim
+|-damage|p2a: Victim|60/100
+|-heal|p1a: Fourth|100/100|[from] ability: Water Absorb|[of] p1b: Rocker
+|move|p1b: Rocker|Parting Shot|p2a: Victim|[zeffect]
+|-activate|p1b: Rocker|healreplacement
+|switch|p1b: Third|Clefable, L50|100/100|[from] Parting Shot
+|-heal|p1b: Third|100/100|[from] move: Parting Shot|[zeffect]`);
+    const st = (k) => { const s = b.stats.get(k); return [s.switches, s.forcedOut]; };
+    check("switches: Emergency Exit is forced; an unused eject expires at the turn's end",
+      same(st("p1: Burner"), [0, 1]) && same(st("p2: Other"), [1, 0]), JSON.stringify([st("p1: Burner"), st("p2: Other")]));
+    // Third came in at 100, so the Z heal restores 0; Water Absorb from an ally's Surf counts for the holder
+    check("healing: Water Absorb [of] an ally is not healing given", !b.heals.some(([h]) => h === "p1: Rocker") &&
+      same(b.healing.get("p1: Fourth"), { self: 50, given: 0 }),
+      JSON.stringify(b.heals));
+  }
+  {
+    const b = RS.parseBattle(HEAD + `|move|p1a: Burner|Tackle|p1b: Rocker
+|-damage|p1b: Rocker|30/100
+|move|p1b: Rocker|Memento|p2a: Victim|[zeffect]
+|-activate|p1b: Rocker|healreplacement
+|faint|p1b: Rocker
+|upkeep
+|switch|p1b: Third|Clefable, L50|40/100
+|-heal|p1b: Third|100/100|[from] move: Memento|[zeffect]`);
+    check("healing: Z-Memento's heal is given by the Memento user", same(b.healing.get("p1: Rocker"), { self: 0, given: 60 }),
+      JSON.stringify([...b.healing]));
+  }
+  {
+    // healing in HP: own max HP for self-healing, the teammate's for healing given
+    const rows = [
+      { replay_id: "g", player: "A", opponent: "B", mon_key: "p1: H", max_hp: 400, damage_taken_pct: 0,
+        healing_pct: 25, heals_given: [["p1: T", 50]] },
+      { replay_id: "g", player: "A", opponent: "B", mon_key: "p1: T", max_hp: 300, damage_taken_pct: 0,
+        healing_pct: 0, heals_given: [] },
+    ];
+    RS.addDamageHp(rows);
+    check("healing HP: self x own max, given x teammate's max", rows[0].healing_hp === 100 && rows[0].healing_given_hp === 150 &&
+      rows[1].healing_given_hp === 0, JSON.stringify(rows.map((r) => [r.healing_hp, r.healing_given_hp])));
+  }
 
   // ---- CSV / TSV escaping ----
   const csv = RS.toCsv(["a", "b"], [{ a: 'x,"y"', b: "Pokémon" }]);

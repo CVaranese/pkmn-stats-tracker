@@ -40,3 +40,19 @@ Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond 
 - **Tested:** Court Change is `|move|...|Court Change` then `|-swapsideconditions` (no arguments) and `|-activate|...|move: Court Change`. 1 corpus game. Decision (user, 2026-10-26): the swapped hazards count as the Court Change user's.
 - **Guess:** Mortal Spin and Tidy Up use the same `[from] move: X|[of]` form as Rapid Spin; not seen in the corpus.
 - Decision: hazard turns = turns that ended with any entry hazard on the opponent's side, plus the turn the game ended in.
+
+## Healing (2026-10-26)
+- **Tested** (30 Nat Dex corpus replays, 322 `-heal` lines): 224 Leftovers, 41 untagged (Recover / Roost / Soft-Boiled: the move's user), 15 `[silent]`, 13 Poison Heal, 7 `[from] drain|[of] <the foe hit>`, 6 Sitrus Berry, 6 `[from] move: Wish|[wisher] <nickname>`, 5 Grassy Terrain, 4 Black Sludge, 1 `[from] move: Lunar Dance`.
+- **Tested:** the `[silent]` heals are Rest (right after `-status|X|slp|[from] move: Rest`) and Terapagos' Tera Shift refilling HP after `detailschange` (not healing).
+- **Researched** (Showdown `sim/battle.ts` `heal()`, master, 2026-10-26): a heal caused by a move is logged with no tag; Leech Seed and Rest heals are `[silent]`; drain is `[from] drain|[of] <source>`; other effects are `[from] <effect>` plus `[of] <source>` when the source isn't the healed Pokémon (so Water Absorb names the attacker, Hospitality the ally). Z-Memento / Z-Parting Shot: `-activate|<user>|healreplacement`, then `-heal|<replacement>|..|[from] move: Memento|[zeffect]` (`data/conditions.ts`).
+- **Tested:** Regenerator logs no `-heal`; the regained HP only shows on the next `|switch|`. Not counted.
+- Decision (not asked): Healed % = HP restored to itself; Heal given % = HP restored to a teammate (Wish, Healing Wish, Lunar Dance, Z-move heals, Heal Pulse and other heal moves on an ally, Hospitality). Water Absorb from an ally's Surf counts for the holder. Overheal doesn't count.
+
+## Switches (2026-10-26)
+- **Tested** (corpus): a pivot's incoming Pokémon carries the move, `|switch|p1a: X|..|100/100|[from] U-turn` (55 U-turn, 19 Flip Turn, 10 Volt Switch, 4 Parting Shot, 1 Teleport); plain switches have no tag. Roar / Whirlwind / Dragon Tail are `|drag|` (11). In 29 of 30 games, switch lines = these kinds + 2 leads exactly (the 30th has no switches at all).
+- **Researched** (`sim/battle-actions.ts`, `data/items.ts`, `data/abilities.ts`): the `[from]` is the move that set the switch flag (so Baton Pass / Shed Tail are pivots too). Eject Button / Eject Pack log `-enditem|X|Eject Button` (Knocked Off has `[from] move: Knock Off`); Emergency Exit / Wimp Out log `-activate|X|ability: Emergency Exit`. Neither was seen in the corpus.
+- Decision (not asked): counted on the Pokémon that left (Switches by choice / Pivots / Forced out); "In after KO" on the Pokémon that replaced a fainted one.
+
+## Hidden Zoroark (2026-10-26)
+- **Tested:** `|teamsize|p1|4` gives how many Pokémon a side brought (4 in VGC, 6 in Nat Dex).
+- Decision (not asked): a side is flagged when Zoroark is at team preview, Zoroark never appears as itself, and fewer species were seen than brought. A Zoroark revealed once may still have hidden in another stint; that isn't flagged.
