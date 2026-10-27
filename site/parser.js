@@ -12,6 +12,15 @@
  *            damaged it gets a passive kill. If no opponent ever damaged it, nobody gets a kill.
  *   self-KO  Explosion / Memento / Final Gambit / Healing Wish: a death, no kill.
  *   forfeit  Pokemon left standing after a forfeit are not counted as deaths.
+ *
+ * Damage rules (same credit as kills): each -damage line is a hit of (HP % before - HP % after),
+ *   so overkill never counts. Direct hits go to the attacker, indirect damage to its cause (as
+ *   above). Self-inflicted damage (recoil, Life Orb, confusion, Substitute cost, own weather, an
+ *   ally's hit) counts as taken with no dealer. Hits on a Substitute lose no HP and count 0; the
+ *   Disguise bust goes to the attacker that broke it. Pain Split lowering HP counts for its user.
+ *   A faint with HP left (Destiny Bond, Perish Song, Explosion user) counts that HP, credited like
+ *   the kill. Healing only raises the baseline. Public replays show whole %, so each hit is
+ *   accurate to about +-1% of max HP.
  *   Illusion while disguised, Zoroark is logged as the Pokemon it copies. When the disguise
  *            breaks (|replace|), everything from that time on the field moves to Zoroark. A
  *            disguise that never breaks can't be detected, so it stays with the copied Pokemon.
@@ -80,6 +89,13 @@
     return details.split(",")[0].trim().replace(/-Mega(-[XY])?$/, "");
   }
 
+  /** HP in % of max from '64/100 brn', '188/312', '0 fnt'; null when there is none. */
+  function hpOf(text) {
+    const m = /^(\d+(?:\.\d+)?)(?:\/(\d+))?/.exec(String(text || "").trim());
+    if (!m) return null;
+    return m[2] ? (Number(m[1]) / Number(m[2])) * 100 : Number(m[1]);
+  }
+
   const HAZARDS = new Set(["stealthrock", "spikes", "toxicspikes", "gmaxsteelsurge", "steelsurge"]);
   const WEATHERS = new Set(["sandstorm", "hail", "snow"]);
   const STATUS_DAMAGE = new Set(["brn", "psn", "tox"]);
@@ -91,7 +107,7 @@
     let winner = null;
     let forfeited = false;
 
-    // A "stint" is one stay on the field: {key, side, species, direct, passive, deaths}.
+    // A "stint" is one stay on the field: {key, side, species, direct, passive, deaths, hp}.
     // Credit goes to stints, so an Illusion reveal can re-assign one stint without touching
     // the copied Pokemon's other stints. Stats are summed per key at the end.
     const stints = [];
@@ -109,9 +125,11 @@
     const delayedSrc = new Map();       // 'side|move' -> user of Future Sight / Doom Desire
     let destinyBond = null;             // stint whose Destiny Bond triggered
     const kills = [];                   // [killer stint or null, kind, victim stint]
+    const hits = [];                    // [dealer stint or null, target stint, % of max HP lost]
 
     function newStint(key, sp) {
-      const s = { key, side: sideOf(key), species: sp, direct: 0, passive: 0, deaths: 0, prev: latestByKey.get(key) };
+      const s = { key, side: sideOf(key), species: sp, direct: 0, passive: 0, deaths: 0, hp: 100,
+        prev: latestByKey.get(key) };
       stints.push(s);
       latestByKey.set(key, s);
       return s;
@@ -138,6 +156,13 @@
       return fallback ? [fallback, "passive"] : [null, "none"];
     }
 
+    /** Record HP lost by a stint; the dealer only when it is an opponent. */
+    function hit(target, source, newHp) {
+      const lost = Math.round((target.hp - newHp) * 100) / 100;
+      target.hp = newHp;
+      if (lost > 0) hits.push([source && source.side !== target.side ? source : null, target, lost]);
+    }
+
     function moveKey(map, from, to) {
       if (map.has(from)) { map.set(to, map.get(from)); map.delete(from); }
     }
@@ -154,6 +179,7 @@
         (preview[parts[1]] = preview[parts[1]] || []).push(baseSpecies(parts[2]));
       } else if (cmd === "switch" || cmd === "drag") {
         const s = newStint(monKey(parts[1]), baseSpecies(parts[2]));
+        s.hp = hpOf(parts[3]) ?? 100;
         s.entryState = targetState(s.key);
         slots[slotOf(parts[1])] = s;
         mover = null;
@@ -221,10 +247,17 @@
       } else if (cmd === "-weather" && !("upkeep" in tags)) {
         if (norm(parts[1]) === "none") weatherSrc = null;
         else weatherSrc = "of" in tags ? stintOf(tags.of) : mover;
+      } else if (cmd === "-heal") {
+        const hp = hpOf(parts[2]);
+        if (hp !== null) stintOf(parts[1]).hp = hp;
+      } else if (cmd === "-sethp") {
+        // Pain Split: HP going down is damage by the move's user
+        const hp = hpOf(parts[2]);
+        if (hp !== null) hit(stintOf(parts[1]), mover, hp);
       } else if (cmd === "-damage") {
         const target = monKey(parts[1]);
         let source, kind;
-        if (!("from" in tags)) {
+        if (!("from" in tags) || /^pokemon:/i.test(tags.from)) { // no tag, or Disguise bust
           source = mover; kind = "direct";
         } else {
           const frm = norm(tags.from);
@@ -238,6 +271,8 @@
         }
         if (source && source.side !== sideOf(target)) lastOppHit.set(target, source);
         if ((parts[2] || "").startsWith("0")) pendingKo.set(target, credit(target, source, kind));
+        const hp = hpOf(parts[2]);
+        if (hp !== null) hit(stintOf(parts[1]), source, hp);
       } else if (cmd === "faint") {
         const victim = stintOf(parts[1]);
         victim.deaths += 1;
@@ -253,6 +288,7 @@
           [killer, kind] = [null, "none"]; // Explosion, Memento, Final Gambit...
         }
         if (killer && (kind === "direct" || kind === "passive")) killer[kind] += 1;
+        hit(victim, kind === "direct" || kind === "passive" ? killer : null, 0); // HP left at a faint with no 0 HP hit
         kills.push([killer, kind, victim]);
       } else if (cmd === "-message" && (parts[1] || "").includes("forfeited")) {
         forfeited = true;
@@ -270,17 +306,25 @@
       const st = stats.get(s.key);
       st.direct += s.direct; st.passive += s.passive; st.deaths += s.deaths;
     }
+    const damage = new Map();           // mon key -> {dealt, taken} in % of max HP
+    const dmg = (key) => damage.get(key) || damage.set(key, { dealt: 0, taken: 0 }).get(key);
+    const round2 = (x) => Math.round(x * 100) / 100;
+    for (const [d, t, pct] of hits) {
+      if (d) dmg(d.key).dealt = round2(dmg(d.key).dealt + pct);
+      dmg(t.key).taken = round2(dmg(t.key).taken + pct);
+    }
     const keyOf = (s) => (s ? s.key : null);
     return {
-      players, preview, species, stats, winner, forfeited,
+      players, preview, species, stats, damage, winner, forfeited,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
+      hits: hits.map(([d, t, pct]) => [keyOf(d), keyOf(t), pct]),
     };
   }
 
   // ---------- rows ----------
 
   const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "pokemon", "nickname",
-    "brought", "kills", "direct_kills", "passive_kills", "deaths", "replay_url"];
+    "brought", "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct", "replay_url"];
 
   /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
   function gameRows(replay) {
@@ -295,12 +339,15 @@
       const seen = new Set();
       const row = (key, sp) => {
         const st = (key && b.stats.get(key)) || { direct: 0, passive: 0, deaths: 0 };
+        const dm = (key && b.damage.get(key)) || { dealt: 0, taken: 0 };
         return {
           replay_id: rid, date, format: replay.format || "", player, opponent,
           won: b.winner === player ? 1 : 0,
           pokemon: sp, nickname: key ? key.slice(4) : "", brought: key ? 1 : 0,
           kills: st.direct + st.passive, direct_kills: st.direct, passive_kills: st.passive,
-          deaths: st.deaths, replay_url: REPLAY_HOST + rid,
+          deaths: st.deaths, damage_dealt_pct: dm.dealt, damage_taken_pct: dm.taken, replay_url: REPLAY_HOST + rid,
+          // not exported: what addDamageHp needs once max HP is known
+          mon_key: key, hits_dealt: b.hits.filter(([d]) => d && d === key).map(([, t, pct]) => [t, pct]),
         };
       };
       for (const sp of b.preview[side] || []) {
@@ -315,8 +362,34 @@
     return rows;
   }
 
+  /**
+   * Raw HP from % once rows have max_hp (team sheets): damage_dealt_hp = sum of each hit's % x the
+   * target's max HP, damage_taken_hp = % taken x own max HP. Blank ("") when a max HP is unknown.
+   */
+  function addDamageHp(rows) {
+    const maxHp = new Map();            // replay id + mon key -> max HP
+    for (const r of rows) if (r.mon_key && r.max_hp) maxHp.set(r.replay_id + "\u0000" + r.mon_key, r.max_hp);
+    for (const r of rows) {
+      const own = r.mon_key && r.max_hp;
+      r.damage_taken_hp = own ? Math.round((r.damage_taken_pct * r.max_hp) / 100) : "";
+      let dealt = 0;
+      for (const [t, pct] of r.hits_dealt || []) {
+        const m = maxHp.get(r.replay_id + "\u0000" + t);
+        if (!m) { dealt = null; break; }
+        dealt += (pct * m) / 100;
+      }
+      // a Pokemon that dealt nothing still needs the opposing side's sheet to show 0
+      const oppKnown = rows.some((o) => o.replay_id === r.replay_id && o.player === r.opponent && o.max_hp);
+      r.damage_dealt_hp = dealt === null || !oppKnown ? "" : Math.round(dealt);
+    }
+    return rows;
+  }
+
   const SUMMARY_FIELDS = ["player", "pokemon", "games_brought", "wins_when_brought", "kills",
-    "direct_kills", "passive_kills", "deaths", "kills_per_game"];
+    "direct_kills", "passive_kills", "deaths", "kills_per_game", "damage_dealt_pct", "damage_taken_pct",
+    "damage_dealt_hp", "damage_taken_hp"];
+  const SUM_FIELDS = ["kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct"];
+  const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp"];
 
   /** Totals per player + Pokemon (or per Pokemon only when byPlayer is false), most kills first. */
   function summarize(rows, byPlayer = true) {
@@ -326,15 +399,22 @@
       const k = byPlayer ? r.player + "\u0000" + r.pokemon : r.pokemon;
       if (!agg.has(k)) {
         agg.set(k, { player: byPlayer ? r.player : "", pokemon: r.pokemon, games_brought: 0,
-          wins_when_brought: 0, kills: 0, direct_kills: 0, passive_kills: 0, deaths: 0, kills_per_game: 0 });
+          wins_when_brought: 0, kills: 0, direct_kills: 0, passive_kills: 0, deaths: 0, kills_per_game: 0,
+          damage_dealt_pct: 0, damage_taken_pct: 0, damage_dealt_hp: 0, damage_taken_hp: 0 });
       }
       const a = agg.get(k);
       a.games_brought += 1;
       a.wins_when_brought += r.won;
-      for (const f of ["kills", "direct_kills", "passive_kills", "deaths"]) a[f] += r[f];
+      for (const f of SUM_FIELDS) a[f] += r[f] || 0;
+      // raw HP totals only when every game has it, so a blank never hides inside a sum
+      for (const f of HP_FIELDS) a[f] = a[f] === "" || r[f] === "" || r[f] === undefined ? "" : a[f] + r[f];
     }
     const out = [...agg.values()];
-    for (const a of out) a.kills_per_game = Math.round((a.kills / a.games_brought) * 100) / 100;
+    for (const a of out) {
+      a.kills_per_game = Math.round((a.kills / a.games_brought) * 100) / 100;
+      a.damage_dealt_pct = Math.round(a.damage_dealt_pct * 100) / 100;
+      a.damage_taken_pct = Math.round(a.damage_taken_pct * 100) / 100;
+    }
     out.sort((x, y) => y.kills - x.kills || x.deaths - y.deaths ||
       x.player.toLowerCase().localeCompare(y.player.toLowerCase()) || x.pokemon.localeCompare(y.pokemon));
     return out;
@@ -363,7 +443,7 @@
 
   const api = {
     REPLAY_HOST, GAME_FIELDS, SUMMARY_FIELDS,
-    replayIdFrom, replayIdsFromText, parseBattle, gameRows, summarize, toCsv, toTsv, fetchReplay,
+    replayIdFrom, replayIdsFromText, parseBattle, gameRows, addDamageHp, summarize, toCsv, toTsv, fetchReplay,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ReplayStats = api;

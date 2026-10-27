@@ -19,12 +19,15 @@
     direct_kills: "Direct", passive_kills: "Passive", deaths: "Deaths", replay_url: "Link",
     games_brought: "Games", wins_when_brought: "Wins", kills_per_game: "Kills / game",
     max_hp: "Max HP", item: "Item", ability: "Ability", moves: "Moves",
+    damage_dealt_pct: "Dealt %", damage_taken_pct: "Taken %", damage_dealt_hp: "Dealt HP", damage_taken_hp: "Taken HP",
   };
   const NUMERIC = new Set(["won", "brought", "kills", "direct_kills", "passive_kills", "deaths",
-    "games_brought", "wins_when_brought", "kills_per_game", "max_hp"]);
+    "games_brought", "wins_when_brought", "kills_per_game", "max_hp",
+    "damage_dealt_pct", "damage_taken_pct", "damage_dealt_hp", "damage_taken_hp"]);
   const GAME_VIEW_FIELDS = ["date", "player", "opponent", "won", "pokemon", "nickname", "brought",
-    "kills", "direct_kills", "passive_kills", "deaths", "replay_url"];
+    "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct", "replay_url"];
   const SHEET_FIELDS = ["max_hp", "item", "ability", "moves"]; // per game, once any sheet matched
+  const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp"];
 
   // remember pasted links between visits (convenience only; the page works without it)
   try { $("links").value = localStorage.getItem(STORAGE_KEY) || ""; } catch (e) { /* storage blocked */ }
@@ -139,16 +142,21 @@
     if (view === "summary") {
       const byPlayer = $("group").value === "player";
       data = RS.summarize(filtered, byPlayer);
-      fields = RS.SUMMARY_FIELDS.filter((f) => byPlayer || f !== "player");
+      const anySheet = rows.some((r) => r.set);
+      fields = RS.SUMMARY_FIELDS.filter((f) => (byPlayer || f !== "player") && (anySheet || !HP_FIELDS.includes(f)));
     } else {
       data = filtered.slice();
-      fields = rows.some((r) => r.set) ? GAME_VIEW_FIELDS.concat(SHEET_FIELDS) : GAME_VIEW_FIELDS;
+      // with sheets: HP columns next to the % ones, set details at the end
+      fields = rows.some((r) => r.set) ? GAME_VIEW_FIELDS.flatMap((f) =>
+        f === "damage_taken_pct" ? [f, ...HP_FIELDS] : [f]).concat(SHEET_FIELDS) : GAME_VIEW_FIELDS;
     }
     const { field, dir } = sort;
     if (fields.includes(field)) {
       data.sort((a, b) => {
         const x = a[field], y = b[field];
-        const c = NUMERIC.has(field) ? x - y : String(x).localeCompare(String(y));
+        // blanks (no team sheet) sort below every number
+        const num = (v) => (v === "" || v === undefined ? -Infinity : v);
+        const c = NUMERIC.has(field) ? Math.sign(num(x) - num(y)) || 0 : String(x).localeCompare(String(y));
         return c * dir;
       });
     }
@@ -297,6 +305,7 @@
       r.ability = s ? s.ability : "";
       r.moves = s ? s.moves.join(" / ") : "";
     }
+    RS.addDamageHp(rows);
 
     boxes.forEach((box, i) => {
       const st = box.querySelector(".status");

@@ -28,7 +28,7 @@
 
       <details class="sheets" id="sheets-wrap">
         <summary>Team sheets <span class="muted">(optional)</span></summary>
-        <p class="hint">Add a Pokepaste link or a Showdown export (Teambuilder → Import/Export) for a team. A sheet is used for every game where all six Pokémon at team preview are on it, and adds Max HP, item, ability and moves to the Per game table. Press Get stats after changing sheets.</p>
+        <p class="hint">Add a Pokepaste link or a Showdown export (Teambuilder → Import/Export) for a team. A sheet is used for every game where all six Pokémon at team preview are on it, and adds Max HP, item, ability and moves to the Per game table. With sheets, damage is also shown in HP (a team's sheet gives the HP it took and the HP its opponents dealt to it). Press Get stats after changing sheets.</p>
         <div id="sheets"></div>
         <div class="row"><button id="add-sheet" type="button">Add team sheet</button></div>
       </details>
@@ -59,7 +59,7 @@
     </section>
 
     <details class="rules">
-      <summary>How kills are counted</summary>
+      <summary>How kills and damage are counted</summary>
       <ul>
         <li><b>Direct kill:</b> the Pokémon whose attack landed the KO hit. A spread move that KOs two Pokémon earns two kills. Destiny Bond counts as direct.</li>
         <li><b>Passive kill:</b> indirect damage goes to whoever caused it: who inflicted the burn or poison, who set Stealth Rock, Spikes or the weather, the Leech Seed / Salt Cure / Curse user, the Rocky Helmet or Rough Skin holder, the Perish Song user.</li>
@@ -67,6 +67,9 @@
         <li><b>Explosion, Memento, Final Gambit, Healing Wish:</b> a death, no kill.</li>
         <li><b>Forfeits:</b> Pokémon still standing are not counted as deaths.</li>
         <li><b>Random Battles</b> have no team preview, so only Pokémon that were sent out are listed.</li>
+        <li><b>Damage dealt / taken:</b> HP lost per hit, credited like kills (direct hits to the attacker, indirect damage to its cause). Overkill doesn't count: a hit only counts the HP the target had left. Healing doesn't count, but later damage after a heal does.</li>
+        <li><b>Self-inflicted damage</b> (recoil, Life Orb, confusion, Substitute's cost, own weather, an ally's hit) counts as taken, with no dealer. Hits on a Substitute count 0; Mimikyu's Disguise breaking counts for the attacker.</li>
+        <li><b>Damage in %</b> is % of the target's max HP. <b>Damage in HP</b> needs team sheets: % × the target's max HP. Public replays round HP to whole %, so each hit is only accurate to about ±1% of max HP (about ±4 HP on a 400 HP Pokémon). Leaderboard HP totals are blank unless every game in the row has a sheet.</li>
       </ul>
     </details>
   </main>

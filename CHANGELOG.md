@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Damage dealt and taken per Pokémon, in % of max HP, credited like kills (direct hits to the attacker; burn, hazards, weather, Leech Seed, Rocky Helmet and so on to their cause). Overkill doesn't count; self-inflicted damage (recoil, Life Orb, confusion, Substitute's cost) counts as taken with no dealer. With team sheets, also in raw HP (% × the target's max HP; about ±1% of max HP per hit, since replays round to whole %). New columns in the leaderboard, the Per game table and their exports.
 - Team sheets (optional): add a Pokepaste link or a Showdown export per team. Each sheet is matched to every game where that team played (all six Pokémon at team preview) and adds Max HP, item, ability and moves to the Per game table and its exports. Pokepaste sheets are included in share links (`&t=`). Text copied straight off a Pokepaste page (with its ``` lines) works too.
 - Web page (`site/`) for GitHub Pages: paste replay links, get a kill/death leaderboard per player + Pokémon (or per Pokémon) and a per-game table; sortable columns, player filter.
 - Copy for Google Sheets (tab-separated) and Download CSV, both exporting the current view.

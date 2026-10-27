@@ -8,4 +8,5 @@ Things only a person can check. Remove an item once checked.
 - [ ] "Copy share link" (now next to Clear) gives a link that reopens with the same replays.
 - [ ] A private replay link (ending in `...pw`) loads. Not tested; no private replay available.
 - [ ] Team sheets: open "Team sheets", add a real Pokepaste link of a league team and its replay, press Get stats. Max HP / item / ability / moves appear in Per game, the box says "used for <player> in N games". (Pokepaste loading is tested; matching it to a real game of that team is not yet.) Also check the new boxes look right in light and dark mode and on a phone.
+- [ ] Damage columns: load a league replay with both teams' sheets. Leaderboard shows Dealt % / Taken % / Dealt HP / Taken HP; Per game shows them after Deaths. Check the wider tables still fit (scroll) on a phone and in light/dark mode, and that the numbers look plausible against the replay. Rules text ("How kills and damage are counted") reads clearly.
 - [ ] Copy share link with a Pokepaste sheet added: the link reopens with the sheet box filled in.
