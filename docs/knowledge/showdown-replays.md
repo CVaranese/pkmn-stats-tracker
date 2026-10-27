@@ -17,6 +17,17 @@
 - **Tested:** HP is `NN/100` in public VGC replays, but exact HP (`188/312`) in the random-battle replay checked.
 - **Guess (not seen in a real replay yet):** exact formats of Destiny Bond, Perish Song, Future Sight, Leech Seed, hazard and weather KOs follow SIM-PROTOCOL.md; covered only by hand-written test logs.
 
+## Damage and HP (survey of 30 Nat Dex corpus replays + fixtures, 2026-10-26)
+- **Tested:** `-damage` `[from]` tags seen: none (direct, 825), Stealth Rock 84, psn 69, brn 49, item: Life Orb 33, item: Rocky Helmet + `[of]` holder 28, ability: Rough Skin + `[of]` 25, Spikes 14, Recoil 4, move: Sand Tomb (`[partiallytrapped]`) 2, confusion 1, `pokemon: Mimikyu-Busted` 1.
+- **Tested:** `|switch|` lines carry the HP the Pokémon comes in with (`66/100 brn`), including HP regained while out (Regenerator Amoonguss back at `93/100`), so each stay on the field starts from a known HP.
+- **Tested:** Substitute: `|-start|X|Substitute` then `|-damage|X|75/100` with no `[from]` (the user's own move is resolving, so it reads as self-damage). A hit on the sub is `|-activate|X|Substitute|[damage]` with no HP line.
+- **Tested:** Disguise (replay `gen9nationaldex-2705117998`): during the attacker's move, `|-activate|X|ability: Disguise`, `|-damage|X|100/100` (no change), `|detailschange|X|Mimikyu-Busted`, then `|-damage|X|88/100|[from] pokemon: Mimikyu-Busted` with no `[of]`.
+- **Tested:** Pain Split is `|-sethp|X|47/100|[from] move: Pain Split|[silent]`, one line per side, no `-damage`.
+- **Tested:** healing is `|-heal|X|26/100|[from] item: Sitrus Berry` (drain: `[from] drain|[of] <target>`).
+- **Guess:** Salt Cure / Curse residual damage, and a Destiny Bond / Perish Song faint with no 0 HP `-damage` line first, follow SIM-PROTOCOL.md; only covered by hand-written test logs.
+- **Guess (from memory of Showdown's code, not checked):** the shown % is rounded up (only 0 at 0 HP), which is why each hit is quoted as ±1% of max HP.
+- **Decision (user, 2026-10-26):** damage is credited like kills; self-inflicted damage (recoil, Life Orb, confusion, Substitute cost, own weather, ally hits) counts as taken with no dealer; Substitute hits count 0 (no HP lost); the Disguise bust counts for the attacker that broke it. Also decided here (not asked): Pain Split lowering HP counts for its user; a faint with HP left counts that HP, credited like the kill (Destiny Bond user, Perish singer; Explosion user = no dealer).
+
 ## Hosting / Node
 - **Tested (2026-10-26):** the project itself uses no Node and no npm packages; the only Node is inside GitHub's own Pages actions, run on GitHub's servers. Older majors (`checkout@v4`, `configure-pages@v5`, `deploy-pages@v4`) run on Node 20 (end of life April 2026); current majors (`checkout@v7.0.1`, `configure-pages@v6.0.0`, `deploy-pages@v5.0.1`) declare `using: node24`. `upload-pages-artifact@v5.0.0` is a composite action wrapping `upload-artifact@v7.0.0`. Workflow pins these by commit SHA; Dependabot (`.github/dependabot.yml`) proposes updates monthly.
 

@@ -69,6 +69,61 @@
     check(`${id}: winner`, same(winners, [exp.winner]), `got ${winners}`);
   }
 
+  // ---- damage in % of max HP, hand-counted from the logs: [dealt, taken] per brought Pokemon ----
+  const DAMAGE = {
+    // Population Bomb 7 hits: only the HP left counts (Ninetales 100, Venusaur 91); Venusaur's
+    // Life Orb 9% is taken with no dealer
+    "gen9nationaldex-2705121899": {
+      "stringcheezus1710|Ninetales": [0, 100], "stringcheezus1710|Venusaur": [89, 100],
+      "stringcheezus1710|Dragonite": [0, 0], "Ezclapperez132|Maushold": [191, 89] },
+    // Illusion: Zoroark's Shadow Ball (40) and the 100 it took move to Zoroark-Hisui. Volcarona's
+    // Flame Body burn on Primarina (6+6+2) and Garchomp's rocks/spikes count as theirs; Exeggutor's
+    // Toxic on Mamoswine (6+12+18). Healing (Sitrus, Regenerator, Giga Drain) raises the baseline.
+    "gen9nationaldex-2705111047": {
+      "jinrachi|Zoroark-Hisui": [40, 100], "jinrachi|Gardevoir": [52, 100], "jinrachi|Volcarona": [148, 100],
+      "jinrachi|Garchomp": [134, 100], "jinrachi|Mamoswine": [245, 100], "jinrachi|Kingambit": [98, 31],
+      "flomarV2|Amoonguss": [64, 167], "flomarV2|Primarina": [300, 100], "flomarV2|Excadrill": [0, 100],
+      "flomarV2|Exeggutor": [136, 150], "flomarV2|Sableye": [0, 100], "flomarV2|Weavile": [31, 100] },
+  };
+  for (const [id, exp] of Object.entries(DAMAGE)) {
+    const rows = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
+    const got = {};
+    for (const r of rows) if (r.brought) got[`${r.player}|${r.pokemon}`] = [r.damage_dealt_pct, r.damage_taken_pct];
+    check(`${id}: damage dealt/taken %`, same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
+  }
+
+  // Disguise bust (1/8 HP, '[from] pokemon: Mimikyu-Busted') goes to the attacker that broke it
+  {
+    const b = RS.parseBattle((await (await fetch("fixtures/gen9nationaldex-2705117998.json")).json()).log);
+    const onMimi = b.hits.filter(([, t]) => t === "p1: Mimikyu");
+    check("disguise bust: 12% credited to Dragonite", onMimi.some((h) => same(h, ["p2: Dragonite", "p1: Mimikyu", 12])),
+      JSON.stringify(onMimi));
+  }
+
+  // raw HP: % drop x the target's max HP. Only jinrachi has a sheet (max HP set by hand here).
+  {
+    const rows = RS.gameRows(await (await fetch("fixtures/gen9nationaldex-2705111047.json")).json());
+    const MAX = { "Zoroark-Hisui": 314, Gardevoir: 340, Volcarona: 375, Garchomp: 357, Mamoswine: 361, Kingambit: 404 };
+    for (const r of rows) r.max_hp = r.player === "jinrachi" ? MAX[r.pokemon] : "";
+    RS.addDamageHp(rows);
+    const got = {};
+    for (const r of rows) if (r.brought) got[`${r.player}|${r.pokemon}`] = [r.damage_dealt_hp, r.damage_taken_hp];
+    // taken: Kingambit 31% of 404 = 125.24. dealt: Primarina 100% of Zoroark + 100% of Volcarona +
+    // 100% of Gardevoir = 1029; Exeggutor 100% of Garchomp + 36% of Mamoswine = 486.96
+    const exp = {
+      "jinrachi|Zoroark-Hisui": ["", 314], "jinrachi|Gardevoir": ["", 340], "jinrachi|Volcarona": ["", 375],
+      "jinrachi|Garchomp": ["", 357], "jinrachi|Mamoswine": ["", 361], "jinrachi|Kingambit": ["", 125],
+      "flomarV2|Amoonguss": [231, ""], "flomarV2|Primarina": [1029, ""], "flomarV2|Excadrill": [0, ""],
+      "flomarV2|Exeggutor": [487, ""], "flomarV2|Sableye": [0, ""], "flomarV2|Weavile": [125, ""] };
+    check("raw HP: dealt needs the target's sheet, taken needs its own", same(got, exp),
+      `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
+    const sum = RS.summarize(rows);
+    const prim = sum.find((a) => a.pokemon === "Primarina"), volc = sum.find((a) => a.pokemon === "Volcarona");
+    check("summary: damage totals, HP blank when unknown", prim.damage_dealt_pct === 300 && prim.damage_dealt_hp === 1029 &&
+      prim.damage_taken_hp === "" && volc.damage_dealt_pct === 148 && volc.damage_dealt_hp === "" &&
+      volc.damage_taken_hp === 375, JSON.stringify([prim, volc]));
+  }
+
   // ---- summary across the three Fayz/Ryan + soupy games ----
   {
     const all = [];
@@ -176,6 +231,86 @@
     check(`rule: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
   }
 
+  // ---- damage credit: [dealer or null (self / own side), target, % lost] per hit ----
+  const DAMAGE_CASES = {
+    "burn tick -> Will-O-Wisp user": [`
+|move|p1a: Burner|Will-O-Wisp|p2a: Victim
+|-status|p2a: Victim|brn
+|upkeep
+|-damage|p2a: Victim|94/100 brn|[from] brn`, [["p1: Burner", "p2: Victim", 6]]],
+    "hazard on switch-in -> setter": [`
+|move|p1b: Rocker|Stealth Rock|p2a: Victim
+|-sidestart|p2: Bob|move: Stealth Rock
+|turn|2
+|switch|p2a: Third|Charizard, L50|80/100
+|-damage|p2a: Third|30/100|[from] Stealth Rock`, [["p1: Rocker", "p2: Third", 50]]],
+    "sandstorm: setter's foes credited, own side self-damage": [`
+|-weather|Sandstorm|[from] ability: Sand Stream|[of] p1b: Rocker
+|upkeep
+|-damage|p1a: Burner|94/100|[from] Sandstorm
+|-damage|p2b: Other|94/100|[from] Sandstorm`, [[null, "p1: Burner", 6], ["p1: Rocker", "p2: Other", 6]]],
+    "life orb, recoil, confusion: taken, no dealer": [`
+|move|p2a: Victim|Brave Bird|p1a: Burner
+|-damage|p1a: Burner|60/100
+|-damage|p2a: Victim|87/100|[from] Recoil
+|-damage|p2a: Victim|77/100|[from] item: Life Orb
+|turn|2
+|-damage|p2a: Victim|70/100|[from] confusion`,
+      [["p2: Victim", "p1: Burner", 40], [null, "p2: Victim", 13], [null, "p2: Victim", 10], [null, "p2: Victim", 7]]],
+    "leech seed, rocky helmet, salt cure -> their sources": [`
+|move|p2b: Other|Leech Seed|p1b: Rocker
+|-start|p1b: Rocker|move: Leech Seed
+|move|p2a: Victim|Dragon Claw|p1b: Rocker
+|-damage|p1b: Rocker|70/100
+|-damage|p2a: Victim|84/100|[from] item: Rocky Helmet|[of] p1b: Rocker
+|move|p1a: Burner|Salt Cure|p2a: Victim
+|-damage|p2a: Victim|70/100
+|-start|p2a: Victim|Salt Cure
+|upkeep
+|-damage|p1b: Rocker|58/100|[from] Leech Seed|[of] p2b: Other
+|-damage|p2a: Victim|58/100|[from] Salt Cure`,
+      [["p2: Victim", "p1: Rocker", 30], ["p1: Rocker", "p2: Victim", 16], ["p1: Burner", "p2: Victim", 14],
+        ["p2: Other", "p1: Rocker", 12], ["p1: Burner", "p2: Victim", 12]]],
+    "overkill capped, healing raises the baseline": [`
+|move|p1a: Burner|Foul Play|p2a: Victim
+|-damage|p2a: Victim|30/100
+|-heal|p2a: Victim|55/100|[from] item: Sitrus Berry
+|turn|2
+|move|p1a: Burner|Foul Play|p2a: Victim
+|-damage|p2a: Victim|0 fnt
+|faint|p2a: Victim`, [["p1: Burner", "p2: Victim", 70], ["p1: Burner", "p2: Victim", 55]]],
+    "substitute: its HP cost is self-damage, hits on it count 0": [`
+|move|p1a: Burner|Substitute|p1a: Burner
+|-start|p1a: Burner|Substitute
+|-damage|p1a: Burner|75/100
+|move|p2a: Victim|Dragon Claw|p1a: Burner
+|-activate|p1a: Burner|Substitute|[damage]`, [[null, "p1: Burner", 25]]],
+    "ally spread hit: taken, no dealer": [`
+|move|p1b: Rocker|Earthquake|p2a: Victim|[spread] p1a,p2a
+|-damage|p1a: Burner|80/100
+|-damage|p2a: Victim|50/100`, [[null, "p1: Burner", 20], ["p1: Rocker", "p2: Victim", 50]]],
+    "pain split lowering HP -> its user": [`
+|move|p1a: Burner|Pain Split|p2a: Victim
+|-sethp|p2a: Victim|60/100|[from] move: Pain Split|[silent]
+|-sethp|p1a: Burner|100/100|[from] move: Pain Split`, [["p1: Burner", "p2: Victim", 40]]],
+    "faint with HP left: Destiny Bond to its user, Explosion to nobody": [`
+|move|p1a: Burner|Destiny Bond|p1a: Burner
+|move|p2a: Victim|Dragon Claw|p1a: Burner
+|-damage|p1a: Burner|0 fnt
+|faint|p1a: Burner
+|-activate|p1a: Burner|move: Destiny Bond
+|faint|p2a: Victim
+|turn|2
+|move|p2b: Other|Explosion|p1b: Rocker
+|-damage|p1b: Rocker|40/100
+|faint|p2b: Other`, [["p2: Victim", "p1: Burner", 100], ["p1: Burner", "p2: Victim", 100],
+      ["p2: Other", "p1: Rocker", 60], [null, "p2: Other", 100]]],
+  };
+  for (const [name, [body, expected]] of Object.entries(DAMAGE_CASES)) {
+    const got = RS.parseBattle(HEAD + body.replace(/^\n/, "")).hits;
+    check(`damage: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
+  }
+
   // ---- Illusion: a disguised stint moves to Zoroark, the real Pokemon keeps its own stints ----
   {
     const b = RS.parseBattle(`|player|p1|Alice|
@@ -205,6 +340,8 @@
       `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(b.kills)}`);
     check("illusion: real Gardevoir keeps its own kill, no death", same(b.stats.get("p1: Gardy"), { direct: 1, passive: 0, deaths: 0 }),
       JSON.stringify(b.stats.get("p1: Gardy")));
+    check("illusion: damage moves with the stint", same(b.damage.get("p1: Zoro"), { dealt: 100, taken: 100 }) &&
+      same(b.damage.get("p1: Gardy"), { dealt: 100, taken: 0 }), JSON.stringify([...b.damage]));
     check("illusion: species", b.species.get("p1: Zoro") === "Zoroark-Hisui" && b.species.get("p1: Gardy") === "Gardevoir",
       JSON.stringify([...b.species]));
   }
