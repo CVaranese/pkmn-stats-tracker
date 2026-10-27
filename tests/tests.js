@@ -897,6 +897,51 @@ ${switchIn}`).hiddenZoroark;
     check("mvp: exactly one brought MVP per team in every real replay", !bad.length, bad.join("\n"));
   }
 
+  // ---- survival, Mega Evolution, Z-moves ----
+  {
+    const log = "|poke|p1|Pelipper|\n|poke|p1|Blissey|\n|poke|p2|Garchomp|\n|poke|p2|Dragonite|\n" + lhead() +
+      "|detailschange|p2a: B|Garchomp-Mega, L50\n|-mega|p2a: B|Garchomp|Garchompite\n" +
+      "|-zpower|p1a: A\n|move|p1a: A|Supersonic Skystrike|p2a: B|[zeffect]\n|-damage|p2a: B|40/100\n" +
+      "|move|p2a: B|Earthquake|p1a: A\n|-damage|p1a: A|50/100\n|turn|2\n" +
+      "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|0 fnt\n|faint|p2a: B\n|switch|p2a: D|Dragonite, L50|100/100\n|turn|3\n" +
+      "|move|p2a: D|Extreme Speed|p1a: A\n|-damage|p1a: A|0 fnt\n|faint|p1a: A\n|switch|p1a: C|Blissey, L50|100/100\n|turn|4\n" +
+      "|move|p2a: D|Extreme Speed|p1a: C\n|-damage|p1a: C|70/100\n|move|p1a: C|Soft-Boiled|p1a: C\n|-heal|p1a: C|100/100\n|win|Bob";
+    const rows = RS.gameRows({ id: "test-surv", log });
+    const got = Object.fromEntries(rows.map((r) => [r.pokemon,
+      [r.turns_on_field, r.survived, r.ko_before_moving, r.mega, r.mega_turn, r.z_move, r.z_turn]]));
+    const exp = { Pelipper: [3, 0, 0, 0, "", "Supersonic Skystrike", 1], Blissey: [1, 1, 0, 0, "", "", ""],
+      Garchomp: [2, 0, 0, 1, 1, "", ""], Dragonite: [2, 1, 0, 0, "", "", ""] };
+    check("survival / Mega / Z per game", same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
+    const sum = Object.fromEntries(RS.summarize(rows).map((a) => [a.pokemon, [a.megas, a.mega_wins, a.z_moves, a.z_wins, a.survived]]));
+    check("survival / Mega / Z summary", same(sum.Garchomp, [1, 1, 0, 0, 0]) && same(sum.Pelipper, [0, 0, 1, 0, 0]) &&
+      same(sum.Dragonite, [0, 0, 0, 0, 1]), JSON.stringify(sum));
+    // switched in and KO'd before it could act; a forfeit at the start of a turn adds no turn
+    const b = RS.parseBattle(lhead() + "|switch|p1a: C|Blissey, L50|100/100\n|move|p2a: B|Close Combat|p1a: C\n" +
+      "|-damage|p1a: C|0 fnt\n|faint|p1a: C\n|switch|p1a: A|Pelipper, L50|100/100\n|turn|2\n|-message|Alice forfeited.\n|win|Bob");
+    const s = (k) => [b.stats.get(k).turnsOnField, b.stats.get(k).koBeforeMoving];
+    // real replays, Mega / Z turns read off the logs
+    const megaZ = {};
+    for (const id of ["gen9nationaldex-2705117998", "gen9nationaldex-2705099074"]) {
+      for (const r of RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json())) {
+        if (r.mega || r.z_move) megaZ[r.pokemon] = [r.mega_turn, r.z_move, r.z_turn];
+      }
+    }
+    const expMZ = { Diancie: [1, "", ""], Latios: [17, "", ""], Kyurem: ["", "Tectonic Rage", 1], Gallade: [1, "", ""], Gardevoir: [24, "", ""] };
+    check("Mega / Z in real Nat Dex replays", same(megaZ, expMZ), `expected ${JSON.stringify(expMZ)}\ngot      ${JSON.stringify(megaZ)}`);
+    // singles: one Pokemon per side per turn played, so a side's turns on field add up to the game's turns
+    const off = [];
+    for (const id of Object.keys(REAL).filter((x) => x.startsWith("gen9nationaldex"))) {
+      const rs = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
+      for (const p of new Set(rs.map((r) => r.player))) {
+        const n = rs.filter((r) => r.player === p).reduce((t, r) => t + r.turns_on_field, 0);
+        if (n > rs[0].turns || n < rs[0].turns - 1) off.push(`${id} ${p}: ${n} of ${rs[0].turns} turns`);
+      }
+    }
+    check("turns on field add up to the game's turns (singles)", !off.length, off.join("\n"));
+    check("survival: KO'd before moving, no turn for a forfeit", same([s("p1: A"), s("p1: C"), s("p2: B")], [[1, 0], [0, 1], [1, 0]]),
+      JSON.stringify([s("p1: A"), s("p1: C"), s("p2: B")]));
+  }
+
   // ---- CSV / TSV escaping ----
   const csv = RS.toCsv(["a", "b"], [{ a: 'x,"y"', b: "Pokémon" }]);
   check("csv escaping", csv === 'a,b\r\n"x,""y""",Pokémon\r\n', JSON.stringify(csv));

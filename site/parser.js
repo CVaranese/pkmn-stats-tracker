@@ -109,7 +109,8 @@
   // per-stint counters, summed per Pokemon
   const COUNTS = ["direct", "passive", "deaths", "hazardKills", "hazardsSet", "hazardsRemoved",
     "switches", "pivots", "forcedOut", "faintSwitchIns",
-    "crits", "critsTaken", "misses", "dodges", "fullParas", "sleepTurns", "flinched", "confusionHits", "procs"];
+    "crits", "critsTaken", "misses", "dodges", "fullParas", "sleepTurns", "flinched", "confusionHits", "procs",
+    "turnsOnField", "koBeforeMoving"];
   const zeroCounts = () => Object.fromEntries(COUNTS.map((f) => [f, 0]));
   const NO_DAMAGE = { dealt: 0, taken: 0, hazard: 0 };
   const NO_HEALING = { self: 0, given: 0 };
@@ -173,6 +174,8 @@
     let weather = "", terrain = "", gravity = false;
     let ctx = null;                     // the move resolving: {actor, move, targets, crits, lastHit, noRoll}
     let prevParts = [];
+    let turnStarters = null;            // stints on the field when the current turn began, until it gets played
+    let zPending = null;                // stint whose |-zpower| line came just before its Z-move
 
     function newStint(key, sp) {
       const s = { key, side: sideOf(key), species: sp, hp: 100, ...zeroCounts(), prev: latestByKey.get(key),
@@ -285,7 +288,14 @@
     }
 
     /** A Pokemon tried to act (moved, or 'cant'): settles flinch rolls on it from earlier this turn. */
+    /** The current turn is being played (not just forfeited at its start): its starters get a turn on the field. */
+    function turnPlayed() {
+      if (turnStarters) for (const s of turnStarters) s.turnsOnField += 1;
+      turnStarters = null;
+    }
+
     function acted(s, reason) {
+      s.acted = true;
       const pending = pendingFlinch.get(s);
       pendingFlinch.delete(s);
       movedThisTurn.add(s);
@@ -314,6 +324,7 @@
       } else if (cmd === "poke") {
         (preview[parts[1]] = preview[parts[1]] || []).push(baseSpecies(parts[2]));
       } else if (cmd === "switch" || cmd === "drag") {
+        turnPlayed();
         const out = slots[slotOf(parts[1])];
         const passed = ctx && ctx.actor === out && ctx.move === "batonpass";
         endMove();
@@ -376,10 +387,14 @@
           destinyBond = null;
           if (turns > 0) countHazardTurns(); // the turn before this one just ended
           turns = Number(parts[1]) || turns;
+          turnStarters = [...new Set(Object.values(slots))].filter((x) => x && !x.deaths);
         }
       } else if (cmd === "move") {
         endMove();
+        turnPlayed();
         mover = stintOf(parts[1]);
+        if (zPending === mover && !mover.zMove) [mover.zMove, mover.zTurn] = [parts[2], turns];
+        zPending = null;
         const move = norm(parts[2]);
         mover.semiInv = false; // its Fly / Dig turn is over
         // a move it chose itself went through the checks before moving: paralysis passed if it has it
@@ -436,6 +451,7 @@
         for (const k of [...statusOf.keys()]) if (sideOf(k) === sideOf(monKey(parts[1]))) statusOf.delete(k);
       } else if (cmd === "cant") {
         endMove();
+        turnPlayed();
         const s = stintOf(parts[1]), reason = parts[2] || "";
         acted(s, reason);
         if (reason === "par") { rolls.push({ kind: "par", ...self(s), fullPara: true }); s.fullParas += 1; }
@@ -604,6 +620,7 @@
       } else if (cmd === "faint") {
         const victim = stintOf(parts[1]);
         victim.deaths += 1;
+        if (!victim.acted) victim.koBeforeMoving += 1;
         statusOf.delete(victim.key);
         let killer, kind, byHazard = false;
         if (pendingKo.has(victim.key)) {
@@ -624,6 +641,11 @@
         forfeited = true;
       } else if (cmd === "-message" && / lost due to inactivity\.$/.test(parts[1] || "")) {
         timedOut = true;
+      } else if (cmd === "-mega") {
+        const m = stintOf(parts[1]);
+        if (m.megaTurn === undefined) m.megaTurn = turns;
+      } else if (cmd === "-zpower") {
+        zPending = stintOf(parts[1]);
       } else if (cmd === "win") {
         winner = parts[1];
       } else if (cmd === "tie") {
@@ -657,6 +679,8 @@
       if (!stats.has(s.key)) stats.set(s.key, zeroCounts());
       const st = stats.get(s.key);
       for (const f of COUNTS) st[f] += s[f];
+      if (s.megaTurn !== undefined && st.megaTurn === undefined) st.megaTurn = s.megaTurn;
+      if (s.zMove && !st.zMove) [st.zMove, st.zTurn] = [s.zMove, s.zTurn];
     }
     const round2 = (x) => Math.round(x * 100) / 100;
     const add = (map, zero, key, f, pct) => {
@@ -684,6 +708,8 @@
     const keyOf = (s) => (s ? s.key : null);
     const endReason = forfeited ? "forfeit" : timedOut ? "timer" : winner ? "normal" : tie ? "tie" : "unfinished";
     return {
+      // alive at the end: its latest stay on the field didn't end in a faint (Revival Blessing brings one back)
+      alive: new Set([...latestByKey].filter(([, st]) => !st.deaths).map(([k]) => k)),
       players, preview, species, stats, damage, healing, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
       hits: hits.map(([d, t, pct, hz]) => [keyOf(d), keyOf(t), pct, hz]),
@@ -702,7 +728,8 @@
   const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "end_reason", "turns", "pokemon", "nickname",
     "brought", "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
     "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "healing_pct",
-    "healing_given_pct", "switches", "pivots", "forced_out", "faint_switch_ins", "mvp_score", "mvp", ...LUCK_COUNT_FIELDS,
+    "healing_given_pct", "switches", "pivots", "forced_out", "faint_switch_ins", "turns_on_field", "survived", "ko_before_moving", "mega", "mega_turn", "z_move", "z_turn",
+    "mvp_score", "mvp", ...LUCK_COUNT_FIELDS,
     "luck", "luck_against", "player_luck", "hidden_zoroark", "replay_url"];
 
   /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
@@ -730,6 +757,8 @@
           hazards_removed: st.hazardsRemoved, hazard_turns: b.hazardTurns[side],
           healing_pct: hl.self, healing_given_pct: hl.given, switches: st.switches, pivots: st.pivots,
           forced_out: st.forcedOut, faint_switch_ins: st.faintSwitchIns,
+          turns_on_field: st.turnsOnField, survived: key && b.alive.has(key) ? 1 : 0, ko_before_moving: st.koBeforeMoving,
+          mega: st.megaTurn !== undefined ? 1 : 0, mega_turn: st.megaTurn ?? "", z_move: st.zMove || "", z_turn: st.zTurn ?? "",
           crits: st.crits, crits_taken: st.critsTaken, misses: st.misses, dodges: st.dodges, full_paras: st.fullParas,
           sleep_turns: st.sleepTurns, flinched: st.flinched, confusion_hits: st.confusionHits, procs: st.procs,
           luck: "", luck_against: "", player_luck: "", // filled by Luck.addLuck once move data is loaded
@@ -810,10 +839,12 @@
     "direct_kills", "passive_kills", "deaths", "kills_per_game", "mvps", "mvp_score_per_game", "damage_dealt_pct", "damage_taken_pct",
     "damage_dealt_hp", "damage_taken_hp", "hazard_damage_pct", "hazard_damage_hp", "hazard_kills",
     "hazards_set", "hazards_removed", "healing_pct", "healing_hp", "healing_given_pct", "healing_given_hp",
-    "switches", "pivots", "forced_out", "faint_switch_ins", ...LUCK_COUNT_FIELDS, ...LUCK_FIELDS];
+    "switches", "pivots", "forced_out", "faint_switch_ins", "turns_on_field", "survived", "ko_before_moving",
+    "megas", "mega_wins", "z_moves", "z_wins", ...LUCK_COUNT_FIELDS, ...LUCK_FIELDS];
   const PCT_FIELDS = ["damage_dealt_pct", "damage_taken_pct", "hazard_damage_pct", "healing_pct", "healing_given_pct"];
   const SUM_FIELDS = ["kills", "direct_kills", "passive_kills", "deaths", "hazard_kills", "hazards_set",
-    "hazards_removed", "switches", "pivots", "forced_out", "faint_switch_ins", ...LUCK_COUNT_FIELDS, ...PCT_FIELDS];
+    "hazards_removed", "switches", "pivots", "forced_out", "faint_switch_ins", "turns_on_field", "survived",
+    "ko_before_moving", ...LUCK_COUNT_FIELDS, ...PCT_FIELDS];
   const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp", "hazard_damage_hp", "healing_hp", "healing_given_hp"];
 
   /** Totals per player + Pokemon (or per Pokemon only when byPlayer is false), most kills first. */
@@ -831,6 +862,10 @@
       a.wins_when_brought += r.won;
       for (const f of SUM_FIELDS) a[f] += r[f] || 0;
       a.mvps += r.mvp;
+      a.megas += r.mega;
+      a.mega_wins += r.mega && r.won;
+      a.z_moves += r.z_move ? 1 : 0;
+      a.z_wins += r.z_move && r.won ? 1 : 0;
       a.mvp_score_per_game += r.mvp_score;
       // raw HP totals only when every game has it, so a blank never hides inside a sum
       for (const f of [...HP_FIELDS, ...LUCK_FIELDS]) a[f] = a[f] === "" || r[f] === "" || r[f] === undefined ? "" : a[f] + r[f];

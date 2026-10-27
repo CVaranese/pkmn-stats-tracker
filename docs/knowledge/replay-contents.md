@@ -51,6 +51,7 @@ Full protocol reference: `SIM-PROTOCOL.md` in smogon/pokemon-showdown.
 | `\|-ability\|X\|Intimidate\|boost` | 4/5 | Abilities revealed |
 | `\|-item\|`, `\|-enditem\|X\|Focus Sash` | 1–3/5 | Items revealed or consumed (Frisk, berries, Sash, Knock Off) |
 | `\|-mega\|X\|Gyarados\|Gyaradosite`, `\|detailschange\|` | 4/5 | Mega Evolution (who, when) |
+| `\|-zpower\|X` then `\|move\|X\|Tectonic Rage\|Y\|[zeffect]` | Nat Dex: 4 of 30 games | Z-move (who, which, when). **Tested** on the 30-game corpus: `-zpower` always comes right before the Z-move's own `\|move\|` line. Damaging Z-moves use the Z name; status Z-moves use `Z-<move>` (`Z-Hypnosis`). |
 | `\|-terastallize\|X\|Dragon` | 1/5 | Tera (who, which type, when) |
 | `\|swap\|...\|[from] move: Ally Switch` | 2/5 | Ally Switch |
 | `\|faint\|X` | 5/5 | KOs |

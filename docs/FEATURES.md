@@ -35,10 +35,10 @@ Status: `todo` · `in progress` · `done`. Source: **user** = asked for, **idea*
 |---|---|---|
 | done | Team sheet import | Pokepaste link or pasted Showdown export, one box per team. Matched to a side when all 6 team-preview Pokémon are on the sheet; adds Max HP (from `pokedex.json` base HP + EVs/IVs/level), item, ability, moves to the per-game table. Pokepaste links go into share links (`&t=`); pasted text is kept in the browser only. Used by raw-HP damage. Idea: read `|showteam|` (open team sheets) from the replay itself when present. |
 | done | MVP per game | Weighted score from kills, damage, healing, survival. User: "great". Done 2026-10-26 (user picked: one per team, proposed weights): MVP score = dealt%/100 + kills + 0.5 x healed%/100 (self + given) + 0.5 if it survived; Team MVP = top brought score per team (ties: kills, then damage). Leaderboard: MVPs, MVP score / game. Ideas: tune weights after real games, count damage taken for walls, whole-game MVP. |
-| todo | Mega / Z-move usage | Which Pokémon Mega Evolved / used a Z-move, which Z-move, on which turn, win rate when used. Nat Dex specific. |
+| done | Mega / Z-move usage | Which Pokémon Mega Evolved / used a Z-move, which Z-move, on which turn, win rate when used. Nat Dex specific. Done 2026-10-26: Mega / Mega turn, Z-move / Z turn per game; Megas, Mega wins, Z-moves, Z wins in the leaderboard (win rate = wins / count in the sheet). Primal Reversion / Ultra Burst not counted (banned in Nat Dex OU). |
 | todo | KO matrix | Which Pokémon KO'd which most often across a season. |
 | todo | Leads | Lead Pokémon per player and lead matchup win rate. |
-| todo | Survival | Turns on field, alive at the end, KO'd the turn it came in. |
+| done | Survival | Turns on field, alive at the end, KO'd the turn it came in. Done 2026-10-26: Turns on field (turns it started on the field), Survived, KO'd before moving (fainted in a stay before acting; covers being outsped right after replacing a KO'd teammate, which "same turn" would miss). |
 | todo | Status inflicted | Burns / paralysis / toxic / sleep spread, and damage done through them. |
 | todo | Momentum | Turn-by-turn "Pokémon remaining" / total HP chart per game. |
 | todo | Head-to-head | Player vs player records across the season. |
