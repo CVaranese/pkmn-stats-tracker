@@ -2,6 +2,7 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Discord preview: paste the site link in Discord; the banner, "Replay Kill Tracker" and the description show. (Discord caches previews; a link it saw before may need `?v=2` on the end.)
 - [ ] Performance: on games you know, is each Team MVP who you'd pick now that damage taken and turns on field count instead of healing? Say if taken (0.5 per 100%) or turns (0.05 each) should weigh more or less.
 - [ ] Luck words: the cut-offs (player Fair within ±0.75, Very beyond ±2; Pokémon ±0.25 / ±0.75) come from 34 saved games. Do the words feel right on games where you remember the luck? Is a die the right emblem?
 - [ ] Click through a team's Pokémon in the summary; the selected one is outlined and its stats replace the MVP's. Check on a phone (tap).

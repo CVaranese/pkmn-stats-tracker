@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Link previews: sharing the site in Discord (or anywhere that reads Open Graph tags) shows the league banner, title and a one-line description.
 - Tabs are now One game, Playoffs (was Several games) and Gambling (a placeholder for now). A "Hide links and sheets" button collapses the input box, for cleaner screenshots.
 - Temporary: the saved test game (gen9nationaldex-2705117998) fills in both team sheets when loaded, so HP columns and sets show while Showdown is down.
 - When Showdown's move / Pokédex data doesn't load, the site uses its own copies (`site/data/`), so luck and max HP still work while Showdown is down.
