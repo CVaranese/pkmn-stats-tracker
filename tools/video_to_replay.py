@@ -196,6 +196,8 @@ def merge(log_frames, scene_frames, score, move_names=()):
         turns.append(ls)
     # the end of the last turn: message-box readings after the last line the log showed
     msgs = scene_messages(scene_frames) if scene_frames else []
+    won = next((i for i, t in enumerate(msgs) if "won the battle" in t), None)
+    msgs = msgs[:won + 1] if won is not None else msgs   # after the win the streamer may start the instant replay
     prev = turns[-1] or (turns[-2] if len(turns) > 1 else [])   # last turn's header at the bottom, no lines yet
     if msgs and prev:
         key = prev[-1]
@@ -206,6 +208,13 @@ def merge(log_frames, scene_frames, score, move_names=()):
             extra = msgs[best + 1:]
             stop = next((i for i, t in enumerate(extra) if re.search(r"won the battle|^Battle started", t)), len(extra) - 1)
             extra = [t for t in extra[:stop + 1] if not t.startswith("Battle started")]
+            kept = [prev[-1]]
+            for t in extra:   # the box re-read: a line again in other case, or a line with the next one joined on
+                base = next((k for k in kept[-3:] if t.lower().startswith(k.lower().rstrip("!l'") + " ")), None)
+                t = t[len(base.rstrip("!l'")):].strip() if base else t
+                if not any(difflib.SequenceMatcher(None, t.lower(), k.lower()).ratio() > 0.85 for k in kept[-3:]):
+                    kept.append(t)
+            extra = kept[1:]
             turns[-1] += extra
             notes.append(f"turn {last}: +{len(extra)} lines from the message box")
     return preview, turns, notes

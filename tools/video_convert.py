@@ -16,7 +16,7 @@ FRAGMENTS = {"pokemon", "opposingPokemon", "team", "opposingTeam", "party", "opp
 # HP % for damage / healing the spectator log shows no number for (guesses from the game's fractions)
 PASSIVE_PCT = {"psn": 12.5, "brn": 6.25, "Life Orb": 10, "Sandstorm": 6.25, "Hail": 6.25, "Spikes": 12.5,
                "Rocky Helmet": 16.7, "Rough Skin": 12.5, "Iron Barbs": 12.5, "Leech Seed": 12.5, "Salt Cure": 12.5,
-               "Black Sludge": 12.5}
+               "Black Sludge": 12.5, "Mimikyu-Busted": 12.5}
 HEAL_PCT = {"Leftovers": 6.25, "Black Sludge": 6.25, "Poison Heal": 12.5, "Sitrus Berry": 25, "default": 50}
 TIMER_RE = re.compile(r"^.+ has \d+ seconds? left\W?$|^.+ turned on the timer\W?$|^.+ turned off the timer\W?$",
                       re.I)
@@ -59,7 +59,7 @@ def compile_templates(templates):
     comp = []
     for sect, eid, name, key, tpl in templates:
         for part in tpl.split("\n"):
-            part = part.strip().replace("**", "")
+            part = part.strip().replace("**", "").replace("é", "e")   # OCR reads "Pokémon" as "Pokemon"
             pieces = re.split(r"\[([A-Z]+)\]", part)
             if part.startswith("== Turn") or (len(pieces) == 1 and len(part) < 8):
                 continue
@@ -276,6 +276,8 @@ class Converter:
         if key != "damage" or "POKEMON" not in s:
             return None
         side, nick = self.mon(s["POKEMON"])
+        if (sect, eid) == ("default", "default") and self.out[-1].endswith("|Mimikyu-Busted"):
+            return side, nick, "pokemon: Mimikyu-Busted", None   # "(X was hurt!)" after the disguise breaks
         frm = {"status": eid, "weather": WEATHER_IDS.get(eid, name), "recoil": "Recoil", "confusion": "confusion",
                "items": "item: " + name, "abilities": "ability: " + name}.get(sect, name)
         return side, nick, frm, None
@@ -346,8 +348,8 @@ class Converter:
                                  "[from] item: " + (self.close(s["ITEM"], self.items) or s["ITEM"]))
             if key in ("removeItem", "eatItem", "activateItem"):
                 return self.emit("-enditem", self.ref(*P()), self.close(s["ITEM"], self.items) or s["ITEM"])
-            if key == "hitCount":
-                return self.emit("-hitcount", foe_active(), s["NUMBER"])
+            if key in ("hitCount", "hitCountSingular"):
+                return self.emit("-hitcount", foe_active(), s.get("NUMBER", "1"))
             if key in ("mega", "megaNoItem"):
                 side, nick = P()
                 item = self.close(s.get("ITEM", ""), self.items) or s.get("ITEM", "")
@@ -405,6 +407,14 @@ class Converter:
             return self.emit("-" + key, self.ref(*P()), "confusion")
         elif sect in ("moves", "abilities", "items"):
             label = {"moves": "move: ", "abilities": "ability: ", "items": "item: "}[sect] + name
+            if (eid, key) == ("disguise", "transform"):
+                side, nick = P()
+                self.nicks[side][nick] = "Mimikyu-Busted"
+                return self.emit("detailschange", self.ref(side, nick), "Mimikyu-Busted")
+            if key == "block" and "POKEMON" not in s:   # "Its disguise served it as a decoy!": the move's target
+                return self.emit("-activate", foe_active(), label)
+            if key == "activate" and "POKEMON" not in s:   # "Tidying up complete!": the user
+                return self.emit("-activate", self.ref(*self.last_mover), label)
             if "TEAM" in s and key in ("start", "end"):
                 side = self.foe(self.own_side()) if "opposing" in s["TEAM"].lower() else self.own_side()
                 return self.emit("-sidestart" if key == "start" else "-sideend",
@@ -431,7 +441,9 @@ class Converter:
                 self.guessed.append(f"{out} switched out: +33% (can have Regenerator)")
         m = re.match(r"^(.*?)\s*\((.+?)\)\W*$", full)
         nick, sp = (m.group(1), m.group(2)) if m else (re.sub(r"\W+$", "", full),) * 2
-        sp = self.close(sp, self.species, 0.5) or sp
+        # a form name the dex lacks ("Maushold-Three" is plain "Maushold") -> its base species, before a loose match
+        sp = self.close(sp, self.species, 0.85) or self.close(sp.rsplit("-", 1)[0], self.species, 0.8) \
+            or self.close(sp, self.species, 0.5) or sp
         known = self.close(nick, self.nicks[side], 0.8)
         nick = known or nick
         self.nicks[side].setdefault(nick, sp)

@@ -53,6 +53,19 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   of four lines that is easy to read by eye gives at most "Ftyqon used Sint Impression!" and never a "lost N%"
   number. The crop boxes and filter are now options (`--log-box`, `--scene-box`, `--filter`). Skipped for now (the
   user doesn't think the replay is still on Showdown); ways left: read the frames by eye, or try Tesseract.
+- **Tested** (2026-10-27, https://youtu.be/ff5WImD_i3k, "PPPPP Week 1 Bad Bully vs Big Large", 9.9 min, streamed
+  by PeterPikmon): light theme, full screen. The log is where `LOG_BOX` says; the message box is higher (x 110-590,
+  y 344-420, `--scene-box 110,344,480,76`). A live battle: at the win the client shows "Instant replay / Download
+  replay / Upload and share replay", then the streamer started the instant replay, so the end-of-video message box
+  showed turn 1 again. The pipeline now stops message-box lines at "won the battle", and drops box re-readings (the
+  same line in other case, or a line with the next one joined on).
+- **Tested**: new wordings in this game: "Its disguise served it as a decoy!" (no Pokémon named: the move's target),
+  "[X]'s disguise was busted!" then "(X was hurt!)" (1/8, `Mimikyu-Busted`), "Tidying up complete!", "The Pokemon was
+  hit 5 times!" (OCR drops the é; templates now match without it), "sent out Maushold (Maushold-Three)" (the dex has
+  plain "Maushold" for that form; the loose match had picked Maushold-Four).
+- **Tested**: result: 27 turns, 209 protocol lines, 2 unparsed (garbled re-readings of lines also read correctly).
+  parser.js: ElkG Big Large won by KO (Mamoswine's Ice Shard on Latios, turn 27); 6 weedinmyhonda faints, 3 ElkG
+  faints, every faint and killer matching the log text. Mamoswine ends at 15%, same as its HP bar. Run time 35 s.
 - **Guess**: other league videos may differ: a live battle instead of a replay, another streamer's layout (the crop
   boxes are fixed numbers), spectator chat in the log ("peterpikmon: g2g" sat in team preview here), moves and
   messages this game didn't have. Check every new video's report.txt; expect a few rules per new message type.
