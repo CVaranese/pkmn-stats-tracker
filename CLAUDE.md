@@ -27,6 +27,7 @@ Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts k
 - Changelog: `CHANGELOG.md` (under Unreleased).
 - Knowledge: `docs/knowledge/` — replay format facts and kill-rule decisions, marked tested / researched / guess.
 - Review list: `docs/REVIEW_QUEUE.md` — things only the user can check.
+- League replays: `docs/LEAGUE_REPLAYS.md` — every link the user gave, its week, and whether it's in `site/games/` yet.
 
 ## Rules enforced by `.claude/habits.json`
 - Force-push is blocked unless `--force-with-lease`.
