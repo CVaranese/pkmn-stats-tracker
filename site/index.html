@@ -10,14 +10,30 @@
 <body>
   <main>
     <header>
+      <img class="banner" src="img/pinecord-banner.webp" width="1920" height="1080"
+        alt="Peter Pikmon's Pinecord Pokémon Pissfest: a Pineco in a urinal on a mint tiled wall">
+      <div>
       <h1>Replay Kill Tracker</h1>
       <p class="lede">Paste Pokémon Showdown replay links to count kills and deaths per Pokémon. Works for singles and doubles. Copy the table into Google Sheets or download it as a CSV.</p>
+      </div>
     </header>
 
+    <nav class="modes" role="tablist" aria-label="View">
+      <button role="tab" data-mode="one" aria-selected="true" type="button">One game</button>
+      <button role="tab" data-mode="many" aria-selected="false" type="button">Several games</button>
+    </nav>
+
     <section class="input">
-      <label for="links">Replay links or IDs</label>
-      <textarea id="links" rows="6" spellcheck="false"
-        placeholder="https://replay.pokemonshowdown.com/gen9vgc2026regf-1234567890&#10;https://replay.pokemonshowdown.com/gen9ou-1234567891"></textarea>
+      <div id="one-input">
+        <label for="one-link">Replay link</label>
+        <input id="one-link" type="text" spellcheck="false" autocomplete="off"
+          placeholder="https://replay.pokemonshowdown.com/gen9nationaldex-1234567890">
+      </div>
+      <div id="many-input" hidden>
+        <label for="links">Replay links or IDs, one per line</label>
+        <textarea id="links" rows="6" spellcheck="false"
+          placeholder="https://replay.pokemonshowdown.com/gen9vgc2026regf-1234567890&#10;https://replay.pokemonshowdown.com/gen9ou-1234567891"></textarea>
+      </div>
       <div class="row">
         <button id="run" class="primary" type="button">Get stats</button>
         <button id="clear" type="button">Clear</button>
@@ -36,6 +52,8 @@
     </section>
 
     <section id="results" class="results" hidden>
+      <div id="teams" class="teams" hidden></div>
+      <h2 class="section-title" id="table-title">Every Pokémon</h2>
       <div class="toolbar">
         <div class="tabs" role="tablist">
           <button role="tab" data-view="summary" aria-selected="true" type="button">Leaderboard</button>
@@ -78,7 +96,8 @@
         <li><b>Luck score:</b> each random roll counts as the result minus its odds, for the Pokémon it helped. A 70% move hitting is +0.3, missing is −0.7; a crit is +0.96, a normal hit −0.04; a full para is −0.75, moving through paralysis +0.25. Rolls counted: accuracy, crits, status and flinch chances of attacks, paralysis, waking up, thawing, confusion, and multi-hit moves (2–5 hit moves: 2 hits −0.65 … 5 hits +0.85; Triple Axel and Population Bomb: every hit's accuracy). Luck = its own rolls; Luck against = opponents' rolls aimed at it (high = they got lucky against it); Player luck (per game) = the player's luck minus the opponent's. About 0 means average luck. A roll that an unknown ability could have changed (a Dragonite that might have Inner Focus, a Togekiss that might have Super Luck) is skipped; a team sheet or the replay showing the ability brings it back. Items (Scope Lens, Covert Cloak…) count when the replay or a sheet shows them; multi-hit luck needs the item known, because of Loaded Dice.</li>
         <li><b>Survival:</b> Turns on field counts the turns a Pokémon started on the field (a turn the game was forfeited at the start of doesn't count). Survived = still standing when the game ended, forfeits included. KO'd before moving = fainted during a stay on the field before it got to act (switched in and taken out the same turn, or outsped right after replacing a fainted teammate).</li>
         <li><b>Mega / Z-move:</b> Mega and Mega turn when it Mega Evolved; Z-move and Z turn when it used one (status Z-moves show as "Z-Hypnosis" and so on). The leaderboard counts games with a Mega / Z-move and the wins among them.</li>
-        <li><b>MVP score:</b> roughly how many KOs' worth a Pokémon did: +1 per 100% damage dealt, +1 per kill (direct or passive), +0.5 per 100% healed (itself or a teammate), +0.5 for not fainting. Uses %, so it works without team sheets; luck, switches and damage taken don't count. Team MVP (per game) is the top score on each team among the Pokémon brought; ties go to more kills, then more damage. The leaderboard shows MVPs (times Team MVP) and MVP score / game.</li>
+        <li><b>Performance and Team MVP:</b> roughly how many KOs' worth a Pokémon did: +1 per 100% damage dealt, +1 per kill (direct or passive), +0.5 per 100% damage taken, +0.05 per turn on the field, +0.5 for not fainting. Uses %, so it works without team sheets; luck, switches and healing don't count. Team MVP (per game) is the best Performance on each team among the Pokémon brought; ties go to more kills, then more damage. The leaderboard shows MVPs (times Team MVP) and Performance / game.</li>
+        <li><b>Luck in words:</b> the team summary turns luck scores into Very unlucky / Unlucky / Fair / Lucky / Very lucky (a die with 1 to 5 pips). For a player (their luck minus the opponent's): Fair within ±0.75, Very beyond ±2. For a Pokémon: Fair within ±0.25, Very beyond ±0.75. Hover the word for the score.</li>
         <li><b>Hidden Zoroark:</b> while disguised, Zoroark shows up as the Pokémon it copies. If its disguise never breaks, the replay can't tell them apart, so its kills and damage go to that Pokémon. Games where a team had a Zoroark that never showed itself are listed above the table and marked in Per game.</li>
       </ul>
     </details>
