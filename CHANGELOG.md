@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Temporary, during the 2026-10-26 Showdown outage: four Nat Dex replays (gen9nationaldex-2705099074, -2705111047, -2705117998, -2705121899) load from copies bundled with the site, so the page can be tried without Showdown. To be removed.
 - When Pokémon Showdown (or Pokepaste) is down or not answering, loading now gives up after 15 s per request with a clear message, instead of hanging or showing a bare "HTTP 522". Once Showdown looks down, the remaining replays are skipped and reported in one line.
 - Survival per Pokémon: Turns on field, Survived (standing at the end) and KO'd before moving. Mega / Z-move: Mega + Mega turn, Z-move + Z turn per game; Megas, Mega wins, Z-moves, Z wins in the leaderboard. Also in exports.
 - MVP: every brought Pokémon gets an MVP score (+1 per 100% dealt, +1 per kill, +0.5 per 100% healed, +0.5 for surviving) and the top one on each team is Team MVP. Per game: MVP score / Team MVP; leaderboard: MVPs and MVP score / game. Also in exports.

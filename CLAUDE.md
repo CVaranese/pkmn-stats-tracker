@@ -12,7 +12,7 @@ Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts k
 - Serve locally: `python -m http.server 8765 --bind 127.0.0.1` from the repo root, then open `http://127.0.0.1:8765/site/` and `http://127.0.0.1:8765/tests/` (fetching fixtures needs http, not file://).
 - Run tests headless (no Node installed on this machine; Edge is):
   `msedge --headless=new --disable-gpu --user-data-dir=%TEMP%\edge-headless-rs --virtual-time-budget=15000 --dump-dom http://127.0.0.1:8765/tests/index.html`
-  The page title is `PASS`, `FAIL (n)` or `CRASH`.
+  The page title is `PASS`, `FAIL (n)` or `CRASH`. `msedge` isn't on PATH in PowerShell: use `& "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"`.
 - `tests/corpus/` (gitignored): 30 recent Nat Dex replays for surveys and smoke tests; re-download with `search.json?format=gen9nationaldex`.
 - A new real fixture: save `https://replay.pokemonshowdown.com/<id>.json` into `tests/fixtures/`, count kills by hand from the log, then add it to `REAL` in `tests/tests.js`.
 
