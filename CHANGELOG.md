@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- Phones: text boxes and filters use 16px text, so iPhone Safari no longer zooms in when you tap them.
+- Phones: the Games list stacks each game (players under each other, buttons below) instead of scrolling sideways; the main tabs fit on one line; team card moves put the damage bar on its own line so move names have room.
+- Touch screens: buttons, filters and fold-out headings are taller (44px, small buttons 40px) and table headers easier to tap. Hover highlights only on devices with a mouse, so they don't stay on after a tap.
+- Phones: tapping anything that has a hover explanation (column headers, luck words, Performance, sprites) shows it in a small box for 5 seconds.
 - Games tab: tap anywhere on a game's row to open it in One game (same as Stats).
 - "Hide links and sheets" moved from the tab row (it ran off the screen on phones) to the results toolbar, next to Download CSV. Changing tabs shows the links again.
 - "How kills and damage are counted" is now "How each column is counted", right under the table's title instead of at the bottom of every tab.

@@ -74,7 +74,7 @@ textarea {
 }
 select { padding: 5px 8px; }
 button { padding: 7px 14px; cursor: pointer; }
-button:hover { border-color: var(--muted); }
+@media (hover: hover) { button:hover { border-color: var(--muted); } }
 button:disabled { opacity: 0.5; cursor: default; }
 button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
 /* secondary actions inside toolbars and table rows */
@@ -126,7 +126,7 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .lib-table .lib-week:first-child th { padding-top: 8px; }
 .lib-table td:first-child { width: 100%; }
 .lib-row { cursor: pointer; }
-.lib-row:hover td { background: var(--row-alt); }
+@media (hover: hover) { .lib-row:hover td { background: var(--row-alt); } }
 .lib-table .lib-actions button { margin-left: 6px; }
 .lib-match { display: flex; align-items: center; gap: 14px; }
 .lib-name { font-weight: 600; margin-bottom: 2px; }
@@ -185,7 +185,7 @@ th[title] { text-decoration: underline dotted var(--muted); text-underline-offse
 .slot { position: relative; display: inline-flex; padding: 0; border: 2px solid transparent; border-radius: 8px;
   background: var(--row-alt); }
 button.slot { cursor: pointer; }
-button.slot:hover { border-color: var(--muted); }
+@media (hover: hover) { button.slot:hover { border-color: var(--muted); } }
 button.slot[aria-pressed="true"] { border-color: var(--outline); background: var(--surface); }
 .slot.fainted img { filter: grayscale(1); opacity: 0.55; }
 .slot.not-brought { opacity: 0.35; }
@@ -254,10 +254,42 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .rules { margin: 0 0 12px; color: var(--muted); max-width: 80ch; }
 .rules summary { cursor: pointer; color: var(--text); font-weight: 600; }
 .rules li { margin: 4px 0; }
+/* phones: a tap on anything with a hover title shows the title here (app.js) */
+.tap-tip { position: absolute; z-index: 10; max-width: min(320px, calc(100vw - 16px)); padding: 8px 10px;
+  background: var(--surface); color: var(--text); border: 2px solid var(--outline); border-radius: 6px;
+  font-size: 14px; white-space: normal; }
 
 @media (max-width: 600px) {
   .toolbar .spacer { display: none; }
   main { margin: 0; padding: 16px; border-width: 0; border-radius: 0; }
   .teams { margin: 0 -16px 24px; padding: 16px; }
   header { grid-template-columns: 1fr; }
+  /* iPhone Safari zooms into any input under 16px */
+  input[type=text], textarea, select { font-size: 16px; }
+  /* the four main tabs on one line down to about 320px */
+  .modes { gap: 0; }
+  .modes button { padding: 8px 8px; font-size: 14px; white-space: nowrap; }
+  /* Games list: each game stacked (players under each other, buttons below) instead of one wide row */
+  .lib-table { display: block; }
+  .lib-table .lib-week, .lib-table .lib-week th { display: block; }
+  .lib-table tr.lib-row { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px;
+    border-bottom: 1px solid var(--border); padding: 8px 0; }
+  .lib-table tr.lib-row td { border: 0; padding: 2px 10px; }
+  .lib-table tr.lib-row td:empty { display: none; }
+  .lib-table td.lib-match { flex: 1 0 100%; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .lib-table td.lib-actions { margin-left: auto; }
+  .lib-table .lib-actions button { margin: 0 0 0 6px; }
+  /* team card moves: the damage bar on its own line, so the move name keeps the width */
+  .move-row { grid-template-columns: minmax(0, 1fr) auto auto; row-gap: 3px; }
+  .move-row .move-bar { grid-column: 1 / -1; grid-row: 2; }
+  .move-row.unused .move-bar { display: none; }
+}
+
+/* touch screens: tap targets near the 44-48px guidelines (WCAG minimum 24px) */
+@media (pointer: coarse) {
+  button, select { min-height: 44px; }
+  button.small { min-height: 40px; }
+  button.slot { min-height: 0; }
+  summary { padding: 10px 0; }
+  th { padding-top: 12px; padding-bottom: 12px; }
 }

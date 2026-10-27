@@ -931,4 +931,25 @@
     btn.textContent = text;
     setTimeout(() => { btn.textContent = old; }, 1800);
   }
+
+  // phones can't hover: a tap on anything with a title (column headers, luck words, sprites…) shows it in a tip
+  if (matchMedia("(hover: none)").matches) {
+    const tip = el("div", "tap-tip");
+    tip.hidden = true;
+    tip.setAttribute("role", "status");
+    document.body.append(tip);
+    let timer = 0;
+    document.addEventListener("click", (e) => {
+      const t = e.target.closest("[title]");
+      if (!t || !t.title || t.matches(".lib-row")) { tip.hidden = true; return; }  // a game row opens the game
+      tip.textContent = t.title;
+      tip.hidden = false;
+      const r = t.getBoundingClientRect();
+      const maxLeft = document.documentElement.clientWidth - tip.offsetWidth - 8;
+      tip.style.left = window.scrollX + Math.max(8, Math.min(r.left, maxLeft)) + "px";
+      tip.style.top = window.scrollY + r.bottom + 6 + "px";
+      clearTimeout(timer);
+      timer = setTimeout(() => { tip.hidden = true; }, 5000);
+    });
+  }
 })();

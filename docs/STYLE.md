@@ -40,6 +40,14 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
 - **Sections**: `h2.section-title` (18px). Collapsible extras are `details` with a bold `summary`.
 - **Notes**: `.hint` for help text (muted, 14px, max 80 characters wide); `.errors` / `.warnings` lists.
 
+## Phones (see docs/knowledge/mobile.md)
+- Inputs, textareas and selects are 16px on phones (iPhone zooms in under that). Never block zoom.
+- Tap targets 44px tall on touch screens (`@media (pointer: coarse)`), small buttons 40px.
+- No information only in a `title`: phones show titles through the tap tip (`.tap-tip`), so keep titles short.
+- Hover styles go inside `@media (hover: hover)`.
+- Anything in a row must still fit at 320px wide: stack it under `max-width: 600px` instead of scrolling sideways
+  (only big data tables scroll, inside `.table-wrap`).
+
 ## Rules
 - No browser-default controls: every input must look like the ones above in both themes.
 - Words in sentence case. No uppercase letter-spaced mini labels.
