@@ -252,6 +252,13 @@
     $("lib-watch-frame").removeAttribute("src");
   });
 
+  // the Challonge bracket: shows results, so it loads only when opened
+  $("bracket").addEventListener("toggle", () => {
+    if (!$("bracket").open) return;
+    if (!$("bracket-frame").src) $("bracket-frame").src = "https://challonge.com/peepeepeepeepiss/module";
+    $("bracket-frame").hidden = false;
+  });
+
   // ---------- replay player (watch.html in a frame: Showdown's replay-embed.js, needs Showdown online) ----------
 
   let watchId = "";

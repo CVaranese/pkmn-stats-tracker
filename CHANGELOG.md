@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Games tab: a "Bracket" section (closed by default, since it shows results) with the league's Challonge bracket, loaded only when opened.
 - Games tab: removed the three test games (Week 1 / Week 2). The library is empty until the league's six replays are added.
 - Team cards: a "Best move" line (the move that did the most damage), and, under "More detail", the Pokémon's moves and damage sources, one line each: times used, a bar for its share of all its damage, damage, KOs (HP with team sheets). Abilities, items, status and weather are named ("Rough Skin (ability)", "Burn (status)"). With a sheet, moves it never used show as "not used".
 - Team cards open in a simple view (Kills, Dealt, Taken, Survived, best move); "More detail" adds turns, healing, moves and luck for both cards and is remembered in the browser.
