@@ -576,10 +576,138 @@
     ]
    ],
    "winner": "Zololab",
-   "date": "2026-09-22",
+   "date": "2026-09-23",
    "turns": 48,
    "note": "From the stream video",
    "video": "https://youtu.be/OQAm2AwTtBc"
+  },
+  {
+   "id": "video-i21s40qi4em",
+   "league": "pinecord",
+   "week": "Week 3",
+   "players": [
+    "DEJIME17",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Swampert",
+     "Archaludon",
+     "Overqwil",
+     "Pawmot",
+     "Raging Bolt"
+    ],
+    [
+     "Lopunny",
+     "Brute Bonnet",
+     "Lilligant-Hisui",
+     "Slowbro",
+     "Tinkaton",
+     "Ninetales"
+    ]
+   ],
+   "winner": "DEJIME17",
+   "date": "2026-09-23",
+   "turns": 15,
+   "note": "From the stream video",
+   "video": "https://youtu.be/I21S40QI4EM"
+  },
+  {
+   "id": "video-bgmhhbybbam",
+   "league": "pinecord",
+   "week": "Week 3",
+   "players": [
+    "ElkG Big Large",
+    "chicken parm karm"
+   ],
+   "teams": [
+    [
+     "Zamazenta",
+     "Rotom-Heat",
+     "Toxicroak",
+     "Hoopa-Unbound",
+     "Scizor",
+     "Mamoswine"
+    ],
+    [
+     "Gholdengo",
+     "Araquanid",
+     "Nidoking",
+     "Glimmora",
+     "Hydrapple",
+     "Greninja"
+    ]
+   ],
+   "winner": "chicken parm karm",
+   "date": "2026-09-23",
+   "turns": 17,
+   "note": "From the stream video",
+   "video": "https://youtu.be/BGMHhByBbaM"
+  },
+  {
+   "id": "video-uffx_ququzw",
+   "league": "pinecord",
+   "week": "Week 3",
+   "players": [
+    "azpmCloudburst",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Zapdos",
+     "Garchomp",
+     "Dondozo",
+     "Mawile"
+    ],
+    [
+     "Bronzong",
+     "Goodra-Hisui",
+     "Tyranitar",
+     "Great Tusk",
+     "Enamorus-Therian",
+     "Crawdaunt"
+    ]
+   ],
+   "winner": "potatoesareyum",
+   "date": "2026-09-23",
+   "turns": 19,
+   "note": "From the stream video",
+   "video": "https://youtu.be/UFfx_QuquZw"
+  },
+  {
+   "id": "video-mqda-z2vz9e",
+   "league": "pinecord",
+   "week": "Week 3",
+   "players": [
+    "FingerStripes",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Heatran",
+     "Rotom-Wash",
+     "Hawlucha",
+     "Tapu Koko",
+     "Sableye",
+     "Jirachi"
+    ],
+    [
+     "Slowking-Galar",
+     "Ninetales-Alola",
+     "Charizard",
+     "Arctozolt",
+     "Arctovish",
+     "Quaquaval"
+    ]
+   ],
+   "winner": "FingerStripes",
+   "date": "2026-09-23",
+   "turns": 43,
+   "note": "From the stream video",
+   "video": "https://youtu.be/mqDA-Z2vZ9E"
   }
  ]
 }

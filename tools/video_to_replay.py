@@ -198,6 +198,8 @@ def merge(log_frames, scene_frames, score, move_names=()):
     msgs = scene_messages(scene_frames) if scene_frames else []
     won = next((i for i, t in enumerate(msgs) if "won the battle" in t), None)
     msgs = msgs[:won + 1] if won is not None else msgs   # after the win the streamer may start the instant replay
+    over = next((i for i, t in enumerate(msgs) if re.match(r"^(Download re|Instant replay|Upload and share)", t)), None)
+    msgs = msgs[:over] if over is not None and won is None else msgs   # the end-of-battle buttons: the box missed the win
     prev = turns[-1] or (turns[-2] if len(turns) > 1 else [])   # last turn's header at the bottom, no lines yet
     if msgs and prev:
         key = prev[-1]

@@ -106,3 +106,16 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   Pokémon at 0 HP at the win (listed in report.txt).
 - **Tested**: after ~15 downloads in a day YouTube answered yt-dlp with "Sign in to confirm you're not a bot" for
   downloads and metadata alike, and `--sleep-requests 3` didn't help.
+- **Tested**: past the bot check with the user's Firefox YouTube sign-in: `--cookies-from-browser firefox`. Signed in,
+  YouTube only lists formats once its JavaScript challenge is solved: `pip install "yt-dlp[default]" deno` in the
+  yt-dlp venv (deno.exe lands in its Scripts folder; put that folder on PATH). Then `-f 136` works again.
+  YouTube Premium's own "Download" in the browser is no use: it stores the video in encrypted pieces in the
+  browser's site storage, playable only by YouTube's player.
+- **Tested** (Week 3, 5 videos): the log can move mid-stream (Cloudburst vs PotatoesAreYum: ~25 px further left
+  before 8:00, then a side panel appears); a box too tight cut the first letters ("Irn 6") and turns 0-8 went
+  MISSING. `--log-box 650,56,560,664` covered both. Timer wording "has 25 seconds left this turn." and
+  "Battle timer is now OFF." / "(requested by X)" are dropped now. Box readings stop at the first "Download replay"
+  button when no win line was read. Two endings had to be filled by hand: the stream jumped to the instant replay
+  (Sneez vs Fingy, turn 43) and the box window started after the last turn (Cloudburst vs PotatoesAreYum).
+- **Tested**: headless Edge launched from Git Bash returned empty `--dump-dom` output late in the session (even for
+  a plain page) while the same command worked from PowerShell.

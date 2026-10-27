@@ -20,7 +20,7 @@ PASSIVE_PCT = {"psn": 12.5, "brn": 6.25, "Life Orb": 10, "Sandstorm": 6.25, "Hai
                "Rocky Helmet": 16.7, "Rough Skin": 12.5, "Iron Barbs": 12.5, "Leech Seed": 12.5, "Salt Cure": 12.5,
                "Black Sludge": 12.5, "Mimikyu-Busted": 12.5}
 HEAL_PCT = {"Leftovers": 6.25, "Black Sludge": 6.25, "Poison Heal": 12.5, "Sitrus Berry": 25, "default": 50}
-TIMER_RE = re.compile(r"^.+ has \d+ seconds? left\W?$|^.+ turned on the timer\W?$|^.+ turned off the timer\W?$"
+TIMER_RE = re.compile(r"^.+ has [\dIOSl]+ seconds? left(?: this turn)?\W?$|^Battle timer is now (?:ON|OFF)\W?$|^\(requested by .+\)$|^.+ turned on the timer\W?$|^.+ turned off the timer\W?$"
                       r"|time'?s up\b.*requested by", re.I)
 # the end of a switch line wrapped onto its own line: "(Bronzong)!" or "Therian)!" after "... (Enamorus-"
 WRAP_TAIL = re.compile(r"^\(?(?!the )[^()\s]+(?: [^()\s]+)?\)\W{0,2}[l'!]?$", re.I)

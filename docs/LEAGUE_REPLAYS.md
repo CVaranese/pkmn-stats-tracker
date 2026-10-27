@@ -36,11 +36,11 @@ Playlists: Week 1 https://youtube.com/playlist?list=PLe1tROU59cYo, Week 2 https:
 | https://youtu.be/JJaCbPX4g2E | Week 2 | Pikmon vs Big Large | yes, 2026-10-27 (dark theme read with invert) |
 | https://youtu.be/4fACABLYaoc | Week 2 | Bad Bully vs Dox | yes, 2026-10-27 (small text garbled; HP numbers rougher) |
 | https://youtu.be/27AboXcD_Hk | Week 3 | Pikmon vs Nezergy | has a replay (2684999355) |
-| https://youtu.be/OQAm2AwTtBc | Week 3 | Zololab vs Bad Bully | yes, 2026-10-27 (date 09-22 guessed: YouTube blocked the lookup) |
-| https://youtu.be/BGMHhByBbaM | Week 3 | Big Large vs Karm | no: YouTube bot check blocked the download |
-| https://youtu.be/I21S40QI4EM | Week 3 | Dox vs DEJIME | no: YouTube bot check blocked the download |
-| https://youtu.be/UFfx_QuquZw | Week 3 | Cloudburst vs PotatoesAreYum | no: YouTube bot check blocked the download |
-| https://youtu.be/mqDA-Z2vZ9E | Week 3 | Sneez vs Fingy | no: YouTube bot check blocked the download |
+| https://youtu.be/OQAm2AwTtBc | Week 3 | Zololab vs Bad Bully | yes, 2026-10-27 |
+| https://youtu.be/BGMHhByBbaM | Week 3 | Big Large vs Karm | yes, 2026-10-27 (ElkG forfeited) |
+| https://youtu.be/I21S40QI4EM | Week 3 | Dox vs DEJIME | yes, 2026-10-27 |
+| https://youtu.be/UFfx_QuquZw | Week 3 | Cloudburst vs PotatoesAreYum | yes, 2026-10-27 (last KO hand-filled from the message box) |
+| https://youtu.be/mqDA-Z2vZ9E | Week 3 | Sneez vs Fingy | yes, 2026-10-27 (turn 43 hand-filled from the video) |
 
 Given 2026-10-27 as "all the replays we have for the draft league to this date". Not downloaded that day:
 Showdown's replay server was down (`tools/showdown_status.py`: Replays timed out, twice). A background retry
