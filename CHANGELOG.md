@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Gambling tab: every fantasy column header explains itself (hover, or tap on a phone). Taps on headers outside the main stats table showed nothing before.
 - Games: Week 1, Nezergy vs potatoesareyum (2677227914), saved from a copy downloaded while Showdown was down. Its draft pool and Aron (brought in Week 1, no longer on the draft sheet) are in `site/games/draft.json`.
 - Gambling tab (first draft): Pokémon fantasy points from every league game (3 a KO, 1 per 100% damage, 1 for surviving, 1 for a win) with each Pokémon's draft tier, cost and points per draft point, plus each player's Swiss record from the Challonge bracket under its names (`site/games/records.json`, made by `python -I tools/challonge_records.py`). A note says the points aren't exact until we have team sheets. Draft pools and tiers are in `site/games/draft.json`. No win odds: too few games. It shows results.
 - Sprites: when Showdown's sprite server doesn't answer, the live site falls back to the copies saved with the site (`site/sprites/gen5/`). A team-preview "Zamazenta-*" now shows Zamazenta's sprite instead of initials.

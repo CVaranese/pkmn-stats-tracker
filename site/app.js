@@ -274,8 +274,13 @@
     const games = new Set(fantasyRows.map((r) => r.replay_id)).size;
     $("bet-status").textContent = (games < library.length ? `Counted ${games} of ${library.length} games (the rest didn't load). ` : "") +
       (draft ? "" : "Draft costs didn't load.");
-    simpleTable($("bet-fantasy"), [["Pokémon", ""], ["Player", ""], ["Tier", ""], ["Cost", "num", "Draft points"], ["Games", "num"],
-      ["KOs", "num"], ["Damage", "num"], ["Points", "num"], ["Per game", "num"], ["Per cost", "num", "Points per draft point"]],
+    simpleTable($("bet-fantasy"), [["Pokémon", ""], ["Player", ""],
+      ["Tier", "", "Its Nat Dex tier on draft day, from the draft sheet."],
+      ["Cost", "num", "Draft points it cost: OU 7, UUBL 6, UU 5, RUBL 4, RU 3, NFE 2, LC 1."],
+      ["Games", "num", "Games it was brought to (not just shown at team preview)."],
+      ["KOs", "num", DESCRIPTIONS.kills], ["Damage", "num", DESCRIPTIONS.damage_dealt_pct],
+      ["Points", "num", "3 a KO, 1 per 100% damage, 1 for each game it was alive at the end, 1 for each win."],
+      ["Per game", "num", "Points divided by games."], ["Per cost", "num", "Points for each draft point it cost."]],
       Bet.fantasy(fantasyRows, draft).slice(0, 20).map((f) => {
         const mon = el("span", "bet-mon");
         mon.append(sprite(f.pokemon, ["gen5/"], "tiny"), f.pokemon);
@@ -1019,7 +1024,7 @@
   if (TOUCH) {
     document.addEventListener("click", (e) => {
       const t = e.target.closest("[title]");
-      if (t && t.matches("th")) return;  // its own handler decides: explain or sort
+      if (t && t.matches("#table th")) return;  // its own handler decides: explain or sort
       // a game row opens the game
       if (!t || !t.title || t.matches(".lib-row")) { hideTip(); return; }
       showTip(t, t.title);
