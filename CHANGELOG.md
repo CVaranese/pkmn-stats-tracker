@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Sprites: when Showdown's sprite server doesn't answer, the live site falls back to the copies saved with the site (`site/sprites/gen5/`). A team-preview "Zamazenta-*" now shows Zamazenta's sprite instead of initials.
 - Removed the three test games (the "Samples" group) from the Games tab, and the outage copies of four non-league replays from the local preview. The local preview now shows the league's games; Week 8 peterpikmon vs weedinmyhonda, the one game with both team sheets, is the main example.
 - Week 8, peterpikmon vs weedinmyhonda: both team sheets fill in when the game opens, so it shows HP, items, abilities and moves.
 - Games tab: the league's six games so far (Weeks 3, 4, 5, 6 and two from Week 8), above the Samples.

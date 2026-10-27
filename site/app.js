@@ -417,7 +417,7 @@
   const HYPHEN_NAMES = new Set(["hooh", "porygonz", "jangmoo", "hakamoo", "kommoo", "wochien", "chienpao", "tinglu", "chiyu",
     "nidoranf", "nidoranm"]);
   function spriteId(species) {
-    const parts = species.split("-");
+    const parts = species.replace(/-\*$/, "").split("-");  // team preview's "Zamazenta-*": form not shown yet
     let base = parts.shift();
     if (parts.length && HYPHEN_NAMES.has(TS.toID(base + parts[0]))) base += parts.shift();
     return TS.toID(base) + (parts.length ? "-" + TS.toID(parts.join("")) : "");
@@ -428,12 +428,11 @@
     const img = document.createElement("img");
     img.alt = species;
     img.loading = "lazy";
-    // local version: only the gen5 copies saved in site/sprites/ (Pokémon from the saved replays)
-    const base = LOCAL ? "sprites/" : SPRITES;
-    const list = LOCAL ? ["gen5/"] : folders;
+    // the gen5 copies saved in site/sprites/ (league Pokémon): the only source locally, the fallback when Showdown is down
+    const list = LOCAL ? ["sprites/gen5/"] : [...folders.map((f) => SPRITES + f), "sprites/gen5/"];
     let i = 0;
     const next = () => {
-      if (i < list.length) { img.src = base + list[i++] + spriteId(species) + (list[i - 1] === "ani/" ? ".gif" : ".png"); return; }
+      if (i < list.length) { img.src = list[i++] + spriteId(species) + (list[i - 1].endsWith("ani/") ? ".gif" : ".png"); return; }
       img.remove();
       box.textContent = species.replace(/[^A-Za-z ]/g, " ").split(/\s+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2);
     };
