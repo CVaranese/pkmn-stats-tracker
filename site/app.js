@@ -29,9 +29,12 @@
     sleep_turns: "Sleep turns", flinched: "Flinched", confusion_hits: "Hit itself", procs: "Effects landed",
     luck: "Luck", luck_against: "Luck against", player_luck: "Player luck",
     hidden_zoroark: "Hidden Zoroark",
+    turns_on_field: "Turns on field", survived: "Survived", ko_before_moving: "KO'd before moving",
+    mega: "Mega", mega_turn: "Mega turn", z_move: "Z-move", z_turn: "Z turn",
+    megas: "Megas", mega_wins: "Mega wins", z_moves: "Z-moves", z_wins: "Z wins",
     mvp_score: "MVP score", mvp: "Team MVP", mvps: "MVPs", mvp_score_per_game: "MVP score / game",
   };
-  const YES_NO = new Set(["won", "brought", "hidden_zoroark", "mvp"]);
+  const YES_NO = new Set(["won", "brought", "hidden_zoroark", "mvp", "survived", "mega"]);
   const GAME_VIEW_FIELDS = RS.GAME_FIELDS.filter((f) => f !== "replay_id" && f !== "format");
   const SHEET_FIELDS = ["max_hp", "item", "ability", "moves"]; // per game, once any sheet matched
   const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"],
