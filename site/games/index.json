@@ -92,6 +92,192 @@
    "date": "2026-10-26",
    "turns": 3,
    "note": "Test game, not league"
+  },
+  {
+   "id": "gen9nationaldex-2684999355",
+   "league": "pinecord",
+   "week": "Week 3",
+   "players": [
+    "PeterPikmon",
+    "Nezergy"
+   ],
+   "teams": [
+    [
+     "Aegislash",
+     "Arcanine-Hisui",
+     "Dracozolt",
+     "Ogerpon-Wellspring",
+     "Tyranitar",
+     "Samurott-Hisui"
+    ],
+    [
+     "Meowscarada",
+     "Donphan",
+     "Slither Wing",
+     "Zoroark-Hisui",
+     "Iron Valiant",
+     "Latias"
+    ]
+   ],
+   "winner": "Nezergy",
+   "date": "2026-09-21",
+   "turns": 22,
+   "note": ""
+  },
+  {
+   "id": "gen9nationaldex-2689027321",
+   "league": "pinecord",
+   "week": "Week 4",
+   "players": [
+    "chicken parm karm",
+    "Nezergy"
+   ],
+   "teams": [
+    [
+     "Alomomola",
+     "Glimmora",
+     "Aerodactyl",
+     "Araquanid",
+     "Nidoking",
+     "Gholdengo"
+    ],
+    [
+     "Tentacruel",
+     "Zeraora",
+     "Meowscarada",
+     "Corviknight",
+     "Iron Valiant",
+     "Donphan"
+    ]
+   ],
+   "winner": "chicken parm karm",
+   "date": "2026-09-28",
+   "turns": 20,
+   "note": ""
+  },
+  {
+   "id": "gen9nationaldex-2693018008",
+   "league": "pinecord",
+   "week": "Week 5",
+   "players": [
+    "azpmCloudburst",
+    "nezergy"
+   ],
+   "teams": [
+    [
+     "Zapdos",
+     "Garchomp",
+     "Whimsicott",
+     "Cresselia",
+     "Venusaur",
+     "Gengar"
+    ],
+    [
+     "Zeraora",
+     "Tentacruel",
+     "Donphan",
+     "Latias",
+     "Zoroark-Hisui",
+     "Iron Valiant"
+    ]
+   ],
+   "winner": "nezergy",
+   "date": "2026-10-05",
+   "turns": 15,
+   "note": ""
+  },
+  {
+   "id": "gen9nationaldex-2696941700",
+   "league": "pinecord",
+   "week": "Week 6",
+   "players": [
+    "nezergy",
+    "ElkG Big Large"
+   ],
+   "teams": [
+    [
+     "Iron Valiant",
+     "Zeraora",
+     "Corviknight",
+     "Zoroark-Hisui",
+     "Donphan",
+     "Tentacruel"
+    ],
+    [
+     "Zamazenta",
+     "Scizor",
+     "Blacephalon",
+     "Hoopa-Unbound",
+     "Rotom-Heat",
+     "Slowking"
+    ]
+   ],
+   "winner": "nezergy",
+   "date": "2026-10-12",
+   "turns": 30,
+   "note": ""
+  },
+  {
+   "id": "gen9nationaldex-2705148353",
+   "league": "pinecord",
+   "week": "Week 8",
+   "players": [
+    "DEJIME",
+    "Nezergy"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Raging Bolt",
+     "Archaludon",
+     "Munkidori",
+     "Swampert",
+     "Overqwil"
+    ],
+    [
+     "Iron Valiant",
+     "Donphan",
+     "Zeraora",
+     "Meowscarada",
+     "Tapu Fini",
+     "Volcanion"
+    ]
+   ],
+   "winner": "Nezergy",
+   "date": "2026-10-27",
+   "turns": 23,
+   "note": ""
+  },
+  {
+   "id": "gen9nationaldex-2705157049",
+   "league": "pinecord",
+   "week": "Week 8",
+   "players": [
+    "peterpikmon",
+    "weedinmyhonda"
+   ],
+   "teams": [
+    [
+     "Samurott-Hisui",
+     "Ogerpon-Wellspring",
+     "Altaria",
+     "Tyranitar",
+     "Aegislash",
+     "Golisopod"
+    ],
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian",
+     "Krookodile",
+     "Magnezone"
+    ]
+   ],
+   "winner": "peterpikmon",
+   "date": "2026-10-27",
+   "turns": 19,
+   "note": ""
   }
  ]
 }

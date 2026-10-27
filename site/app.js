@@ -150,9 +150,11 @@
     .then((index) => {
       library = index.games || [];
       RS.setLibrary(library.map((g) => g.id));
-      const players = [...new Set(library.flatMap((g) => g.players))].sort((a, b) => a.localeCompare(b));
+      // Showdown names ignore case and spaces ("Nezergy" = "nezergy"): one entry per name, as first spelled
+      const players = new Map();
+      for (const p of library.flatMap((g) => g.players)) if (!players.has(TS.toID(p))) players.set(TS.toID(p), p);
       const weeks = [...new Set(library.map((g) => g.week))];
-      $("lib-player").append(...players.map((p) => new Option(p, p)));
+      $("lib-player").append(...[...players].sort((a, b) => a[1].localeCompare(b[1])).map(([id, p]) => new Option(p, id)));
       $("lib-week").append(...weeks.map((w) => new Option(w, w)));
       renderLibrary();
     });
@@ -177,7 +179,7 @@
   /** Games grouped by week, the latest week first (weeks in the order they were added). */
   function renderLibrary() {
     const player = $("lib-player").value, week = $("lib-week").value;
-    const shown = library.filter((g) => (!player || g.players.includes(player)) && (!week || g.week === week));
+    const shown = library.filter((g) => (!player || g.players.some((p) => TS.toID(p) === player)) && (!week || g.week === week));
     $("lib-count").textContent = library.length ? `${shown.length} of ${library.length} games` : "";
     $("lib-empty").hidden = shown.length > 0;
     $("lib-empty").textContent = library.length ? "No games match." : "No games saved yet.";
