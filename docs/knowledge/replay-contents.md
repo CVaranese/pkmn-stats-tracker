@@ -60,7 +60,10 @@ Full protocol reference: `SIM-PROTOCOL.md` in smogon/pokemon-showdown.
 | Line | Seen | What it gives |
 |---|---|---|
 | `\|win\|name` | 5/5 | Winner |
-| `-message ... forfeited` | 0/5 | Forfeit (**researched**, from the protocol docs; not in these fixtures) |
+| `-message\|X forfeited.` | 12/30 corpus | Forfeit, right before `\|win\|` (**tested**, Nat Dex corpus 2026-10-26) |
+| `-message\|X lost due to inactivity.` | 2/30 corpus | Timer loss, right before `\|win\|` (**tested**) |
+| `\|tie` | 0/30 | Tie (**guess**, from the protocol docs; never seen) |
+| no `\|win\|` | 1/30 corpus | Unfinished replay (saved at team preview); `end_reason` = unfinished (**tested**) |
 | `\|c\|☆name\|gl hf` | 5/5 | Chat |
 | `\|j\|` / `\|l\|`, `\|inactive\|` | 3–5/5 | Spectators joining/leaving, timer warnings |
 

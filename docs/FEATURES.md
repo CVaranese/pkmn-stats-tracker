@@ -9,7 +9,7 @@ Status: `todo` · `in progress` · `done`. Source: **user** = asked for, **idea*
 - Singles, team preview of 6, everyone brings 6. No Tera (Terastal Clause). Mega Evolution and Z-moves are common (Megas in most of the 30 games, Z-moves in about half).
 - **HP is shown as a percentage** (`HP Percentage Mod`), so all damage/healing is in % of max HP unless we get team sheets.
 - Ladder replays carry each player's rating in the `|player|` line; league games (unrated) won't.
-- Games often end early: in 30 games, 10 forfeits and 2 timer losses (`lost due to inactivity`).
+- Games often end early: in 30 games, 12 forfeits and 2 timer losses (recounted 2026-10-26; was 10) (`lost due to inactivity`).
 - Illusion (Zoroark / Zoroark-Hisui) appears in real games.
 
 ## Bugs / correctness first
@@ -17,7 +17,7 @@ Status: `todo` · `in progress` · `done`. Source: **user** = asked for, **idea*
 |---|---|---|
 | done | **Illusion breaks attribution** | Replay `gen9nationaldex-2705111047`: Zoroark-Hisui disguised as Gardevoir. Fixed: the parser tracks each stay on the field separately and re-assigns the disguised one on `|replace|`. Tested with that replay and a made-up log. A disguise that never breaks can't be detected. The old Python CLI still has this bug. |
 | todo | **Hidden Zoroark: flag and let the user decide** | When a team has Zoroark / Zoroark-Hisui at team preview but its disguise never breaks, stats may sit on the wrong Pokémon. (1) Flag those games in the results. (2) Auto-hint: a "Gardevoir" using a move Gardevoir can't learn but Zoroark can (learnsets from Showdown's data) is almost certainly Zoroark; also a Pokémon being in two places in the team's history. (3) Let the user pick which stays on the field were Zoroark (list each stint with its turns), and save that choice with the replay. Requested 2026-10-26. |
-| todo | Record how the game ended | normal / forfeit / timer loss. Needed so stats from a 3-turn timer loss can be filtered out. |
+| done | Record how the game ended | `end_reason` (normal / forfeit / timer / tie / unfinished) and `turns` per game row and in exports; filter in the spreadsheet. No on-page filter (user's call, 2026-10-26). |
 
 ## Requested features
 | Status | Feature | Source | Possible from replays? | Notes |

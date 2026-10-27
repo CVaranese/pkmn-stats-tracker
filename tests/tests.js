@@ -467,6 +467,26 @@ Ability: Screen Cleaner
   check("links: pasted block with duplicates", same(RS.replayIdsFromText(
     "gen9ou-1, https://replay.pokemonshowdown.com/gen9ou-2\n\ngen9ou-1 junk"), ["gen9ou-1", "gen9ou-2"]));
 
+  // ---- how each game ended: [end_reason, turns] from the last -message / |win| / |turn| lines ----
+  const ENDS = {
+    "gen9championsvgc2026regmb-2691886643": ["normal", 11], "gen9championsvgc2026regmb-2691890620": ["normal", 10],
+    "gen9championsvgc2026regmb-2688661099": ["normal", 7], "gen9championsvgc2026regmbbo3-2685575238": ["normal", 5],
+    "gen9randombattle-2704944065": ["normal", 19], "gen9nationaldex-2705111047": ["normal", 19],
+    "gen9nationaldex-2705121899": ["timer", 3], "gen9nationaldex-2705117998": ["timer", 22],
+  };
+  for (const [id, want] of Object.entries(ENDS)) {
+    const rows = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
+    const got = [...new Set(rows.map((r) => r.end_reason + "/" + r.turns))];
+    check(`${id}: end reason, turns`, same(got, [want.join("/")]), `got ${got}`);
+  }
+  const endOf = (tail) => RS.parseBattle(HEAD + tail);
+  const ff = endOf("|turn|2\n|-message|Bob forfeited.\n|win|Alice");
+  check("end: forfeit", ff.endReason === "forfeit" && ff.turns === 2 && ff.winner === "Alice", JSON.stringify(ff.endReason));
+  check("end: tie", endOf("|turn|4\n|tie").endReason === "tie" && endOf("|turn|4\n|tie").turns === 4);
+  check("end: no |win| -> unfinished", endOf("|turn|2").endReason === "unfinished");
+  check("end: chat line naming 'inactivity' is not a timer loss",
+    endOf("|-message|Bob lost due to inactivity. lol\n|win|Alice").endReason === "normal");
+
   // ---- CSV / TSV escaping ----
   const csv = RS.toCsv(["a", "b"], [{ a: 'x,"y"', b: "Pokémon" }]);
   check("csv escaping", csv === 'a,b\r\n"x,""y""",Pokémon\r\n', JSON.stringify(csv));
