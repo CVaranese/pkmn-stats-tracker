@@ -828,8 +828,9 @@
 
   // ---------- team sheets ----------
 
-  // TEMPORARY (Showdown outage): the saved test game comes with both team sheets, from site/mock/
-  const MOCK_SHEETS = { "gen9nationaldex-2705117998": ["Phlegathon", "RevivalSludge24"] };
+  // games that come with both team sheets (site/mock/<id>-<player>.txt), filled in when the game loads
+  const MOCK_SHEETS = { "gen9nationaldex-2705117998": ["Phlegathon", "RevivalSludge24"],
+    "gen9nationaldex-2705157049": ["peterpikmon", "weedinmyhonda"] };  // Week 8, sheets from the user
   async function addMockSheets(ids) {
     const have = new Set(sheetInputs().map((t) => t.trim()));
     for (const id of ids) {

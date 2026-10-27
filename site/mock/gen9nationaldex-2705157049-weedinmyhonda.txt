@@ -1,0 +1,57 @@
+fentanyl (Ferrothorn) (F) @ Leftovers
+Ability: Iron Barbs
+Shiny: Yes
+Tera Type: Grass
+EVs: 248 HP / 8 Atk / 252 Def
+Relaxed Nature
+- Leech Seed
+- Stealth Rock
+- Iron Head
+- Giga Drain
+
+Latinos (Maga) (Latios) (M) @ Latiosite
+Ability: Levitate
+EVs: 252 HP / 252 SpA / 4 SpD
+Modest Nature
+IVs: 0 Atk
+- Roost
+- Luster Purge
+- Aura Sphere
+- Draco Meteor
+
+Michaël (Mimikyu) @ Ghostium Z
+Ability: Disguise
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Play Rough
+- Shadow Claw
+- Swords Dance
+- Drain Punch
+
+Garfield (Landorus-Therian) (M) @ Rocky Helmet
+Ability: Intimidate
+EVs: 252 Atk / 4 SpD / 252 Spe
+Jolly Nature
+- U-turn
+- Taunt
+- Stealth Rock
+- Earthquake
+
+Interior Krookodile (Krookodile) @ Choice Band
+Ability: Intimidate
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Close Combat
+- Knock Off
+- Gunk Shot
+- Earthquake
+
+Antonio Inoki (Magnezone) @ Choice Specs
+Ability: Analytic
+EVs: 248 HP / 252 SpA / 8 SpD
+Modest Nature
+IVs: 0 Atk
+- Volt Switch
+- Thunderbolt
+- Tri Attack
+- Flash Cannon

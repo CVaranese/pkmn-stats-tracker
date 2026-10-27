@@ -1,0 +1,60 @@
+Samurott-Hisui @ Expert Belt
+Ability: Sharpness
+Tera Type: Water
+EVs: 200 HP / 252 Atk / 56 Spe
+Adamant Nature
+- Ceaseless Edge
+- Aqua Cutter
+- Sacred Sword
+- Aqua Jet
+
+Ogerpon-Wellspring @ Wellspring Mask
+Ability: Water Absorb
+Tera Type: Water
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Ivy Cudgel
+- Trailblaze
+- Knock Off
+- Swords Dance
+
+Altaria @ Altarianite
+Ability: Natural Cure
+Tera Type: Dragon
+EVs: 252 HP / 252 Def / 4 SpA
+Bold Nature
+IVs: 0 Atk
+- Defog
+- Roost
+- Hyper Voice
+- Flamethrower
+
+Tyranitar @ Rocky Helmet
+Ability: Sand Stream
+Tera Type: Rock
+EVs: 252 HP / 252 Atk / 4 SpD
+Adamant Nature
+- Stealth Rock
+- Stone Edge
+- Pursuit
+- Crunch
+
+Aegislash @ Ghostium Z
+Ability: Stance Change
+Tera Type: Steel
+EVs: 252 HP / 252 SpA
+Quiet Nature
+- King's Shield
+- Shadow Ball
+- Close Combat
+- Steel Beam
+
+Golisopod @ Heavy-Duty Boots
+Ability: Emergency Exit
+Tera Type: Bug
+EVs: 252 HP / 252 Atk / 4 Def
+Adamant Nature
+- First Impression
+- Aqua Jet
+- Close Combat
+- Liquidation

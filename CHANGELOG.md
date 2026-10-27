@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Week 8, peterpikmon vs weedinmyhonda: both team sheets fill in when the game opens, so it shows HP, items, abilities and moves.
 - Games tab: the league's six games so far (Weeks 3, 4, 5, 6 and two from Week 8), above the Samples.
 - Games tab: the Player filter treats Showdown names the way Showdown does, ignoring case and spaces, so "Nezergy" and "nezergy" are one player.
 - Team sheets stay closed when a game opens (from Games, or a saved sheet); only a share link that brings sheets opens them.
