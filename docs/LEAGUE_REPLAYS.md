@@ -11,6 +11,7 @@ Add them with `python -I tools/add_game.py <link> --week "<week>"` (the `add-gam
 | https://replay.pokemonshowdown.com/gen9nationaldex-2696941700 | Week 6 | yes |
 | https://replay.pokemonshowdown.com/gen9nationaldex-2705148353 | Week 8 | yes |
 | https://replay.pokemonshowdown.com/gen9nationaldex-2705157049 | Week 8 | yes |
+| https://replay.pokemonshowdown.com/gen9nationaldex-2677227914 | Week 1? (guess from its number; confirm date + winner against the bracket) | no: Showdown down 2026-10-27; then download its sprites too |
 
 Weeks confirmed 2026-10-27 from each replay's date and winner against the bracket (Week N = Swiss round N).
 No replay given for weeks 1, 2 or 7.
