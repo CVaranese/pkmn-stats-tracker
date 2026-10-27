@@ -29,8 +29,9 @@
     sleep_turns: "Sleep turns", flinched: "Flinched", confusion_hits: "Hit itself", procs: "Effects landed",
     luck: "Luck", luck_against: "Luck against", player_luck: "Player luck",
     hidden_zoroark: "Hidden Zoroark",
+    mvp_score: "MVP score", mvp: "Team MVP", mvps: "MVPs", mvp_score_per_game: "MVP score / game",
   };
-  const YES_NO = new Set(["won", "brought", "hidden_zoroark"]);
+  const YES_NO = new Set(["won", "brought", "hidden_zoroark", "mvp"]);
   const GAME_VIEW_FIELDS = RS.GAME_FIELDS.filter((f) => f !== "replay_id" && f !== "format");
   const SHEET_FIELDS = ["max_hp", "item", "ability", "moves"]; // per game, once any sheet matched
   const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"],

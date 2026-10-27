@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- MVP: every brought Pokémon gets an MVP score (+1 per 100% dealt, +1 per kill, +0.5 per 100% healed, +0.5 for surviving) and the top one on each team is Team MVP. Per game: MVP score / Team MVP; leaderboard: MVPs and MVP score / game. Also in exports.
 - Luck: multi-hit moves count (number of hits for 2-5 hit moves, every accuracy roll of Triple Axel / Population Bomb; needs the item known, from a sheet or the log). Rolls an unrevealed ability could have changed (Inner Focus, Super Luck, Serene Grace...) are skipped unless a team sheet or the log says which ability it has.
 - Luck: per Pokémon Crits / Crits taken, Misses / Dodged, Full paras, Sleep turns, Flinched, Hit itself, Effects landed, and a Luck / Luck against score (each roll = result minus its odds, from Showdown move data); Player luck per game.
 - Healing per Pokémon: Healed % (HP it restored to itself: Leftovers, Recover, Rest, drain, Poison Heal, berries, Grassy Terrain…) and Heal given % (to teammates: Wish, Healing Wish, Lunar Dance, Heal Pulse, Z-move heals). Healed HP / Heal given HP with team sheets. In the leaderboard, the Per game table and exports.
