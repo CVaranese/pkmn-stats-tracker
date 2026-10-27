@@ -1,6 +1,37 @@
 {
  "games": [
   {
+   "id": "gen9nationaldex-2677227914",
+   "league": "pinecord",
+   "week": "Week 1",
+   "players": [
+    "Nezergy",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Iron Valiant",
+     "Corviknight",
+     "Aron",
+     "Donphan",
+     "Tapu Fini",
+     "Meowscarada"
+    ],
+    [
+     "Great Tusk",
+     "Tyranitar",
+     "Bronzong",
+     "Lycanroc",
+     "Enamorus-Therian",
+     "Houndstone"
+    ]
+   ],
+   "winner": "Nezergy",
+   "date": "2026-09-07",
+   "turns": 15,
+   "note": ""
+  },
+  {
    "id": "gen9nationaldex-2684999355",
    "league": "pinecord",
    "week": "Week 3",

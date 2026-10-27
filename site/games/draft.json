@@ -58,6 +58,11 @@
    {
     "pokemon": "Glimmet",
     "tier": "LC"
+   },
+   {
+    "pokemon": "Aron",
+    "tier": "LC",
+    "note": "brought in Week 1, not on the sheet now (traded for Glimmet?)"
    }
   ],
   "PeterPikmon": [
@@ -354,6 +359,60 @@
    {
     "pokemon": "Hattrem",
     "tier": "NFE"
+   }
+  ],
+  "potatoesareyum": [
+   {
+    "pokemon": "Great Tusk",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Tyranitar-Mega",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Iron Hands",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Goodra-Hisui",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Ursaluna",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Bronzong",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Lycanroc",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Azelf",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Houndstone",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Crawdaunt",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Enamorus-Therian",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Golem-Alola",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Munchlax",
+    "tier": "LC"
    }
   ]
  }
