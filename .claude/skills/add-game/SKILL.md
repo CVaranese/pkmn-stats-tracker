@@ -5,6 +5,9 @@ description: Add league games to the site's game library (site/games/) from Show
 
 # Add games to the library
 
+First run `python -I tools/showdown_status.py`: if Replays is DOWN, say so and use `--file` / saved copies
+instead of waiting on timeouts.
+
 For each replay (link or id):
 ```
 python -I tools/add_game.py <link> --week "Week 3" [--note "Game 2"] [--league pinecord]

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Games tab is spoiler-free by default: no winner or turn count until "Show results" is ticked (remembered in the browser). Each game shows both teams as small sprites (the six from team preview). Watch now plays the battle at the top of the Games tab, without the stats; Stats opens One game.
 - Games tab: the league's games, saved with the site (`site/games/`, added with `tools/add_game.py`), listed by week with a player and week filter. Stats opens a game in One game, loaded from the saved copy, so it works while Showdown is down. `?tab=games` links straight to the list.
 - Watch the battle: One game has a "Watch the battle" section that plays the replay in Showdown's own player (needs Showdown online; not in the local version).
 - Link previews: sharing the site in Discord (or anywhere that reads Open Graph tags) shows the league banner, title and a one-line description.

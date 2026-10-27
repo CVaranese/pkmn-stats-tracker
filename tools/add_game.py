@@ -49,8 +49,11 @@ def summary(replay):
     log = replay["log"]
     win = re.search(r"^\|win\|(.*)$", log, re.M)
     turns = re.findall(r"^\|turn\|(\d+)$", log, re.M)
+    # team preview: |poke|p1|Garchomp, L50, M|item; a form not shown until battle is "Zamazenta-*"
+    teams = [[m.removesuffix("-*") for m in re.findall(rf"^\|poke\|{side}\|([^,|]+)", log, re.M)] for side in ("p1", "p2")]
     return {
         "players": replay["players"][:2],
+        "teams": teams,
         "winner": win.group(1) if win else "",
         "date": datetime.fromtimestamp(replay["uploadtime"], timezone.utc).strftime("%Y-%m-%d"),
         "turns": int(turns[-1]) if turns else 0,

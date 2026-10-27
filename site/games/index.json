@@ -8,6 +8,24 @@
     "Phlegathon",
     "RevivalSludge24"
    ],
+   "teams": [
+    [
+     "Diancie",
+     "Mimikyu",
+     "Terapagos",
+     "Volcarona",
+     "Iron Crown",
+     "Tapu Koko"
+    ],
+    [
+     "Kyurem",
+     "Garchomp",
+     "Latios",
+     "Dragonite",
+     "Zamazenta",
+     "Kingambit"
+    ]
+   ],
    "winner": "Phlegathon",
    "date": "2026-10-26",
    "turns": 22,
@@ -21,6 +39,24 @@
     "jinrachi",
     "flomarV2"
    ],
+   "teams": [
+    [
+     "Zoroark-Hisui",
+     "Garchomp",
+     "Kingambit",
+     "Volcarona",
+     "Gardevoir",
+     "Mamoswine"
+    ],
+    [
+     "Weavile",
+     "Amoonguss",
+     "Excadrill",
+     "Sableye",
+     "Primarina",
+     "Exeggutor"
+    ]
+   ],
    "winner": "jinrachi",
    "date": "2026-10-26",
    "turns": 19,
@@ -33,6 +69,24 @@
    "players": [
     "stringcheezus1710",
     "Ezclapperez132"
+   ],
+   "teams": [
+    [
+     "Ninetales",
+     "Venusaur",
+     "Cresselia",
+     "Great Tusk",
+     "Dragonite",
+     "Diancie"
+    ],
+    [
+     "Grimmsnarl",
+     "Iron Crown",
+     "Garchomp",
+     "Cinderace",
+     "Gyarados",
+     "Maushold"
+    ]
    ],
    "winner": "Ezclapperez132",
    "date": "2026-10-26",

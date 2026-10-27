@@ -157,6 +157,13 @@
     });
   $("lib-player").addEventListener("change", renderLibrary);
   $("lib-week").addEventListener("change", renderLibrary);
+  // spoiler-free by default: no winner, no turn count (a 3-turn game was a forfeit) until "Show results" is ticked
+  const SPOILERS_KEY = "replay-kill-tracker.show-results";
+  try { $("lib-spoilers").checked = localStorage.getItem(SPOILERS_KEY) === "1"; } catch (e) { /* storage blocked */ }
+  $("lib-spoilers").addEventListener("change", () => {
+    try { localStorage.setItem(SPOILERS_KEY, $("lib-spoilers").checked ? "1" : "0"); } catch (e) { /* storage blocked */ }
+    renderLibrary();
+  });
 
   /** Games grouped by week, the latest week first (weeks in the order they were added). */
   function renderLibrary() {
@@ -181,37 +188,62 @@
     $("lib-list").replaceChildren(...(shown.length ? [wrap] : []));
   }
 
+  /** One game: each player with their team-preview sprites; winner and turns only with "Show results". */
   function libraryRow(g) {
+    const results = $("lib-spoilers").checked;
     const tr = document.createElement("tr");
-    const who = document.createElement("td");
+    const match = el("td", "lib-match");
     g.players.forEach((p, i) => {
-      if (i) who.append(" vs ");
-      who.append(p === g.winner ? Object.assign(document.createElement("b"), { textContent: p }) : p);
+      if (i) match.append(el("span", "lib-vs", "vs"));
+      const side = el("div", "lib-side");
+      const name = el("div", "lib-name", p);
+      if (results && p === g.winner) name.append(" ", el("span", "badge win", "Won"));
+      const team = el("div", "lib-team");
+      team.append(...((g.teams || [])[i] || []).map((mon) => sprite(mon, ["gen5/"], "tiny")));
+      side.append(name, team);
+      match.append(side);
     });
-    const cell = (text, cls) => Object.assign(document.createElement("td"), { textContent: text, className: cls || "" });
-    const open = (watch) => {
-      const b = Object.assign(document.createElement("button"), { type: "button", textContent: watch ? "Watch" : "Stats" });
-      b.addEventListener("click", () => openGame(g.id, watch));
+    const open = (label, title, onClick) => {
+      const b = Object.assign(el("button", "", label), { type: "button", title });
+      b.addEventListener("click", onClick);
       return b;
     };
-    const actions = cell("", "lib-actions");
-    actions.append(open(false), open(true));
-    tr.append(who, cell(g.turns + " turns", "num"), cell(g.date), cell(g.note, "muted"), actions);
+    const actions = el("td", "lib-actions");
+    actions.append(open("Watch", "Play the battle here, without the result", () => watchHere(g)),
+      open("Stats", "Open in One game (shows the result)", () => openGame(g.id)));
+    tr.append(match, el("td", "num", results ? g.turns + " turns" : ""), el("td", "", g.date), el("td", "muted", g.note), actions);
     return tr;
   }
 
-  /** Open a stored game in One game; with watch, also open the replay player. */
-  function openGame(id, watch) {
+  /** Open a stored game in One game (stats, so the result shows). */
+  function openGame(id) {
     $("one-link").value = RS.REPLAY_HOST + id;
     $("one-link").dispatchEvent(new Event("input"));
-    watchWanted = watch;
     setMode("one");
     window.scrollTo(0, 0);
   }
 
+  /** Play a stored game at the top of the Games tab, with no stats around it. */
+  function watchHere(g) {
+    $("lib-watch").hidden = false;
+    $("lib-watch-title").textContent = `${g.week}: ${g.players.join(" vs ")}`;
+    if (LOCAL) {
+      $("lib-watch-note").hidden = false;
+      $("lib-watch-note").textContent = "The replay player comes from Pokémon Showdown, so it isn't in the local version. Add ?online to the address to use it.";
+    } else {
+      $("lib-watch-frame").src = "watch.html?id=" + encodeURIComponent(g.id);
+      $("lib-watch-frame").hidden = false;
+    }
+    $("lib-watch").scrollIntoView({ block: "start" });
+  }
+  $("lib-watch-close").addEventListener("click", () => {
+    $("lib-watch").hidden = true;
+    $("lib-watch-frame").hidden = true;
+    $("lib-watch-frame").removeAttribute("src");
+  });
+
   // ---------- replay player (watch.html in a frame: Showdown's replay-embed.js, needs Showdown online) ----------
 
-  let watchWanted = false;
   let watchId = "";
   function updateWatch() {
     const id = mode === "one" && rows.length ? rows[0].replay_id : "";
@@ -222,8 +254,6 @@
       $("watch-frame").hidden = true;
       $("watch-frame").removeAttribute("src");
     }
-    if (id && watchWanted) $("watch").open = true;
-    watchWanted = false;
   }
   $("watch").addEventListener("toggle", () => {
     if (!$("watch").open || !watchId) return;
@@ -370,7 +400,6 @@
     if (parts.length && HYPHEN_NAMES.has(TS.toID(base + parts[0]))) base += parts.shift();
     return TS.toID(base) + (parts.length ? "-" + TS.toID(parts.join("")) : "");
   }
-  /** A sprite <img> that tries each folder in turn, then shows the name's initials (Showdown down, unknown form). */
   /** A sprite <img> that tries each folder in turn, then shows the name's initials (unknown form, no copy). */
   function sprite(species, folders, cls) {
     const box = el("span", "sprite " + cls);
