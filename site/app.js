@@ -92,6 +92,8 @@
   const SHEET_FIELDS = ["max_hp", "item", "ability", "moves"]; // per game, once any sheet matched
   const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"],
     healing_pct: ["healing_hp"], healing_given_pct: ["healing_given_hp"] };
+  const PCT_TO_HP = { damage_dealt_pct: "damage_dealt_hp", damage_taken_pct: "damage_taken_hp",
+    hazard_damage_pct: "hazard_damage_hp", healing_pct: "healing_hp", healing_given_pct: "healing_given_hp" };
 
   // remember pasted links between visits (convenience only; the page works without it)
   try { $("links").value = localStorage.getItem(STORAGE_KEY) || ""; } catch (e) { /* storage blocked */ }
@@ -435,8 +437,13 @@
     return e;
   }
   const pct = (v) => (typeof v === "number" ? Math.round(v) + "%" : "–");
-  const withHp = (p, hp) => pct(p) + (typeof hp === "number" ? ` (${Math.round(hp)} HP)` : "");
   const sum = (rs, f) => rs.reduce((t, r) => t + (typeof r[f] === "number" ? r[f] : 0), 0);
+  // in HP when team sheets give it for every row and field, else in % (both side by side was clutter, user 2026-10-27)
+  function amountStat(label, rs, pctFields) {
+    const hp = rs.length > 0 && rs.every((r) => pctFields.every((f) => typeof r[PCT_TO_HP[f]] === "number"));
+    const total = pctFields.reduce((t, f) => t + sum(rs, hp ? PCT_TO_HP[f] : f), 0);
+    return stat(label, hp ? Math.round(total) + " HP" : pct(total), hp ? PCT_TO_HP[pctFields[0]] : pctFields[0]);
+  }
   function stat(label, value, field) {
     const d = el("div", "stat");
     d.append(el("span", "stat-value", String(value)), el("span", "stat-label", label));
@@ -458,8 +465,38 @@
     const players = [...new Set(rows.map((r) => r.player))].sort((a, b) =>
       rows.find((r) => r.player === b).won - rows.find((r) => r.player === a).won);
     const cards = players.map((p) => teamCard(p, rows.filter((r) => r.player === p)));
-    box.replaceChildren(el("h2", "section-title", "This game"), head, el("div", "team-grid"));
+    box.replaceChildren(el("h2", "section-title", "This game"), head, videoButtons(g.replay_id), el("div", "team-grid"));
     box.lastChild.append(...cards);
+  }
+
+  // short league name for video titles, e.g. "PPPPP Week 6 Big Large Vs Nezergy" (PeterPikmon's videos)
+  const LEAGUE_TAGS = { pinecord: "PPPPP" };
+  /** Copy buttons for the league's videos: a YouTube title, and the names + MVPs for the thumbnail. */
+  function videoButtons(id) {
+    const g = library.find((x) => x.id === id);
+    // the library's player order when it's a stored game, else the order the replay lists them
+    const players = g ? g.players : [...new Set(rows.map((r) => r.player))];
+    const copyBtn = (label, title, text) => {
+      const b = Object.assign(el("button", "small", label), { type: "button", title });
+      b.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(text());
+          flash(b, "Copied!");
+        } catch {
+          flash(b, "Copy failed");
+        }
+      });
+      return b;
+    };
+    const title = () => [g && LEAGUE_TAGS[g.league], g && g.week, players.join(" Vs ")].filter(Boolean).join(" ");
+    const thumb = () => [players.join(" vs "), ...players.map((p) => {
+      const mvp = rows.find((r) => r.player === p && r.mvp);
+      return `${p} MVP: ${mvp ? mvp.pokemon : "none"}`;
+    })].join("\n");
+    const bar = el("div", "row video-copy");
+    bar.append(copyBtn("Copy YouTube title", "Copies a video title: league, week, players", title),
+      copyBtn("Copy thumbnail info", "Copies the player names and each team's MVP, one per line", thumb));
+    return bar;
   }
 
   // luck in words: the score is the sum of (result - odds) over a game's rolls. Cut-offs from 34 Nat Dex games
@@ -512,7 +549,7 @@
     for (const r of rs) {
       const s = sprite(r.pokemon, ["gen5/"], "small");
       const status = !r.brought ? "not brought" : r.deaths ? "fainted" : "survived";
-      const label = r.pokemon + (r.nickname && r.nickname !== r.pokemon ? ` (${r.nickname})` : "") + ": " + status +
+      const label = (r.nickname && r.nickname !== r.pokemon ? `${r.nickname} (${r.pokemon})` : r.pokemon) + ": " + status +
         (r.mega ? ", Mega Evolved" : r.z_move ? ", used a Z-move" : "");
       const slot = el(r.brought ? "button" : "span", "slot " + status.replace(" ", "-"));
       slot.title = label;
@@ -536,8 +573,8 @@
     nums.append(
       stat("Kills", sum(brought, "kills"), "kills"),
       stat("Lost", `${lost} of ${brought.length}`, "deaths"),
-      stat("Dealt", pct(sum(brought, "damage_dealt_pct")), "damage_dealt_pct"),
-      stat("Healed", pct(sum(brought, "healing_pct") + sum(brought, "healing_given_pct")), "healing_pct"),
+      amountStat("Dealt", brought, ["damage_dealt_pct"]),
+      amountStat("Healed", brought, ["healing_pct", "healing_given_pct"]),
       stat("Hazards set", sum(brought, "hazards_set"), "hazards_set"),
       stat("Switches", sum(brought, "switches") + sum(brought, "pivots"), "switches"),
       stat("Crits", sum(brought, "crits"), "crits"));
@@ -553,19 +590,21 @@
     // every line is always there (blank when it doesn't apply), so switching Pokémon doesn't change the height
     const who = el("div", "mon-who");
     who.appendChild(el("span", "mvp-tag", r.mvp ? "Team MVP" : "\u00a0"));
-    who.appendChild(el("span", "mon-name", r.pokemon));
-    who.appendChild(el("span", "mon-nick", r.nickname && r.nickname !== r.pokemon ? r.nickname : "\u00a0"));
+    // nickname as the name and the species under it; species alone when there's no nickname
+    const nick = r.nickname && r.nickname !== r.pokemon;
+    who.appendChild(el("span", "mon-name", nick ? r.nickname : r.pokemon));
+    who.appendChild(el("span", "mon-nick", nick ? r.pokemon : "\u00a0"));
     const perf = el("span", "mon-perf", `Performance ${r.mvp_score}`);
     perf.title = DESCRIPTIONS.mvp_score;
     who.appendChild(perf);
     const grid = el("div", "stats");
     grid.append(
       stat("Kills", r.kills + (r.passive_kills ? ` (${r.passive_kills} passive)` : ""), "kills"),
-      stat("Dealt", withHp(r.damage_dealt_pct, r.damage_dealt_hp), "damage_dealt_pct"),
-      stat("Taken", withHp(r.damage_taken_pct, r.damage_taken_hp), "damage_taken_pct"),
+      amountStat("Dealt", [r], ["damage_dealt_pct"]),
+      amountStat("Taken", [r], ["damage_taken_pct"]),
       stat("Turns on field", r.turns_on_field, "turns_on_field"),
       stat("Survived", r.survived ? "yes" : "no", "survived"),
-      stat("Healed", pct(r.healing_pct + r.healing_given_pct), "healing_pct"));
+      amountStat("Healed", [r], ["healing_pct", "healing_given_pct"]));
     const luck = el("div", "mon-luck");
     luck.append(el("span", "stat-label", "Luck"), luckBadge(r.luck, "pokemon"));
     const mark = el("p", "mon-mark");
@@ -595,6 +634,9 @@
       fields = rows.some((r) => r.set) ? GAME_VIEW_FIELDS.flatMap((f) =>
         [f, ...(HP_AFTER[f] || [])]).concat(SHEET_FIELDS) : GAME_VIEW_FIELDS;
     }
+    // Dealt % / Taken % go when every row shown has the HP figure (sheets for both teams); kept when any is blank
+    fields = fields.filter((f) => !(PCT_TO_HP[f] && fields.includes(PCT_TO_HP[f]) && data.length &&
+      data.every((r) => r.brought === 0 || typeof r[PCT_TO_HP[f]] === "number")));
     // numeric columns (right-aligned, sorted as numbers): any number in them; blanks don't count
     const numeric = new Set(fields.filter((f) => data.some((r) => typeof r[f] === "number")));
     const { field, dir } = sort;

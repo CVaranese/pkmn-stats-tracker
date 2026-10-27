@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Team cards: a nicknamed Pokémon shows its nickname as the name, with the species under it (and "Nickname (Species)" in the sprite tooltip).
+- With team sheets, damage, hazard damage and healing show in HP only: the team cards drop the % (Dealt, Taken, Healed), and the tables (and Copy for Google Sheets / CSV) drop the Dealt % / Taken % / Hazard % / Healed % / Heal given % columns when every brought Pokémon has the HP number.
+- One game: "Copy YouTube title" (e.g. "PPPPP Week 6 Big Large Vs Nezergy") and "Copy thumbnail info" (player names and each team's MVP) buttons under the game line.
 - Games tab: "Show results" is now a button like the others (label flips to "Hide results") instead of a plain checkbox. Watch / Stats / Close use the same small button style.
 - Games tab is spoiler-free by default: no winner or turn count until "Show results" is ticked (remembered in the browser). Each game shows both teams as small sprites (the six from team preview). Watch now plays the battle at the top of the Games tab, without the stats; Stats opens One game.
 - Games tab: the league's games, saved with the site (`site/games/`, added with `tools/add_game.py`), listed by week with a player and week filter. Stats opens a game in One game, loaded from the saved copy, so it works while Showdown is down. `?tab=games` links straight to the list.
