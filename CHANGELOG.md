@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- When Showdown's move / Pokédex data doesn't load, the site uses its own copies (`site/data/`), so luck and max HP still work while Showdown is down.
 - Team summary: switching Pokémon no longer moves anything (the Team MVP, nickname and Mega / Z lines keep their space when empty); Mega tags are black and Z tags porcelain (the urinal colour); the Team totals sit in their own tinted strip with a bigger heading.
 - Team summary: click any brought Pokémon on a team to see its stats (Team MVP shown first). Mega / Z-move is a tag on the sprite and a line in that Pokémon's stats ("Mega Evolved on turn 1") instead of a note at the bottom. Luck shows as a die (1 to 5 pips) and a word: Very unlucky, Unlucky, Fair, Lucky, Very lucky; hover for the score. The summary has its own band, "This game", above "Every Pokémon".
 - MVP score is now called Performance and counts damage taken (+0.5 per 100%) and turns on field (+0.05 per turn) instead of healing. Team MVP is the best Performance on the team. CSV columns keep their old names (mvp_score, mvp_score_per_game).

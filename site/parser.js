@@ -908,11 +908,25 @@
    * can't be reached, or answers 5xx (Cloudflare's 52x: the site behind it is down). Other statuses
    * come back as the response, for the caller to explain.
    */
+  const DATA_URL = /^https:\/\/play\.pokemonshowdown\.com\/data\/(moves|pokedex)\.json$/;
   async function fetchChecked(url, fetchFn = root.fetch, timeoutMs = FETCH_TIMEOUT_MS) {
+    try {
+      return await fetchOnce(url, fetchFn, timeoutMs);
+    } catch (e) {
+      // Showdown down: its move / Pokedex data from the copies in site/data/ (the page's own folder)
+      const data = e.down && root.location && url.match(DATA_URL);
+      if (!data) throw e;
+      const resp = await fetchOnce(new URL("data/" + data[1] + ".json", root.location.href).href, fetchFn, timeoutMs)
+        .catch(() => null);
+      if (resp && resp.ok) return resp;
+      throw e;
+    }
+  }
+  async function fetchOnce(url, fetchFn, timeoutMs) {
     let host = new URL(url).hostname;
     if (localOnly) {
       // Showdown's move / Pokedex data: the copies in site/data/ (made from the pokemon-showdown npm package)
-      const data = url.match(/^https:\/\/play\.pokemonshowdown\.com\/data\/(moves|pokedex)\.json$/);
+      const data = url.match(DATA_URL);
       if (data) { url = new URL("data/" + data[1] + ".json", root.location.href).href; host = "this computer"; }
       else if (/(^|\.)pokemonshowdown\.com$/.test(host)) throw new Error(`${host} isn't contacted in the local version`);
     }
