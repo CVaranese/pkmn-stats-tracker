@@ -106,15 +106,25 @@
     return m[2] ? (Number(m[1]) / Number(m[2])) * 100 : Number(m[1]);
   }
 
+  // per-stint counters, summed per Pokemon
+  const COUNTS = ["direct", "passive", "deaths", "hazardKills", "hazardsSet", "hazardsRemoved",
+    "switches", "pivots", "forcedOut", "faintSwitchIns"];
+  const zeroCounts = () => Object.fromEntries(COUNTS.map((f) => [f, 0]));
+  const NO_DAMAGE = { dealt: 0, taken: 0, hazard: 0 };
+  const NO_HEALING = { self: 0, given: 0 };
+
   const HAZARDS = new Set(["stealthrock", "spikes", "toxicspikes", "gmaxsteelsurge", "steelsurge"]);
   const ENTRY_HAZARDS = new Set([...HAZARDS, "stickyweb"]); // counted as set / removed / turns up
   const WEATHERS = new Set(["sandstorm", "hail", "snow"]);
   const STATUS_DAMAGE = new Set(["brn", "psn", "tox"]);
   const DELAYED_MOVES = new Set(["futuresight", "doomdesire"]);
+  const HEAL_WISHES = new Set(["healingwish", "lunardance"]); // heal the user's replacement
+  const SILENT_HEALS = new Set(["rest", "leechseed"]);        // the only real heals logged [silent]
 
   function parseBattle(log) {
     const players = {};                 // 'p1' -> name
     const preview = { p1: [], p2: [] }; // species at team preview
+    const teamSize = {};                // 'p1' -> how many it brought (|teamsize|)
     let winner = null;
     let forfeited = false;
     let timedOut = false;               // lost to the battle timer
@@ -139,12 +149,15 @@
     let weatherSrc = null;
     const delayedSrc = new Map();       // 'side|move' -> user of Future Sight / Doom Desire
     let destinyBond = null;             // stint whose Destiny Bond triggered
+    const healWishSrc = new Map();      // side -> its last Healing Wish / Lunar Dance user
+    let ejected = null;                 // stint whose Eject Button / Eject Pack just went off
+    let prevFrom = "";                  // [from] of the previous line (what a [silent] heal follows)
     const kills = [];                   // [killer stint or null, kind, victim stint]
     const hits = [];                    // [dealer stint or null, target stint, % of max HP lost]
+    const heals = [];                   // [healer stint, target stint, % of max HP restored]
 
     function newStint(key, sp) {
-      const s = { key, side: sideOf(key), species: sp, direct: 0, passive: 0, deaths: 0, hp: 100,
-        hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0, prev: latestByKey.get(key) };
+      const s = { key, side: sideOf(key), species: sp, hp: 100, ...zeroCounts(), prev: latestByKey.get(key) };
       stints.push(s);
       latestByKey.set(key, s);
       return s;
@@ -179,6 +192,13 @@
       if (lost > 0) hits.push([dealer, target, lost, hazard && !!dealer]);
     }
 
+    /** Record HP restored to a stint; a healer from the other side doesn't count (heals itself). */
+    function heal(target, healer, newHp) {
+      const gained = Math.round((newHp - target.hp) * 100) / 100;
+      target.hp = newHp;
+      if (gained > 0) heals.push([healer && healer.side === target.side ? healer : target, target, gained]);
+    }
+
     /** At the end of a turn: each player with an entry hazard on the opponent's side gets a turn. */
     function countHazardTurns() {
       for (const side of ["p1", "p2"]) {
@@ -201,14 +221,25 @@
 
       if (cmd === "player" && parts[2]) {
         players[parts[1]] = parts[2];
+      } else if (cmd === "teamsize") {
+        teamSize[parts[1]] = Number(parts[2]);
       } else if (cmd === "poke") {
         (preview[parts[1]] = preview[parts[1]] || []).push(baseSpecies(parts[2]));
       } else if (cmd === "switch" || cmd === "drag") {
         const s = newStint(monKey(parts[1]), baseSpecies(parts[2]));
         s.hp = hpOf(parts[3]) ?? 100;
         s.entryState = targetState(s.key);
+        // how the Pokemon in this slot left (nothing there for a lead)
+        const out = slots[slotOf(parts[1])];
+        if (out) {
+          if (out.deaths) s.faintSwitchIns += 1;
+          else if (cmd === "drag" || out === ejected) out.forcedOut += 1; // Roar, Red Card, Eject Button, Emergency Exit
+          else if ("from" in tags) out.pivots += 1;  // '[from] U-turn' on the incoming Pokemon
+          else out.switches += 1;
+        }
         slots[slotOf(parts[1])] = s;
         mover = null;
+        ejected = null;
       } else if (cmd === "replace") {
         // Illusion broke: this stint was really the Pokemon named here (Zoroark)
         const s = slots[slotOf(parts[1])];
@@ -242,6 +273,7 @@
         if (from && to && from !== to) [slots[from], slots[to]] = [slots[to], slots[from]];
       } else if (cmd === "turn" || cmd === "upkeep") {
         mover = null;
+        if (cmd === "turn") ejected = null; // ejected but nothing to switch to
         if (cmd === "turn") {
           destinyBond = null;
           if (turns > 0) countHazardTurns(); // the turn before this one just ended
@@ -251,6 +283,12 @@
         mover = stintOf(parts[1]);
         const move = norm(parts[2]);
         if (DELAYED_MOVES.has(move) && parts[3]) delayedSrc.set(parts[3].slice(0, 2) + "|" + move, mover);
+        if (HEAL_WISHES.has(move)) healWishSrc.set(mover.side, mover);
+      } else if ((cmd === "-enditem" && /^Eject (Button|Pack)$/.test(parts[2] || "") && !("from" in tags)) ||
+          (cmd === "-activate" && /^ability: (Emergency Exit|Wimp Out)$/.test(parts[2] || ""))) {
+        ejected = stintOf(parts[1]); // it switches out next (an Eject Button Knocked Off has a [from])
+      } else if (cmd === "-activate" && parts[2] === "healreplacement") {
+        healWishSrc.set(sideOf(monKey(parts[1])), stintOf(parts[1])); // Z-Memento / Z-Parting Shot
       } else if (cmd === "-end" && parts[2] && DELAYED_MOVES.has(norm(parts[2]))) {
         // Future Sight landing: the damage line that follows belongs to its user
         mover = delayedSrc.get(parts[1].slice(0, 2) + "|" + norm(parts[2])) || null;
@@ -288,9 +326,19 @@
       } else if (cmd === "-weather" && !("upkeep" in tags)) {
         if (norm(parts[1]) === "none") weatherSrc = null;
         else weatherSrc = "of" in tags ? stintOf(tags.of) : mover;
-      } else if (cmd === "-heal") {
-        const hp = hpOf(parts[2]);
-        if (hp !== null) stintOf(parts[1]).hp = hp;
+      } else if (cmd === "-heal" && hpOf(parts[2]) !== null) {
+        const hp = hpOf(parts[2]), target = stintOf(parts[1]);
+        if ("silent" in tags && !SILENT_HEALS.has(norm(prevFrom))) {
+          target.hp = hp; // a forme change refilling HP (Tera Shift), not healing
+        } else {
+          const frm = norm(tags.from || "");
+          const healer = "wisher" in tags ? latestByKey.get(target.side + ": " + tags.wisher)
+            : HEAL_WISHES.has(frm) || ("zeffect" in tags && frm) ? healWishSrc.get(target.side)
+            : frm === "hospitality" && "of" in tags ? stintOf(tags.of)
+            : frm || "silent" in tags ? target  // items, abilities (Water Absorb), drain, terrain, Rest, Leech Seed
+            : mover;                            // a move: Recover, or Heal Pulse on an ally
+          heal(target, healer, hp);
+        }
       } else if (cmd === "-sethp") {
         // Pain Split: HP going down is damage by the move's user
         const hp = hpOf(parts[2]);
@@ -344,33 +392,50 @@
       } else if (cmd === "tie") {
         tie = true;
       }
+      prevFrom = tags.from || "";
     }
 
     if (turns > 0) countHazardTurns(); // the last turn (the game ended during it)
 
     // Sum stints per Pokemon (keys resolved after any Illusion reveal)
     const species = new Map();          // mon key -> species (insertion order = first seen)
-    const stats = new Map();            // mon key -> {direct, passive, deaths}
+    const stats = new Map();            // mon key -> COUNTS
     for (const s of stints) {
       if (!species.has(s.key) && s.species) species.set(s.key, s.species);
-      if (!stats.has(s.key)) stats.set(s.key, { direct: 0, passive: 0, deaths: 0, hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0 });
+      if (!stats.has(s.key)) stats.set(s.key, zeroCounts());
       const st = stats.get(s.key);
-      for (const f of ["direct", "passive", "deaths", "hazardKills", "hazardsSet", "hazardsRemoved"]) st[f] += s[f];
+      for (const f of COUNTS) st[f] += s[f];
     }
-    const damage = new Map();           // mon key -> {dealt, taken, hazard} in % of max HP
-    const dmg = (key) => damage.get(key) || damage.set(key, { dealt: 0, taken: 0, hazard: 0 }).get(key);
     const round2 = (x) => Math.round(x * 100) / 100;
+    const add = (map, zero, key, f, pct) => {
+      if (!map.has(key)) map.set(key, { ...zero });
+      map.get(key)[f] = round2(map.get(key)[f] + pct);
+    };
+    const damage = new Map();           // mon key -> {dealt, taken, hazard} in % of max HP
     for (const [d, t, pct, hz] of hits) {
-      if (d) dmg(d.key).dealt = round2(dmg(d.key).dealt + pct);
-      if (hz) dmg(d.key).hazard = round2(dmg(d.key).hazard + pct);
-      dmg(t.key).taken = round2(dmg(t.key).taken + pct);
+      if (d) add(damage, NO_DAMAGE, d.key, "dealt", pct);
+      if (hz) add(damage, NO_DAMAGE, d.key, "hazard", pct);
+      add(damage, NO_DAMAGE, t.key, "taken", pct);
     }
+    const healing = new Map();          // mon key -> {self, given} in % of the healed Pokemon's max HP
+    for (const [h, t, pct] of heals) add(healing, NO_HEALING, h.key, h.key === t.key ? "self" : "given", pct);
+
+    // Zoroark at team preview that never showed itself, while fewer Pokemon were seen than brought
+    // (else it stayed home, e.g. bring 4 of 6): its disguised stints may sit on other Pokemon
+    const hiddenZoroark = {};
+    for (const side of ["p1", "p2"]) {
+      const seen = new Set(stints.filter((s) => s.side === side && s.species).map((s) => s.species));
+      hiddenZoroark[side] = (preview[side] || []).some((sp) => sp.startsWith("Zoroark")) &&
+        ![...seen].some((sp) => sp.startsWith("Zoroark")) && seen.size < (teamSize[side] || preview[side].length);
+    }
+
     const keyOf = (s) => (s ? s.key : null);
     const endReason = forfeited ? "forfeit" : timedOut ? "timer" : winner ? "normal" : tie ? "tie" : "unfinished";
     return {
-      players, preview, species, stats, damage, winner, forfeited, endReason, turns, hazardTurns,
+      players, preview, species, stats, damage, healing, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
       hits: hits.map(([d, t, pct, hz]) => [keyOf(d), keyOf(t), pct, hz]),
+      heals: heals.map(([h, t, pct]) => [keyOf(h), keyOf(t), pct]),
     };
   }
 
@@ -378,7 +443,8 @@
 
   const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "end_reason", "turns", "pokemon", "nickname",
     "brought", "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
-    "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "replay_url"];
+    "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "healing_pct",
+    "healing_given_pct", "switches", "pivots", "forced_out", "faint_switch_ins", "hidden_zoroark", "replay_url"];
 
   /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
   function gameRows(replay) {
@@ -392,8 +458,9 @@
       const brought = [...b.species].filter(([k]) => sideOf(k) === side);
       const seen = new Set();
       const row = (key, sp) => {
-        const st = (key && b.stats.get(key)) || { direct: 0, passive: 0, deaths: 0, hazardKills: 0, hazardsSet: 0, hazardsRemoved: 0 };
-        const dm = (key && b.damage.get(key)) || { dealt: 0, taken: 0, hazard: 0 };
+        const st = (key && b.stats.get(key)) || zeroCounts();
+        const dm = (key && b.damage.get(key)) || NO_DAMAGE;
+        const hl = (key && b.healing.get(key)) || NO_HEALING;
         return {
           replay_id: rid, date, format: replay.format || "", player, opponent,
           won: b.winner === player ? 1 : 0, end_reason: b.endReason, turns: b.turns,
@@ -401,9 +468,13 @@
           kills: st.direct + st.passive, direct_kills: st.direct, passive_kills: st.passive,
           deaths: st.deaths, damage_dealt_pct: dm.dealt, damage_taken_pct: dm.taken,
           hazard_damage_pct: dm.hazard, hazard_kills: st.hazardKills, hazards_set: st.hazardsSet,
-          hazards_removed: st.hazardsRemoved, hazard_turns: b.hazardTurns[side], replay_url: REPLAY_HOST + rid,
+          hazards_removed: st.hazardsRemoved, hazard_turns: b.hazardTurns[side],
+          healing_pct: hl.self, healing_given_pct: hl.given, switches: st.switches, pivots: st.pivots,
+          forced_out: st.forcedOut, faint_switch_ins: st.faintSwitchIns, hidden_zoroark: b.hiddenZoroark[side] ? 1 : 0,
+          replay_url: REPLAY_HOST + rid,
           // not exported: what addDamageHp needs once max HP is known
           mon_key: key, hits_dealt: b.hits.filter(([d]) => d && d === key).map(([, t, pct, hz]) => [t, pct, hz]),
+          heals_given: b.heals.filter(([h, t]) => h && h === key && t !== key).map(([, t, pct]) => [t, pct]),
         };
       };
       for (const sp of b.preview[side] || []) {
@@ -426,19 +497,27 @@
     const maxHp = new Map();            // replay id + mon key -> max HP
     for (const r of rows) if (r.mon_key && r.max_hp) maxHp.set(r.replay_id + "\u0000" + r.mon_key, r.max_hp);
     for (const r of rows) {
+      /** Sum of [target key, %] entries in HP, rounded; "" when a target's max HP is unknown. */
+      const hpSum = (entries) => {
+        let sum = 0;
+        for (const [t, pct] of entries) {
+          const m = maxHp.get(r.replay_id + "\u0000" + t);
+          if (!m) return "";
+          sum += (pct * m) / 100;
+        }
+        return Math.round(sum);
+      };
       const own = r.mon_key && r.max_hp;
+      const hits = r.hits_dealt || [];
       r.damage_taken_hp = own ? Math.round((r.damage_taken_pct * r.max_hp) / 100) : "";
-      let dealt = 0, hazard = 0;
-      for (const [t, pct, hz] of r.hits_dealt || []) {
-        const m = maxHp.get(r.replay_id + "\u0000" + t);
-        if (!m) { dealt = null; break; }
-        dealt += (pct * m) / 100;
-        if (hz) hazard += (pct * m) / 100;
-      }
       // a Pokemon that dealt nothing still needs the opposing side's sheet to show 0
       const oppKnown = rows.some((o) => o.replay_id === r.replay_id && o.player === r.opponent && o.max_hp);
-      r.damage_dealt_hp = dealt === null || !oppKnown ? "" : Math.round(dealt);
-      r.hazard_damage_hp = dealt === null || !oppKnown ? "" : Math.round(hazard);
+      const dealt = oppKnown ? hpSum(hits) : "";
+      r.damage_dealt_hp = dealt;
+      r.hazard_damage_hp = dealt === "" ? "" : hpSum(hits.filter(([, , hz]) => hz));
+      // healing stays within the team, so its own sheet covers both
+      r.healing_hp = own ? Math.round((r.healing_pct * r.max_hp) / 100) : "";
+      r.healing_given_hp = own ? hpSum(r.heals_given || []) : "";
     }
     return rows;
   }
@@ -446,10 +525,12 @@
   const SUMMARY_FIELDS = ["player", "pokemon", "games_brought", "wins_when_brought", "kills",
     "direct_kills", "passive_kills", "deaths", "kills_per_game", "damage_dealt_pct", "damage_taken_pct",
     "damage_dealt_hp", "damage_taken_hp", "hazard_damage_pct", "hazard_damage_hp", "hazard_kills",
-    "hazards_set", "hazards_removed"];
-  const SUM_FIELDS = ["kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
-    "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed"];
-  const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp", "hazard_damage_hp"];
+    "hazards_set", "hazards_removed", "healing_pct", "healing_hp", "healing_given_pct", "healing_given_hp",
+    "switches", "pivots", "forced_out", "faint_switch_ins"];
+  const PCT_FIELDS = ["damage_dealt_pct", "damage_taken_pct", "hazard_damage_pct", "healing_pct", "healing_given_pct"];
+  const SUM_FIELDS = ["kills", "direct_kills", "passive_kills", "deaths", "hazard_kills", "hazards_set",
+    "hazards_removed", "switches", "pivots", "forced_out", "faint_switch_ins", ...PCT_FIELDS];
+  const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp", "hazard_damage_hp", "healing_hp", "healing_given_hp"];
 
   /** Totals per player + Pokemon (or per Pokemon only when byPlayer is false), most kills first. */
   function summarize(rows, byPlayer = true) {
@@ -458,10 +539,8 @@
       if (!r.brought) continue;
       const k = byPlayer ? r.player + "\u0000" + r.pokemon : r.pokemon;
       if (!agg.has(k)) {
-        agg.set(k, { player: byPlayer ? r.player : "", pokemon: r.pokemon, games_brought: 0,
-          wins_when_brought: 0, kills: 0, direct_kills: 0, passive_kills: 0, deaths: 0, kills_per_game: 0,
-          damage_dealt_pct: 0, damage_taken_pct: 0, damage_dealt_hp: 0, damage_taken_hp: 0,
-          hazard_damage_pct: 0, hazard_damage_hp: 0, hazard_kills: 0, hazards_set: 0, hazards_removed: 0 });
+        agg.set(k, { ...Object.fromEntries(SUMMARY_FIELDS.map((f) => [f, 0])),
+          player: byPlayer ? r.player : "", pokemon: r.pokemon });
       }
       const a = agg.get(k);
       a.games_brought += 1;
@@ -473,9 +552,7 @@
     const out = [...agg.values()];
     for (const a of out) {
       a.kills_per_game = Math.round((a.kills / a.games_brought) * 100) / 100;
-      a.damage_dealt_pct = Math.round(a.damage_dealt_pct * 100) / 100;
-      a.damage_taken_pct = Math.round(a.damage_taken_pct * 100) / 100;
-      a.hazard_damage_pct = Math.round(a.hazard_damage_pct * 100) / 100;
+      for (const f of PCT_FIELDS) a[f] = Math.round(a[f] * 100) / 100;
     }
     out.sort((x, y) => y.kills - x.kills || x.deaths - y.deaths ||
       x.player.toLowerCase().localeCompare(y.player.toLowerCase()) || x.pokemon.localeCompare(y.pokemon));
@@ -504,7 +581,7 @@
   }
 
   const api = {
-    REPLAY_HOST, GAME_FIELDS, SUMMARY_FIELDS,
+    REPLAY_HOST, GAME_FIELDS, SUMMARY_FIELDS, HP_FIELDS,
     replayIdFrom, replayIdsFromText, parseBattle, gameRows, addDamageHp, summarize, toCsv, toTsv, fetchReplay,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

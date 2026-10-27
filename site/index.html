@@ -25,6 +25,7 @@
         <span id="status" class="status" role="status" aria-live="polite"></span>
       </div>
       <ul id="errors" class="errors" hidden></ul>
+      <ul id="warnings" class="warnings" hidden></ul>
 
       <details class="sheets" id="sheets-wrap">
         <summary>Team sheets <span class="muted">(optional)</span></summary>
@@ -71,6 +72,9 @@
         <li><b>Self-inflicted damage</b> (recoil, Life Orb, confusion, Substitute's cost, own weather, an ally's hit) counts as taken, with no dealer. Hits on a Substitute count 0; Mimikyu's Disguise breaking counts for the attacker.</li>
         <li><b>Damage in %</b> is % of the target's max HP. <b>Damage in HP</b> needs team sheets: % × the target's max HP. Public replays round HP to whole %, so each hit is only accurate to about ±1% of max HP (about ±4 HP on a 400 HP Pokémon). Leaderboard HP totals are blank unless every game in the row has a sheet.</li>
         <li><b>Hazards:</b> Hazard % / HP is the part of damage dealt done by Stealth Rock, Spikes or Steelsurge the Pokémon set; Hazard KOs is the part of its passive kills. Hazards set counts each layer. Hazards removed counts hazards cleared from its own side (Defog, Rapid Spin…), not Defog clearing its own team's hazards from the other side. After Court Change, the swapped hazards count as the Court Change user's. Hazard turns (per player): turns that ended with a hazard on the opponent's side.</li>
+        <li><b>Healing:</b> Healed % is HP a Pokémon restored to itself (Leftovers, Recover, Rest, draining moves, Poison Heal, berries, Grassy Terrain…). Heal given % is HP it restored to a teammate (Wish, Healing Wish, Lunar Dance, Heal Pulse…). Both are in % of the healed Pokémon's max HP, and in HP with team sheets. Regenerator doesn't show up as a heal in replays, so it isn't counted.</li>
+        <li><b>Switches</b> are counted on the Pokémon that left: Switches = switched out by choice, Pivots = left through its own move (U-turn, Volt Switch, Flip Turn, Parting Shot, Teleport…), Forced out = Roar, Whirlwind, Dragon Tail, Red Card, Eject Button or Emergency Exit. In after KO counts on the Pokémon that came in to replace a fainted teammate.</li>
+        <li><b>Hidden Zoroark:</b> while disguised, Zoroark shows up as the Pokémon it copies. If its disguise never breaks, the replay can't tell them apart, so its kills and damage go to that Pokémon. Games where a team had a Zoroark that never showed itself are listed above the table and marked in Per game.</li>
       </ul>
     </details>
   </main>

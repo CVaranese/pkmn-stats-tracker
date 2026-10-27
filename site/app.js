@@ -22,17 +22,15 @@
     damage_dealt_pct: "Dealt %", damage_taken_pct: "Taken %", damage_dealt_hp: "Dealt HP", damage_taken_hp: "Taken HP",
     hazard_damage_pct: "Hazard %", hazard_damage_hp: "Hazard HP", hazard_kills: "Hazard KOs",
     hazards_set: "Hazards set", hazards_removed: "Hazards removed", hazard_turns: "Hazard turns",
+    healing_pct: "Healed %", healing_hp: "Healed HP", healing_given_pct: "Heal given %", healing_given_hp: "Heal given HP",
+    switches: "Switches", pivots: "Pivots", forced_out: "Forced out", faint_switch_ins: "In after KO",
+    hidden_zoroark: "Hidden Zoroark",
   };
-  const NUMERIC = new Set(["won", "turns", "brought", "kills", "direct_kills", "passive_kills", "deaths",
-    "games_brought", "wins_when_brought", "kills_per_game", "max_hp",
-    "damage_dealt_pct", "damage_taken_pct", "damage_dealt_hp", "damage_taken_hp",
-    "hazard_damage_pct", "hazard_damage_hp", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns"]);
-  const GAME_VIEW_FIELDS = ["date", "player", "opponent", "won", "end_reason", "turns", "pokemon", "nickname", "brought",
-    "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
-    "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "replay_url"];
+  const YES_NO = new Set(["won", "brought", "hidden_zoroark"]);
+  const GAME_VIEW_FIELDS = RS.GAME_FIELDS.filter((f) => f !== "replay_id" && f !== "format");
   const SHEET_FIELDS = ["max_hp", "item", "ability", "moves"]; // per game, once any sheet matched
-  const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp", "hazard_damage_hp"];
-  const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"] };
+  const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"],
+    healing_pct: ["healing_hp"], healing_given_pct: ["healing_given_hp"] };
 
   // remember pasted links between visits (convenience only; the page works without it)
   try { $("links").value = localStorage.getItem(STORAGE_KEY) || ""; } catch (e) { /* storage blocked */ }
@@ -54,6 +52,7 @@
     rows = [];
     $("results").hidden = true;
     $("errors").hidden = true;
+    $("warnings").hidden = true;
     $("status").textContent = "";
   });
   for (const tab of document.querySelectorAll(".tabs button")) {
@@ -128,6 +127,10 @@
       (errors.length ? `, ${errors.length} failed.` : ".");
     $("errors").hidden = !errors.length;
     $("errors").replaceChildren(...errors.map((t) => Object.assign(document.createElement("li"), { textContent: t })));
+    const zoroarks = [...new Set(rows.filter((r) => r.hidden_zoroark).map((r) => `${r.replay_id}: ${r.player}`))];
+    $("warnings").hidden = !zoroarks.length;
+    $("warnings").replaceChildren(...zoroarks.map((t) => Object.assign(document.createElement("li"), {
+      textContent: `${t} had a Zoroark that never dropped its disguise. Whatever it did is counted on the Pokémon it copied.` })));
     $("run").disabled = false;
 
     const players = [...new Set(rows.map((r) => r.player))].sort((a, b) => a.localeCompare(b));
@@ -148,24 +151,26 @@
       const byPlayer = $("group").value === "player";
       data = RS.summarize(filtered, byPlayer);
       const anySheet = rows.some((r) => r.set);
-      fields = RS.SUMMARY_FIELDS.filter((f) => (byPlayer || f !== "player") && (anySheet || !HP_FIELDS.includes(f)));
+      fields = RS.SUMMARY_FIELDS.filter((f) => (byPlayer || f !== "player") && (anySheet || !RS.HP_FIELDS.includes(f)));
     } else {
       data = filtered.slice();
       // with sheets: HP columns next to the % ones, set details at the end
       fields = rows.some((r) => r.set) ? GAME_VIEW_FIELDS.flatMap((f) =>
         [f, ...(HP_AFTER[f] || [])]).concat(SHEET_FIELDS) : GAME_VIEW_FIELDS;
     }
+    // numeric columns (right-aligned, sorted as numbers): any number in them; blanks don't count
+    const numeric = new Set(fields.filter((f) => data.some((r) => typeof r[f] === "number")));
     const { field, dir } = sort;
     if (fields.includes(field)) {
       data.sort((a, b) => {
         const x = a[field], y = b[field];
         // blanks (no team sheet) sort below every number
         const num = (v) => (v === "" || v === undefined ? -Infinity : v);
-        const c = NUMERIC.has(field) ? Math.sign(num(x) - num(y)) || 0 : String(x).localeCompare(String(y));
+        const c = numeric.has(field) ? Math.sign(num(x) - num(y)) || 0 : String(x).localeCompare(String(y));
         return c * dir;
       });
     }
-    return { fields, data };
+    return { fields, data, numeric };
   }
 
   function render() {
@@ -173,7 +178,7 @@
       tab.setAttribute("aria-selected", String(tab.dataset.view === view));
     }
     $("group-wrap").hidden = view !== "summary";
-    const { fields, data } = currentTable();
+    const { fields, data, numeric } = currentTable();
 
     const thead = document.createElement("thead");
     const hr = thead.insertRow();
@@ -181,10 +186,10 @@
       const th = document.createElement("th");
       th.textContent = LABELS[f] || f;
       th.scope = "col";
-      if (NUMERIC.has(f)) th.className = "num";
+      if (numeric.has(f)) th.className = "num";
       if (sort.field === f) th.setAttribute("aria-sort", sort.dir < 0 ? "descending" : "ascending");
       th.addEventListener("click", () => {
-        sort = sort.field === f ? { field: f, dir: -sort.dir } : { field: f, dir: NUMERIC.has(f) ? -1 : 1 };
+        sort = sort.field === f ? { field: f, dir: -sort.dir } : { field: f, dir: numeric.has(f) ? -1 : 1 };
         render();
       });
       hr.appendChild(th);
@@ -195,7 +200,7 @@
       if (view === "games" && !r.brought) tr.className = "not-brought";
       for (const f of fields) {
         const td = tr.insertCell();
-        if (NUMERIC.has(f)) td.className = "num";
+        if (numeric.has(f)) td.className = "num";
         if (f === "replay_url") {
           const a = document.createElement("a");
           a.href = r[f];
@@ -203,7 +208,7 @@
           a.target = "_blank";
           a.rel = "noopener";
           td.appendChild(a);
-        } else if (f === "won" || f === "brought") {
+        } else if (YES_NO.has(f)) {
           td.textContent = r[f] ? "yes" : "no";
         } else {
           td.textContent = r[f];

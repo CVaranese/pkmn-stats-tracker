@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Healing per Pokémon: Healed % (HP it restored to itself: Leftovers, Recover, Rest, drain, Poison Heal, berries, Grassy Terrain…) and Heal given % (to teammates: Wish, Healing Wish, Lunar Dance, Heal Pulse, Z-move heals). Healed HP / Heal given HP with team sheets. In the leaderboard, the Per game table and exports.
+- Switches per Pokémon: Switches (by choice), Pivots (U-turn, Volt Switch, Flip Turn, Parting Shot…), Forced out (Roar, Whirlwind, Dragon Tail, Red Card, Eject Button, Emergency Exit) and In after KO. In the leaderboard, the Per game table and exports.
+- Hidden Zoroark: games where a team brought a Zoroark that never dropped its disguise are listed under the links box and marked `hidden_zoroark` in Per game rows, since its stats sit on the Pokémon it copied.
 - Hazards: per Pokémon, damage done through Stealth Rock / Spikes / Steelsurge (Hazard %, and Hazard HP with team sheets; part of Dealt, not on top), KOs from hazards (part of Passive), hazards set (each layer) and hazards removed from its own side (Defog, Rapid Spin...); per player, the turns hazards were up on the opponent's side. In the leaderboard (except turns), the Per game table and exports.
 - Fix: after Court Change, damage and KOs from the swapped hazards go to the Court Change user (they credited nobody before).
 - Per game rows now say how the game ended (`end_reason`: normal, forfeit, timer, tie or unfinished) and how many turns it lasted, so short timer losses and forfeits can be filtered out in the spreadsheet. Shown as "Ended by" and "Turns" in the Per game table and its exports.
