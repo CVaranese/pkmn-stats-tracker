@@ -214,7 +214,7 @@
       const name = el("div", "lib-name", p);
       if (results && p === g.winner) name.append(" ", el("span", "badge win", "Won"));
       const team = el("div", "lib-team");
-      team.append(...((g.teams || [])[i] || []).map((mon) => sprite(mon, ["home-centered/", "gen5/"], "tiny")));
+      team.append(...((g.teams || [])[i] || []).map((mon) => sprite(mon, ["gen5/"], "tiny", true)));
       side.append(name, team);
       match.append(side);
     });
@@ -499,13 +499,16 @@
     return TS.toID(base) + (parts.length ? "-" + TS.toID(parts.join("")) : "");
   }
   /** A sprite <img> that tries each folder in turn, then shows the name's initials (unknown form, no copy). */
-  function sprite(species, folders, cls) {
+  function sprite(species, folders, cls, fill = false) {
     const box = el("span", "sprite " + cls);
     const img = document.createElement("img");
     img.alt = species;
     img.loading = "lazy";
-    // the gen5 copies saved in site/sprites/ (league Pokémon): the only source locally, the fallback when Showdown is down
-    const list = LOCAL ? ["sprites/gen5/"] : [...folders.map((f) => SPRITES + f), "sprites/gen5/"];
+    // the gen5 copies saved in site/sprites/ (league Pokémon): the only source locally, the fallback when Showdown is down.
+    // fill: the saved copy first, since only a same-site image can be cropped (Showdown's server sends no CORS header)
+    const list = LOCAL ? ["sprites/gen5/"] : fill ? ["sprites/gen5/", ...folders.map((f) => SPRITES + f)]
+      : [...folders.map((f) => SPRITES + f), "sprites/gen5/"];
+    if (fill) img.addEventListener("load", () => fillBox(img, box), { once: true });
     let i = 0;
     const next = () => {
       if (i < list.length) { img.src = list[i++] + spriteId(species) + (list[i - 1].endsWith("ani/") ? ".gif" : ".png"); return; }
@@ -516,6 +519,31 @@
     next();
     box.appendChild(img);
     return box;
+  }
+  /** Crop a sprite to the Pokémon itself and scale it to fill its box, so a Joltik isn't tiny next to a Hoopa
+   * (gen5 sprites keep each Pokémon's true size in the same 96px frame). Leaves the image as it is if it can't be read. */
+  function fillBox(img, box) {
+    if (!img.src.includes("/sprites/gen5/") || img.src.startsWith(SPRITES)) return;   // only the saved copies
+    try {
+      const w = img.naturalWidth, h = img.naturalHeight;
+      const c = Object.assign(document.createElement("canvas"), { width: w, height: h });
+      const g = c.getContext("2d", { willReadFrequently: true });
+      g.drawImage(img, 0, 0);
+      const px = g.getImageData(0, 0, w, h).data;
+      let x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        if (px[(y * w + x) * 4 + 3] > 16) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+      }
+      if (x1 < 0) return;
+      const bw = x1 - x0 + 1, bh = y1 - y0 + 1, side = Math.max(bw, bh);
+      const out = Object.assign(document.createElement("canvas"), { width: side, height: side });
+      const o = out.getContext("2d");
+      o.drawImage(c, x0, y0, bw, bh, Math.floor((side - bw) / 2), Math.floor((side - bh) / 2), bw, bh);
+      out.setAttribute("role", "img");
+      out.setAttribute("aria-label", img.alt);
+      out.className = "sprite-fill";
+      box.replaceChildren(out);
+    } catch (e) { /* tainted or unreadable: keep the plain image */ }
   }
   function el(tag, cls, text) {
     const e = document.createElement(tag);

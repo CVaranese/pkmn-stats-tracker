@@ -131,6 +131,7 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .lib-row { cursor: pointer; }
 @media (hover: hover) { .lib-row:hover td { background: var(--row-alt); } }
 .lib-table .lib-actions button { margin-left: 6px; }
+.lib-table td.muted { min-width: 150px; max-width: 190px; white-space: normal; }   /* a long note wraps instead of pushing the buttons out */
 .lib-pair { display: flex; align-items: center; gap: 14px; }
 /* both sides one team wide (6 x 40px), so "vs" and the teams line up row to row */
 .lib-side { width: 240px; flex: none; }
@@ -139,7 +140,9 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .lib-vs { color: var(--muted); font-size: 13px; }
 .lib-team { display: flex; }
 .sprite.tiny { width: 40px; height: 40px; font-size: 11px; }
-.sprite.tiny img[src*="/gen5/"] { image-rendering: pixelated; }
+.sprite.tiny img { image-rendering: pixelated; }
+/* a sprite cropped to the Pokémon (fillBox): drawn at its own pixel size, scaled up to the box */
+.sprite .sprite-fill { width: 88%; height: 88%; image-rendering: pixelated; }
 .lib-watch { margin: 8px 0 20px; }
 .lib-watch h3 { font-size: 16px; margin: 0; }
 .lib-watch iframe, .watch iframe { display: block; width: 100%; height: 640px; margin-top: 10px;
