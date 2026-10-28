@@ -308,8 +308,9 @@
       const point = { turn };
       for (const side of ["p1", "p2"]) {
         const size = teamSize[side] || (preview[side] || []).length || 6;
-        // a misread name in a rebuilt video log can give a side more Pokemon than it brought: cap, don't cut
-        const mine = [...latestByKey].filter(([k]) => sideOf(k) === side);
+        // a misread name in a rebuilt video log ("The opposing") makes a Pokemon that never switched in (no
+        // species) and never faints: left out, or the line stays high. Still capped, in case one did switch in.
+        const mine = [...latestByKey].filter(([k, st]) => sideOf(k) === side && st.species);
         const fainted = mine.filter(([, st]) => st.deaths).length;
         const hp = mine.reduce((t, [, st]) => t + (st.deaths ? 0 : st.hp), 0) + 100 * Math.max(0, size - mine.length);
         point[side] = { left: Math.max(0, size - fainted), hp: Math.round(Math.min(100, hp / size) * 10) / 10 };

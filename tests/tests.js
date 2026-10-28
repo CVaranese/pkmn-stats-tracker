@@ -1300,6 +1300,10 @@ ${switchIn}`).hiddenZoroark;
     const expMom = [[0, 2, 100, 2, 100], [1, 2, 75, 2, 77], [2, 2, 72, 1, 40], [3, 2, 72, 1, 40]];
     check("momentum: team HP and Pokemon left after each turn", same(mom, expMom),
       `expected ${JSON.stringify(expMom)}\ngot      ${JSON.stringify(mom)}`);
+    // a misread name from a rebuilt video log: a Pokemon that never switched in doesn't hold the line up
+    const misread = RS.gameRows({ id: "test-misread", log: log.replace("|turn|2\n", "|turn|2\n|-damage|p1a: The opposing|70/100\n") })[0];
+    const momM = misread.momentum.map((p) => [p.turn, p.p1.left, p.p1.hp, p.p2.left, p.p2.hp]);
+    check("momentum: a misread name isn't a Pokemon", same(momM, expMom), `expected ${JSON.stringify(expMom)}\ngot      ${JSON.stringify(momM)}`);
     const noTime = RS.gameRows({ id: "test-notime", log: log.replace(/^\|t:\|\d+\n?/gm, "") })[0];
     const timed = RS.gameRows({ id: "test-timer", log: log.replace("|teamsize|p1|2\n",
       "|teamsize|p1|2\n|inactive|Battle timer is ON: inactive players will automatically lose when time's up. (requested by alice)\n") });
@@ -1324,6 +1328,17 @@ ${switchIn}`).hiddenZoroark;
       if (rs.some((r) => r.moves_revealed > 4)) off.push(`${id}: more than 4 moves shown`);
     }
     check("status damage, momentum end, moves shown on real replays", !off.length, off.join("\n"));
+  }
+  // the league library (rebuilt video logs included): a side with no Pokemon left has 0% HP on the chart
+  {
+    const off = [];
+    for (const g of (await (await fetch("../site/games/index.json")).json()).games) {
+      const rs = RS.gameRows(await (await fetch(`../site/games/${g.id}.json`)).json());
+      for (const p of rs[0].momentum) {
+        for (const side of ["p1", "p2"]) if (!p[side].left && p[side].hp) off.push(`${g.id} turn ${p.turn}: ${side} 0 left, ${p[side].hp}% HP`);
+      }
+    }
+    check("momentum: 0 left means 0% HP in every saved game", !off.length, off.slice(0, 10).join("\n"));
   }
 
   // ---- fetching: time limit and "site is down" errors (fake fetch functions, 50 ms limit) ----

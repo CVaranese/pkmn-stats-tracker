@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Momentum chart: a misread name in a game rebuilt from video ("The opposing") no longer counts as an extra Pokémon that never faints. Four games ended with the loser still showing HP (Week 3 azpmCloudburst vs potatoesareyum stayed at 76%); every saved game now ends at 0%.
 - Draft tab: each player's trainer sprite from the league's draft sheet, small on their button and big next to their name.
 - Pokémon tab: a Weeks picker (all weeks or one), like Players; the table, moves, KO lists and games follow it.
 - Main viewer: Key moments under the Momentum chart: crits that KO'd, misses of 80%+ moves (and every Hydro Pump miss), full paralysis, confusion self-hits, status / flinch effects with a 30% chance or less, early wake-ups and thaws, each with its turn, whose Pokémon and how likely it was.

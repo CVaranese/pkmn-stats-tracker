@@ -198,4 +198,7 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   with HP. Check: a switch-in with HP > 0 after a `0 fnt` line and no Revival Blessing.
 - **Tested**: "The opposing" misread as "Thc opposing", "Tho oppoinq", "l he opposing" isn't stripped by the regex in
   `video_convert.py` (`[tli1|]\s?he\s+o\S*` needs "he"), so the line names no Pokémon or the wrong side. 5 games.
+- **Tested** (2026-10-28): those nameless / misread lines ("p1a: The opposing", "p2a: God") make a Pokémon that
+  never switched in. parser.js gives it no species; Momentum leaves such Pokémon out (they never faint, so 4 games'
+  losers ended above 0%). tests.js checks every saved game ends with 0 left = 0% HP.
 - Revival Blessing (Pawmot) makes a Pokémon faint twice: real, not a misread (DEJIME's games).
