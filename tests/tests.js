@@ -1065,6 +1065,14 @@ ${switchIn}`).hiddenZoroark;
   const draft = { costs: { OU: 7, UU: 5, RU: 3 }, players: { "ANN": [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Swampert-Mega", tier: "UU" }] } };
   check("bet: a Mega seen as its base species finds its draft entry", (Bet.drafted(draft, "ann", "Swampert") || {}).tier === "UU");
   check("bet: undrafted Pokémon has no entry", Bet.drafted(draft, "Ann", "Toxapex") === null && Bet.drafted(draft, "Bob", "Garchomp") === null);
+  const forms = { costs: {}, aliases: { "Ann 17": "ann" }, players: { Ann: [{ pokemon: "Enamorus-Therian", tier: "RU" },
+    { pokemon: "Sinistcha", tier: "RU" }, { pokemon: "Arcanine", tier: "UU" }, { pokemon: "Arcanine-Hisui", tier: "RU" }] } };
+  check("bet: another form of the pool's only entry of that species matches, both ways",
+    (Bet.drafted(forms, "Ann", "Enamorus") || {}).pokemon === "Enamorus-Therian" &&
+    (Bet.drafted(forms, "Ann", "Sinistcha-Masterpiece") || {}).pokemon === "Sinistcha");
+  check("bet: two forms of one species drafted, only the exact one matches",
+    (Bet.drafted(forms, "Ann", "Arcanine-Hisui") || {}).tier === "RU" && Bet.drafted(forms, "Ann", "Arcanine-Paldea") === null);
+  check("bet: a player's other Showdown name finds their pool through aliases", (Bet.drafted(forms, "ANN17", "Sinistcha") || {}).tier === "RU");
   const fan = Bet.fantasy([
     { player: "Ann", pokemon: "Garchomp", brought: 1, kills: 2, damage_dealt_pct: 150, survived: 1, won: 1 },
     { player: "ann", pokemon: "Garchomp", brought: 1, kills: 0, damage_dealt_pct: 50, survived: 0, won: 0 },

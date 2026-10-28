@@ -20,13 +20,21 @@
     return [...byId.values()].sort((x, y) => y.wins - x.wins || x.losses - y.losses || x.name.localeCompare(y.name));
   }
 
-  /** The drafted entry for a Pokémon seen in a game: same name, or the Mega that was drafted ("Swampert" -> "Swampert-Mega"). */
+  /** The drafted entry for a Pokémon seen in a game: same name, or the Mega that was drafted ("Swampert" -> "Swampert-Mega"),
+      or the pool's only entry of that species in another form ("Enamorus" -> "Enamorus-Therian", "Sinistcha-Masterpiece" -> "Sinistcha").
+      A player's other Showdown names map to their draft name through draft.aliases ({"DEJIME17": "DEJIME"}). */
   function drafted(draft, player, pokemon) {
-    const pool = (draft && draft.players && Object.entries(draft.players).find(([p]) => toID(p) === toID(player))) || null;
+    if (!draft || !draft.players) return null;
+    const alias = Object.entries(draft.aliases || {}).find(([a]) => toID(a) === toID(player));
+    const name = toID(alias ? alias[1] : player);
+    const pool = Object.entries(draft.players).find(([p]) => toID(p) === name);
     if (!pool) return null;
     const id = toID(pokemon);
+    const species = (s) => toID(s.split("-")[0]);
+    const sameSpecies = pool[1].filter((d) => species(d.pokemon) === species(pokemon));
     return pool[1].find((d) => toID(d.pokemon) === id) ||
-      pool[1].find((d) => toID(d.pokemon).replace(/mega[xy]?$/, "") === id) || null;
+      pool[1].find((d) => toID(d.pokemon).replace(/mega[xy]?$/, "") === id) ||
+      (sameSpecies.length === 1 ? sameSpecies[0] : null);
   }
 
   const SCORING = { kill: 3, damagePer100: 1, survived: 1, won: 1 };

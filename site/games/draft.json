@@ -1,5 +1,8 @@
 {
- "note": "Draft pools and tiers from the league's draft sheet (tier on draft day sets the cost). Only players whose Showdown name is known.",
+ "note": "Draft pools and tiers from the league's draft sheet (tier on draft day sets the cost). aliases: other Showdown names a player used -> their name here. Toxicroak (ElkG Big Large) and Suicune (FingerStripes, Week 1), 3 points each, aren't on the sheet; from the user.",
+ "aliases": {
+  "DEJIME17": "DEJIME"
+ },
  "costs": {
   "OU": 7,
   "UUBL": 6,
@@ -251,6 +254,10 @@
    {
     "pokemon": "Porygon2",
     "tier": "NFE"
+   },
+   {
+    "pokemon": "Toxicroak",
+    "tier": "RU"
    }
   ],
   "DEJIME": [
@@ -413,6 +420,198 @@
    {
     "pokemon": "Munchlax",
     "tier": "LC"
+   }
+  ],
+  "FingerStripes": [
+   {
+    "pokemon": "Tapu Koko",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Heatran",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Hawlucha",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Sableye-Mega",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Iron Moth",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Rotom-Wash",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Hydreigon",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Jirachi",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Zygarde-10%",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Toedscool",
+    "tier": "LC"
+   },
+   {
+    "pokemon": "Vullaby",
+    "tier": "LC"
+   },
+   {
+    "pokemon": "Suicune",
+    "tier": "RU"
+   }
+  ],
+  "Zololab": [
+   {
+    "pokemon": "Diancie-Mega",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Iron Treads",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Pecharunt",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Latios",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Serperior",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Thundurus",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Scrafty",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Incineroar",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Vaporeon",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Lokix",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Dudunsparce",
+    "tier": "RU"
+   }
+  ],
+  "pee nation": [
+   {
+    "pokemon": "Slowking-Galar",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Gliscor",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Kommo-o",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Weavile",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Charizard-Mega-X",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Quaquaval",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Garganacl",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Arctovish",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Arctozolt",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Ninetales-Alola",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Sableye",
+    "tier": "RU"
+   }
+  ],
+  "doxsego": [
+   {
+    "pokemon": "Ceruledge",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Lopunny-Mega",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Xurkitree",
+    "tier": "UUBL"
+   },
+   {
+    "pokemon": "Slowbro",
+    "tier": "UU"
+   },
+   {
+    "pokemon": "Enamorus",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Lilligant-Hisui",
+    "tier": "RUBL"
+   },
+   {
+    "pokemon": "Ninetales",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Tinkaton",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Brute Bonnet",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Nihilego",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Flygon",
+    "tier": "RU"
+   },
+   {
+    "pokemon": "Shuckle",
+    "tier": "RU"
    }
   ]
  }
