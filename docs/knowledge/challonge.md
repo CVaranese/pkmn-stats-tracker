@@ -24,6 +24,13 @@
 - **Tested**: Showdown's natDexTier (pokemon-showdown 0.11.11 `formats-data.js`) matched the sheet's rows for all 141
   picks except Sableye-Mega, Rotom-Wash and Blacephalon (sheet: UUBL; data: UU). Found by comparing tier counts per row,
   then looking at the sprites.
+- **Tested** (user, 2026-10-28): each Pokémon belongs to one player, and a Mega is its own pick: Latios is Zololab's,
+  Latios-Mega weedinmyhonda's; Tyranitar PeterPikmon's, Tyranitar-Mega potatoesareyum's; Sableye pee nation's,
+  Sableye-Mega FingerStripes'; Latias PeterPikmon's, Latias-Mega Nezergy's. Replay rows use the base name (Mega
+  Evolution happens mid-game; team preview and switches before it show the base form), so the site renames each row
+  after the player's drafted Mega, even in a game where it didn't Mega Evolve, else after the Mega it turned into
+  (`mega_form`). Checked 2026-10-28: every Pokémon tab row is in its player's draft pool, except Sinistcha-Masterpiece
+  (drafted as Sinistcha, a cosmetic form, left as is).
 - **Tested** (user, 2026-10-27): 51 is right. After the 48-point draft a wheel gave everyone one random 3-point
   Pokémon, and after Week 4 each player could trade one in for a 3-point-or-less Pokémon. One pool totals 52; the user
   is checking it against the draft.

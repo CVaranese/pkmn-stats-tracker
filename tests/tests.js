@@ -1141,9 +1141,9 @@ ${switchIn}`).hiddenZoroark;
       "|move|p2a: D|Extreme Speed|p1a: C\n|-damage|p1a: C|70/100\n|move|p1a: C|Soft-Boiled|p1a: C\n|-heal|p1a: C|100/100\n|win|Bob";
     const rows = RS.gameRows({ id: "test-surv", log });
     const got = Object.fromEntries(rows.map((r) => [r.pokemon,
-      [r.turns_on_field, r.survived, r.ko_before_moving, r.mega, r.mega_turn, r.z_move, r.z_turn]]));
-    const exp = { Pelipper: [3, 0, 0, 0, "", "Supersonic Skystrike", 1], Blissey: [1, 1, 0, 0, "", "", ""],
-      Garchomp: [2, 0, 0, 1, 1, "", ""], Dragonite: [2, 1, 0, 0, "", "", ""] };
+      [r.turns_on_field, r.survived, r.ko_before_moving, r.mega, r.mega_turn, r.z_move, r.z_turn, r.mega_form]]));
+    const exp = { Pelipper: [3, 0, 0, 0, "", "Supersonic Skystrike", 1, ""], Blissey: [1, 1, 0, 0, "", "", "", ""],
+      Garchomp: [2, 0, 0, 1, 1, "", "", "Garchomp-Mega"], Dragonite: [2, 1, 0, 0, "", "", "", ""] };
     check("survival / Mega / Z per game", same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
     const sum = Object.fromEntries(RS.summarize(rows).map((a) => [a.pokemon, [a.megas, a.mega_wins, a.z_moves, a.z_wins, a.survived]]));
     check("survival / Mega / Z summary", same(sum.Garchomp, [1, 1, 0, 0, 0]) && same(sum.Pelipper, [0, 0, 1, 0, 0]) &&
@@ -1156,10 +1156,12 @@ ${switchIn}`).hiddenZoroark;
     const megaZ = {};
     for (const id of ["gen9nationaldex-2705117998", "gen9nationaldex-2705099074"]) {
       for (const r of RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json())) {
-        if (r.mega || r.z_move) megaZ[r.pokemon] = [r.mega_turn, r.z_move, r.z_turn];
+        if (r.mega || r.z_move) megaZ[r.pokemon] = [r.mega_turn, r.z_move, r.z_turn, r.mega_form];
       }
     }
-    const expMZ = { Diancie: [1, "", ""], Latios: [17, "", ""], Kyurem: ["", "Tectonic Rage", 1], Gallade: [1, "", ""], Gardevoir: [24, "", ""] };
+    // mega_form: the form it turned into (the site names a row after it, or after the drafted Mega)
+    const expMZ = { Diancie: [1, "", "", "Diancie-Mega"], Latios: [17, "", "", "Latios-Mega"], Kyurem: ["", "Tectonic Rage", 1, ""],
+      Gallade: [1, "", "", "Gallade-Mega"], Gardevoir: [24, "", "", "Gardevoir-Mega"] };
     check("Mega / Z in real Nat Dex replays", same(megaZ, expMZ), `expected ${JSON.stringify(expMZ)}\ngot      ${JSON.stringify(megaZ)}`);
     // singles: one Pokemon per side per turn played, so a side's turns on field add up to the game's turns
     const off = [];

@@ -414,13 +414,30 @@
     $("warnings").replaceChildren(...items);
   }
 
+  /** The draft, loaded once ("no-cache": a new draft shows without waiting out the browser cache); null if missing. */
+  let draftLoad = null;
+  function loadDraft() {
+    return draftLoad || (draftLoad = fetch("games/draft.json", { cache: "no-cache" }).then((r) => r.json())
+      .then((d) => { draft = d; }, () => { draft = null; }));
+  }
+  /** A Mega is its own Pokémon, as in the draft (Latios is Zololab's, Latios-Mega weedinmyhonda's): a row takes the
+      Mega its player drafted, even in a game it didn't Mega Evolve, else the Mega it turned into that game. Runs after
+      sheets, max HP and luck, which go by the base name (sheets list "Latios @ Latiosite"). */
+  function megaNames(rs) {
+    for (const r of rs) {
+      const d = Bet.drafted(draft, r.player, r.pokemon);
+      const mega = d && /-Mega/.test(d.pokemon) && TS.toID(d.pokemon).startsWith(TS.toID(r.pokemon)) ? d.pokemon : r.mega_form;
+      if (mega) r.pokemon = mega;
+    }
+  }
+
   /** Every library game's rows, loaded once for Gambling and Players: saved sheets, else guessed max HP (same as
       Main viewer; stays in % if the Pokédex won't load), luck when the move data loads. Also loads the draft. */
   let leagueRows = null;
   function loadLeague() {
     return leagueRows || (leagueRows = (async () => {
       await libraryReady;
-      try { draft = await (await fetch("games/draft.json", { cache: "no-cache" })).json(); } catch (e) { draft = null; }
+      await loadDraft();
       // all games at once instead of waiting on each request in turn
       const loaded = await Promise.all(library.map(async (g) => {
         try {
@@ -441,6 +458,7 @@
       let moves = null;
       try { moves = await LK.loadMoves(); } catch (e) { /* luck stays blank */ }
       LK.addLuck(all, moves && dex ? { moves, dex } : null);
+      megaNames(all);
       return all;
     })());
   }
@@ -670,7 +688,7 @@
     const num = (label, title, key) => ({ label, cls: "num", title, key });
     sortableTable($("mon-table"), [
       { label: "Pokémon", key: (m) => m.pokemon },
-      { label: "Player", title: "Who brought it (a Pokémon drafted by two players lists both).", key: (m) => m.players.join(", ") },
+      { label: "Player", title: "Who brought it.", key: (m) => m.players.join(", ") },
       num("Games", DESCRIPTIONS.games_brought, (m) => m.games_brought),
       num("Won", DESCRIPTIONS.wins_when_brought, (m) => m.wins_when_brought),
       num("Win rate", "Games won when it was brought, out of the games it was brought to.", (m) => m.wins_when_brought / m.games_brought),
@@ -911,6 +929,8 @@
     await addMockSheets(ids);
     await applySheets(errors);
     await applyLuck(errors);
+    await loadDraft();
+    megaNames(rows);
     const ok = results.filter(Boolean).length;
     $("status").textContent = `Loaded ${ok} replay${ok === 1 ? "" : "s"}` +
       (ids.length > ok ? `, ${ids.length - ok} failed.` : ".");

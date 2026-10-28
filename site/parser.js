@@ -806,7 +806,8 @@
       if (!stats.has(s.key)) stats.set(s.key, zeroCounts());
       const st = stats.get(s.key);
       for (const f of COUNTS) st[f] += s[f];
-      if (s.megaTurn !== undefined && st.megaTurn === undefined) st.megaTurn = s.megaTurn;
+      // the form it Mega Evolved into ("Charizard-Mega-X"): the stint's form after |detailschange|
+      if (s.megaTurn !== undefined && st.megaTurn === undefined) [st.megaTurn, st.megaForm] = [s.megaTurn, /-Mega/.test(s.form || "") ? s.form : ""];
       if (s.zMove && !st.zMove) [st.zMove, st.zTurn] = [s.zMove, s.zTurn];
       if (!seenSet.has(s.key)) seenSet.set(s.key, {});
       const ss = seenSet.get(s.key);
@@ -919,7 +920,7 @@
           healing_pct: hl.self, healing_given_pct: hl.given, switches: st.switches, pivots: st.pivots,
           forced_out: st.forcedOut, faint_switch_ins: st.faintSwitchIns,
           turns_on_field: st.turnsOnField, survived: key && b.alive.has(key) ? 1 : 0, ko_before_moving: st.koBeforeMoving,
-          mega: st.megaTurn !== undefined ? 1 : 0, mega_turn: st.megaTurn ?? "", z_move: st.zMove || "", z_turn: st.zTurn ?? "",
+          mega: st.megaTurn !== undefined ? 1 : 0, mega_turn: st.megaTurn ?? "", mega_form: st.megaForm || "", z_move: st.zMove || "", z_turn: st.zTurn ?? "",
           crits: st.crits, crits_taken: st.critsTaken, misses: st.misses, dodges: st.dodges, full_paras: st.fullParas,
           sleep_turns: st.sleepTurns, flinched: st.flinched, confusion_hits: st.confusionHits, procs: st.procs,
           luck: "", luck_against: "", player_luck: "", // filled by Luck.addLuck once move data is loaded
