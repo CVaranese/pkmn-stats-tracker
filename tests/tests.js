@@ -1098,7 +1098,7 @@ ${switchIn}`).hiddenZoroark;
       "crit KO": [lhead() + "|move|p1a: A|Tackle|p2a: B\n|-crit|p2a: B\n|-damage|p2a: B|0 fnt\n|faint|p2a: B",
         ["1 Pelipper: crit Tackle KO'd Garchomp 4"]],
       "normal hit: nothing": [lhead() + `|move|p1a: A|Tackle|p2a: B\n${hitB}`, []],
-      "crit that didn't KO: nothing": [lhead() + `|move|p1a: A|Tackle|p2a: B\n|-crit|p2a: B\n${hitB}`, []],
+      "crit that didn't KO": [lhead() + `|move|p1a: A|Tackle|p2a: B\n|-crit|p2a: B\n${hitB}`, ["1 Pelipper: crit Tackle on Garchomp 4"]],
       "70% move misses: under 80%, nothing": [lhead() + "|move|p1a: A|Hurricane|p2a: B|[miss]\n|-miss|p1a: A|p2a: B", []],
       "80% move misses": [lhead() + "|move|p1a: A|Stone Edge|p2a: B|[miss]\n|-miss|p1a: A|p2a: B",
         ["1 Pelipper: Stone Edge missed Garchomp (80% to hit) 20"]],

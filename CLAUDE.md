@@ -17,6 +17,7 @@ Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts k
   The page title is `PASS`, `FAIL (n)` or `CRASH`. `msedge` isn't on PATH in PowerShell: use `& "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"`.
   Shortcut: the `test` skill (`.claude/skills/test/run-tests.ps1`) starts the server and prints the result with failing tests.
 - Hidden Zoroark picks (admin only): try them with the Move buttons on the local site, then `python -I tools/set_illusion.py <game id> <p1|p2> <n,n|none|auto>` writes them to `site/games/index.json`.
+- Video-rebuilt games (`site/games/video-*`): `python -I tools/audit_video_games.py` rewrites `docs/VIDEO_GAMES_AUDIT.md`, a checklist of what looks misread in each log (for fixing by hand); re-run after any fix.
 - Is Showdown up? `python -I tools/showdown_status.py` (about 6 s, UP / DOWN per service: replays, move / Pokédex data, sprites, replay-player scripts). Run it before anything that fetches from Showdown instead of waiting on timeouts.
 - Screenshots of the local site: the `screenshot` skill (`.claude/skills/screenshot/shot.ps1`), then send the PNG to the user. The user often works remotely; show changes this way instead of pushing.
 - `tests/corpus/` (gitignored): 30 recent Nat Dex replays for surveys and smoke tests; re-download with `search.json?format=gen9nationaldex`.

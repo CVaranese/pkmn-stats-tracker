@@ -201,4 +201,9 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
 - **Tested** (2026-10-28): those nameless / misread lines ("p1a: The opposing", "p2a: God") make a Pokémon that
   never switched in. parser.js gives it no species; Momentum leaves such Pokémon out (they never faint, so 4 games'
   losers ended above 0%). tests.js checks every saved game ends with 0 left = 0% HP.
+- **Tested** (2026-10-28): `tools/audit_video_games.py` lists per game what the log itself shows is wrong (72 in 32
+  games; 11 games clean): misread names, nameless switch-ins, moves that don't exist, "0 fnt" with no faint, chip
+  damage that leaves HP unchanged, Rough Skin / Iron Barbs read as Aftermath, hit counts with hits missing, a side
+  doing nothing in a turn. It can't see a misread that still makes sense (a wrong but plausible HP, a real move
+  name for the wrong one, a missing crit / status line that leaves no trace): only the video shows those.
 - Revival Blessing (Pawmot) makes a Pokémon faint twice: real, not a misread (DEJIME's games).

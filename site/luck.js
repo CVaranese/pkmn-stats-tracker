@@ -271,7 +271,7 @@
 
   /**
    * A game's key moments from its scored rolls, in turn order: [{turn, actor, target, text, chance, good}].
-   * Counted (rules in docs/knowledge/luck.md): a crit that KO'd, a miss of a move that hits 80%+ of the time
+   * Counted (rules in docs/knowledge/luck.md): every crit (a KO said), a miss of a move that hits 80%+ of the time
    * (any Hydro Pump miss), a status / flinch secondary with a 30% chance or less, full paralysis, hitting itself in
    * confusion, thawing out, waking on the 2nd sleep turn. The same Pokemon fully paralyzed on back-to-back
    * turns is one moment. Over `most`: the least likely kept, still in turn order.
@@ -288,7 +288,8 @@
       let text = null;
       if (r.kind === "hit" && e.label.startsWith("crit with ")) {
         const move = e.label.slice(10);
-        if (r.fainted) text = `crit ${move} KO'd ${at}`;  // a crit that didn't KO made no difference (user)
+        // every crit (user 2026-10-28); whether it mattered needs a damage calc (FEATURES, later)
+        text = r.fainted ? `crit ${move} KO'd ${at}` : `crit ${move} on ${at}`;
       } else if (r.kind === "hit" && e.label.includes(" from ") && !e.label.startsWith("no ")) {
         const [what, mv] = e.label.split(" from ");
         text = what === "flinch" ? `${mv} made ${at} flinch` : what === "sleep" ? `${mv} put ${at} to sleep`

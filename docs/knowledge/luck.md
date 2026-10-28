@@ -115,9 +115,8 @@ Breaker / Teravolt / Turboblaze ignore the target's ability. **Tested** (30 corp
 sheet for the multi-hit part.
 
 ## Key moments (rules set with the user, 2026-10-28)
-`Luck.keyMoments` picks scored rolls whose outcome had a 34% chance or less: a crit that KO'd (one that didn't
-"made no difference", user 2026-10-28; a crit KO a normal hit would also have scored still counts: no damage
-calc), a miss of a move with 80%+ to hit (user 2026-10-28), any Hydro Pump miss whatever the odds (a league joke), a status / flinch secondary that landed (30% or less),
+`Luck.keyMoments` picks scored rolls whose outcome had a 34% chance or less: every crit, "KO'd" when it KO'd (user 2026-10-28: only crits that made the difference, i.e. a
+normal hit wouldn't have KO'd, should count, but that needs a damage calc: later, see FEATURES), a miss of a move with 80%+ to hit (user 2026-10-28), any Hydro Pump miss whatever the odds (a league joke), a status / flinch secondary that landed (30% or less),
 full paralysis, a confusion self-hit, thawing, waking on the 2nd sleep turn. The same Pokémon fully paralyzed on
 back-to-back turns is one moment (chances multiplied). Over 10 in a game: the 10 least likely, kept in turn order.
 Each roll carries `turn` (parser.js `snap` / `self`). Multi-hit counts aren't moments (no single chance).
