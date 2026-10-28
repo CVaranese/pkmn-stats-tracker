@@ -18,7 +18,7 @@ async function readMockSheets() {
   await Promise.all(library.flatMap((g) => sheetsOf(g.id).map(async (player) => {
     const id = g.id;
     try {
-      const resp = await fetch(`mock/${id}-${player}.txt`);
+      const resp = await fetch(`${DIR}mock/${id}-${player}.txt`);
       if (!resp.ok) return;
       const sets = TS.parseTeam(await resp.text());
       addToPool(pool, player, id, sets);
@@ -65,7 +65,7 @@ async function addMockSheets(ids) {
   for (const id of ids) {
     for (const player of sheetsOf(id)) {
       try {
-        const resp = await fetch(`mock/${id}-${player}.txt`);
+        const resp = await fetch(`${DIR}mock/${id}-${player}.txt`);
         const text = resp.ok ? (await resp.text()).trim() : "";
         if (text && !have.has(text)) { addSheetBox(text); have.add(text); }
       } catch (e) { /* no saved sheet: the game still loads */ }

@@ -1,4 +1,4 @@
-"""Write site/games/records.json: each league player's win-loss record from the Challonge bracket, under the
+"""Write site/ppppp/games/records.json: each league player's win-loss record from the Challonge bracket, under the
 bracket's names (the user OK'd showing these, 2026-10-27).
 
 Needs the Challonge API v1 key in ~/.challonge_key.
@@ -13,7 +13,7 @@ from datetime import date
 
 SLUG = "peepeepeepeepiss"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "site", "games", "records.json")
+OUT = os.path.join(ROOT, "site", "ppppp", "games", "records.json")  # Pinecord's bracket
 
 
 def main():

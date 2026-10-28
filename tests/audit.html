@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Library audit</title></head>
 <body>
-<!-- Every saved league game (site/games/) through parser.js, with hidden-Zoroark picks as the site counts them.
+<!-- Every saved league game (site/ppppp/games/) through parser.js, with hidden-Zoroark picks as the site counts them.
      Title PASS / FAIL (n): FAIL lines break a rule that holds in every game; the other lines are worth a look.
      Run: .claude/skills/test/run-audit.ps1 (the add-game skill runs it after adding a game). -->
 <pre id="out">running</pre>
@@ -18,14 +18,14 @@ const RS = window.ReplayStats, TS = window.TeamSheets, Bet = window.Bet, IL = wi
   const fails = [];
   const fail = (id, msg) => fails.push("FAIL " + id + " | " + msg);
   const note = (id, msg) => out.push(id + " | " + msg);
-  const lib = (await (await fetch("../site/games/index.json")).json()).games;
-  const draft = await (await fetch("../site/games/draft.json")).json();
+  const lib = (await (await fetch("../site/ppppp/games/index.json")).json()).games;
+  const draft = await (await fetch("../site/ppppp/games/draft.json")).json();
   const all = [];
   const learn = await IL.loadLearnsets("../site/data/learnsets.json");
   const dex = await (await fetch("../site/data/pokedex.json")).json();
   for (const g of lib) {
     let replay;
-    try { replay = await (await fetch("../site/games/" + g.id + ".json")).json(); } catch (e) { fail(g.id, "won't load"); continue; }
+    try { replay = await (await fetch("../site/ppppp/games/" + g.id + ".json")).json(); } catch (e) { fail(g.id, "won't load"); continue; }
     // hidden Zoroark: the site's rule (illusion.js), with the library's picks; the admin's local picks don't apply here
     const zb = RS.parseBattle(replay.log);
     if (IL.hiddenSides(zb).length) {

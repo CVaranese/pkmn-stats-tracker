@@ -271,8 +271,6 @@ function momentumChart(points, players, rs) {
   wrap.append(el("h3", "", "Momentum"), legend, svg, read);
   return wrap;
 }
-// short league name for video titles, e.g. "PPPPP Week 6 Big Large Vs Nezergy" (PeterPikmon's videos)
-const LEAGUE_TAGS = { pinecord: "PPPPP" };
 /** Copy buttons for the league's videos: a YouTube title, and the names + MVPs for the thumbnail. */
 function videoButtons(id) {
   const g = library.find((x) => x.id === id);
@@ -290,7 +288,7 @@ function videoButtons(id) {
     });
     return b;
   };
-  const title = () => [g && LEAGUE_TAGS[g.league], g && g.week, players.join(" Vs ")].filter(Boolean).join(" ");
+  const title = () => [g && LEAGUE.tag, g && g.week, players.join(" Vs ")].filter(Boolean).join(" ");
   const thumb = () => [players.join(" vs "), ...players.map((p) => {
     const mvp = rows.find((r) => r.player === p && r.mvp);
     return `${p} MVP: ${mvp ? mvp.pokemon : "none"}`;

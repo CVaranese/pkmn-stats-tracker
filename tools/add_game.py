@@ -1,17 +1,17 @@
 """Add a league game to the site's game library.
 
-Saves the replay's JSON as site/games/<id>.json and adds a line to site/games/index.json
+Saves the replay's JSON as site/<league>/games/<id>.json and adds a line to site/<league>/games/index.json
 (players, winner, date and turns read from the replay). Running it again for the same game
-updates its labels instead of adding it twice.
+updates its labels instead of adding it twice. --league is a league id from site/leagues.json.
 
-    python tools/add_game.py https://replay.pokemonshowdown.com/gen9nationaldex-123 --week "Week 3"
-    python tools/add_game.py gen9nationaldex-123 --week "Playoffs R1" --note "Game 2"
+    python tools/add_game.py https://replay.pokemonshowdown.com/gen9nationaldex-123 --league ppppp --week "Week 3"
+    python tools/add_game.py gen9nationaldex-123 --league ppppp --week "Playoffs R1" --note "Game 2"
 
 A game rebuilt from its YouTube stream (tools/video_to_replay.py) has no Showdown replay: give the video link
 and the rebuilt JSON. It's stored as video-<youtube id, lowercase>, dated by --date: the day the game was played
 (league games are Sundays at 9pm Pacific, usually the Sunday before the video went up), not the upload day.
 
-    python tools/add_game.py https://youtu.be/d1nX5QVh-CA --file video-d1nX5QVh-CA.json --week "Week 2" --date 2026-09-13
+    python tools/add_game.py https://youtu.be/d1nX5QVh-CA --file video-d1nX5QVh-CA.json --league ppppp --week "Week 2" --date 2026-09-13
 
 A game's date is its week's Sunday (the Sunday on or before the day it was played, in Pacific time: a replay saved
 Sunday 9pm Pacific is Monday in UTC). The site shows only the week; the date orders games.
@@ -20,14 +20,15 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-GAMES = Path(__file__).resolve().parent.parent / "site" / "games"
-INDEX = GAMES / "index.json"
+SITE = Path(__file__).resolve().parent.parent / "site"
+GAMES = INDEX = None  # site/<league>/games/ and its index.json, set by main() from --league
 
 
 def write_atomic(path, text):
@@ -36,7 +37,7 @@ def write_atomic(path, text):
     tmp.write_text(text, encoding="utf-8")
     os.replace(tmp, path)
 REPLAY_HOST = "https://replay.pokemonshowdown.com/"
-SAVED = [GAMES.parent / "mock", GAMES.parent.parent / "tests" / "fixtures"]
+SAVED = [SITE.parent / "tests" / "fixtures"]  # + the league's mock/, set by main()
 
 
 def replay_id(text):
@@ -102,11 +103,18 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("replay", help="replay link or id")
     ap.add_argument("--week", required=True, help='label to group by, e.g. "Week 3" or "Playoffs R1"')
-    ap.add_argument("--league", default="pinecord")
+    ap.add_argument("--league", required=True, help="league id from site/leagues.json, e.g. ppppp")
     ap.add_argument("--note", default="")
     ap.add_argument("--file", help="a saved copy of the replay's .json, when Showdown is down; for a video, the rebuilt one")
     ap.add_argument("--date", help="YYYY-MM-DD, for a game with no upload time (a video): the day it was played, not the upload day")
     args = ap.parse_args()
+    global GAMES, INDEX
+    leagues = [lg["id"] for lg in json.loads((SITE / "leagues.json").read_text(encoding="utf-8"))["leagues"]]
+    if args.league not in leagues:
+        sys.exit(f"Unknown league {args.league!r}: one of {', '.join(leagues)} (site/leagues.json)")
+    GAMES = SITE / args.league / "games"
+    INDEX = GAMES / "index.json"
+    SAVED.insert(0, SITE / args.league / "mock")
 
     rid = replay_id(args.replay)
     copy = GAMES / (rid + ".json")
@@ -149,6 +157,8 @@ def main():
     vs = " vs ".join(entry["players"])
     print(f"{'Updated' if old is not None else 'Added'} {rid}: {args.week}, {vs}, winner {entry['winner'] or '?'}, "
           f"{entry['turns']} turns, {entry['date']}")
+    # the landing page shows each league's game count
+    subprocess.run([sys.executable, "-I", str(SITE.parent / "tools" / "build_pages.py")], check=False)
 
 
 if __name__ == "__main__":

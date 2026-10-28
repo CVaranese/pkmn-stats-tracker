@@ -1,36 +1,112 @@
+/* The default theme, for a league without its own (site/<league>/theme.css redefines these tokens). Three palettes
+   after starter Pokémon, picked in the page header (html data-palette): Blastoise (the default: blue shell, cream
+   belly), Charizard (orange, flame yellow), Venusaur (green, flower pink). */
 :root {
-  /* colours from the league banner: mint tiles, cream porcelain, black pixel outlines */
-  --bg: #f7f1e3;
-  --surface: #fffdf7;
-  --text: #1c1c1a;
-  --muted: #5f625d;
-  --border: #dccfb4;
-  --accent: #1f6f61;
-  --accent-text: #ffffff;
-  --row-alt: #f6eedb;
-  --outline: #2a2a28;
-  --band: #d9efe8;
-  --porcelain: #f0dcb4;
-  --wall: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Crect width='120' height='60' fill='%23a6dccd'/%3E%3Cpath d='M0 1h120M0 31h120M1 0v30M61 30v30' stroke='%23c9ece2' stroke-width='3'/%3E%3C/svg%3E");
   --error: #b3261e;
   --error-bg: #fbeceb;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --error: #ffb4ab; --error-bg: #3b1d1a; }
+}
+:root {
+  --bg: #f2f5f9;
+  --surface: #fdfdfb;
+  --text: #1b2130;
+  --muted: #56627a;
+  --border: #cfd9e6;
+  --accent: #2c5aa0;
+  --accent-text: #ffffff;
+  --row-alt: #edf1f6;
+  --outline: #1e2633;
+  --band: #dde7f4;
+  --porcelain: #ead9b2;
+  --wall: #d3deec;
+  --stripe: repeating-linear-gradient(-60deg, #2c5aa0 0 14px, #ead9b2 14px 28px);
+  --stripe-box: repeating-linear-gradient(-60deg, #2c5aa0 0 14px, #ead9b2 14px 28px);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #182a26;
-    --surface: #1f3430;
-    --text: #eef5f2;
-    --muted: #a8c1ba;
-    --border: #335048;
-    --accent: #8fd9c6;
-    --accent-text: #0d2420;
-    --row-alt: #243a35;
-    --outline: #08120f;
-    --band: #15302b;
-    --wall: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Crect width='120' height='60' fill='%2310302a'/%3E%3Cpath d='M0 1h120M0 31h120M1 0v30M61 30v30' stroke='%2317403a' stroke-width='3'/%3E%3C/svg%3E");
-    --error: #ffb4ab;
-    --error-bg: #3b1d1a;
+    --bg: #151c27;
+    --surface: #1c2532;
+    --text: #eef2f8;
+    --muted: #a8b5c9;
+    --border: #2f3b4d;
+    --accent: #94b8f0;
+    --accent-text: #0d1a2e;
+    --row-alt: #212b3a;
+    --outline: #070a10;
+    --band: #1a2638;
+    --porcelain: #ead9b2;
+    --wall: #0e131b;
+    color-scheme: dark;
+  }
+}
+:root[data-palette="charizard"] {
+  --bg: #fbf3ec;
+  --surface: #fffaf5;
+  --text: #2b1d16;
+  --muted: #6b5d55;
+  --border: #ead2bd;
+  --accent: #b8400e;
+  --accent-text: #ffffff;
+  --row-alt: #fbefe4;
+  --outline: #2b211c;
+  --band: #fde3cf;
+  --porcelain: #f6c453;
+  --wall: #f3d9c4;
+  --stripe: repeating-linear-gradient(-60deg, #b8400e 0 14px, #f6c453 14px 28px);
+  --stripe-box: repeating-linear-gradient(-60deg, #b8400e 0 14px, #f6c453 14px 28px);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="charizard"] {
+    --bg: #221813;
+    --surface: #2c201a;
+    --text: #f7ece4;
+    --muted: #c4ae9f;
+    --border: #4a362b;
+    --accent: #ffa66b;
+    --accent-text: #2a1308;
+    --row-alt: #33251e;
+    --outline: #0e0907;
+    --band: #3a2418;
+    --porcelain: #f6c453;
+    --wall: #170f0b;
+    color-scheme: dark;
+  }
+}
+:root[data-palette="venusaur"] {
+  --bg: #f1f6ee;
+  --surface: #fbfdf9;
+  --text: #1c261e;
+  --muted: #57665a;
+  --border: #cfe0c8;
+  --accent: #2f7d3a;
+  --accent-text: #ffffff;
+  --row-alt: #ebf3e7;
+  --outline: #1f2a20;
+  --band: #dcefd9;
+  --porcelain: #f0a6bb;
+  --wall: #d6e8cf;
+  --stripe: repeating-linear-gradient(-60deg, #2f7d3a 0 14px, #f0a6bb 14px 28px);
+  --stripe-box: repeating-linear-gradient(-60deg, #2f7d3a 0 14px, #f0a6bb 14px 28px);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="venusaur"] {
+    --bg: #16211a;
+    --surface: #1d2b22;
+    --text: #edf5ee;
+    --muted: #a9c0ae;
+    --border: #314637;
+    --accent: #8fd49a;
+    --accent-text: #0e2213;
+    --row-alt: #223228;
+    --outline: #070d09;
+    --band: #1b3324;
+    --porcelain: #f0a6bb;
+    --wall: #0f1712;
     color-scheme: dark;
   }
 }
@@ -47,12 +123,33 @@ main { max-width: 1100px; margin: 24px auto; padding: 24px 24px 48px; background
   border: 3px solid var(--outline); border-radius: 12px; }
 header { display: grid; grid-template-columns: minmax(0, 420px) 1fr; gap: 20px; align-items: center;
   padding-bottom: 20px; margin-bottom: 20px; position: relative; }
-/* the banner's striped floor */
+/* a line under the header (Pinecord: the banner's striped floor) */
 header::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; border-radius: 3px;
-  background: repeating-linear-gradient(-60deg, #1c1c1a 0 14px, #f4f4f0 14px 28px, #9a9a96 28px 32px); }
+  background: var(--stripe); }
 .banner { display: block; width: 100%; height: auto; border: 3px solid var(--outline); border-radius: 8px; }
 h1 { font-size: 1.6rem; margin: 0 0 4px; }
 .lede { color: var(--muted); margin: 0; max-width: 70ch; }
+header:not(:has(.banner)) { grid-template-columns: 1fr; }
+/* a league without its own theme: its palettes as sprite buttons in the header's top right */
+.palette-pick { position: absolute; top: 0; right: 0; display: flex; gap: 4px; }
+.palette-pick button { padding: 0; width: 52px; height: 52px; display: grid; place-items: center; border-color: transparent;
+  background: transparent; }
+.palette-pick button[aria-pressed="true"] { border: 2px solid var(--accent); background: var(--surface); }
+@media (hover: hover) { .palette-pick button:hover { border-color: var(--border); } }
+.palette-pick img { image-rendering: pixelated; }
+header:has(.palette-pick) > div { padding-right: 170px; }
+@media (max-width: 600px) {
+  .palette-pick { position: static; margin-top: 8px; }
+  header:has(.palette-pick) > div { padding-right: 0; }
+}
+/* landing page: one row per league, its banner as a thumbnail */
+.league-list { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 12px; max-width: 720px; }
+.league-list a { display: flex; align-items: center; gap: 16px; padding: 12px; color: var(--text); text-decoration: none;
+  background: var(--surface); border: 2px solid var(--outline); border-radius: 8px; }
+.league-list img { width: 160px; height: auto; border-radius: 4px; flex: none; }
+.league-list strong { display: block; font-size: 18px; }
+@media (hover: hover) { .league-list a:hover { border-color: var(--accent); } }
+@media (max-width: 600px) { .league-list a { flex-direction: column; align-items: flex-start; } .league-list img { width: 100%; } }
 
 label { font-weight: 600; display: block; margin-bottom: 6px; }
 label.inline { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; margin: 0; }
@@ -145,11 +242,11 @@ td.ko-list { font-size: 13px; }
 .ko-matrix th:not(:first-child) { font-size: 12px; max-width: 90px; white-space: normal; text-align: right; }
 .ko-cell { cursor: help; text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
 .tab-page .section-title { margin-top: 22px; }
-/* Gambling, not built yet: one box with the header's black-and-white stripe along its top */
+/* Gambling, not built yet: one box with a stripe along its top (--stripe-box) */
 .soon { max-width: 640px; margin-top: 8px; padding: 0 18px 14px; border: 2px solid var(--outline); border-radius: 8px;
   background: var(--surface); overflow: hidden; }
 .soon::before { content: ""; display: block; height: 10px; margin: 0 -18px 14px;
-  background: repeating-linear-gradient(-45deg, #1c1c1a 0 12px, var(--porcelain) 12px 24px); }
+  background: var(--stripe-box); }
 .soon .section-title { margin-top: 4px; }
 .soon-tag { display: inline-block; margin: 0; padding: 2px 8px; border-radius: 3px; font-size: 13px; font-weight: 600;
   background: var(--accent); color: var(--accent-text); }
@@ -227,7 +324,7 @@ th[aria-sort="ascending"]::after { content: " ▲"; font-size: 0.7em; }
 th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
 tbody tr:nth-child(even) { background: var(--row-alt); }
 tbody tr.not-brought { color: var(--muted); }
-td a { color: var(--accent); }
+td a, .lede a { color: var(--accent); }
 
 th[title] { text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
 

@@ -1,11 +1,11 @@
 /* Every saved league game's rows, loaded once for Players, Pokémon and Fantasy; the draft (aliases, Megas, costs). */
 "use strict";
 
-let draft = null;        // site/games/draft.json: each player's drafted Pokémon and tiers
+let draft = null;        // site/<league>/games/draft.json: each player's drafted Pokémon and tiers
 /** The draft, loaded once ("no-cache": a new draft shows without waiting out the browser cache); null if missing. */
 let draftLoad = null;
 function loadDraft() {
-  return draftLoad || (draftLoad = fetch("games/draft.json", { cache: "no-cache" }).then((r) => r.json())
+  return draftLoad || (draftLoad = fetch(DIR + "games/draft.json", { cache: "no-cache" }).then((r) => r.json())
     .then((d) => { draft = d; }, () => { draft = null; draftLoad = null; }));  // failed: try again next time
 }
 /** Megas as their own Pokémon (Bet.megaName; the draft's Mega only for league games). Runs last: sheets, max HP

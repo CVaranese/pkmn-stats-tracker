@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- made by tools/build_pages.py from site/app/landing.html and site/leagues.json: edit those, then re-run it -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Replay Kill Tracker</title>
+  <meta name="description" content="Kills, damage, MVPs and luck from Pokémon Showdown replays, one page per draft league.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Replay Kill Tracker">
+  <meta property="og:description" content="Kills, damage, MVPs and luck from Pokémon Showdown replays, one page per draft league.">
+  <meta property="og:url" content="{{url}}">
+  <meta name="theme-color" content="#2f5d9e">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+      <h1>Replay Kill Tracker</h1>
+      <p class="lede">Kills, damage, MVPs and luck from Pokémon Showdown replays. Pick a league.</p>
+      </div>
+    </header>
+    <ul class="league-list">
+{{leagues}}    </ul>
+  </main>
+</body>
+</html>

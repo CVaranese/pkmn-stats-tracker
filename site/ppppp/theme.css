@@ -1,0 +1,40 @@
+/* Pinecord's theme: colours from the league banner (mint tiles, cream porcelain, black pixel outlines). Loaded after
+   style.css by the league's page (site/leagues.json "theme_css"); redefines style.css's tokens. */
+:root {
+  --bg: #f7f1e3;
+  --surface: #fffdf7;
+  --text: #1c1c1a;
+  --muted: #5f625d;
+  --border: #dccfb4;
+  --accent: #1f6f61;
+  --accent-text: #ffffff;
+  --row-alt: #f6eedb;
+  --outline: #2a2a28;
+  --band: #d9efe8;
+  --porcelain: #f0dcb4;
+  --wall: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Crect width='120' height='60' fill='%23a6dccd'/%3E%3Cpath d='M0 1h120M0 31h120M1 0v30M61 30v30' stroke='%23c9ece2' stroke-width='3'/%3E%3C/svg%3E");
+  /* the banner's striped floor under the header; black and porcelain along the Gambling box */
+  --stripe: repeating-linear-gradient(-60deg, #1c1c1a 0 14px, #f4f4f0 14px 28px, #9a9a96 28px 32px);
+  --stripe-box: repeating-linear-gradient(-45deg, #1c1c1a 0 12px, var(--porcelain) 12px 24px);
+  --error: #b3261e;
+  --error-bg: #fbeceb;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #182a26;
+    --surface: #1f3430;
+    --text: #eef5f2;
+    --muted: #a8c1ba;
+    --border: #335048;
+    --accent: #8fd9c6;
+    --accent-text: #0d2420;
+    --row-alt: #243a35;
+    --outline: #08120f;
+    --band: #15302b;
+    --wall: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Crect width='120' height='60' fill='%2310302a'/%3E%3Cpath d='M0 1h120M0 31h120M1 0v30M61 30v30' stroke='%2317403a' stroke-width='3'/%3E%3C/svg%3E");
+    --error: #ffb4ab;
+    --error-bg: #3b1d1a;
+    color-scheme: dark;
+  }
+}

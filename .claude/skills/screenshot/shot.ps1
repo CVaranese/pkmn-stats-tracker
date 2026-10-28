@@ -2,11 +2,11 @@
 # Starts `python -m http.server 8765` from the repo root if nothing answers there.
 # Prints the PNG path on the last line.
 param(
-  [string]$Replays = "",          # comma-separated replay ids from site/games/ (1 = One game tab, 2+ = Playoffs tab)
+  [string]$Replays = "",          # comma-separated replay ids from the league's site/<league>/games/ (1 = One game tab, 2+ = Playoffs tab)
   [ValidateSet("dark", "light")][string]$Theme = "dark",
   [int]$Width = 1400,
   [int]$Height = 2200,
-  [string]$Page = "site/",        # path under the repo root, e.g. "tests/"
+  [string]$Page = "site/ppppp/", # path under the repo root, e.g. "site/" (league list), "site/scl/", "tests/"
   [string]$Query = "",            # extra query string, e.g. "online"
   [string]$Name = "shot",
   [string]$OutDir = "$env:TEMP\rs-shots"

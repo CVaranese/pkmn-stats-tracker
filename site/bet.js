@@ -27,6 +27,15 @@
     return [...byId.values()].sort((x, y) => y.wins - x.wins || x.losses - y.losses || x.name.localeCompare(y.name));
   }
 
+  /** What a drafted entry cost: its own price ({pokemon, cost}: a league priced per Pokémon), else its tier's
+      (draft.costs, {pokemon, tier}); null when neither is known. */
+  function pickCost(draft, d) {
+    if (typeof d.cost === "number") return d.cost;
+    return (draft.costs && draft.costs[d.tier]) ?? null;
+  }
+  /** Whether the draft prices by tier (Nat Dex tiers on draft day) rather than per Pokémon. */
+  const hasTiers = (draft) => !!draft && Object.keys(draft.costs || {}).length > 0;
+
   /** The drafted entry for a Pokémon seen in a game: same name, or the Mega that was drafted ("Swampert" -> "Swampert-Mega"),
       or the pool's only entry of that species in another form ("Enamorus" -> "Enamorus-Therian", "Sinistcha-Masterpiece" -> "Sinistcha").
       A player's other Showdown names map to their draft name through draft.aliases ({"DEJIME17": "DEJIME"}). */
@@ -78,13 +87,13 @@
       f.perGame = Math.round(f.points / f.games * 10) / 10;
       const d = drafted(draft, f.player, f.pokemon);
       f.tier = d ? d.tier : "";
-      f.cost = d ? draft.costs[d.tier] : null;
+      f.cost = d ? pickCost(draft, d) : null;
       f.perCost = f.cost ? Math.round(f.points / f.cost * 10) / 10 : null;
     }
     return [...by.values()].sort((a, b) => b.points - a.points || b.kills - a.kills || a.pokemon.localeCompare(b.pokemon));
   }
 
-  const Bet = { SCORING, playerKey, records, drafted, megaName, fantasy };
+  const Bet = { SCORING, playerKey, records, drafted, pickCost, hasTiers, megaName, fantasy };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);

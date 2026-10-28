@@ -1,4 +1,4 @@
-"""Set which stays on the field were a hidden Zoroark in a league game (admin's pick), in site/games/index.json.
+"""Set which stays on the field were a hidden Zoroark in a league game (admin's pick), in its league's site/<league>/games/index.json.
 Stays are numbered per side as the site lists them (1 = the lead, then each switch-in). The site counts them
 for Zoroark instead of the Pokemon it copied; with no pick it uses only the stays it can prove.
 Usage: python -I tools/set_illusion.py <game id> <p1|p2> <n,n,...|none|auto>
@@ -6,7 +6,15 @@ Usage: python -I tools/set_illusion.py <game id> <p1|p2> <n,n,...|none|auto>
 import json, os, sys
 from pathlib import Path
 
-INDEX = Path(__file__).resolve().parent.parent / "site" / "games" / "index.json"
+SITE = Path(__file__).resolve().parent.parent / "site"
+
+
+def index_with(gid):
+    """The league game list (site/<league>/games/index.json) that has this game."""
+    for path in sorted(SITE.glob("*/games/index.json")):
+        if any(g["id"] == gid for g in json.loads(path.read_text(encoding="utf-8"))["games"]):
+            return path
+    sys.exit(f"{gid} isn't in any league's site/<league>/games/index.json")
 
 
 def write_atomic(path, text):
@@ -19,6 +27,7 @@ if __name__ == "__main__":
     if len(sys.argv) != 4 or sys.argv[2] not in ("p1", "p2"):
         sys.exit(__doc__)
     gid, side, pick = sys.argv[1:]
+    INDEX = index_with(gid)
     index = json.loads(INDEX.read_text(encoding="utf-8"))
     game = next((g for g in index["games"] if g["id"] == gid), None)
     if game is None:

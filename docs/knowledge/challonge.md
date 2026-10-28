@@ -12,7 +12,7 @@
 - **Guess**: Showdown replay ids for gen9nationaldex rose about 4 million a week in Sep-Oct 2026 (ids are shared
   across all formats). Good enough to guess the week of a replay; confirm with its `uploadtime`.
 - **Tested** (2026-10-27): the tournament is `swiss`, state `underway`, 12 participants; 47 of 48 round 1-8 matches
-  complete. Each match also has `loser_id`. `tools/challonge_records.py` turns this into `site/games/records.json`
+  complete. Each match also has `loser_id`. `tools/challonge_records.py` turns this into `site/ppppp/games/records.json`
   under the bracket's names (the user OK'd showing them on the site, 2026-10-27).
 
 ## Draft sheet (Google Sheets)

@@ -1,0 +1,44 @@
+{
+  "_note": "One entry per league. Its files are in site/<id>/ (games/, mock/, img/, theme.css). theme_css: the league's own colours over style.css's default theme (leave it out for the default); theme: the browser bar colour. After any change run python -I tools/build_pages.py: it writes site/<id>/index.html and the landing page site/index.html. palette: the default theme's starting palette (blastoise, charizard, venusaur), for a league without theme_css.",
+  "site_url": "https://cvaranese.github.io/pkmn-stats-tracker/",
+  "leagues": [
+    {
+      "id": "ppppp",
+      "name": "Pinecord Pokémon Pissfest",
+      "short": "Pinecord",
+      "tag": "PPPPP",
+      "format": "gen9nationaldex",
+      "format_name": "Nat Dex singles",
+      "title": "Replay Kill Tracker",
+      "description": "Kills, damage, MVPs and luck from Pokémon Showdown replays for the Pinecord league.",
+      "lede": "Kills, damage, MVPs and luck from Pinecord's Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets.",
+      "banner": {
+        "src": "img/banner.webp",
+        "width": 1920,
+        "height": 1080,
+        "alt": "Peter Pikmon's Pinecord Pokémon Pissfest: a Pineco in a urinal on a mint tiled wall"
+      },
+      "preview": {
+        "src": "img/preview.png",
+        "width": 1200,
+        "height": 675,
+        "alt": "Peter Pikmon's Pinecord Pokémon Pissfest banner"
+      },
+      "theme": "#1f6f61",
+      "theme_css": "theme.css"
+    },
+    {
+      "id": "scl",
+      "name": "Super Champions League",
+      "short": "Super Champions",
+      "tag": "SCL",
+      "format": "",
+      "format_name": "Pokémon Champions VGC doubles",
+      "title": "Super Champions League",
+      "description": "Kills, damage, MVPs and luck from Pokémon Showdown replays for the Super Champions League.",
+      "lede": "Kills, damage, MVPs and luck from the Super Champions League's Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets.",
+      "theme": "#2f5d9e",
+      "palette": "blastoise"
+    }
+  ]
+}

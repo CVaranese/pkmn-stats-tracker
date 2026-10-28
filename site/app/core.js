@@ -11,10 +11,15 @@ const $ = (id) => document.getElementById(id);
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
 const LOCAL = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname) &&
   !new URLSearchParams(location.search).has("online");
-const STORAGE_KEY = "replay-kill-tracker.links";
-const SHEETS_KEY = "replay-kill-tracker.sheets";
-const ONE_KEY = "replay-kill-tracker.one-link";
-const MODE_KEY = "replay-kill-tracker.mode";
+// the league this page is for (site/leagues.json, written into the page by tools/build_pages.py); its files are in
+// site/<id>/ (games, team sheets, trainer sprites), everything shared is one folder up (the page's <base>)
+const LEAGUE = window.LEAGUE || { id: "", name: "", tag: "" };
+const DIR = LEAGUE.id ? LEAGUE.id + "/" : "";
+const KEYS = "replay-kill-tracker." + DIR.replace("/", ".");  // remembered per league
+const STORAGE_KEY = KEYS + "links";
+const SHEETS_KEY = KEYS + "sheets";
+const ONE_KEY = KEYS + "one-link";
+const MODE_KEY = KEYS + "mode";
 const cache = new Map();   // replay id -> replay json (for this page visit)
 const pasteCache = new Map(); // pokepaste id -> export text
 let rows = [];             // game rows from the last run

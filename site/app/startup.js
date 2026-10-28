@@ -3,6 +3,20 @@
 "use strict";
 
 RS.setLocalOnly(LOCAL);
+// a league without its own theme: the viewer's palette (style.css; the page's first script already applied the saved one)
+if ($("palette")) {
+  const buttons = [...$("palette").querySelectorAll("button")];
+  const mark = (p) => {
+    const known = buttons.some((b) => b.dataset.palette === p) ? p : LEAGUE.palette;
+    for (const b of buttons) b.setAttribute("aria-pressed", String(b.dataset.palette === known));
+  };
+  mark(document.documentElement.dataset.palette);
+  for (const b of buttons) b.addEventListener("click", () => {
+    document.documentElement.dataset.palette = b.dataset.palette;
+    mark(b.dataset.palette);
+    try { localStorage.setItem(KEYS + "palette", b.dataset.palette); } catch (e) { /* storage blocked */ }
+  });
+}
 // remember pasted links between visits (convenience only; the page works without it)
 try { $("links").value = localStorage.getItem(STORAGE_KEY) || ""; } catch (e) { /* storage blocked */ }
 $("links").addEventListener("input", () => {
@@ -32,13 +46,13 @@ window.addEventListener("popstate", (e) => {
   const g = st.watch && library.find((x) => x.id === st.watch);
   if (g) watchHere(g, false); else closeWatch();
 });
-const libraryReady = fetch("games/index.json")
+const libraryReady = fetch(DIR + "games/index.json")
   .then((r) => (r.ok ? r.json() : { games: [] }))
   .catch(() => ({ games: [] }))
   .then((index) => {
     // by date (the order added when the same): games added late, e.g. rebuilt from stream videos, sit in their week
     library = (index.games || []).sort((a, b) => (a.date || "").localeCompare(b.date || ""));
-    RS.setLibrary(library.map((g) => g.id));
+    RS.setLibrary(library.map((g) => g.id), DIR + "games/");
     // Showdown names ignore case and spaces ("Nezergy" = "nezergy"): one entry per name, as first spelled
     const players = new Map();
     for (const p of library.flatMap((g) => g.players)) if (!players.has(TS.toID(p))) players.set(TS.toID(p), p);

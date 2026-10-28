@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Several leagues: the site's front page is now a list of leagues, and each league has its own address (`…/ppppp/` for Pinecord, `…/scl/` for the Super Champions League) with its own games, draft, banner, colours and Discord link preview. Old links to the front page with `?tab=` no longer open Pinecord's tabs (links shared before need `ppppp/` added).
+- New league: the Super Champions League (Pokémon Champions VGC), with each coach's draft from the league sheet so far (two misspelt names fixed: Staraptor-Mega, Lycanroc-Midnight); its games come next. A league that prices each Pokémon (no tiers) has no Tier column on Draft and Fantasy. A league without its own colours gets a theme picker, three starter sprites in the header's top right (under the intro on a phone): Blastoise (blue and cream, the default), Charizard (orange and flame yellow) or Venusaur (green and flower pink), light and dark, remembered in the browser; Pinecord keeps its mint tiles and striped floor.
 - Momentum chart: a ▲ on the turn of each key moment (in that side's colour); the readout under the chart says what happened that turn.
 - Move lists: a small three-letter type tag (FIR, WAT, DRA) in the type's colour before each move, and a muted P / S / – (physical / special / status) after it; in a game without a team sheet, one greyed "Not shown" row per move the Pokémon never showed.
 - Momentum chart: a misread name in a game rebuilt from video ("The opposing") no longer counts as an extra Pokémon that never faints. Four games ended with the loser still showing HP (Week 3 azpmCloudburst vs potatoesareyum stayed at 76%); every saved game now ends at 0%.

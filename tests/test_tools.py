@@ -1,4 +1,4 @@
-"""Tests for the pure parts of tools/add_game.py. Run: python -I tests/test_tools.py"""
+"""Tests for the pure parts of tools/add_game.py, and that tools/build_pages.py's pages are up to date. Run: python -I tests/test_tools.py"""
 import importlib.util
 import unittest
 from pathlib import Path
@@ -59,6 +59,15 @@ class Summary(unittest.TestCase):
         s = add_game.summary({"log": "|player|p1|Ann|\n|turn|1", "players": ["Ann", "Bob"], "uploadtime": 0})
         self.assertEqual((s["winner"], s["turns"]), ("", 1))
 
+
+
+class Pages(unittest.TestCase):
+    def test_league_pages_up_to_date(self):
+        """site/index.html and site/<league>/index.html match their templates (tools/build_pages.py)."""
+        spec = importlib.util.spec_from_file_location("build_pages", Path(__file__).resolve().parent.parent / "tools" / "build_pages.py")
+        build_pages = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(build_pages)
+        self.assertEqual(build_pages.main(["--check"]), 0, "run python -I tools/build_pages.py")
 
 if __name__ == "__main__":
     unittest.main()

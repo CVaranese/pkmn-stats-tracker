@@ -21,6 +21,15 @@ the real stylesheet; screenshot it (both themes) next to any new control before 
 
 No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain: those are the only fixed colours.
 
+- **League themes**: `style.css`'s `:root` is the default theme, for any league without its own: three palettes
+  after starters on `html[data-palette]` (Blastoise = plain `:root`, Charizard, Venusaur; `PALETTES` in
+  tools/build_pages.py), picked by the viewer with `.palette-pick` (one gen5 sprite button per palette, header top right, the picked one
+  outlined in `--accent`; under the intro below 600px); a league's default is `palette` in
+  `site/leagues.json`. Each sets every token light and dark, and `--stripe` is two of its colours. A league's own colours go in `site/<league>/theme.css` (named by `theme_css` in
+  `site/leagues.json`), redefining the same tokens, light and dark; `--stripe` / `--stripe-box` are the line under the
+  header and along the Gambling box. Pinecord's (`site/ppppp/theme.css`) is the banner's mint tiles and striped floor.
+  Never use a colour in a rule that a theme can't change: add a token.
+
 ## Controls (use these; add a new one only when none fits, and add it to `tests/style.html`)
 - **Button**: plain `button` (surface, 1px border, 6px radius). `button.primary` once per form, for the main action
   (Get stats). `button.small` for secondary actions in toolbars and table rows (Stats, Watch, Close).

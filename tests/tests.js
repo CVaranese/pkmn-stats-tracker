@@ -430,9 +430,9 @@
     // gen9nationaldex-2693018008 (Week 5): the league admin's pick in index.json says nezergy's "Iron Valiant"
     // (stint 5, turns 14-15) was Zoroark-Hisui. Hand-counted: it KOs Cresselia (Space Lapras) with Shadow Ball
     // on turn 15; the real Iron Valiant never came in.
-    const index = await (await fetch("../site/games/index.json")).json();
+    const index = await (await fetch("../site/ppppp/games/index.json")).json();
     const g = index.games.find((x) => x.id === "gen9nationaldex-2693018008");
-    const replay = await (await fetch("../site/games/gen9nationaldex-2693018008.json")).json();
+    const replay = await (await fetch("../site/ppppp/games/gen9nationaldex-2693018008.json")).json();
     const rows = RS.gameRows({ ...replay, illusion: g.illusion });
     const r = (sp) => rows.find((x) => x.player === "nezergy" && x.pokemon === sp) || {};
     check("2693018008: admin pick, Zoroark-Hisui KOs Cresselia, Iron Valiant not brought", same(g.illusion, { p2: [5] }) &&
@@ -746,7 +746,7 @@ Ability: Screen Cleaner
       .then(() => "loaded", (e) => e.message);
     RS.setLocalOnly(false);
     check("local version: no Showdown request", !called && /isn't contacted/.test(local), local);
-    // game library: a stored game loads from site/games/, even in the local version
+    // game library: a stored game loads from site/ppppp/games/, even in the local version
     RS.setLibrary(["x-2"]);
     RS.setLocalOnly(true);
     const asked = [];
@@ -1332,8 +1332,8 @@ ${switchIn}`).hiddenZoroark;
   // the league library (rebuilt video logs included): a side with no Pokemon left has 0% HP on the chart
   {
     const off = [];
-    for (const g of (await (await fetch("../site/games/index.json")).json()).games) {
-      const rs = RS.gameRows(await (await fetch(`../site/games/${g.id}.json`)).json());
+    for (const g of (await (await fetch("../site/ppppp/games/index.json")).json()).games) {
+      const rs = RS.gameRows(await (await fetch(`../site/ppppp/games/${g.id}.json`)).json());
       for (const p of rs[0].momentum) {
         for (const side of ["p1", "p2"]) if (!p[side].left && p[side].hp) off.push(`${g.id} turn ${p.turn}: ${side} 0 left, ${p[side].hp}% HP`);
       }

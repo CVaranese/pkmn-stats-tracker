@@ -1,0 +1,472 @@
+{
+ "note": "From the league's Google Sheet, Rosters tab (tools/scl_draft.py). Prices are per Pokémon, budget 100 for 9 to 11 Pokémon. aliases: other Showdown names a coach used -> their name here.",
+ "aliases": {},
+ "costs": {},
+ "teams": {
+  "Dox": "Gerard Blades",
+  "Soop": "Seoul Basculegions",
+  "Aargab": "Torrington Torkoals",
+  "RyanGab": "Empire State Archaludons",
+  "Leaf": "Eterna Forest Enjoyers",
+  "Mattioli": "Mighty Morphin Metagross"
+ },
+ "players": {
+  "Sean": [
+   {
+    "pokemon": "Staraptor-Mega",
+    "cost": 18
+   },
+   {
+    "pokemon": "Metagross",
+    "cost": 11
+   },
+   {
+    "pokemon": "Grimmsnarl",
+    "cost": 18
+   },
+   {
+    "pokemon": "Clefable-Mega",
+    "cost": 11
+   },
+   {
+    "pokemon": "Annihilape",
+    "cost": 15
+   },
+   {
+    "pokemon": "Serperior",
+    "cost": 9
+   },
+   {
+    "pokemon": "Glimmora",
+    "cost": 14
+   },
+   {
+    "pokemon": "Clawitzer",
+    "cost": 3
+   },
+   {
+    "pokemon": "Simisear",
+    "cost": 1
+   }
+  ],
+  "Fayz": [
+   {
+    "pokemon": "Charizard-Mega-Y",
+    "cost": 20
+   },
+   {
+    "pokemon": "Mamoswine",
+    "cost": 13
+   },
+   {
+    "pokemon": "Raichu",
+    "cost": 10
+   },
+   {
+    "pokemon": "Aerodactyl-Mega",
+    "cost": 18
+   },
+   {
+    "pokemon": "Scrafty",
+    "cost": 11
+   },
+   {
+    "pokemon": "Cofagrigus",
+    "cost": 9
+   },
+   {
+    "pokemon": "Vileplume",
+    "cost": 3
+   },
+   {
+    "pokemon": "Orthworm",
+    "cost": 10
+   },
+   {
+    "pokemon": "Slowbro",
+    "cost": 6
+   }
+  ],
+  "Saltyswede": [
+   {
+    "pokemon": "Froslass-Mega",
+    "cost": 19
+   },
+   {
+    "pokemon": "Primarina",
+    "cost": 16
+   },
+   {
+    "pokemon": "Crabominable-Mega",
+    "cost": 15
+   },
+   {
+    "pokemon": "Tsareena",
+    "cost": 14
+   },
+   {
+    "pokemon": "Slowking-Galar",
+    "cost": 7
+   },
+   {
+    "pokemon": "Sableye",
+    "cost": 15
+   },
+   {
+    "pokemon": "Armarouge",
+    "cost": 12
+   },
+   {
+    "pokemon": "Camerupt",
+    "cost": 1
+   },
+   {
+    "pokemon": "Toucannon",
+    "cost": 1
+   }
+  ],
+  "Dox": [
+   {
+    "pokemon": "Incineroar",
+    "cost": 19
+   },
+   {
+    "pokemon": "Sinistcha",
+    "cost": 18
+   },
+   {
+    "pokemon": "Kingambit",
+    "cost": 19
+   },
+   {
+    "pokemon": "Ceruledge",
+    "cost": 12
+   },
+   {
+    "pokemon": "Sylveon",
+    "cost": 15
+   },
+   {
+    "pokemon": "Espathra",
+    "cost": 10
+   },
+   {
+    "pokemon": "Audino",
+    "cost": 1
+   },
+   {
+    "pokemon": "Roserade",
+    "cost": 1
+   },
+   {
+    "pokemon": "Simipour",
+    "cost": 1
+   }
+  ],
+  "Soop": [
+   {
+    "pokemon": "Aerodactyl",
+    "cost": 18
+   },
+   {
+    "pokemon": "Blaziken-Mega",
+    "cost": 15
+   },
+   {
+    "pokemon": "Basculegion",
+    "cost": 19
+   },
+   {
+    "pokemon": "Liepard",
+    "cost": 13
+   },
+   {
+    "pokemon": "Gyarados-Mega",
+    "cost": 15
+   },
+   {
+    "pokemon": "Rotom-Fan",
+    "cost": 6
+   },
+   {
+    "pokemon": "Decidueye-Hisui",
+    "cost": 11
+   },
+   {
+    "pokemon": "Sharpedo",
+    "cost": 2
+   },
+   {
+    "pokemon": "Simisage",
+    "cost": 1
+   }
+  ],
+  "Aargab": [
+   {
+    "pokemon": "Venusaur-Mega",
+    "cost": 15
+   },
+   {
+    "pokemon": "Torkoal",
+    "cost": 16
+   },
+   {
+    "pokemon": "Gyarados",
+    "cost": 15
+   },
+   {
+    "pokemon": "Mimikyu",
+    "cost": 14
+   },
+   {
+    "pokemon": "Noivern",
+    "cost": 12
+   },
+   {
+    "pokemon": "Pyroar-Mega",
+    "cost": 12
+   },
+   {
+    "pokemon": "Krookodile",
+    "cost": 11
+   },
+   {
+    "pokemon": "Luxray",
+    "cost": 3
+   },
+   {
+    "pokemon": "Pinsir",
+    "cost": 1
+   }
+  ],
+  "Liebynight": [
+   {
+    "pokemon": "Farigiraf",
+    "cost": 18
+   },
+   {
+    "pokemon": "Golurk-Mega",
+    "cost": 16
+   },
+   {
+    "pokemon": "Tinkaton",
+    "cost": 13
+   },
+   {
+    "pokemon": "Hatterene",
+    "cost": 12
+   },
+   {
+    "pokemon": "Milotic",
+    "cost": 16
+   },
+   {
+    "pokemon": "Salazzle",
+    "cost": 8
+   },
+   {
+    "pokemon": "Scovillain-Mega",
+    "cost": 15
+   },
+   {
+    "pokemon": "Avalugg",
+    "cost": 1
+   },
+   {
+    "pokemon": "Lycanroc-Midnight",
+    "cost": 1
+   }
+  ],
+  "Benito": [
+   {
+    "pokemon": "Mawile-Mega",
+    "cost": 18
+   },
+   {
+    "pokemon": "Rotom-Wash",
+    "cost": 17
+   },
+   {
+    "pokemon": "Typhlosion-Hisui",
+    "cost": 14
+   },
+   {
+    "pokemon": "Staraptor",
+    "cost": 11
+   },
+   {
+    "pokemon": "Umbreon",
+    "cost": 8
+   },
+   {
+    "pokemon": "Meowstic",
+    "cost": 12
+   },
+   {
+    "pokemon": "Gliscor",
+    "cost": 8
+   },
+   {
+    "pokemon": "Toxicroak",
+    "cost": 7
+   },
+   {
+    "pokemon": "Starmie",
+    "cost": 5
+   }
+  ],
+  "RyanGab": [
+   {
+    "pokemon": "Dragonite-Mega",
+    "cost": 16
+   },
+   {
+    "pokemon": "Archaludon",
+    "cost": 19
+   },
+   {
+    "pokemon": "Pelipper",
+    "cost": 16
+   },
+   {
+    "pokemon": "Rhyperior",
+    "cost": 12
+   },
+   {
+    "pokemon": "Scizor",
+    "cost": 11
+   },
+   {
+    "pokemon": "Overqwil",
+    "cost": 13
+   },
+   {
+    "pokemon": "Torterra",
+    "cost": 5
+   },
+   {
+    "pokemon": "Delphox",
+    "cost": 6
+   },
+   {
+    "pokemon": "Beedrill",
+    "cost": 1
+   }
+  ],
+  "Leaf": [
+   {
+    "pokemon": "Swampert-Mega",
+    "cost": 18
+   },
+   {
+    "pokemon": "Whimsicott",
+    "cost": 19
+   },
+   {
+    "pokemon": "Corviknight",
+    "cost": 16
+   },
+   {
+    "pokemon": "Politoed",
+    "cost": 15
+   },
+   {
+    "pokemon": "Jolteon",
+    "cost": 7
+   },
+   {
+    "pokemon": "Blastoise",
+    "cost": 12
+   },
+   {
+    "pokemon": "Absol-Mega",
+    "cost": 6
+   },
+   {
+    "pokemon": "Polteageist",
+    "cost": 4
+   },
+   {
+    "pokemon": "Leafeon",
+    "cost": 3
+   }
+  ],
+  "Kirbyhat": [
+   {
+    "pokemon": "Delphox-Mega",
+    "cost": 17
+   },
+   {
+    "pokemon": "Garchomp",
+    "cost": 19
+   },
+   {
+    "pokemon": "Gardevoir",
+    "cost": 11
+   },
+   {
+    "pokemon": "Empoleon",
+    "cost": 11
+   },
+   {
+    "pokemon": "Meowscarada",
+    "cost": 12
+   },
+   {
+    "pokemon": "Lycanroc-Dusk",
+    "cost": 8
+   },
+   {
+    "pokemon": "Talonflame",
+    "cost": 17
+   },
+   {
+    "pokemon": "Drampa",
+    "cost": 4
+   },
+   {
+    "pokemon": "Ampharos",
+    "cost": 1
+   }
+  ],
+  "Mattioli": [
+   {
+    "pokemon": "Metagross-Mega",
+    "cost": 18
+   },
+   {
+    "pokemon": "Hydreigon",
+    "cost": 15
+   },
+   {
+    "pokemon": "Tyranitar-Mega",
+    "cost": 16
+   },
+   {
+    "pokemon": "Excadrill",
+    "cost": 16
+   },
+   {
+    "pokemon": "Sneasler",
+    "cost": 19
+   },
+   {
+    "pokemon": "Clefable",
+    "cost": 13
+   },
+   {
+    "pokemon": "Stunfisk",
+    "cost": 1
+   },
+   {
+    "pokemon": "Glalie",
+    "cost": 1
+   },
+   {
+    "pokemon": "Meowstic-F",
+    "cost": 1
+   }
+  ]
+ },
+ "trades": {}
+}

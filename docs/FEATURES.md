@@ -12,6 +12,12 @@ Status: `todo` · `in progress` · `done` · `later` (the user set it aside). So
 - Games often end early: in 30 games, 12 forfeits and 2 timer losses (recounted 2026-10-26; was 10) (`lost due to inactivity`).
 - Illusion (Zoroark / Zoroark-Hisui) appears in real games.
 
+## v1.0 release (target set 2026-10-28)
+User 2026-10-28: prep a v1.0 after the Pinecord data corrections, with the missing playoffs features. Not scoped yet.
+Candidates: the video-game fixes (`docs/VIDEO_GAMES_AUDIT.md`), saved games matching the bracket (Karm 6-1 vs 7-1),
+playoff labels in Games and the Weeks picker, Playoff series view (Bo3 sets; the Super Champions League plays every
+week in sets), the review queue cleared, and a version / release note.
+
 ## Bugs / correctness first
 | Status | Item | Notes |
 |---|---|---|
@@ -47,7 +53,7 @@ Status: `todo` · `in progress` · `done` · `later` (the user set it aside). So
 | done | Column tooltips | Requested 2026-10-26: hovering a column name explains it. Done 2026-10-26 (`title` on each header, also on the team-summary stats). |
 | done | League theme | Requested 2026-10-26: colours, logo or background from the league banner. Done 2026-10-26: banner in the header (`site/img/pinecord-banner.webp`), tiled wall background, cream panels, striped-floor divider, light and dark. |
 | done | One game / Several games tabs | Requested 2026-10-26: focus on one game, with a tab for a collection (playoffs ~2026-11-09). Done 2026-10-26. |
-| todo | Several leagues, each with its own theme | User 2026-10-26: another section with a different theme later, unsure how: separate links or a league selector. Suggestion: one config per league (name, banner, colours) picked by the link (`?league=pinecord` or `/pinecord/`), so each league shares its own link and there's no selector to explain. |
+| in progress | Several leagues, each with its own theme | User 2026-10-26: another section with a different theme later. User 2026-10-28: a landing page listing the drafts, each league at its own URL; second league Super Champions League (user 2026-10-28; first called Champions B) (Pokémon Champions VGC, doubles, Bo3 sets, sheet: Rosters / Schedule / Standings). Done 2026-10-28: `site/leagues.json` + `tools/build_pages.py` write `site/index.html` (league list) and `site/<id>/index.html` from one template (per-league title, banner, Discord preview, theme colour); each league's files in `site/<id>/`; tools take `--league`; Super Champions League draft from its sheet (`tools/scl_draft.py`, per-Pokémon prices). Themes done 2026-10-28: default theme in style.css, a league's own in site/<id>/theme.css (Pinecord's); the Super Champions League uses the default, with a viewer Theme picker (user 2026-10-28: Charizard, Venusaur, Blastoise palettes; Blastoise default). Todo: Super Champions League's games / Showdown names (aliases) / Showdown format id, its Bo3 sets (Playoff series view), its standings from the sheet (no Challonge), the 'paste any replay' box on the league list, max HP for Champions (level 50, its own stat system: not researched). |
 | done | Animated sprites in the local version | Done: `tools/save_ani_sprites.py` saves `site/sprites/ani/<id>.gif` (152 saved); used in local mode and when Showdown's sprite server is down. 9 Gen 9 Pokémon have none and keep the pixel sprite. Re-run after adding a game with new Pokémon. |
 | done | YouTube title button (for Pikmon) | Requested 2026-10-27. Done 2026-10-27: "Copy YouTube title" in One game's "This game" copies e.g. `PPPPP Week 6 Big Large Vs Nezergy` (format from Pikmon's video 5f2RATe3kFs). League tag (`LEAGUE_TAGS` in app.js, pinecord → PPPPP, a guess) and week only for games in the library; players in the library's order, else the replay's. |
 | done | Thumbnail info button (for Fingy) | Requested 2026-10-27. Done 2026-10-27 (user: names and MVPs only): "Copy thumbnail info" copies `A vs B`, then `A MVP: <Pokémon>` per player. |

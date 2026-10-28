@@ -80,7 +80,7 @@ Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond 
   base form, not only `Zamazenta-Crowned`.
 - **Tested (2026-10-27):** all 62 ids missing from `site/sprites/gen5/` downloaded with the `spriteId` rule, none
   failed, including `aegislash-blade`, `enamorus-therian`, `sinistcha-masterpiece`, `keldeo-resolute`, `basculegion-f`,
-  `charizard-megax`. To refill: collect species from `site/games/` teams and switch/detailschange lines, fetch the missing.
+  `charizard-megax`. To refill: collect species from `site/ppppp/games/` teams and switch/detailschange lines, fetch the missing.
 
 ## Offline move / Pokédex data (2026-10-26)
 - **Tested:** `site/data/moves.json` and `pokedex.json` were made from the `pokemon-showdown` npm package 0.11.11

@@ -191,7 +191,7 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
 
 ## Known misreads in saved games (checked 2026-10-28)
 - **Tested** (consistency pass over all 45 saved games): kills + self-KOs = deaths in every game, winners and turns match
-  the library. The errors are in damage, healing and status lines, listed per game in `site/games/index.json`
+  the library. The errors are in damage, healing and status lines, listed per game in `site/ppppp/games/index.json`
   `known_errors` (shown in Main viewer). Not rebuilt (user, 2026-10-28: mark them, don't redo the videos).
 - **Tested**: a Pokémon at 1-2% (once at 55%) can come out as `0 fnt` with no faint: `video_convert.py` writes
   `0 fnt` when its running HP estimate reaches 0 (a misread "lost N%"). Seen in 5 games; each comes back later

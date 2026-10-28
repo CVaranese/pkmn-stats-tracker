@@ -25,9 +25,9 @@ async function renderDraft() {
   }));
   showDraft();
 }
-/** The player's trainer sprite from the draft sheet (img/trainers/<key>.png); gone if they have none. */
+/** The player's trainer sprite from the draft sheet (site/<league>/img/trainers/<key>.png); gone if they have none. */
 function trainerImg(key, cls) {
-  const img = Object.assign(el("img", cls), { src: `img/trainers/${key}.png`, alt: "", loading: "lazy" });
+  const img = Object.assign(el("img", cls), { src: `${DIR}img/trainers/${key}.png`, alt: "", loading: "lazy" });
   img.addEventListener("error", () => img.remove());
   return img;
 }
@@ -35,7 +35,7 @@ function trainerImg(key, cls) {
 function draftPick(d, mine) {
   const fs = mine.filter((f) => Bet.drafted(draft, f.player, f.pokemon) === d);
   const add = (k) => fs.reduce((t, f) => t + f[k], 0);
-  const cost = draft.costs[d.tier] ?? null;
+  const cost = Bet.pickCost(draft, d);
   const games = add("games");
   const points = Math.round(add("points") * 10) / 10;
   return { pokemon: d.pokemon, tier: d.tier, cost, games, wins: add("wins"), kills: add("kills"), points,
@@ -72,10 +72,12 @@ function showDraft() {
   $("dr-head").replaceChildren(who, line);
 
   const num = (label, title, key) => ({ label, cls: "num", title, key });
+  // a league priced per Pokémon has no tiers: no Tier column
+  const tiers = Bet.hasTiers(draft);
   sortableTable($("dr-table"), [
     { label: "Pokémon", key: (p) => p.pokemon },
-    { label: "Tier", title: "Its Nat Dex tier on draft day, from the draft sheet.", key: (p) => p.tier },
-    num("Cost", "Draft points it cost (set by its tier on draft day).", (p) => p.cost ?? -1),
+    ...(tiers ? [{ label: "Tier", title: "Its Nat Dex tier on draft day, from the draft sheet.", key: (p) => p.tier }] : []),
+    num("Cost", tiers ? "Draft points it cost (set by its tier on draft day)." : "Draft points it cost, from the draft sheet.", (p) => p.cost ?? -1),
     num("Games", "Games it was brought to (not just shown at team preview).", (p) => p.games),
     num("Wins", "Games won when it was brought.", (p) => p.wins),
     num("KOs", DESCRIPTIONS.kills, (p) => p.kills),
@@ -85,7 +87,7 @@ function showDraft() {
     const mon = el("span", "bet-mon");
     mon.append(sprite(p.pokemon, ["gen5/"], "tiny"), p.games ? seasonLink(p.pokemon, "mons", p.pokemon) : p.pokemon);
     const dash = (v) => (p.games ? String(v) : "–");
-    return [[mon, ""], [p.tier || "–", ""], [p.cost === null ? "–" : String(p.cost), "num"], [String(p.games), "num"],
+    return [[mon, ""], ...(tiers ? [[p.tier || "–", ""]] : []), [p.cost === null ? "–" : String(p.cost), "num"], [String(p.games), "num"],
       [dash(p.wins), "num"], [dash(p.kills), "num"], [dash(p.points.toFixed(1)), "num"],
       [p.perCost === null ? "–" : p.perCost.toFixed(1), "num"]];
   }, (sorted) => {

@@ -24,12 +24,15 @@
   <script>
     (function () {
       "use strict";
-      const id = new URLSearchParams(location.search).get("id") || "";
+      const q = new URLSearchParams(location.search);
+      const id = q.get("id") || "";
+      // the league's folder (site/<league>/games/), from the league page's Watch button
+      const league = /^[a-z0-9-]+$/.test(q.get("league") || "") ? q.get("league") + "/" : "";
       document.querySelector("input[name=replayid]").value = id;
       const ok = /^[a-z0-9]+-\d+(-[a-z0-9]+pw)?$/.test(id);
       const get = (url) => fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))));
       const replay = !ok ? Promise.reject(new Error("no replay id")) :
-        get("games/" + id + ".json")
+        get(league + "games/" + id + ".json")
           .catch(() => get("https://replay.pokemonshowdown.com/" + id + ".json"));
       // replaces the embed's own onload: start once the page's scripts and the log are both here
       window.onload = function () {

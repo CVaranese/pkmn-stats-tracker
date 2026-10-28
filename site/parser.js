@@ -1174,7 +1174,7 @@
       // Showdown down: its move / Pokedex data from the copies in site/data/ (the page's own folder)
       const data = e.down && root.location && url.match(DATA_URL);
       if (!data) throw e;
-      const resp = await fetchOnce(new URL("data/" + data[1] + ".json", root.location.href).href, fetchFn, timeoutMs)
+      const resp = await fetchOnce(new URL("data/" + data[1] + ".json", baseUrl()).href, fetchFn, timeoutMs)
         .catch(() => null);
       if (resp && resp.ok) return resp;
       throw e;
@@ -1185,7 +1185,7 @@
     if (localOnly) {
       // Showdown's move / Pokedex data: the copies in site/data/ (made from the pokemon-showdown npm package)
       const data = url.match(DATA_URL);
-      if (data) { url = new URL("data/" + data[1] + ".json", root.location.href).href; host = "this computer"; }
+      if (data) { url = new URL("data/" + data[1] + ".json", baseUrl()).href; host = "this computer"; }
       else if (/(^|\.)pokemonshowdown\.com$/.test(host)) throw new Error(`${host} isn't contacted in the local version`);
     }
     const down = (why) => Object.assign(new Error(`${host} ${why}; the site may be down, try again in a few minutes`), { down: true });
@@ -1213,12 +1213,14 @@
   const setLocalOnly = (on) => { localOnly = !!on; };
 
   // the game library (site/games/): replays saved with the site, loaded from there instead of Showdown; set by app.js
-  let library = new Set();
-  const setLibrary = (ids) => { library = new Set(ids); };
+  let library = new Set(), libraryDir = "games/";
+  const setLibrary = (ids, dir = "games/") => { library = new Set(ids); libraryDir = dir; };
+  // shared files (site/data/) sit next to the page, or at its <base> (a league page in site/<league>/)
+  const baseUrl = () => (root.document && root.document.baseURI) || root.location.href;
 
   async function fetchReplay(id, fetchFn = root.fetch, timeoutMs = FETCH_TIMEOUT_MS) {
     if (library.has(id)) {
-      const saved = await fetchFn("games/" + id + ".json").catch(() => null);
+      const saved = await fetchFn(libraryDir + id + ".json").catch(() => null);
       if (saved && saved.ok) return saved.json();
     }
     const resp = await fetchChecked(REPLAY_HOST + id + ".json", fetchFn, timeoutMs);

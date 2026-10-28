@@ -8,7 +8,7 @@ function syncGamePick() {
   $("one-game").value = library.some((g) => g.id === id) ? id : "";
 }
 // spoiler-free by default: no winner, no turn count (a 3-turn game was a forfeit) until "Show results" is ticked
-const SPOILERS_KEY = "replay-kill-tracker.show-results";
+const SPOILERS_KEY = KEYS + "show-results";
 let showResults = false;
 function setShowResults(on) {
   showResults = on;
@@ -75,7 +75,7 @@ function libraryRow(g) {
 function watchSrc(id) {
   const g = library.find((x) => x.id === id);
   const yt = g && g.video && g.video.match(/(?:youtu\.be\/|[?&]v=)([\w-]{11})/);
-  return yt ? "https://www.youtube-nocookie.com/embed/" + yt[1] : "watch.html?id=" + encodeURIComponent(id);
+  return yt ? "https://www.youtube-nocookie.com/embed/" + yt[1] : "watch.html?id=" + encodeURIComponent(id) + (LEAGUE.id ? "&league=" + LEAGUE.id : "");
 }
 const isVideo = (id) => library.some((x) => x.id === id && x.video);
 /** Play a stored game at the top of the Games tab, with no stats around it. */

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Luck sample</title></head>
 <body>
-<!-- Luck scores over every saved league game (site/games/) and the Nat Dex corpus (tests/corpus/, gitignored), to
+<!-- Luck scores over every saved league game (site/ppppp/games/) and the Nat Dex corpus (tests/corpus/, gitignored), to
      set the luck-word cut-offs in site/app/core.js (LUCK_STEPS). No team sheets, so abilities are guessed as on a
      pasted replay. Run headless with --dump-dom; the numbers land in #out. -->
 <pre id="out">running</pre>
@@ -15,13 +15,13 @@ const f = (x) => x.toFixed(2);
 (async () => {
   const out = [];
   const data = { moves: await (await fetch("../site/data/moves.json")).json(), dex: await (await fetch("../site/data/pokedex.json")).json() };
-  const lib = (await (await fetch("../site/games/index.json")).json()).games;
+  const lib = (await (await fetch("../site/ppppp/games/index.json")).json()).games;
   let corpus = [];
   try {
     const listing = await (await fetch("corpus/")).text();
     corpus = [...listing.matchAll(/href="([^"]+\.json)"/g)].map((m) => "corpus/" + decodeURIComponent(m[1]));
   } catch (e) { /* no corpus */ }
-  const sets = { league: lib.map((g) => "../site/games/" + g.id + ".json"), corpus };
+  const sets = { league: lib.map((g) => "../site/ppppp/games/" + g.id + ".json"), corpus };
   const perPlayerGames = new Map();  // league: player -> [player_luck]
   for (const [name, urls] of Object.entries(sets)) {
     const game = [], mon = [];
