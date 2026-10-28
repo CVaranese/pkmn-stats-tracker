@@ -17,12 +17,19 @@ async function renderDraft() {
   $("dr-status").textContent = games < library.length ? `Counted ${games} of ${library.length} games (the rest didn't load).` : "";
   const names = Object.keys(draft.players).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
   $("dr-players").replaceChildren(...names.map((name) => {
-    const b = Object.assign(el("button", "", name), { type: "button" });
+    const b = Object.assign(el("button"), { type: "button" });
     b.dataset.key = playerKey(name);
+    b.append(trainerImg(b.dataset.key, "trainer small"), el("span", "", name));
     b.addEventListener("click", () => { draftPicked = b.dataset.key; showDraft(); replaceNav(); });
     return b;
   }));
   showDraft();
+}
+/** The player's trainer sprite from the draft sheet (img/trainers/<key>.png); gone if they have none. */
+function trainerImg(key, cls) {
+  const img = Object.assign(el("img", cls), { src: `img/trainers/${key}.png`, alt: "", loading: "lazy" });
+  img.addEventListener("error", () => img.remove());
+  return img;
 }
 /** One drafted Pokémon's season: its fantasy entries summed (a Mega and its base form count as the one pick). */
 function draftPick(d, mine) {
@@ -37,7 +44,7 @@ function draftPick(d, mine) {
 /** The picked player's draft: a line about their season, then every pick (never-brought ones greyed). */
 function showDraft() {
   if (!draft || !draftRows) return;
-  const names = [...$("dr-players").children].map((b) => b.textContent);
+  const names = [...$("dr-players").children].map((b) => b.textContent);  // the image adds no text
   if (!names.length) return;
   const name = names.find((n) => playerKey(n) === playerKey(draftPicked || "")) || names[0];
   draftPicked = playerKey(name);
@@ -57,10 +64,12 @@ function showDraft() {
   const head = el("h2", "section-title");
   head.append(seasonLink(name, "players", name));
   head.firstChild.title = "Their season on Players";
+  const who = el("div", "draft-who");
+  who.append(trainerImg(draftPicked, "trainer big"), head);
   const line = el("p", "hint", [rec ? `${rec.wins}–${rec.losses} in the saved games` : "No saved games yet",
     `${pool.length} Pokémon for ${spent} draft points`, `${brought.length} brought so far`,
     best ? `best value: ${best.pokemon}, ${best.perCost} points per draft point` : ""].filter(Boolean).join(" · "));
-  $("dr-head").replaceChildren(head, line);
+  $("dr-head").replaceChildren(who, line);
 
   const num = (label, title, key) => ({ label, cls: "num", title, key });
   sortableTable($("dr-table"), [

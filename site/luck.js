@@ -34,6 +34,7 @@
   const SUN_HALF = new Set(["thunder", "hurricane"]);
   const CRIT_ODDS = [0, 1 / 24, 1 / 8, 1 / 2];   // by stage; 4+ always crits
   const STATUS_NAMES = { brn: "burn", par: "paralysis", psn: "poison", tox: "bad poison", frz: "freeze", slp: "sleep" };
+  const STATUS_DONE = { burn: "burned", paralysis: "paralyzed", poison: "poisoned", "bad poison": "badly poisoned", freeze: "froze" };
   const STATUS_BLOCK = {                         // abilities that stop a status
     brn: ["Water Veil", "Water Bubble", "Thermal Exchange"], par: ["Limber"], psn: ["Immunity", "Pastel Veil"],
     tox: ["Immunity", "Pastel Veil"], frz: ["Magma Armor"], slp: ["Insomnia", "Vital Spirit", "Sweet Veil"],
@@ -95,8 +96,9 @@
 
     /** Add v (positive = went the actor's way) to the actor's luck, and to the target's 'against' when aimed at it;
         variance: the roll's expected spread (v averages 0). */
-    function scoreValue(r, v, aimed, label, variance) {
-      events.push({ actor: r.actor, form: r.aForm || "", v, label });
+    function scoreValue(r, v, aimed, label, variance, chance) {
+      // roll / chance (of what happened; null for multi-hit counts): for keyMoments
+      events.push({ actor: r.actor, form: r.aForm || "", v, label, roll: r, chance: chance ?? null });
       add(r.actor, "luck", v);
       add(r.actor, "luckVar", variance);
       if (aimed) add(r.target, "against", v);
@@ -106,7 +108,7 @@
     /** good: the roll went the actor's way; p: chance it would. */
     function score(r, good, p, aimed, label) {
       if (p === null || p === undefined || p <= 0 || p >= 1) return;
-      scoreValue(r, good ? 1 - p : -p, aimed, label, p * (1 - p));
+      scoreValue(r, good ? 1 - p : -p, aimed, label, p * (1 - p), good ? p : 1 - p);
     }
     const moveName = (r) => (moves[r.move] && moves[r.move].name) || r.move || "a move";
 
@@ -267,6 +269,55 @@
       .sort((a, b) => Math.abs(b.v) - Math.abs(a.v)).slice(0, howMany).map((g) => ({ ...g, v: round2(g.v) }));
   }
 
+  /**
+   * A game's key moments from its scored rolls, in turn order: [{turn, actor, target, text, chance, good}].
+   * Counted (rules in docs/knowledge/luck.md): a crit that KO'd, a miss of a move that hits 80%+ of the time
+   * (any Hydro Pump miss), a status / flinch secondary with a 30% chance or less, full paralysis, hitting itself in
+   * confusion, thawing out, waking on the 2nd sleep turn. The same Pokemon fully paralyzed on back-to-back
+   * turns is one moment. Over `most`: the least likely kept, still in turn order.
+   */
+  function keyMoments(events, most = 10) {
+    const out = [];
+    for (const e of events) {
+      const r = e.roll;
+      // a Hydro Pump miss always counts (a league joke, user 2026-10-28)
+      const pump = r && r.kind === "acc" && r.missed && r.move === "hydropump";
+      if (!r || (!pump && (e.chance === null || e.chance > 0.34))) continue;
+      const by = r.aForm || r.actor.slice(5), at = r.tForm || (r.target ? r.target.slice(5) : "");
+      // a hit scores its crit roll ("crit with X" / "no crits") and each secondary ("burn from X" / "no burn from X")
+      let text = null;
+      if (r.kind === "hit" && e.label.startsWith("crit with ")) {
+        const move = e.label.slice(10);
+        if (r.fainted) text = `crit ${move} KO'd ${at}`;  // a crit that didn't KO made no difference (user)
+      } else if (r.kind === "hit" && e.label.includes(" from ") && !e.label.startsWith("no ")) {
+        const [what, mv] = e.label.split(" from ");
+        text = what === "flinch" ? `${mv} made ${at} flinch` : what === "sleep" ? `${mv} put ${at} to sleep`
+          : `${mv} ${STATUS_DONE[what] || "gave a " + what + " to"} ${at}`;
+      } else if (r.kind === "acc" && r.missed && (pump || e.chance <= 0.2)) {
+        const odds = e.chance === null ? "" : ` (${Math.round((1 - e.chance) * 100)}% to hit)`;
+        text = `${e.label.replace(/ missed$/, "")} missed ${at}${odds}`;
+      }
+      else if (r.kind === "par" && r.fullPara) text = "fully paralyzed";
+      else if (r.kind === "conf" && r.selfHit) text = "hit itself in confusion";
+      else if (r.kind === "frz" && r.thawed) text = "thawed out";
+      else if (r.kind === "slp" && r.woke) text = "woke up after one turn";
+      if (!text) continue;
+      const prev = out[out.length - 1];
+      if (text === "fully paralyzed" && prev && prev.actor === r.actor && prev.text.startsWith("fully paralyzed") &&
+          prev.lastTurn === r.turn - 1) {
+        prev.times += 1;
+        prev.lastTurn = r.turn;
+        prev.text = `fully paralyzed ${prev.times} turns in a row`;
+        prev.chance *= e.chance;
+        continue;
+      }
+      out.push({ turn: r.turn, lastTurn: r.turn, times: 1, actor: r.actor, form: by, target: r.target || "",
+        text, chance: e.chance, good: e.v > 0 });
+    }
+    const kept = out.length <= most ? out : [...out].sort((a, b) => a.chance - b.chance).slice(0, most);
+    return out.filter((m) => kept.includes(m)).map(({ lastTurn, times, ...m }) => m);
+  }
+
   const round2 = (x) => Math.round(x * 100) / 100;
   const round4 = (x) => Math.round(x * 10000) / 10000;
 
@@ -288,6 +339,7 @@
       }
       const sets = new Map(group.filter((r) => r.mon_key && r.set).map((r) => [r.mon_key, r.set]));
       const { byMon, bySide, varSide, events } = scoreGame(rolls, data, sets);
+      const moments = keyMoments(events);  // the game's, shared by its rows (not exported)
       const sideOf = new Map(group.filter((r) => r.mon_key).map((r) => [r.player, r.mon_key.slice(0, 2)]));
       const sideEv = (side) => events.map((e) => ({ ...e,
         prefix: (e.actor.slice(0, 2) === side ? "" : "their ") + (e.form || e.actor.slice(5)) + ": " }));
@@ -302,6 +354,7 @@
         // not exported: what the hover lists
         r.luck_top = r.mon_key ? topContributors(events, (e) => (e.actor === r.mon_key ? 1 : 0)) : [];
         r.player_luck_top = topContributors(sideEv(side), (e) => (e.actor.slice(0, 2) === side ? 1 : -1));
+        r.key_moments = moments;
       }
     }
     return rows;
@@ -323,7 +376,7 @@
   }
   const loadMoves = (fetchFn) => load(MOVES_URL, fetchFn);
 
-  const api = { MOVES_URL, DEX_URL, scoreGame, topContributors, addLuck, loadMoves };
+  const api = { MOVES_URL, DEX_URL, scoreGame, topContributors, keyMoments, addLuck, loadMoves };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.Luck = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

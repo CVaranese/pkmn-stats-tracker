@@ -1086,6 +1086,33 @@ ${switchIn}`).hiddenZoroark;
     const got = luckOf(log);
     check(`luck: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
   }
+  // ---- key moments: which rolls count, their words and turns ----
+  {
+    const named = (id, name) => ({ ...L_MOVES[id], name });
+    const KM_MOVES = { ...L_MOVES, tackle: named("tackle", "Tackle"), hurricane: named("hurricane", "Hurricane"),
+      scald: named("scald", "Scald"), stoneedge: named("stoneedge", "Stone Edge"),
+      hydropump: { accuracy: 80, category: "Special", name: "Hydro Pump" } };
+    const momentsOf = (log) => LK.keyMoments(LK.scoreGame(RS.parseBattle(log).rolls, { moves: KM_MOVES, dex: L_DEX }).events)
+      .map((m) => `${m.turn} ${m.form}: ${m.text} ${Math.round(m.chance * 100)}`);
+    const KM_CASES = {
+      "crit KO": [lhead() + "|move|p1a: A|Tackle|p2a: B\n|-crit|p2a: B\n|-damage|p2a: B|0 fnt\n|faint|p2a: B",
+        ["1 Pelipper: crit Tackle KO'd Garchomp 4"]],
+      "normal hit: nothing": [lhead() + `|move|p1a: A|Tackle|p2a: B\n${hitB}`, []],
+      "crit that didn't KO: nothing": [lhead() + `|move|p1a: A|Tackle|p2a: B\n|-crit|p2a: B\n${hitB}`, []],
+      "70% move misses: under 80%, nothing": [lhead() + "|move|p1a: A|Hurricane|p2a: B|[miss]\n|-miss|p1a: A|p2a: B", []],
+      "80% move misses": [lhead() + "|move|p1a: A|Stone Edge|p2a: B|[miss]\n|-miss|p1a: A|p2a: B",
+        ["1 Pelipper: Stone Edge missed Garchomp (80% to hit) 20"]],
+      "Hydro Pump misses: always, even at -1 accuracy": [lhead() + "|-unboost|p1a: A|accuracy|1\n" +
+        "|move|p1a: A|Hydro Pump|p2a: B|[miss]\n|-miss|p1a: A|p2a: B", ["1 Pelipper: Hydro Pump missed Garchomp (60% to hit) 40"]],
+      "Scald burns": [lhead() + `|turn|2\n|move|p1a: A|Scald|p2a: B\n${hitB}\n|-status|p2a: B|brn`, ["2 Pelipper: Scald burned Garchomp 30"]],
+      "fully paralyzed twice in a row: one moment": [lhead() + "|-status|p1a: A|par\n|cant|p1a: A|par\n|turn|2\n|cant|p1a: A|par",
+        ["1 Pelipper: fully paralyzed 2 turns in a row 6"]],
+    };
+    for (const [name, [log, expected]] of Object.entries(KM_CASES)) {
+      const got = momentsOf(log);
+      check(`key moments: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
+    }
+  }
   {
     const hurricane = lhead() + `|move|p1a: A|Hurricane|p2a: B\n${hitB}`;
     const ng = luckOf(hurricane, new Map([["p1: A", { ability: "No Guard", item: "" }]]));

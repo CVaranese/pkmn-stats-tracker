@@ -114,6 +114,14 @@ Breaker / Teravolt / Turboblaze ignore the target's ability. **Tested** (30 corp
 -10.7 with the check vs -9.1 without; 17 hit-count rolls and 5 Triple Axel / Population Bomb uses, all needing a
 sheet for the multi-hit part.
 
+## Key moments (rules set with the user, 2026-10-28)
+`Luck.keyMoments` picks scored rolls whose outcome had a 34% chance or less: a crit that KO'd (one that didn't
+"made no difference", user 2026-10-28; a crit KO a normal hit would also have scored still counts: no damage
+calc), a miss of a move with 80%+ to hit (user 2026-10-28), any Hydro Pump miss whatever the odds (a league joke), a status / flinch secondary that landed (30% or less),
+full paralysis, a confusion self-hit, thawing, waking on the 2nd sleep turn. The same Pokémon fully paralyzed on
+back-to-back turns is one moment (chances multiplied). Over 10 in a game: the 10 least likely, kept in turn order.
+Each roll carries `turn` (parser.js `snap` / `self`). Multi-hit counts aren't moments (no single chance).
+
 ## Known blind spots (guess-level impact)
 - Items count only when the log reveals them or a team sheet gives them (else: none). An unrevealed Scope Lens or
   Covert Cloak still mis-scores a roll. Abilities: see above (rolls an unknown ability could change are skipped).

@@ -385,13 +385,13 @@
 
     /** What luck.js needs about both sides of a roll, as things stand right now. */
     function snap(actor, target) {
-      return { actor, target, move: ctx.move, aForm: actor.form, tForm: target.form, aTypes: actor.types, tTypes: target.types,
+      return { actor, target, turn: turns, move: ctx.move, aForm: actor.form, tForm: target.form, aTypes: actor.types, tTypes: target.types,
         aItem: itemOf.get(actor.key), tItem: itemOf.get(target.key),
         aAbility: abilityOf.get(actor.key), tAbility: abilityOf.get(target.key), weather, terrain, gravity };
     }
 
     /** A roll on a Pokemon's own turn (paralysis, sleep, freeze, confusion): who, and its form / ability. */
-    const self = (s) => ({ actor: s, aForm: s.form, aAbility: abilityOf.get(s.key) });
+    const self = (s) => ({ actor: s, turn: turns, aForm: s.form, aAbility: abilityOf.get(s.key) });
 
     /** Accuracy state of one opposing target of the move resolving. */
     function aimed(t) {

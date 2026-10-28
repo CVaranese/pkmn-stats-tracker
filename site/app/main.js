@@ -142,6 +142,24 @@ function renderTeams() {
   box.replaceChildren(el("h2", "section-title", "This game"), head, errs, videoButtons(g.replay_id), el("div", "team-grid"));
   box.lastChild.append(...cards);
   if ((g.momentum || []).length > 1) box.appendChild(momentumChart(g.momentum, players, rows));
+  if (rows[0] && (rows[0].key_moments || []).length) box.appendChild(keyMomentsList(rows[0].key_moments, rows));
+}
+/** Key moments (Luck.keyMoments): the unlikely rolls, by turn, each with whose Pokémon and how likely it was. */
+function keyMomentsList(moments, rows) {
+  const sideName = (key) => { const r = rows.find((x) => x.mon_key && x.mon_key.slice(0, 2) === key.slice(0, 2)); return r ? r.player : ""; };
+  const list = el("ol", "moments");
+  for (const m of moments) {
+    const li = el("li", m.good ? "lucky" : "unlucky");
+    const who = el("span", "moment-who", m.form);
+    const owner = sideName(m.actor);
+    li.append(el("span", "moment-turn", "Turn " + m.turn), who, owner ? el("span", "muted", ` (${owner})`) : "", " " + m.text,
+      el("span", "muted", ` · ${Math.round(m.chance * 100) || "<1"}% chance`));
+    list.appendChild(li);
+  }
+  const wrap = el("section", "momentum key-moments");
+  wrap.append(el("h3", "", "Key moments"),
+    el("p", "hint", "Crits, misses, full paralysis and other rolls that had a third of a chance or less, by turn."), list);
+  return wrap;
 }
 /** " · 14 min, about 37 s a turn" from the replay's timestamps; "" without them (games rebuilt from video). */
 function gameTime(g) {

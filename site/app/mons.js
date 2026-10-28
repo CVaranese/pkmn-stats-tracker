@@ -4,6 +4,7 @@
 let mons = null;  // [summary fields + { rows, players, moves, best }], most games first
 let monPicked = "";
 let monKos = [];  // koPairs over the season: who KO'd whom
+let monWeek = "";  // "" = every week, else only that week's games ("Week 3")
 let monWanted = "";  // asked for by a link (?mon=, the game viewer) before the tab had loaded
 // search text: letters and digits only, no accents or case ("Iron-Valiant" and "ironval" match)
 const findKey = (s) => s.normalize("NFD").replace(/[^a-z0-9]/gi, "").toLowerCase();
@@ -12,7 +13,11 @@ async function renderMons() {
   if (mons) return;
   mons = [];  // marks the tab as rendering
   $("mon-status").textContent = "Loading games…";
-  const all = (await loadLeague()).filter((r) => r.brought);
+  const league = await loadLeague();
+  fillWeeks("mon-week", (w) => { monWeek = w; mons = null; renderMons(); });
+  const games = library.filter((g) => !monWeek || g.week === monWeek);
+  const ids = new Set(games.map((g) => g.id));
+  const all = league.filter((r) => r.brought && ids.has(r.replay_id));
   const nameOf = shownName;
   monKos = koPairs(all);
   mons = RS.summarize(all, false).map((m) => {
@@ -22,7 +27,7 @@ async function renderMons() {
       best: bestMove({ move_stats: moves }) };
   }).sort((a, b) => b.games_brought - a.games_brought || b.kills - a.kills || a.pokemon.localeCompare(b.pokemon));
   const counted = new Set(all.map((r) => r.replay_id)).size;
-  $("mon-status").textContent = counted < library.length ? `Counted ${counted} of ${library.length} games (the rest didn't load).` : "";
+  $("mon-status").textContent = counted < games.length ? `Counted ${counted} of ${games.length} games (the rest didn't load).` : "";
   const num = (label, title, key) => ({ label, cls: "num", title, key });
   const hps = all.map((r) => r.max_hp).filter((h) => typeof h === "number" && h > 0);
   // no max HP anywhere (the Pokedex didn't load): about an 80-base-HP Pokemon's, only so % games still sort

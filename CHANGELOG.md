@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Draft tab: each player's trainer sprite from the league's draft sheet, small on their button and big next to their name.
+- Pokémon tab: a Weeks picker (all weeks or one), like Players; the table, moves, KO lists and games follow it.
+- Main viewer: Key moments under the Momentum chart: crits that KO'd, misses of 80%+ moves (and every Hydro Pump miss), full paralysis, confusion self-hits, status / flinch effects with a 30% chance or less, early wake-ups and thaws, each with its turn, whose Pokémon and how likely it was.
 - New Draft tab: a sub-tab per player with every Pokémon they drafted (tier, cost, games, wins, KOs, fantasy points, points per draft point), never-brought picks greyed, and a line with their record, draft points spent and best-value pick. Shareable as `?tab=draft&player=<name>`. The player buttons wrap on a computer and scroll sideways on a phone. Trades after Week 4 show under the table as they're added (so far doxsego's Falinks).
 - Pokémon tab: "Knocked out" / "Knocked out by" each on their own line with smaller buttons, so the list no longer wraps raggedly on a phone.
 - Players tab: Pace (seconds a turn in their games) and Timer on (games they turned on the battle timer) in the standings, Head-to-head and each player's games (with how long each took). Main viewer's game line says who turned the timer on; exports have a Timer on column.

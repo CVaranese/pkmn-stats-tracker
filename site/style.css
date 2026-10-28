@@ -200,7 +200,13 @@ input[type=text].mon-find { max-width: 360px; font-family: inherit; }
 .tabs button[aria-current="true"] { background: var(--accent); color: var(--accent-text); }
 /* Draft: a button per player (12), apart rather than joined; they wrap here and scroll sideways on phones */
 .draft-tabs { position: relative; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
-.draft-tabs button { white-space: nowrap; }
+.draft-tabs button { white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+/* trainer sprites from the draft sheet: 80px pixel art, shown at 1x / 0.5x (whole steps keep the pixels sharp) */
+img.trainer { image-rendering: pixelated; flex: 0 0 auto; }
+img.trainer.small { width: 40px; height: 40px; margin: -10px -4px -10px -8px; }
+img.trainer.big { width: 80px; height: 80px; }
+.draft-who { display: flex; align-items: flex-end; gap: 8px; }
+.draft-who .section-title { margin: 0 0 12px; }
 .draft-tabs button[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 
 .table-wrap {
@@ -306,6 +312,11 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 /* momentum (one game): team HP after each turn; the winner's line in the accent colour, the other dashed */
 .momentum { margin-top: 14px; background: var(--surface); border: 2px solid var(--outline); border-radius: 8px; padding: 12px 16px; }
 .momentum h3 { margin: 0 0 4px; font-size: 17px; }
+.moments { margin: 6px 0 0; padding: 0; list-style: none; font-size: 15px; }
+.moments li { padding: 5px 0 5px 10px; border-left: 3px solid var(--border); margin: 0 0 4px; }
+.moments li.lucky { border-left-color: var(--accent); }
+.moment-turn { display: inline-block; min-width: 4.5em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.moment-who { font-weight: 600; }
 .momentum-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 6px; font-size: 14px; }
 .momentum-key { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
 .momentum-key .swatch { width: 24px; height: 8px; overflow: visible; }

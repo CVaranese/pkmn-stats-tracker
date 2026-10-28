@@ -29,7 +29,7 @@ async function renderPlayers() {
   players = [];  // marks the tab as rendering
   $("pl-status").textContent = "Loading games…";
   const league = await loadLeague();
-  fillWeeks();
+  fillWeeks("pl-week", (w) => { plWeek = w; players = null; renderPlayers(); });
   const games = library.filter((g) => !plWeek || g.week === plWeek);
   const ids = new Set(games.map((g) => g.id));
   const all = league.filter((r) => r.brought && ids.has(r.replay_id));
@@ -90,12 +90,12 @@ async function renderPlayers() {
   renderKoMatrix(league.filter((r) => ids.has(r.replay_id)));
   if (!(playerWanted && showWantedPlayer())) showPlayer(players.some((p) => p.key === playerPicked) ? playerPicked : players[0] && players[0].key);
 }
-/** The week picker: every week in the library, once. */
-function fillWeeks() {
-  const sel = $("pl-week");
+/** A week picker (Players, Pokémon): every week in the library, once; picked(week or "") on a change. */
+function fillWeeks(id, picked) {
+  const sel = $(id);
   if (sel.options.length > 1) return;
   for (const w of [...new Set(library.map((g) => g.week))]) sel.append(Object.assign(document.createElement("option"), { value: w, textContent: w }));
-  sel.addEventListener("change", () => { plWeek = sel.value; players = null; renderPlayers(); });
+  sel.addEventListener("change", () => picked(sel.value));
 }
 /** Who KO'd whom between players: a cell is how many of the column player's Pokémon the row player's KO'd. */
 function renderKoMatrix(rows) {
