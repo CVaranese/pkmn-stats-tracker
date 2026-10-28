@@ -1029,6 +1029,246 @@
    "turns": 28,
    "note": "From the stream video",
    "video": "https://youtu.be/xcoo3llJSpM"
+  },
+  {
+   "id": "video--zrrn-yi98u",
+   "league": "pinecord",
+   "week": "Week 6",
+   "players": [
+    "azpmCloudburst",
+    "weedinmyhonda"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Garchomp",
+     "Blaziken",
+     "Whimsicott",
+     "Dondozo"
+    ],
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian",
+     "Maushold",
+     "Muk-Alola"
+    ]
+   ],
+   "winner": "azpmCloudburst",
+   "date": "2026-10-13",
+   "turns": 18,
+   "note": "From the stream video",
+   "video": "https://youtu.be/-ZRRN-yi98U"
+  },
+  {
+   "id": "video-d-snlpgnt04",
+   "league": "pinecord",
+   "week": "Week 6",
+   "players": [
+    "DEJIME",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Swampert",
+     "Azumarill",
+     "Archaludon",
+     "Pawmot",
+     "Munkidori"
+    ],
+    [
+     "Slowking-Galar",
+     "Weavile",
+     "Ninetales-Alola",
+     "Charizard",
+     "Gliscor",
+     "Kommo-o"
+    ]
+   ],
+   "winner": "DEJIME",
+   "date": "2026-10-13",
+   "turns": 16,
+   "note": "From the stream video",
+   "video": "https://youtu.be/D-SnlPgNt04"
+  },
+  {
+   "id": "video-fivtp9wacta",
+   "league": "pinecord",
+   "week": "Week 6",
+   "players": [
+    "FingerStripes",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Tapu Koko",
+     "Zygarde-10%",
+     "Rotom-Wash",
+     "Hawlucha",
+     "Iron Moth",
+     "Jirachi"
+    ],
+    [
+     "Ursaluna",
+     "Enamorus-Therian",
+     "Bronzong",
+     "Azelf"
+    ]
+   ],
+   "winner": "potatoesareyum",
+   "date": "2026-10-13",
+   "turns": 34,
+   "note": "From the stream video",
+   "video": "https://youtu.be/FiVtP9WAcTA"
+  },
+  {
+   "id": "video-ecis5-ls6i0",
+   "league": "pinecord",
+   "week": "Week 7",
+   "players": [
+    "Nezergy",
+    "weedinmyhonda"
+   ],
+   "teams": [
+    [
+     "Corviknight",
+     "Iron Valiant",
+     "Slither Wing",
+     "Tapu Fini",
+     "Donphan",
+     "Zeraora"
+    ],
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian",
+     "Maushold",
+     "Muk-Alola"
+    ]
+   ],
+   "winner": "Nezergy",
+   "date": "2026-10-21",
+   "turns": 26,
+   "note": "From the stream video",
+   "video": "https://youtu.be/eCis5-Ls6i0"
+  },
+  {
+   "id": "video-iysf4aqc3jq",
+   "league": "pinecord",
+   "week": "Week 7",
+   "players": [
+    "Zololab",
+    "ElkGBigLarge"
+   ],
+   "teams": [
+    [
+     "Diancie",
+     "Pecharunt",
+     "Lokix",
+     "Vaporeon",
+     "Latios",
+     "Incineroar"
+    ],
+    [
+     "Blacephalon",
+     "Mamoswine",
+     "Scizor",
+     "Tangrowth",
+     "Hoopa-Unbound",
+     "Zamazenta"
+    ]
+   ],
+   "winner": "ElkGBigLarge",
+   "date": "2026-10-21",
+   "turns": 36,
+   "note": "From the stream video",
+   "video": "https://youtu.be/IYsf4aQc3jQ"
+  },
+  {
+   "id": "video-ek4vkzvwny0",
+   "league": "pinecord",
+   "week": "Week 7",
+   "players": [
+    "peterpikmon",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [],
+    []
+   ],
+   "winner": "peterpikmon",
+   "date": "2026-10-21",
+   "turns": 22,
+   "note": "From the stream video",
+   "video": "https://youtu.be/ek4VkZvwnY0"
+  },
+  {
+   "id": "video-pq9jwax63pc",
+   "league": "pinecord",
+   "week": "Week 7",
+   "players": [
+    "FingerStripes",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Tapu Koko",
+     "Zygarde-10%",
+     "Rotom-Wash",
+     "Hawlucha",
+     "Sableye",
+     "Iron Moth"
+    ],
+    [
+     "Ceruledge",
+     "Lopunny",
+     "Slowbro",
+     "Enamorus",
+     "Tinkaton",
+     "Flygon"
+    ]
+   ],
+   "winner": "FingerStripes",
+   "date": "2026-10-21",
+   "turns": 26,
+   "note": "From the stream video",
+   "video": "https://youtu.be/pq9jWAX63Pc"
+  },
+  {
+   "id": "video-s2znfx4ir1m",
+   "league": "pinecord",
+   "week": "Week 7",
+   "players": [
+    "azpmCloudburst",
+    "DEJIME"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Garchomp",
+     "Whimsicott",
+     "Zapdos",
+     "Cresselia"
+    ],
+    [
+     "Pelipper",
+     "Raging Bolt",
+     "Salamence",
+     "Swampert",
+     "Azumarill",
+     "Archaludon"
+    ]
+   ],
+   "winner": "DEJIME",
+   "date": "2026-10-21",
+   "turns": 18,
+   "note": "From the stream video",
+   "video": "https://youtu.be/s2ZnFx4iR1M"
   }
  ]
 }

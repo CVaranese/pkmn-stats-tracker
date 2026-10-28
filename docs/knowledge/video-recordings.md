@@ -150,3 +150,25 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   Revival Blessing again (DEJIME's Pawmot, twice): 8 faints on one side is right.
 - **Guess**: HP numbers in these five are as rough as before (hazards, Sandstorm, Black Sludge estimated); kills,
   deaths and winners were each checked against the video text or frames.
+- **Tested** (2026-10-27, Weeks 6 and 7, 9 videos): seven in the default layout (`--scene-box 110,395,480,50`).
+  Pikmon vs PotatoesAreYum is dark theme in a windowed browser with tabs and bookmarks (`--log-box 880,215,400,505
+  --filter "invert(1) grayscale(1) contrast(2)"`); its narrow log wraps move names ("Volt / Switch!", "Play / Rough!",
+  "Trick / Room!") and the converter doesn't join those, so merged.txt was fixed by hand and converted again. Pikmon vs
+  Karm (dark, log at x 590-1070 next to a damage calc) gave 190 unconverted lines over 47 turns and is left out, like
+  Week 4's Pikmon vs Sneez.
+- **Tested**: a video can hold two games. Cloudburst vs Bad Bully: a forfeit at team preview (1:15, another team),
+  a played-back game weedinmyhonda won (3:20-11:30), then the live game azpmCloudburst won (21:50-28:40). Challonge
+  gives Cloudburst the win, so only the live game was converted: `video_to_replay.py --start 1300 --length 1719`
+  (new `--start`; `--length` doubles as where to stop).
+- **Tested**: frame grabs while a conversion runs need their own Edge profile and port: `TEMP=<other dir>` and
+  `video_frames.py --port 8781` (both use `%TEMP%\edge-headless-frames`; sharing it gave 0 PNGs).
+- **Tested**: slips fixed by hand this time: a mon fainted twice from a message-box re-reading, a switch-in with the
+  next line glued on ("Hawlucha)l Pointed stones dug into ..."), a nickname read as the species ("That's Rough
+  Buddy"), "Zygarde" for Zygarde-10%, "POI Pot" for Pol Pot, "Appa ate Momol" for "Appa ate Momo!", an unparsed
+  damage line that made a Poltergeist KO look like Stealth Rock, a U-turn switch-in never read (Great Tusk, rebuilt
+  from the frame), and a Rocky Helmet KO with no `[of]` (credited to the wrong Pokémon until added). "Mega Charizard"
+  with the X cut off became Mega-Y; `video_convert.py` now takes X / Y from the "Charizardite X" line before it.
+- **Tested**: endings: four turns past the last header were read from the message box or frames (Sneez vs DEJIME
+  forfeit after Close Combat KO'd Weavile at 56%, Bad Bully vs Nezergy, Dox vs Fingy, DEJIME vs Cloudburst's Dual
+  Wingbeat then Zapdos to Stealth Rock). Pikmon vs PotatoesAreYum's win line sits behind the Download replay buttons.
+- **Guess**: HP numbers in these eight are as rough as before; kills, deaths and winners were each checked.

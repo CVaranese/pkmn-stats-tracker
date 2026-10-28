@@ -401,7 +401,10 @@ class Converter:
             if key == "transformMega":
                 side, nick = P()
                 m = re.match(r"^(.+?) ([XY])$", s["SPECIES"].strip())
-                sp = f"{m.group(1)}-Mega-{m.group(2)}" if m else s["SPECIES"].strip() + "-Mega"
+                # "Mega Charizard" with the X / Y cut off: take it from the stone ("Charizardite X") just before
+                stone = re.search(r"ite ([XY])$", self.out[-1]) if self.out and self.out[-1].startswith("|-mega|") else None
+                sp = (f"{m.group(1)}-Mega-{m.group(2)}" if m else
+                      s["SPECIES"].strip() + "-Mega" + (f"-{stone.group(1)}" if stone else ""))
                 sp = self.close(sp, self.species, 0.8) or sp
                 self.nicks[side][nick] = sp
                 return self.emit("detailschange", self.ref(side, nick), sp)

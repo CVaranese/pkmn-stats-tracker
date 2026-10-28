@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Games: Weeks 6 and 7 from the stream videos (Cloudburst vs Bad Bully, Sneez vs DEJIME, PotatoesAreYum vs Fingy; Bad Bully vs Nezergy, Big Large vs Zololab, Pikmon vs PotatoesAreYum, Dox vs Fingy, DEJIME vs Cloudburst), winners matching the bracket and every KO checked, including the last. Week 6 Pikmon vs Karm is left out (the stream's text is too small to read). Sprites for Iron Hands, Kommo-o and Salamence.
 - Games: Week 5 from the stream videos (Pikmon vs Fingy, Dox vs PotatoesAreYum, Zololab vs Karm, Bad Bully vs Sneez, DEJIME vs Big Large), winners matching the bracket and every KO including the last; doxsego's Week 5 team sheet fills in on the Robert game. Sprites for the six new Pokémon.
 - Team sheets: doxsego's sheets fill in on their five games in the library (Weeks 1-4 and the Zololab game), matched by team.
 - Sprites: saved copies for every Pokémon in the league library (62 more, games added since the last batch), so local mode and the Showdown-down fallback show sprites instead of initials. Week 4 Cloudburst vs Dox: Mawile's mega form was misread from the stream as "Mav-Mega"; fixed.

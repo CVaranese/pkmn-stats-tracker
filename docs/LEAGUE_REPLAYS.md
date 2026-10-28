@@ -74,3 +74,17 @@ PotatoesAreYum (vXg51MJkSSw), Zololab vs Karm (oPUD2yUnQrs), Bad Bully vs Sneez 
 (xcoo3llJSpM) are in site/games/ from their videos, every winner matching Challonge round 5 and the last KO read
 from the video (four were added by hand from frames, see docs/knowledge/video-recordings.md). Cloudburst vs
 Nezergy (E7IuvY-7OBU) has a replay (2693018008).
+
+Week 6 (playlist PLO8Z8KH9KMh8, uploaded 2026-10-13; added 2026-10-27): Cloudburst vs Bad Bully (-ZRRN-yi98U), Sneez
+vs DEJIME (D-SnlPgNt04), PotatoesAreYum vs Fingy (FiVtP9WAcTA) are in site/games/ from their videos, every winner
+matching Challonge round 6 and every KO checked against the video. The Cloudburst vs Bad Bully video holds two full
+games with the same teams: a played-back one weedinmyhonda won (3:20-11:30) and the live one azpmCloudburst won
+(21:50-28:40); only the second is in, since the bracket gives Cloudburst the win. Pikmon vs Karm (efjkWhTidmM) not
+added: OCR too poor (dark theme, small text, 190 unconverted lines over 47 turns). Big Large vs Nezergy and Dox vs
+Zololab have replays.
+
+Week 7 (playlist PLZdfOlhvaGgA, uploaded 2026-10-21; added 2026-10-27): Bad Bully vs Nezergy (eCis5-Ls6i0), Big Large
+vs Zololab (IYsf4aQc3jQ), Pikmon vs PotatoesAreYum (ek4VkZvwnY0), Dox vs Fingy (pq9jWAX63Pc), DEJIME vs Cloudburst
+(s2ZnFx4iR1M) are in site/games/ from their videos, every winner matching Challonge round 7. The Pikmon vs
+PotatoesAreYum stream shows the live battle id gen9nationaldex-2701939365 in the address bar; it isn't uploaded (404).
+Sneez vs Karm (9STJZ-Xvmj8) was already in.

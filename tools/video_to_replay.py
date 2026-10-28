@@ -237,7 +237,8 @@ def main():
     ap.add_argument("--id", required=True)
     ap.add_argument("--templates", help="folder with default.js moves.js abilities.js items.js")
     ap.add_argument("--url", default="")
-    ap.add_argument("--length", type=float, required=True, help="video length in seconds")
+    ap.add_argument("--length", type=float, required=True, help="video length in seconds (or where to stop reading)")
+    ap.add_argument("--start", type=float, default=0, help="where to start reading, for a video with an earlier game")
     ap.add_argument("--log-box", default=LOG_BOX, help="x,y,w,h of the battle log in the 1280x720 frame")
     ap.add_argument("--scene-box", default=SCENE_BOX, help="x,y,w,h of the scene's message box")
     ap.add_argument("--filter", default=FILTER, help="CSS filter before OCR; add invert(1) for a dark theme")
@@ -252,7 +253,7 @@ def main():
             import urllib.request
             urllib.request.urlretrieve(f"https://cdn.jsdelivr.net/npm/pokemon-showdown@0.11.11/dist/data/text/{kind}.js", dest)
 
-    grab(args.video, w("log"), [t * 5 for t in range(int(args.length // 5) + 1)], args.log_box, w("log.jsonl"), args.filter)
+    grab(args.video, w("log"), [t * 5 for t in range(int(args.start // 5), int(args.length // 5) + 1)], args.log_box, w("log.jsonl"), args.filter)
     log_frames = load_frames(w("log.jsonl"))
     best, first, end = -1, 0, 0   # the highest turn header: the first and last frame showing it
     for f, obs in sorted(log_frames.items(), key=lambda kv: frame_time(kv[0])):
