@@ -9,7 +9,7 @@
       "tag": "PPPPP",
       "format": "gen9nationaldex",
       "format_name": "Nat Dex singles",
-      "title": "Replay Kill Tracker",
+      "title": "The Draftboard",
       "description": "Kills, damage, MVPs and luck from Pokémon Showdown replays for the Pinecord league.",
       "lede": "Kills, damage, MVPs and luck from Pinecord's Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets.",
       "banner": {
