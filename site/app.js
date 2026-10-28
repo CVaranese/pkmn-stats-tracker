@@ -256,7 +256,8 @@
     const nameOf = (p) => (saved.find((r) => r.id === TS.toID(p)) || { name: p }).name;  // one spelling per player
     // the bracket's records (tools/challonge_records.py); without them, the games saved here
     let bracket = null;
-    try { bracket = await (await fetch("games/records.json")).json(); } catch (e) { /* not there */ }
+    // "no-cache": ask the server each time, so a new draft or record shows without waiting out the 10-minute browser cache
+    try { bracket = await (await fetch("games/records.json", { cache: "no-cache" })).json(); } catch (e) { /* not there */ }
     const recs = bracket ? bracket.players : saved;
     simpleTable($("bet-ranks"), [["Player", ""], ["Won", "num"], ["Lost", "num"]],
       recs.map((p) => [[p.name, ""], [String(p.wins), "num"], [String(p.losses), "num"]]));
@@ -268,13 +269,15 @@
       `${s.survived} for being alive at the end, ${s.won} when its team won. Cost is its draft price (OU 7, UUBL 6, UU 5, ` +
       `RUBL 4, RU 3, NFE 2, LC 1, set by the tier on draft day); Per cost is points for each draft point spent. Top 20.`;
     $("bet-status").textContent = "Loading games…";
-    try { draft = await (await fetch("games/draft.json")).json(); } catch (e) { draft = null; }
-    for (const g of library) {
+    try { draft = await (await fetch("games/draft.json", { cache: "no-cache" })).json(); } catch (e) { draft = null; }
+    // all games at once instead of waiting on each request in turn
+    const loaded = await Promise.all(library.map(async (g) => {
       try {
         if (!cache.has(g.id)) cache.set(g.id, await RS.fetchReplay(g.id));
-        fantasyRows.push(...RS.gameRows(cache.get(g.id)));
-      } catch (e) { /* a game that won't load just isn't counted */ }
-    }
+        return RS.gameRows(cache.get(g.id));
+      } catch (e) { return []; }  // a game that won't load just isn't counted
+    }));
+    for (const rows of loaded) fantasyRows.push(...rows);
     const games = new Set(fantasyRows.map((r) => r.replay_id)).size;
     $("bet-status").textContent = (games < library.length ? `Counted ${games} of ${library.length} games (the rest didn't load). ` : "") +
       (draft ? "" : "Draft costs didn't load.");
