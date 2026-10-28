@@ -31,6 +31,9 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
   On phones the same tabs in a row that scrolls sideways, never re-styled as boxes (user 2026-10-28: a 3 × 2 grid of
   boxed tabs looked "too standard and AI generated").
 - **Sub-tabs** (`.tabs`): small joined buttons, selected one filled with `--accent`. For switching a table's view.
+- **Player picker** (`.draft-tabs`, Draft): separate buttons with a 6px gap, the picked one filled with `--accent`; they wrap on
+  a computer and become one sideways-scrolling row on phones (faded on the right like the main tabs). Joined sub-tabs
+  looked bad once they wrapped (user, 2026-10-28).
 - **Select**: plain `select` inside `label.inline` ("Player [Everyone ▾]").
 - **Table**: inside `.table-wrap` (2px outline, 8px radius), striped rows, numbers right-aligned in tabular figures,
   sortable headers with ▲▼, `title` on headers for explanations. A sortable header's label, and the first cell of a

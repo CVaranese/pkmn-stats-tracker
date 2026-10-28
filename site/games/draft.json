@@ -614,5 +614,15 @@
     "tier": "RU"
    }
   ]
+ },
+ "trades": {
+  "_note": "After Week 4 each player could trade one Pokemon for a 3-point-or-less one. Placeholder: the user is getting the full list (2026-10-28). out = traded away, in = what came in (null = not known yet).",
+  "doxsego": [
+   {
+    "out": "Falinks",
+    "in": null,
+    "after": "Week 4"
+   }
+  ]
  }
 }

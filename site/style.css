@@ -136,7 +136,11 @@ button.small { padding: 4px 10px; font-size: 13px; }
 td.ko-list { font-size: 13px; }
 /* Pokémon tab: who it knocked out, and who knocked it out, as buttons */
 .mon-kos { margin-top: 10px; }
-.ko-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0; }
+.ko-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 6px; }
+/* the label on its own line, then small buttons: inline with the label they wrapped raggedly on phones */
+.ko-line > .stat-label { flex-basis: 100%; font-size: 13px; }
+.ko-line .mon-match { gap: 4px; padding: 2px 10px 2px 2px; font-size: 14px; }
+.ko-line .mon-match .sprite.tiny { width: 30px; height: 30px; }
 /* KO matrix: player x player, numbers only; a number has its list as a title */
 .ko-matrix th:not(:first-child) { font-size: 12px; max-width: 90px; white-space: normal; text-align: right; }
 .ko-cell { cursor: help; text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
@@ -194,6 +198,10 @@ input[type=text].mon-find { max-width: 360px; font-family: inherit; }
 .tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .tabs button { border: 0; border-radius: 0; }
 .tabs button[aria-current="true"] { background: var(--accent); color: var(--accent-text); }
+/* Draft: a button per player (12), apart rather than joined; they wrap here and scroll sideways on phones */
+.draft-tabs { position: relative; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+.draft-tabs button { white-space: nowrap; }
+.draft-tabs button[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 
 .table-wrap {
   margin-top: 12px;
@@ -352,6 +360,12 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
     -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
     mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
   .modes::-webkit-scrollbar { display: none; }
+  /* Draft's player buttons: one row that scrolls sideways, faded on the right like the main tabs */
+  .draft-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-right: 28px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+  .draft-tabs::-webkit-scrollbar { display: none; }
+  .draft-tabs button { flex: 0 0 auto; font-size: 14px; padding: 6px 12px; }
   .modes button { flex: 0 0 auto; padding: 8px 12px; font-size: 14px; white-space: nowrap; margin-bottom: 0; }
   /* Games list: each game stacked (players under each other, buttons below) instead of one wide row */
   .lib-table { display: block; }

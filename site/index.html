@@ -35,6 +35,7 @@
       <button data-mode="games" type="button">Games</button>
       <button data-mode="players" type="button">Players</button>
       <button data-mode="mons" type="button">Pokémon</button>
+      <button data-mode="draft" type="button">Draft</button>
       <button data-mode="many" type="button">Playoffs</button>
       <button data-mode="fantasy" type="button">Fantasy</button>
       <button data-mode="gamble" type="button">Gambling</button>
@@ -79,6 +80,15 @@
       </div>
       <h2 class="section-title">Every Pokémon</h2>
       <div class="table-wrap"><table id="mon-table" class="sortable"></table></div>
+    </section>
+
+    <section id="draft" class="tab-page" hidden>
+      <p class="hint">Each player's draft from the league's draft sheet, and how every pick has done in the league games saved here, so this tab gives results away. Pick a player; click a column name to sort.</p>
+      <div class="draft-tabs" id="dr-players" aria-label="Player"></div>
+      <p class="muted" id="dr-status"></p>
+      <div id="dr-head"></div>
+      <div class="table-wrap"><table id="dr-table" class="sortable"></table></div>
+      <p class="hint" id="dr-extra"></p>
     </section>
 
     <section id="players" class="tab-page" hidden>
@@ -250,6 +260,7 @@
   <script src="app/fantasy.js"></script>
   <script src="app/players.js"></script>
   <script src="app/mons.js"></script>
+  <script src="app/draft.js"></script>
   <script src="app/sheets.js"></script>
   <script src="app/main.js"></script>
   <script src="app/startup.js"></script>

@@ -113,7 +113,7 @@ const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], haz
 let mode = "one";
 const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
 // tabs with no link box: their own views over the saved league games (gamble: Gambling, still a "coming soon" page)
-const NO_INPUT_TABS = ["fantasy", "gamble", "games", "players", "mons"];
+const NO_INPUT_TABS = ["fantasy", "gamble", "games", "players", "mons", "draft"];
 const activeIds = () => (NO_INPUT_TABS.includes(mode) ? [] :
   RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
 function setMode(m, load = true) {
@@ -134,6 +134,7 @@ function setMode(m, load = true) {
   $("gamble").hidden = m !== "gamble";
   $("players").hidden = m !== "players";
   $("mons").hidden = m !== "mons";
+  $("draft").hidden = m !== "draft";
   $("library").hidden = m !== "games";
   setCollapsed(false);  // the button lives with the results, which a mode change hides
   $("inputs").hidden = noInputs;
@@ -149,15 +150,16 @@ function setMode(m, load = true) {
   if (m === "fantasy") renderFantasy();
   if (m === "players") renderPlayers();
   if (m === "mons") renderMons();
+  if (m === "draft") renderDraft();
 }
 // Back / Forward: each tab, game and Watch panel is a history entry ({ mode, r, watch, pick }), so Back returns to
 // the previous one instead of leaving the site. The address follows (?tab=games, ?r=<id>, ?tab=players&player=<key>,
 // ?tab=mons&mon=<name>); other params stay. pick: the player (key) or Pokémon picked on Players / Pokémon.
 const navPick = () => (mode === "players" ? (playerWanted && playerKey(playerWanted)) || playerPicked :
-  mode === "mons" ? monWanted || monPicked : "");
+  mode === "mons" ? monWanted || monPicked : mode === "draft" ? draftPicked && playerKey(draftPicked) : "");
 const navState = () => ({ mode, r: mode === "one" ? activeIds()[0] || "" : "", watch: $("lib-watch").hidden ? "" : watching,
   pick: navPick() });
-const PICK_PARAM = { players: "player", mons: "mon" };
+const PICK_PARAM = { players: "player", mons: "mon", draft: "player" };
 function navUrl(st) {
   const q = new URLSearchParams(location.search);
   q.delete("r"); q.delete("tab"); q.delete("player"); q.delete("mon");

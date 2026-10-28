@@ -2,6 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Draft tab (`?tab=draft`), second try at the player buttons: apart, wrapping on a computer; one sideways-scrolling row on a phone (checked in a 360px frame). Better? Do the picks match the draft sheet?
+- [ ] Pokémon tab on a phone: Knocked out / Knocked out by now sit on their own line with smaller buttons. Tidy enough?
 - [ ] Main viewer Momentum chart (new): point at it (or tap on a phone) and check the line under it follows the turn. Readable in dark and light? Is "winner in green, loser dashed" clear, or would you rather have a colour per player?
 - [ ] Info shown % (team card): 7 facts per Pokémon (sent out, item, ability, 4 moves), all weighted the same. Does the number feel right for a game you know, or should moves count less?
 - [ ] Statuses on a game you know: a Pokémon's Statuses (detailed view) should match the burns / paralysis / poison it caused. Sleep from Yawn may go to the wrong Pokémon (same credit as burn damage today).

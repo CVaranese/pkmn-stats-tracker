@@ -28,6 +28,7 @@ window.addEventListener("popstate", (e) => {
   if (st.mode !== mode || st.r) setMode(st.mode);
   if (st.pick && st.mode === "players") wantPlayer(st.pick);
   if (st.pick && st.mode === "mons") wantMon(st.pick);
+  if (st.pick && st.mode === "draft") { draftPicked = st.pick; showDraft(); }
   const g = st.watch && library.find((x) => x.id === st.watch);
   if (g) watchHere(g, false); else closeWatch();
 });
@@ -148,4 +149,6 @@ setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.le
 // ?tab=players&player=<key> / ?tab=mons&mon=<name>: that player or Pokémon picked (links from the game viewer)
 if (mode === "players" && params.get("player")) wantPlayer(params.get("player"));
 if (mode === "mons" && params.get("mon")) wantMon(params.get("mon"));
+// ?tab=draft&player=<key>: that player's draft
+if (mode === "draft" && params.get("player")) { draftPicked = params.get("player"); showDraft(); }
 try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }
