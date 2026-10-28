@@ -145,7 +145,32 @@
     if (load && activeIds().length) run();
     if (m === "bet") renderGambling();
   }
-  for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.addEventListener("click", () => setMode(tab.dataset.mode));
+  for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.addEventListener("click", () => { setMode(tab.dataset.mode); pushNav(); });
+
+  // Back / Forward: each tab, game and Watch panel is a history entry ({ mode, r, watch }), so Back returns to
+  // the previous one instead of leaving the site. The address follows (?tab=games, ?r=<id>); other params stay.
+  const navState = () => ({ mode, r: mode === "one" ? activeIds()[0] || "" : "", watch: $("lib-watch").hidden ? "" : watching });
+  function navUrl(st) {
+    const q = new URLSearchParams(location.search);
+    q.delete("r"); q.delete("tab");
+    if (st.r) q.set("r", st.r);
+    else if (st.mode !== "one") q.set("tab", st.mode);
+    const s = q.toString().replace(/%2C/g, ",");
+    return location.pathname + (s ? "?" + s : "");
+  }
+  function pushNav() {
+    const st = navState();
+    if (JSON.stringify(st) === JSON.stringify(history.state)) return;
+    try { history.pushState(st, "", navUrl(st)); } catch (e) { /* sandboxed frame: no history */ }
+  }
+  window.addEventListener("popstate", (e) => {
+    const st = e.state;
+    if (!st || !st.mode) return;
+    if (st.r) { $("one-link").value = linkFor(st.r); $("one-link").dispatchEvent(new Event("input")); }
+    if (st.mode !== mode || st.r) setMode(st.mode);
+    const g = st.watch && library.find((x) => x.id === st.watch);
+    if (g) watchHere(g, false); else closeWatch();
+  });
 
   // ---------- game library (site/games/, added with tools/add_game.py) ----------
 
@@ -316,12 +341,15 @@
     $("one-link").value = linkFor(id);
     $("one-link").dispatchEvent(new Event("input"));
     setMode("one");
+    pushNav();
     $("sheets-wrap").open = false;
     window.scrollTo(0, 0);
   }
 
   /** Play a stored game at the top of the Games tab, with no stats around it. */
-  function watchHere(g) {
+  let watching = "";  // id of the game in the Watch panel
+  function watchHere(g, push = true) {
+    watching = g.id;
     $("lib-watch").hidden = false;
     $("lib-watch-title").textContent = `${g.week}: ${g.players.join(" vs ")}`;
     if (LOCAL && !g.video) {
@@ -334,11 +362,16 @@
       $("lib-watch-frame").hidden = false;
     }
     $("lib-watch").scrollIntoView({ block: "start" });
+    if (push) pushNav();
   }
-  $("lib-watch-close").addEventListener("click", () => {
+  function closeWatch() {
     $("lib-watch").hidden = true;
     $("lib-watch-frame").hidden = true;
     $("lib-watch-frame").removeAttribute("src");
+  }
+  // Close = Back when Watch added the history entry, so Back afterwards doesn't reopen it
+  $("lib-watch-close").addEventListener("click", () => {
+    if (history.state && history.state.watch) history.back(); else closeWatch();
   });
 
   // the Challonge bracket: shows results, so it loads only when opened
@@ -418,9 +451,11 @@
   const tabParam = params.get("tab");
   if (["one", "games", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
   setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
+  try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }
 
   async function run() {
     await libraryReady;  // stored games load from site/games/, not Showdown
+    if (mode === "one") pushNav(); // a new game typed or pasted in: its own history entry
     const ids = activeIds();
     const errors = [];
     if (!ids.length) {
