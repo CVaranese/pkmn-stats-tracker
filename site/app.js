@@ -113,25 +113,26 @@
   $("add-sheet").addEventListener("click", () => addSheetBox("").querySelector("textarea").focus());
 
   $("run").addEventListener("click", run);
-  // One game (the default) or Several games; each has its own input, remembered separately
+  // Main viewer (one game, the default) or Playoffs (several games); each has its own input, remembered separately
   let mode = "one";
-  try { mode = ["many", "games", "bet"].includes(localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : "one"; } catch (e) { /* storage blocked */ }
+  try { mode = ["many", "games", "players", "bet"].includes(localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : "one"; } catch (e) { /* storage blocked */ }
   try { $("one-link").value = localStorage.getItem(ONE_KEY) || ""; } catch (e) { /* storage blocked */ }
   $("one-link").addEventListener("input", () => {
     try { localStorage.setItem(ONE_KEY, $("one-link").value); } catch (e) { /* storage blocked */ }
   });
   $("one-link").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
   const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
-  const activeIds = () => (mode === "bet" || mode === "games" ? [] :
+  const activeIds = () => (mode === "bet" || mode === "games" || mode === "players" ? [] :
     RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
   function setMode(m, load = true) {
     mode = m;
     try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
     for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.setAttribute("aria-selected", String(tab.dataset.mode === m));
-    const noInputs = m === "bet" || m === "games";
+    const noInputs = m === "bet" || m === "games" || m === "players";
     $("one-input").hidden = m !== "one";
     $("many-input").hidden = m !== "many";
     $("gambling").hidden = m !== "bet";
+    $("players").hidden = m !== "players";
     $("library").hidden = m !== "games";
     setCollapsed(false);  // the button lives with the results, which a mode change hides
     $("inputs").hidden = noInputs;
@@ -144,6 +145,7 @@
     $("status").textContent = "";
     if (load && activeIds().length) run();
     if (m === "bet") renderGambling();
+    if (m === "players") renderPlayers();
   }
   for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.addEventListener("click", () => { setMode(tab.dataset.mode); pushNav(); });
 
@@ -189,7 +191,26 @@
       $("lib-player").append(...[...players].sort((a, b) => a[1].localeCompare(b[1])).map(([id, p]) => new Option(p, id)));
       $("lib-week").append(...weeks.map((w) => new Option(w, w)));
       renderLibrary();
+      // Main viewer's game list: latest week first, players only (no winner, like Games)
+      $("one-game").append(...[...weeks].reverse().map((w) => {
+        const group = Object.assign(document.createElement("optgroup"), { label: w });
+        group.append(...library.filter((g) => g.week === w).reverse().map((g) => new Option(g.players.join(" vs "), g.id)));
+        return group;
+      }));
+      syncGamePick();
     });
+  /** The picker shows the game in the link box, or "Pick a game…" for a link that isn't a league game. */
+  function syncGamePick() {
+    const id = RS.replayIdsFromText($("one-link").value)[0] || "";
+    $("one-game").value = library.some((g) => g.id === id) ? id : "";
+  }
+  $("one-link").addEventListener("input", syncGamePick);
+  $("one-game").addEventListener("change", () => {
+    if (!$("one-game").value) return;
+    $("one-link").value = linkFor($("one-game").value);
+    $("one-link").dispatchEvent(new Event("input"));
+    run();
+  });
   $("lib-player").addEventListener("change", renderLibrary);
   $("lib-week").addEventListener("change", renderLibrary);
   // spoiler-free by default: no winner, no turn count (a 3-turn game was a forfeit) until "Show results" is ticked
@@ -231,7 +252,7 @@
     $("lib-list").replaceChildren(...(shown.length ? [wrap] : []));
   }
 
-  /** One game: each player with their team-preview sprites; winner and turns only with "Show results". */
+  /** A library row: each player with their team-preview sprites; winner and turns only with "Show results". */
   function libraryRow(g) {
     const results = showResults;
     const tr = document.createElement("tr");
@@ -255,14 +276,14 @@
     };
     const actions = el("td", "lib-actions");
     actions.append(open("Watch", "Play the battle here, without the result", () => watchHere(g)),
-      open("Stats", "Open in One game (shows the result)", () => openGame(g.id)));
+      open("Stats", "Open in Main viewer (shows the result)", () => openGame(g.id)));
     // a short note keeps rows one height; the details (where the last KO came from...) go in its tooltip
     const note = el("td", "muted", g.note);
     if (g.note_detail) note.title = g.note_detail;
     tr.append(cell, el("td", "num", results ? g.turns + " turns" : ""), el("td", "", g.date), note, actions);
     // the whole row opens the game, like Stats (its own buttons keep their action)
     tr.className = "lib-row";
-    tr.title = "Open in One game (shows the result)";
+    tr.title = "Open in Main viewer (shows the result)";
     tr.addEventListener("click", (e) => { if (!e.target.closest("button")) openGame(g.id); });
     return tr;
   }
@@ -280,10 +301,40 @@
     };
     table.replaceChildren(tr(head, "th"), ...body.map((cells) => tr(cells, "td")));
   }
+  /** Every library game's rows, loaded once for Gambling and Players: saved sheets, else guessed max HP (same as
+      Main viewer; stays in % if the Pokédex won't load), luck when the move data loads. Also loads the draft. */
+  let leagueRows = null;
+  function loadLeague() {
+    return leagueRows || (leagueRows = (async () => {
+      await libraryReady;
+      try { draft = await (await fetch("games/draft.json", { cache: "no-cache" })).json(); } catch (e) { draft = null; }
+      // all games at once instead of waiting on each request in turn
+      const loaded = await Promise.all(library.map(async (g) => {
+        try {
+          if (!cache.has(g.id)) cache.set(g.id, await RS.fetchReplay(g.id));
+          return RS.gameRows(cache.get(g.id));
+        } catch (e) { return []; }  // a game that won't load just isn't counted
+      }));
+      let dex = null;
+      try { dex = await TS.loadDex(); } catch (e) { /* % only */ }
+      const [smogon, pool] = await Promise.all([TS.loadSmogonHp("data/smogon_hp.json"), loadMockPool()]);
+      const all = [];
+      for (const rows of loaded) {
+        if (rows.length) TS.attachSheets(rows, mockSheets.filter((s) => s.gameId === rows[0].replay_id));
+        fillMaxHp(rows, dex, smogon, pool);
+        all.push(...rows);
+      }
+      let moves = null;
+      try { moves = await LK.loadMoves(); } catch (e) { /* luck stays blank */ }
+      LK.addLuck(all, moves && dex ? { moves, dex } : null);
+      return all;
+    })());
+  }
+
   async function renderGambling() {
     await libraryReady;
     if (fantasyRows) return;
-    fantasyRows = [];
+    fantasyRows = [];  // marks the tab as rendering, so a second click doesn't start it again
     const saved = Bet.records(library);
     const nameOf = (p) => (saved.find((r) => r.id === TS.toID(p)) || { name: p }).name;  // one spelling per player
     // the bracket's records (tools/challonge_records.py); without them, the games saved here
@@ -301,23 +352,7 @@
       `${s.survived} for being alive at the end, ${s.won} when its team won. Cost is its draft price (OU 7, UUBL 6, UU 5, ` +
       `RUBL 4, RU 3, NFE 2, LC 1, set by the tier on draft day); Per cost is points for each draft point spent. Top 20.`;
     $("bet-status").textContent = "Loading games…";
-    try { draft = await (await fetch("games/draft.json", { cache: "no-cache" })).json(); } catch (e) { draft = null; }
-    // all games at once instead of waiting on each request in turn
-    const loaded = await Promise.all(library.map(async (g) => {
-      try {
-        if (!cache.has(g.id)) cache.set(g.id, await RS.fetchReplay(g.id));
-        return RS.gameRows(cache.get(g.id));
-      } catch (e) { return []; }  // a game that won't load just isn't counted
-    }));
-    // damage in HP: each game's saved sheets, else guessed max HP (same as One game); stays in % if the Pokédex won't load
-    let dex = null;
-    try { dex = await TS.loadDex(); } catch (e) { /* % only */ }
-    const [smogon, pool] = await Promise.all([TS.loadSmogonHp("data/smogon_hp.json"), loadMockPool()]);
-    for (const rows of loaded) {
-      if (rows.length) TS.attachSheets(rows, mockSheets.filter((s) => s.gameId === rows[0].replay_id));
-      fillMaxHp(rows, dex, smogon, pool);
-      fantasyRows.push(...rows);
-    }
+    fantasyRows = await loadLeague();
     const games = new Set(fantasyRows.map((r) => r.replay_id)).size;
     $("bet-status").textContent = (games < library.length ? `Counted ${games} of ${library.length} games (the rest didn't load). ` : "") +
       (draft ? "" : "Draft costs didn't load.");
@@ -338,7 +373,113 @@
       }));
   }
 
-  /** Open a stored game in One game (stats, so the result shows). */
+  // ---------- Players: each player's season, from every saved league game ----------
+
+  /** Damage dealt for some rows: in HP when every row has it (~ when a guessed max HP went in), else in %. */
+  function rowsDealt(rs) {
+    const hp = rs.length > 0 && rs.every((r) => typeof r.damage_dealt_hp === "number");
+    if (!hp) return pct(sum(rs, "damage_dealt_pct"));
+    return (rs.some((r) => r.hp_est && r.hp_est.damage_dealt_hp) ? "~" : "") + Math.round(sum(rs, "damage_dealt_hp")) + " HP";
+  }
+  /** Season luck: a luck field added up over the values that exist (an average always reads Fair), "" when none does. */
+  function totalLuck(values) {
+    const v = values.filter((x) => typeof x === "number");
+    return v.length ? Math.round(v.reduce((t, x) => t + x, 0) * 100) / 100 : "";
+  }
+  let players = null;   // [{ key, name, games: [library games], rows }], best record first
+  let playerPicked = "";
+  async function renderPlayers() {
+    if (players) return;
+    players = [];  // marks the tab as rendering
+    $("pl-status").textContent = "Loading games…";
+    const all = (await loadLeague()).filter((r) => r.brought);
+    // a player's Showdown names (case, spaces, draft aliases like DEJIME17) count as one, named as in the draft
+    const byKey = new Map();
+    const get = (name) => {
+      const key = playerKey(name);
+      if (!byKey.has(key)) {
+        const drafted = draft && Object.keys(draft.players || {}).find((p) => TS.toID(p) === key);
+        byKey.set(key, { key, name: drafted || name, games: [], rows: [], wins: 0, losses: 0 });
+      }
+      return byKey.get(key);
+    };
+    for (const g of library) {
+      for (const p of g.players) {
+        const pl = get(p);
+        pl.games.push(g);
+        if (g.winner) TS.toID(g.winner) === TS.toID(p) ? pl.wins++ : pl.losses++;
+      }
+    }
+    // one spelling on the rows too, so RS.summarize keeps one line per Pokémon
+    for (const r of all) { const pl = get(r.player); pl.rows.push({ ...r, player: pl.name }); }
+    players = [...byKey.values()].sort((a, b) => b.wins - a.wins || a.losses - b.losses ||
+      sum(b.rows, "kills") - sum(a.rows, "kills") || a.name.localeCompare(b.name));
+    const counted = new Set(all.map((r) => r.replay_id)).size;
+    $("pl-status").textContent = counted < library.length ? `Counted ${counted} of ${library.length} games (the rest didn't load).` : "";
+    simpleTable($("pl-table"), [["Player", ""],
+      ["Won", "num", "Games won among the games saved here."], ["Lost", "num", "Games lost among the games saved here."],
+      ["Kills", "num", DESCRIPTIONS.kills], ["Deaths", "num", DESCRIPTIONS.deaths],
+      ["Dealt", "num", "Damage dealt in all their games: in HP (~ = a guessed max HP went in), or in % when a game has no HP figures."],
+      ["Luck", "", "Their luck against their opponent's, added up over their games."],
+      ["Most used", "", "The Pokémon they brought most often."],
+      ["Top MVP", "", "The Pokémon that was Team MVP most often."]],
+      players.map((pl) => {
+        const mons = RS.summarize(pl.rows);
+        const used = el("span", "pl-mons");
+        used.append(...[...mons].sort((a, b) => b.games_brought - a.games_brought || b.kills - a.kills).slice(0, 3)
+          .map((m) => Object.assign(sprite(m.pokemon, ["gen5/"], "tiny"), { title: `${m.pokemon}: ${m.games_brought} games` })));
+        const mvp = [...mons].sort((a, b) => b.mvps - a.mvps || b.kills - a.kills)[0];
+        const perGame = [...new Map(pl.rows.map((r) => [r.replay_id, r.player_luck])).values()];
+        return [[pl.name, ""], [String(pl.wins), "num"], [String(pl.losses), "num"],
+          [String(sum(pl.rows, "kills")), "num"], [String(sum(pl.rows, "deaths")), "num"], [rowsDealt(pl.rows), "num"],
+          [luckBadge(totalLuck(perGame), "player"), ""], [used, ""],
+          [mvp && mvp.mvps ? `${mvp.pokemon} ×${mvp.mvps}` : "–", ""]];
+      }));
+    [...$("pl-table").rows].slice(1).forEach((tr, i) => {
+      tr.className = "pl-row";
+      tr.title = "Show their games and Pokémon";
+      tr.addEventListener("click", () => showPlayer(players[i].key));
+    });
+    showPlayer(playerPicked || (players[0] && players[0].key));
+  }
+
+  /** One player's games (opponent, result, kills, MVP, luck) and Pokémon, under the players table. */
+  function showPlayer(key) {
+    const pl = players.find((p) => p.key === key);
+    $("pl-detail").hidden = !pl;
+    if (!pl) return;
+    playerPicked = key;
+    [...$("pl-table").rows].slice(1).forEach((tr, i) => tr.setAttribute("aria-selected", String(players[i].key === key)));
+    $("pl-name").textContent = pl.name;
+    const nameOf = (p) => (players.find((x) => x.key === playerKey(p)) || { name: p }).name;
+    simpleTable($("pl-games"), [["Week", ""], ["Opponent", ""], ["Result", ""], ["Kills", "num", DESCRIPTIONS.kills],
+      ["Deaths", "num", DESCRIPTIONS.deaths], ["Team MVP", "", DESCRIPTIONS.mvp], ["Luck", "", DESCRIPTIONS.player_luck], ["", ""]],
+      [...pl.games].reverse().map((g) => {
+        const rs = pl.rows.filter((r) => r.replay_id === g.id);
+        const me = g.players.find((p) => playerKey(p) === key);
+        const opp = g.players.find((p) => p !== me) || "";
+        const result = !g.winner ? "–" : el("span", TS.toID(g.winner) === TS.toID(me) ? "badge win" : "badge",
+          TS.toID(g.winner) === TS.toID(me) ? "Won" : "Lost");
+        const mvp = rs.find((r) => r.mvp);
+        const stats = Object.assign(el("button", "small", "Stats"), { type: "button", title: "Open in Main viewer" });
+        stats.addEventListener("click", () => openGame(g.id));
+        return [[g.week, ""], [nameOf(opp), ""], [result, ""],
+          [rs.length ? String(sum(rs, "kills")) : "–", "num"], [rs.length ? String(sum(rs, "deaths")) : "–", "num"],
+          [mvp ? mvp.pokemon : "–", ""], [rs.length ? luckBadge(rs[0].player_luck, "player", rs[0].player_luck_top) : "–", ""], [stats, ""]];
+      }));
+    simpleTable($("pl-mons"), [["Pokémon", ""], ["Games", "num", DESCRIPTIONS.games_brought], ["Wins", "num", DESCRIPTIONS.wins_when_brought],
+      ["Kills", "num", DESCRIPTIONS.kills], ["Deaths", "num", DESCRIPTIONS.deaths],
+      ["Dealt", "num", "Damage dealt in all its games (HP, or % when a game has no HP figures)."],
+      ["MVPs", "num", DESCRIPTIONS.mvps], ["Luck", "", "Its own luck, added up over its games."]],
+      RS.summarize(pl.rows).sort((a, b) => b.games_brought - a.games_brought || b.kills - a.kills).map((m) => {
+        const rs = pl.rows.filter((r) => r.pokemon === m.pokemon);
+        const mon = el("span", "bet-mon");
+        mon.append(sprite(m.pokemon, ["gen5/"], "tiny"), m.pokemon);
+        return [[mon, ""], [String(m.games_brought), "num"], [String(m.wins_when_brought), "num"], [String(m.kills), "num"],
+          [String(m.deaths), "num"], [rowsDealt(rs), "num"], [String(m.mvps), "num"], [luckBadge(totalLuck(rs.map((r) => r.luck)), "pokemon"), ""]];
+      }));
+  }
+
   /** What goes in the link box: a Showdown link, or the bare id of a game rebuilt from its stream video. */
   const linkFor = (id) => (id.startsWith("video-") ? id : RS.REPLAY_HOST + id);
   /** The player for a game: Showdown's replay player, or the YouTube video for a game rebuilt from it. */
@@ -349,6 +490,7 @@
   }
   const isVideo = (id) => library.some((x) => x.id === id && x.video);
 
+  /** Open a stored game in Main viewer (stats, so the result shows). */
   function openGame(id) {
     $("one-link").value = linkFor(id);
     $("one-link").dispatchEvent(new Event("input"));
@@ -454,14 +596,14 @@
     .filter((id) => id && !sheetInputs().some((s) => TS.pokepasteIdFrom(s) === id));
   for (const id of sharedPastes) addSheetBox(TS.PASTE_HOST + id);
   if (sharedPastes.length) { $("sheets-wrap").open = true; saveSheets(); }
-  // one replay in the link opens One game, more open Several games
+  // one replay in the link opens Main viewer, more open Playoffs
   const shared = RS.replayIdsFromText(params.get("r") || "");
   if (shared.length === 1) $("one-link").value = linkFor(shared[0]);
   else if (shared.length) $("links").value = shared.map(linkFor).join("\n");
   if (shared.length) activeInput().dispatchEvent(new Event("input"));
   // ?tab=games (or many / bet) opens that tab, e.g. a link to the game list
   const tabParam = params.get("tab");
-  if (["one", "games", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
+  if (["one", "games", "players", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
   setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
   try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }
 

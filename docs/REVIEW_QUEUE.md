@@ -2,6 +2,9 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Players tab (`?tab=players`): is this the season view you wanted? Won / Lost count saved games only (Karm shows 6-1, the bracket 7-1); names stay Showdown names (user, 2026-10-28). Season luck is the total over their games, so "Very lucky" means lucky across the season. azpmCloudburst's Dealt is in % (3156%) because one of their games has no HP figures. Phone width not checked.
+- [ ] Main viewer: the tab name, and the "League game" list above "Or paste any replay link". Picking a game loads it at once. Phone width not checked.
+
 
 
 - [ ] Week 4 stream games (Zololab vs DEJIME, PotatoesAreYum vs Bad Bully, Dox vs Cloudburst, Big Large vs Fingy): winner from Challonge, last KO missing (each stream cut to a replay right at the end). Fill the last KO from the video if you know it. Week 4 Pikmon vs Sneez is not on the site (OCR too poor).

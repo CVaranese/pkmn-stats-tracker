@@ -31,8 +31,9 @@
     </header>
 
     <nav class="modes" role="tablist" aria-label="View">
-      <button role="tab" data-mode="one" aria-selected="true" type="button">One game</button>
+      <button role="tab" data-mode="one" aria-selected="true" type="button">Main viewer</button>
       <button role="tab" data-mode="games" aria-selected="false" type="button">Games</button>
+      <button role="tab" data-mode="players" aria-selected="false" type="button">Players</button>
       <button role="tab" data-mode="many" aria-selected="false" type="button">Playoffs</button>
       <button role="tab" data-mode="bet" aria-selected="false" type="button">Gambling</button>
     </nav>
@@ -47,6 +48,18 @@
       <h2 class="section-title">Records</h2>
       <p class="hint" id="bet-records-note"></p>
       <div class="table-wrap bet-table"><table id="bet-ranks"></table></div>
+    </section>
+
+    <section id="players" class="gambling" hidden>
+      <p class="hint">Every league game saved here, added up per player, so this tab gives results away. Won / Lost count the saved games only; the bracket under Games has every result.</p>
+      <p class="muted" id="pl-status"></p>
+      <div class="table-wrap"><table id="pl-table"></table></div>
+      <div id="pl-detail" hidden>
+        <h2 class="section-title" id="pl-name"></h2>
+        <div class="table-wrap"><table id="pl-games"></table></div>
+        <h2 class="section-title">Pokémon</h2>
+        <div class="table-wrap"><table id="pl-mons"></table></div>
+      </div>
     </section>
 
     <section id="library" class="library" hidden>
@@ -80,7 +93,9 @@
 
     <section class="input" id="inputs">
       <div id="one-input">
-        <label for="one-link">Replay link</label>
+        <label for="one-game">League game</label>
+        <select id="one-game" class="one-game"><option value="">Pick a game…</option></select>
+        <label for="one-link" class="or-link">Or paste any replay link</label>
         <input id="one-link" type="text" spellcheck="false" autocomplete="off"
           placeholder="https://replay.pokemonshowdown.com/gen9nationaldex-1234567890">
       </div>

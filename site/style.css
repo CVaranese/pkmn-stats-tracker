@@ -116,7 +116,7 @@ button.small { padding: 4px 10px; font-size: 13px; }
 
 .results { margin-top: 24px; }
 
-/* One game / Several games */
+/* main tabs: Main viewer, Games, Players, Playoffs, Gambling */
 .modes { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--outline); }
 .modes button { border: 2px solid transparent; border-bottom: 0; border-radius: 6px 6px 0 0; margin-bottom: -2px;
   background: transparent; padding: 8px 16px; font-weight: 600; color: var(--muted); }
@@ -124,6 +124,14 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .gambling .section-title { margin-top: 22px; }
 .bet-table { max-width: 360px; }
 .bet-mon { display: inline-flex; align-items: center; gap: 8px; }
+/* Main viewer: the league's games first, any pasted link second */
+.one-game { width: 100%; max-width: 520px; padding: 9px 10px; }
+.or-link { margin-top: 14px; font-weight: 500; color: var(--muted); }
+/* Players: a row opens that player's games and Pokémon below the table */
+.pl-row { cursor: pointer; }
+@media (hover: hover) { .pl-row:hover td { background: var(--row-alt); } }
+.pl-row[aria-selected="true"] td { background: var(--band); font-weight: 600; }
+.pl-mons { display: inline-flex; gap: 2px; }
 .library { padding: 4px 0 24px; }
 .lib-table .lib-week th { position: static; cursor: default; font-size: 15px; padding-top: 16px; background: var(--bg); }
 .lib-table .lib-week:first-child th { padding-top: 8px; }

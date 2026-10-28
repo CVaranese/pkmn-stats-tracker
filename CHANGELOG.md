@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Players tab (new): every saved league game added up per player: won / lost (saved games only), kills, deaths, damage dealt, season luck, the three Pokémon they brought most and their most frequent Team MVP. Click a player for their games (week, opponent, result, kills, deaths, Team MVP, luck, Stats) and their Pokémon (games, wins, kills, deaths, damage, MVPs, luck). A player's Showdown spellings count as one (DEJIME17 = DEJIME).
+- One game is now Main viewer, with a "League game" list (by week, latest first, players only so no result shows) above the link box; any pasted link still works under "Or paste any replay link". Gambling and Players share one loader for all league games, which now also scores luck.
 - Games: notes are short ("Stream video", "Stream screenshots") so every row is the same height; the details (where a last KO came from, which HP was estimated, the forfeit) show when you hover the note.
 - Gambling: the fantasy table's Damage is in HP (saved team sheets, else the guessed max HP, marked ~) instead of %. Points are unchanged: still 1 per 100% damage, a full health bar, so hitting bulky Pokémon doesn't score extra.
 - Back and Forward work inside the site: switching tabs, opening a game and the Games tab's Watch panel each add a history entry, so Back returns to the previous tab or game (and closes Watch) instead of leaving. The address follows along (`?tab=games`, `?r=<game>`), so reloading or bookmarking keeps your place.
