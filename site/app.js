@@ -303,8 +303,10 @@
   }
   // ---------- hidden Zoroark (illusion.js) ----------
 
-  // which stays on the field were Zoroark: the viewer's own picks (this browser), else the game library's
-  // (index.json "illusion"), else the ones illusion.js proves
+  // which stays on the field were Zoroark: the league admin's picks in the game library (index.json "illusion",
+  // written by tools/set_illusion.py), else the ones illusion.js proves. The admin tries picks out on the local
+  // site (served from this computer: Move to / Move back buttons, kept in this browser) before rolling them out.
+  const ADMIN = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname);
   const PICKS_KEY = "rs-illusion";
   function savedPicks() {
     try { return JSON.parse(localStorage.getItem(PICKS_KEY)) || {}; } catch (e) { return {}; }
@@ -324,13 +326,13 @@
     let learn = null, dex = null;
     try { [learn, dex] = await Promise.all([Illusion.loadLearnsets(), TS.loadDex()]); } catch (e) { /* fewer checks */ }
     const lib = (library.find((g) => g.id === replay.id) || {}).illusion || {};
-    const mine = savedPicks()[replay.id] || {};
+    const mine = ADMIN ? savedPicks()[replay.id] || {} : {};
     replay.illusion = {};
     for (const side of sides) {
       const a = Illusion.analyze(b.illusion[side], learn, dex);
-      const from = mine[side] ? "you" : lib[side] ? "library" : "proven";
+      const from = side in mine ? "you" : side in lib ? "library" : "proven";
       replay.zoroarks[side] = { ...a, player: b.players[side] || side, from };
-      replay.illusion[side] = mine[side] || lib[side] || a.proven;
+      replay.illusion[side] = side in mine ? mine[side] : side in lib ? lib[side] : a.proven;
     }
   }
   /** Change one side's picks and count the game again. */
@@ -356,8 +358,10 @@
         li.append(el("span", "", `${replay.id}: ${z.player} had a ${z.zoroark} that never dropped its disguise. ` + (moved.length
           ? `Counted as ${z.zoroark}: ${moved.map((s) => `${turnSpan(s).toLowerCase()} (shown as ${s.shown})`).join(", ")}.`
           : `Nothing shows it came in, so whatever it did is counted on the Pokémon it copied.`)));
-        if (z.from === "you") li.append(el("span", "", " Your pick, kept in this browser only."));
-        else if (z.from === "library") li.append(el("span", "", " Picked in the game library."));
+        if (z.from === "you") {
+          li.append(el("span", "", " Trying out a pick on this computer only. To roll it out: "),
+            el("code", "", `python -I tools/set_illusion.py ${replay.id} ${side} ${[...picked].join(",") || "none"}`));
+        } else if (z.from === "library") li.append(el("span", "", " Set by the league admin."));
         const open = z.stints.filter((s) => s.verdict === "zoroark" || s.verdict === "maybe" || picked.has(s.n));
         const not = z.stints.filter((s) => s.verdict === "not" && !picked.has(s.n));
         const box = el("details", "zoro-pick");
@@ -367,17 +371,21 @@
         for (const s of open) {
           const row = el("li");
           const on = picked.has(s.n);
-          const btn = el("button", "small", on ? `Move back to ${s.shown}` : `Move to ${z.zoroark}`);
-          btn.type = "button";
-          btn.setAttribute("aria-pressed", on ? "true" : "false");
-          btn.addEventListener("click", () => {
-            const next = new Set(picked);
-            if (on) next.delete(s.n); else next.add(s.n);
-            pickZoroark(replay, side, [...next].sort((x, y) => x - y));
-          });
           const what = `${turnSpan(s)}, shown as ${s.shown}` + (s.moves.length ? ` (${s.moves.join(", ")})` : "") +
-            (s.verdict === "zoroark" ? `: must be ${z.zoroark}, ${s.why}.` : s.verdict === "not" ? `: ${s.why}.` : "");
-          row.append(el("span", "", what + " "), btn);
+            (s.verdict === "zoroark" ? `: must be ${z.zoroark}, ${s.why}.` : s.verdict === "not" ? `: ${s.why}.` : ".") +
+            (ADMIN ? "" : on ? ` Counted as ${z.zoroark}.` : ` Counted as ${s.shown}.`);
+          row.append(el("span", "", what + " "));
+          if (ADMIN) {
+            const btn = el("button", "small", on ? `Move back to ${s.shown}` : `Move to ${z.zoroark}`);
+            btn.type = "button";
+            btn.setAttribute("aria-pressed", on ? "true" : "false");
+            btn.addEventListener("click", () => {
+              const next = new Set(picked);
+              if (on) next.delete(s.n); else next.add(s.n);
+              pickZoroark(replay, side, [...next].sort((x, y) => x - y));
+            });
+            row.append(btn);
+          }
           list.append(row);
         }
         if (!open.length) list.append(el("li", "", "None: every stay rules it out."));
@@ -391,7 +399,7 @@
           box.append(why);
         }
         if (z.from === "you") {
-          const reset = el("button", "small", "Back to the automatic pick");
+          const reset = el("button", "small", "Stop trying it out");
           reset.type = "button";
           reset.addEventListener("click", () => pickZoroark(replay, side, null));
           box.append(reset);
