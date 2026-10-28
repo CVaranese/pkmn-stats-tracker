@@ -247,6 +247,10 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .mon-mark .mark { padding: 2px 8px; border-radius: 3px; font-size: 13px; font-weight: 600;
 }
 .mon-best { font-size: 14px; }
+/* links to the Players / Pokémon tab (league games only): the team name, and a line under the Pokémon's best move */
+.season-link { color: var(--accent); text-underline-offset: 3px; }
+.mon-season { font-size: 14px; margin-top: 2px; align-self: flex-start; }
+@media (pointer: coarse) { .mon-season { padding: 10px 0; margin-top: 0; } }
 .mon-detail .stats, .mon-luck, .move-list { grid-column: 1 / -1; }
 /* its moves: one line each, name ×uses | damage share bar | damage | KOs; the best move's bar in the accent */
 .move-list { margin-top: 6px; }

@@ -174,12 +174,16 @@ function megaZ(r) {
   if (r.z_move) return `Used ${r.z_move} (Z-move) on turn ${r.z_turn}`;
   return "";
 }
+/** League games link their players and Pokémon to the Players / Pokémon tabs (a pasted replay isn't in them). */
+const inLeague = (id) => library.some((g) => g.id === id);
 function teamCard(player, rs) {
   const brought = rs.filter((r) => r.brought);
   const card = el("article", "team-card");
   card.classList.toggle("simple", !detailed);
   const h = el("h3", "team-name");
-  h.append(el("span", "", player), el("span", rs[0].won ? "badge win" : "badge loss", rs[0].won ? "Won" : "Lost"));
+  const name = inLeague(rs[0].replay_id) ? seasonLink(player, "players", player) : el("span", "", player);
+  if (name.href) name.title = "Their season on Players";
+  h.append(name, el("span", rs[0].won ? "badge win" : "badge loss", rs[0].won ? "Won" : "Lost"));
   card.appendChild(h);
 
   // the team: brought ones are buttons that show their stats below (Team MVP first)
@@ -244,6 +248,7 @@ function monDetail(r) {
   const best = bestMove(r);
   who.appendChild(el("span", "mon-best", best ? `Best move: ${best.move}` +
     (best.kos ? `, ${best.kos} KO${best.kos > 1 ? "s" : ""}` : "") : " "));
+  if (inLeague(r.replay_id)) who.appendChild(seasonLink(`${r.pokemon}'s season`, "mons", r.pokemon, "season-link mon-season"));
   const grid = el("div", "stats");
   // .adv: only in the detailed view (see toggleDetail)
   const adv = (node) => { node.classList.add("adv"); return node; };

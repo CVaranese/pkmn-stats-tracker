@@ -3,6 +3,7 @@
 
 let players = null;   // [{ key, name, games: [library games], rows }], best record first
 let playerPicked = "";
+let playerWanted = "";  // asked for by a link (?player=, the game viewer) before the tab had loaded: a name or key
 async function renderPlayers() {
   if (players) return;
   players = [];  // marks the tab as rendering
@@ -51,9 +52,22 @@ async function renderPlayers() {
     tr.className = "pl-row";
     cellButton(tr.cells[0]);
     // no title on the row: a phone shows a title as a tip on tap, which got in the way of opening the player
-    tr.addEventListener("click", () => { showPlayer(players[i].key); $("pl-detail").scrollIntoView({ block: "start" }); });
+    tr.addEventListener("click", () => { showPlayer(players[i].key); replaceNav(); $("pl-detail").scrollIntoView({ block: "start" }); });
   });
-  showPlayer(playerPicked || (players[0] && players[0].key));
+  if (!(playerWanted && showWantedPlayer())) showPlayer(playerPicked || (players[0] && players[0].key));
+}
+/** Pick a player from a link (name or key) and bring their games into view, now or once the tab has loaded. */
+function wantPlayer(name) {
+  playerWanted = name;
+  if (players && players.length) showWantedPlayer();
+}
+function showWantedPlayer() {
+  const key = playerKey(playerWanted);
+  playerWanted = "";
+  if (!players.some((p) => p.key === key)) return false;
+  showPlayer(key);
+  $("pl-detail").scrollIntoView({ block: "start" });
+  return true;
 }
 /** One player's games (opponent, result, kills, MVP, luck) and Pokémon, under the players table. */
 function showPlayer(key) {

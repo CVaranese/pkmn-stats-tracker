@@ -24,6 +24,8 @@ window.addEventListener("popstate", (e) => {
   if (!st || !st.mode) return;
   if (st.r) { $("one-link").value = linkFor(st.r); $("one-link").dispatchEvent(new Event("input")); }
   if (st.mode !== mode || st.r) setMode(st.mode);
+  if (st.pick && st.mode === "players") wantPlayer(st.pick);
+  if (st.pick && st.mode === "mons") wantMon(st.pick);
   const g = st.watch && library.find((x) => x.id === st.watch);
   if (g) watchHere(g, false); else closeWatch();
 });
@@ -141,4 +143,7 @@ if (shared.length) activeInput().dispatchEvent(new Event("input"));
 const tabParam = params.get("tab");
 if (["one", "games", "players", "mons", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
 setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
+// ?tab=players&player=<key> / ?tab=mons&mon=<name>: that player or Pokémon picked (links from the game viewer)
+if (mode === "players" && params.get("player")) wantPlayer(params.get("player"));
+if (mode === "mons" && params.get("mon")) wantMon(params.get("mon"));
 try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }

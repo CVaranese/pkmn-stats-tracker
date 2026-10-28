@@ -3,6 +3,7 @@
 
 let mons = null;  // [summary fields + { rows, players, moves, best }], most games first
 let monPicked = "";
+let monWanted = "";  // asked for by a link (?mon=, the game viewer) before the tab had loaded
 // search text: letters and digits only, no accents or case ("Iron-Valiant" and "ironval" match)
 const findKey = (s) => s.normalize("NFD").replace(/[^a-z0-9]/gi, "").toLowerCase();
 const monSort = { col: 2, dir: -1 };
@@ -56,7 +57,19 @@ async function renderMons() {
     });
     filterMons();
   });
-  showMon(monPicked || (mons[0] && mons[0].pokemon));
+  if (!(monWanted && showWantedMon())) showMon(monPicked || (mons[0] && mons[0].pokemon));
+}
+/** Pick a Pokémon from a link and bring it into view, now or once the tab has loaded. */
+function wantMon(name) {
+  monWanted = name;
+  if (mons && mons.length) showWantedMon();
+}
+function showWantedMon() {
+  const name = monWanted;
+  monWanted = "";
+  if (!mons.some((m) => m.pokemon === name)) return false;
+  pickMon(name, false);
+  return true;
 }
 /** The search box: up to 8 matches as buttons under it (name or player), the table cut to the matches. */
 function filterMons() {
@@ -72,8 +85,9 @@ function filterMons() {
   $("mon-find-count").textContent = !q ? "" : !hits.length ? "No Pokémon matches." :
     hits.length > 8 ? `${hits.length} match: the first 8 are above, all of them in the list below.` : "";
 }
-function pickMon(name) {
+function pickMon(name, follow = true) {
   showMon(name);
+  if (follow) replaceNav();
   $("mon-detail").scrollIntoView({ block: "start" });
 }
 /** One Pokémon's season moves and its games (player, opponent, result, kills, damage), under the Pokémon table. */

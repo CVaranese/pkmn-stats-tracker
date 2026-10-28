@@ -135,14 +135,20 @@ function setMode(m, load = true) {
   if (m === "players") renderPlayers();
   if (m === "mons") renderMons();
 }
-// Back / Forward: each tab, game and Watch panel is a history entry ({ mode, r, watch }), so Back returns to
-// the previous one instead of leaving the site. The address follows (?tab=games, ?r=<id>); other params stay.
-const navState = () => ({ mode, r: mode === "one" ? activeIds()[0] || "" : "", watch: $("lib-watch").hidden ? "" : watching });
+// Back / Forward: each tab, game and Watch panel is a history entry ({ mode, r, watch, pick }), so Back returns to
+// the previous one instead of leaving the site. The address follows (?tab=games, ?r=<id>, ?tab=players&player=<key>,
+// ?tab=mons&mon=<name>); other params stay. pick: the player (key) or Pokémon picked on Players / Pokémon.
+const navPick = () => (mode === "players" ? (playerWanted && playerKey(playerWanted)) || playerPicked :
+  mode === "mons" ? monWanted || monPicked : "");
+const navState = () => ({ mode, r: mode === "one" ? activeIds()[0] || "" : "", watch: $("lib-watch").hidden ? "" : watching,
+  pick: navPick() });
+const PICK_PARAM = { players: "player", mons: "mon" };
 function navUrl(st) {
   const q = new URLSearchParams(location.search);
-  q.delete("r"); q.delete("tab");
+  q.delete("r"); q.delete("tab"); q.delete("player"); q.delete("mon");
   if (st.r) q.set("r", st.r);
   else if (st.mode !== "one") q.set("tab", st.mode);
+  if (!st.r && st.pick && PICK_PARAM[st.mode]) q.set(PICK_PARAM[st.mode], st.pick);
   const s = q.toString().replace(/%2C/g, ",");
   return location.pathname + (s ? "?" + s : "");
 }
@@ -150,6 +156,11 @@ function pushNav() {
   const st = navState();
   if (JSON.stringify(st) === JSON.stringify(history.state)) return;
   try { history.pushState(st, "", navUrl(st)); } catch (e) { /* sandboxed frame: no history */ }
+}
+/** The address follows a pick inside Players / Pokémon (a link to share) without a Back step per click. */
+function replaceNav() {
+  const st = navState();
+  try { history.replaceState(st, "", navUrl(st)); } catch (e) { /* sandboxed frame: no history */ }
 }
 /** A table with a header row; each cell is [text or node, "num" or ""], a header cell may add a title. */
 function simpleTable(table, head, body) {
@@ -197,6 +208,24 @@ function openGame(id) {
   pushNav();
   $("sheets-wrap").open = false;
   window.scrollTo(0, 0);
+}
+/** Open a player's season (tab "players", their name or key) or a Pokémon's ("mons", its name as the Pokémon tab
+    shows it), picked and scrolled into view; Back returns here. */
+function openSeason(tab, value) {
+  if (mode !== tab) setMode(tab);
+  if (tab === "players") wantPlayer(value); else wantMon(value);
+  pushNav();
+}
+/** A link to a player's or Pokémon's season (openSeason): a real address, so it can be opened in a new tab or copied. */
+function seasonLink(text, tab, value, cls = "season-link") {
+  const a = el("a", cls, text);
+  a.href = navUrl({ mode: tab, r: "", pick: tab === "players" ? playerKey(value) : value });
+  a.addEventListener("click", (e) => {
+    if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;  // new tab / window: the browser's
+    e.preventDefault();
+    openSeason(tab, value);
+  });
+  return a;
 }
 const SPRITES = "https://play.pokemonshowdown.com/sprites/";
 /** A sprite <img> that tries each folder in turn, then shows the name's initials (unknown form, no copy). */
