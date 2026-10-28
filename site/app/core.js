@@ -22,7 +22,7 @@ let view = "summary";
 let sort = { field: "kills", dir: -1 };
 const LABELS = {
   replay_id: "Replay", date: "Date", format: "Format", player: "Player", opponent: "Opponent",
-  won: "Won", end_reason: "Ended by", turns: "Turns", pokemon: "Pokémon", nickname: "Nickname", brought: "Brought", kills: "Kills",
+  won: "Won", end_reason: "Ended by", turns: "Turns", game_seconds: "Game length (s)", seconds_per_turn: "Seconds / turn", pokemon: "Pokémon", nickname: "Nickname", brought: "Brought", kills: "Kills",
   direct_kills: "Direct", passive_kills: "Passive", deaths: "Deaths", self_kos: "Self KOs", replay_url: "Link",
   games_brought: "Games", wins_when_brought: "Wins", kills_per_game: "Kills / game",
   max_hp: "Max HP", max_hp_from: "Max HP from", item: "Item", ability: "Ability", moves: "Moves",
@@ -30,6 +30,8 @@ const LABELS = {
   hazard_damage_pct: "Hazard %", hazard_damage_hp: "Hazard HP", hazard_kills: "Hazard KOs",
   hazards_set: "Hazards set", hazards_removed: "Hazards removed", hazard_turns: "Hazard turns",
   healing_pct: "Healed %", healing_hp: "Healed HP", healing_given_pct: "Heal given %", healing_given_hp: "Heal given HP",
+  statuses_inflicted: "Statuses", status_damage_pct: "Status dmg %", status_damage_hp: "Status dmg HP",
+  moves_revealed: "Moves shown", item_revealed: "Item shown", ability_revealed: "Ability shown", info_revealed_pct: "Info shown %",
   switches: "Switches", pivots: "Pivots", forced_out: "Forced out", faint_switch_ins: "In after KO",
   crits: "Crits", crits_taken: "Crits taken", misses: "Misses", dodges: "Dodged", full_paras: "Full paras",
   sleep_turns: "Sleep turns", flinched: "Flinched", confusion_hits: "Hit itself", procs: "Effects landed",
@@ -45,7 +47,15 @@ const DESCRIPTIONS = {
   replay_id: "Showdown replay ID.", date: "Day the replay was uploaded.", format: "Showdown format.",
   player: "The player who brought this Pokémon.", opponent: "The other player in that game.",
   won: "Whether this player won the game.", end_reason: "How the game ended: normal, forfeit, timer, tie or unfinished.",
-  turns: "Number of turns the game lasted.", pokemon: "Species (form included).", nickname: "Nickname used in the game.",
+  turns: "Number of turns the game lasted.",
+  game_seconds: "How long the game took, from the replay's first to last timestamp (blank for games rebuilt from video).",
+  seconds_per_turn: "Game length divided by turns.",
+  statuses_inflicted: "Burns, poisonings, paralyses, sleeps and freezes it put on opponents (Toxic Spikes count for whoever set them).",
+  status_damage_pct: "Part of Dealt % done by burn or poison it inflicted.",
+  status_damage_hp: "Part of Dealt HP done by burn or poison it inflicted (~ = uses a guessed max HP, no team sheet).",
+  moves_revealed: "Different moves it used, of 4 (Z-moves not counted).",
+  item_revealed: "The game showed its item (a Mega Stone or Z-crystal counts).", ability_revealed: "The game showed its ability.",
+  info_revealed_pct: "How much of their team the player gave away: of 7 facts per Pokémon (sent out, item, ability, 4 moves), the share the game showed.", pokemon: "Species (form included).", nickname: "Nickname used in the game.",
   brought: "Whether it was brought to the battle (not just shown at team preview).",
   kills: "Opponents it KO'd: direct + passive.", direct_kills: "KOs from its own attacks (spread KOs count each; Destiny Bond counts).",
   passive_kills: "KOs from indirect damage it caused: burn, poison, hazards, weather, Leech Seed, Rocky Helmet…",
@@ -89,14 +99,15 @@ const DESCRIPTIONS = {
   mvp_score: "Performance, roughly in KOs' worth: +1 per 100% dealt, +1 per kill, +0.5 per 100% taken, +0.05 per turn on field, +0.5 for surviving.",
   mvp: "Best Performance on its team in that game.", mvps: "Times it was Team MVP.", mvp_score_per_game: "Average Performance per game brought.",
 };
-const YES_NO = new Set(["won", "brought", "hidden_zoroark", "mvp", "survived", "mega"]);
+const YES_NO = new Set(["won", "brought", "hidden_zoroark", "mvp", "survived", "mega", "item_revealed", "ability_revealed"]);
 // no date column (user 2026-10-28: the week is enough), in the tables or the exports
 const GAME_VIEW_FIELDS = RS.GAME_FIELDS.filter((f) => f !== "replay_id" && f !== "format" && f !== "date");
-const ONE_GAME_HIDDEN = new Set(["date", "opponent", "won", "end_reason", "turns", "player_luck", "replay_url"]);
+const ONE_GAME_HIDDEN = new Set(["date", "opponent", "won", "end_reason", "turns", "game_seconds", "seconds_per_turn",
+  "info_revealed_pct", "player_luck", "replay_url"]);
 const SHEET_FIELDS = ["max_hp", "max_hp_from", "item", "ability", "moves"]; // per game, once any max HP is known
 const HP_FROM = { player: "other sheet", smogon: "Smogon", stats: "base stats" }; // max_hp_from of a guess
 const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"],
-  healing_pct: ["healing_hp"], healing_given_pct: ["healing_given_hp"] };
+  healing_pct: ["healing_hp"], healing_given_pct: ["healing_given_hp"], status_damage_pct: ["status_damage_hp"] };
 // Main viewer (one game, the default) or Playoffs (several games); each has its own input, remembered separately
 let mode = "one";
 const activeInput = () => (mode === "one" ? $("one-link") : $("links"));

@@ -103,6 +103,22 @@
       </div>
     </section>
 
+    <section class="sample momentum">
+      <h3>Momentum (line chart)</h3>
+      <p class="momentum-legend"><span class="momentum-key"><svg viewBox="0 0 24 8" class="swatch"><line x1="0" x2="24" y1="4" y2="4" class="series s0"/></svg>Winner</span>
+        <span class="momentum-key"><svg viewBox="0 0 24 8" class="swatch"><line x1="0" x2="24" y1="4" y2="4" class="series s1"/></svg>Loser</span>
+        <span class="momentum-key">● lost a Pokémon</span></p>
+      <svg class="momentum-chart" viewBox="0 0 600 200" height="200">
+        <line x1="40" x2="588" y1="10" y2="10" class="grid"/><line x1="40" x2="588" y1="92" y2="92" class="grid"/><line x1="40" x2="588" y1="174" y2="174" class="grid"/>
+        <text x="34" y="14" class="axis" text-anchor="end">100%</text><text x="34" y="96" class="axis" text-anchor="end">50%</text><text x="34" y="178" class="axis" text-anchor="end">0%</text>
+        <line x1="400" x2="400" y1="10" y2="174" class="cross"/>
+        <path d="M40,10L150,30L260,60L370,70L480,110L588,120" class="series s0"/>
+        <path d="M40,10L150,40L260,80L370,110L480,150L588,174" class="series s1"/>
+        <circle cx="260" cy="80" r="4" class="ko s1"/><circle cx="588" cy="174" r="4" class="ko s1"/><circle cx="480" cy="110" r="4" class="ko s0"/>
+      </svg>
+      <p class="hint momentum-read">After turn 12: Winner 4 left, 58% HP · Loser 2 left, 31% HP</p>
+    </section>
+
     <details class="rules" open>
       <summary>Collapsible extras (details)</summary>
       <ul><li>Rules and explanations go in a list like this.</li></ul>

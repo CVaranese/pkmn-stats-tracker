@@ -1249,6 +1249,51 @@ ${switchIn}`).hiddenZoroark;
       JSON.stringify([s("p1: A"), s("p1: C"), s("p2: B")]));
   }
 
+  // ---- status inflicted, info shown, game length, momentum (worked out by hand from this log) ----
+  {
+    const log = "|t:|1000\n|poke|p1|Pelipper|\n|poke|p1|Blissey|\n|poke|p2|Garchomp|\n|poke|p2|Dragonite|\n" +
+      "|teamsize|p1|2\n|teamsize|p2|2\n" + lhead() +
+      "|move|p1a: A|Scald|p2a: B\n|-damage|p2a: B|60/100\n|-status|p2a: B|brn\n" +
+      "|move|p2a: B|Earthquake|p1a: A\n|-damage|p1a: A|50/100\n|-damage|p2a: B|54/100|[from] brn\n|-ability|p1a: A|Drizzle\n" +
+      "|t:|1030\n|turn|2\n" +
+      "|-zpower|p1a: A\n|move|p1a: A|Hydro Vortex|p2a: B\n|-damage|p2a: B|0 fnt\n|faint|p2a: B\n" +
+      "|switch|p2a: D|Dragonite, L50|100/100\n|-item|p2a: D|Leftovers\n|move|p1a: A|Scald|p2a: D\n|-damage|p2a: D|80/100\n" +
+      "|move|p2a: D|Toxic|p1a: A\n|-status|p1a: A|tox\n|-damage|p1a: A|44/100|[from] psn\n" +
+      "|t:|1090\n|turn|3\n|-message|Bob forfeited.\n|win|Alice\n|t:|1150";
+    const rows = RS.gameRows({ id: "test-info", log });
+    const got = Object.fromEntries(rows.map((r) => [r.pokemon, [r.statuses_inflicted, r.status_damage_pct, r.moves_revealed,
+      r.item_revealed, r.ability_revealed, r.info_revealed_pct]]));
+    // Pelipper: Scald (the Z-move isn't a move shown), item via the Z-crystal; info = (1+1+1+1) / 14, (2 + 3) / 14
+    const exp = { Pelipper: [1, 6, 1, 1, 1, 28.6], Blissey: [0, 0, 0, 0, 0, 28.6],
+      Garchomp: [0, 0, 1, 0, 0, 35.7], Dragonite: [1, 6, 1, 1, 0, 35.7] };
+    check("status inflicted and info shown", same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
+    check("game length from timestamps", same([rows[0].game_seconds, rows[0].seconds_per_turn], [150, 50]),
+      JSON.stringify([rows[0].game_seconds, rows[0].seconds_per_turn]));
+    const mom = rows[0].momentum.map((p) => [p.turn, p.p1.left, p.p1.hp, p.p2.left, p.p2.hp]);
+    const expMom = [[0, 2, 100, 2, 100], [1, 2, 75, 2, 77], [2, 2, 72, 1, 40], [3, 2, 72, 1, 40]];
+    check("momentum: team HP and Pokemon left after each turn", same(mom, expMom),
+      `expected ${JSON.stringify(expMom)}\ngot      ${JSON.stringify(mom)}`);
+    const noTime = RS.gameRows({ id: "test-notime", log: log.replace(/^\|t:\|\d+\n?/gm, "") })[0];
+    check("no timestamps: game length blank", noTime.game_seconds === "" && noTime.seconds_per_turn === "",
+      JSON.stringify([noTime.game_seconds, noTime.seconds_per_turn]));
+    const sum = Object.fromEntries(RS.summarize(rows).map((a) => [a.pokemon, [a.statuses_inflicted, a.status_damage_pct]]));
+    check("status in the summary", same(sum.Pelipper, [1, 6]) && same(sum.Dragonite, [1, 6]), JSON.stringify(sum));
+  }
+  // real replays: status damage is the "(status)" rows of the move lists, and every finished game ends with a side at 0
+  {
+    const off = [];
+    for (const id of Object.keys(REAL).filter((x) => x.startsWith("gen9nationaldex"))) {
+      const rs = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
+      const a = rs.reduce((t, r) => t + r.status_damage_pct, 0);
+      const b = rs.reduce((t, r) => t + (r.move_stats || []).filter((m) => / \(status\)$/.test(m.move)).reduce((u, m) => u + m.dealt_pct, 0), 0);
+      if (Math.abs(a - b) > 0.01) off.push(`${id}: status ${a} vs move list ${b}`);
+      const last = rs[0].momentum[rs[0].momentum.length - 1];
+      if (rs[0].end_reason === "normal" && last.p1.left && last.p2.left) off.push(`${id}: nobody at 0 at the end`);
+      if (rs.some((r) => r.moves_revealed > 4)) off.push(`${id}: more than 4 moves shown`);
+    }
+    check("status damage, momentum end, moves shown on real replays", !off.length, off.join("\n"));
+  }
+
   // ---- fetching: time limit and "site is down" errors (fake fetch functions, 50 ms limit) ----
   {
     const fail = async (fetchFn) => {

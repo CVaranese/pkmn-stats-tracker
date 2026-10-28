@@ -130,7 +130,7 @@ function renderTeams() {
   const link = Object.assign(el("a", "", g.replay_id), { href: g.replay_url, target: "_blank", rel: "noopener" });
   // league games say their week; no dates anywhere (user 2026-10-28: the week is enough)
   const lib = library.find((x) => x.id === g.replay_id);
-  head.append(link, `${lib ? " · " + lib.week : ""} · ${g.turns} turns · ended by ${g.end_reason}`);
+  head.append(link, `${lib ? " · " + lib.week : ""} · ${g.turns} turns${gameTime(g)} · ended by ${g.end_reason}`);
   // winner first
   const players = [...new Set(rows.map((r) => r.player))].sort((a, b) =>
     rows.find((r) => r.player === b).won - rows.find((r) => r.player === a).won);
@@ -139,6 +139,108 @@ function renderTeams() {
   const errs = lib && lib.known_errors ? el("p", "hint", "Rebuilt from the stream video, with errors: " + lib.known_errors) : "";
   box.replaceChildren(el("h2", "section-title", "This game"), head, errs, videoButtons(g.replay_id), el("div", "team-grid"));
   box.lastChild.append(...cards);
+  if ((g.momentum || []).length > 1) box.appendChild(momentumChart(g.momentum, players, rows));
+}
+/** " · 14 min, about 37 s a turn" from the replay's timestamps; "" without them (games rebuilt from video). */
+function gameTime(g) {
+  if (!g.game_seconds) return "";
+  const m = Math.round(g.game_seconds / 60);
+  return ` · ${m < 1 ? "under a minute" : m + " min"}${g.seconds_per_turn ? `, about ${g.seconds_per_turn} s a turn` : ""}`;
+}
+/**
+ * Momentum: each team's HP (all its Pokémon together, % of the whole team; not yet seen = full) after each turn.
+ * The winner's line in the accent colour, the other dashed; a dot where a side lost a Pokémon. A readout under the
+ * chart says the numbers for the turn under the pointer (or picked with the arrow keys), the last turn by default.
+ */
+function momentumChart(points, players, rs) {
+  const sideOf = Object.fromEntries(players.map((p) => [p, rs.find((r) => r.player === p).side]));
+  const H = 200, L = 40, R = 12, T = 10, B = 26;
+  let W = 600;                      // the chart's real width in pixels, so text stays 12px (redrawn on resize)
+  const maxTurn = points[points.length - 1].turn || 1;
+  const x = (t) => L + ((W - L - R) * t) / maxTurn;
+  const y = (v) => T + ((H - T - B) * (100 - v)) / 100;
+  const NS = "http://www.w3.org/2000/svg";
+  const svgEl = (tag, attrs) => {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    return e;
+  };
+  const svg = svgEl("svg", { class: "momentum-chart", height: H, tabindex: "0", role: "img",
+    "aria-label": `Team HP after each turn, ${players.join(" and ")}` });
+  const cross = svgEl("line", { y1: T, y2: H - B, class: "cross" });
+  function draw() {
+    svg.replaceChildren();
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    for (const v of [0, 50, 100]) {
+      svg.appendChild(svgEl("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "grid" }));
+      const lab = svgEl("text", { x: L - 6, y: y(v) + 4, class: "axis", "text-anchor": "end" });
+      lab.textContent = v + "%";
+      svg.appendChild(lab);
+    }
+    // turn numbers about every 50px
+    const step = [1, 2, 5, 10, 20].find((n) => ((W - L - R) * n) / maxTurn >= 50) || 50;
+    for (let t = 0; t <= maxTurn; t += step) {
+      const lab = svgEl("text", { x: x(t), y: H - 8, class: "axis", "text-anchor": "middle" });
+      lab.textContent = t;
+      svg.appendChild(lab);
+    }
+    svg.appendChild(cross);
+    players.forEach((p, i) => {
+      const side = sideOf[p];
+      const d = points.map((pt, j) => `${j ? "L" : "M"}${x(pt.turn).toFixed(1)},${y(pt[side].hp).toFixed(1)}`).join("");
+      svg.appendChild(svgEl("path", { d, class: "series s" + i }));
+      points.forEach((pt, j) => {
+        if (j && pt[side].left < points[j - 1][side].left) {
+          svg.appendChild(svgEl("circle", { cx: x(pt.turn), cy: y(pt[side].hp), r: 4, class: "ko s" + i }));
+        }
+      });
+    });
+  }
+  const legend = el("p", "momentum-legend");
+  players.forEach((p, i) => {
+    const key = el("span", "momentum-key");
+    const sw = svgEl("svg", { viewBox: "0 0 24 8", class: "swatch" });
+    sw.appendChild(svgEl("line", { x1: 0, x2: 24, y1: 4, y2: 4, class: "series s" + i }));
+    key.append(sw, p);
+    legend.appendChild(key);
+  });
+  legend.appendChild(el("span", "momentum-key", "● lost a Pokémon"));
+  const read = el("p", "hint momentum-read");
+  let at = points.length - 1;
+  const show = (j) => {
+    at = Math.max(0, Math.min(points.length - 1, j));
+    const pt = points[at];
+    cross.setAttribute("x1", x(pt.turn));
+    cross.setAttribute("x2", x(pt.turn));
+    read.textContent = (pt.turn ? `After turn ${pt.turn}: ` : "Start: ") + players.map((p) =>
+      `${p} ${pt[sideOf[p]].left} left, ${Math.round(pt[sideOf[p]].hp)}% HP`).join(" · ");
+  };
+  const fromPointer = (ev) => {
+    const box = svg.getBoundingClientRect();
+    const t = (ev.clientX - box.left - L) / ((W - L - R) / maxTurn);
+    let best = 0;
+    points.forEach((pt, j) => { if (Math.abs(pt.turn - t) < Math.abs(points[best].turn - t)) best = j; });
+    show(best);
+  };
+  svg.addEventListener("pointermove", fromPointer);
+  svg.addEventListener("pointerdown", fromPointer);
+  svg.addEventListener("keydown", (ev) => {
+    if (ev.key === "ArrowLeft" || ev.key === "ArrowRight") {
+      ev.preventDefault();
+      show(at + (ev.key === "ArrowRight" ? 1 : -1));
+    }
+  });
+  const resize = () => {
+    const w = Math.round(svg.getBoundingClientRect().width);
+    if (w > L + R && w !== W) { W = w; draw(); show(at); }
+  };
+  draw();
+  show(at);
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(svg);
+  requestAnimationFrame(resize);
+  const wrap = el("section", "momentum");
+  wrap.append(el("h3", "", "Momentum"), legend, svg, read);
+  return wrap;
 }
 // short league name for video titles, e.g. "PPPPP Week 6 Big Large Vs Nezergy" (PeterPikmon's videos)
 const LEAGUE_TAGS = { pinecord: "PPPPP" };
@@ -226,7 +328,8 @@ function teamCard(player, rs) {
     amountStat("Healed", brought, ["healing_pct", "healing_given_pct"]),
     stat("Hazards set", sum(brought, "hazards_set"), "hazards_set"),
     stat("Switches", sum(brought, "switches") + sum(brought, "pivots"), "switches"),
-    stat("Crits", sum(brought, "crits"), "crits"));
+    stat("Crits", sum(brought, "crits"), "crits"),
+    stat("Info shown", typeof rs[0].info_revealed_pct === "number" ? Math.round(rs[0].info_revealed_pct) + "%" : "–", "info_revealed_pct"));
   const luck = el("div", "team-luck");
   luck.append(el("span", "stat-label", "Team luck"), luckBadge(rs[0].player_luck, "player", rs[0].player_luck_top));
   team.append(el("h4", "", "Team"), nums, luck);
@@ -258,7 +361,10 @@ function monDetail(r) {
     amountStat("Taken", [r], ["damage_taken_pct"]),
     stat("Survived", r.survived ? "yes" : "no", "survived"),
     adv(stat("Turns on field", r.turns_on_field, "turns_on_field")),
-    adv(amountStat("Healed", [r], ["healing_pct", "healing_given_pct"])));
+    adv(amountStat("Healed", [r], ["healing_pct", "healing_given_pct"])),
+    adv(stat("Statuses", r.statuses_inflicted, "statuses_inflicted")),
+    adv(stat("Shown", [`${r.moves_revealed} of 4 moves`, r.item_revealed && "item", r.ability_revealed && "ability"]
+      .filter(Boolean).join(", "), "moves_revealed")));
   const luck = el("div", "mon-luck adv");
   luck.append(el("span", "stat-label", "Luck"), luckBadge(r.luck, "pokemon", r.luck_top));
   const mark = el("p", "mon-mark");

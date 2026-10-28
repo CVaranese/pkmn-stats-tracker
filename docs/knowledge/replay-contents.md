@@ -67,6 +67,8 @@ Full protocol reference: `SIM-PROTOCOL.md` in smogon/pokemon-showdown.
 | no `\|win\|` | 1/30 corpus | Unfinished replay (saved at team preview); `end_reason` = unfinished (**tested**) |
 | `\|c\|☆name\|gl hf` | 5/5 | Chat |
 | `\|j\|` / `\|l\|`, `\|inactive\|` | 3–5/5 | Spectators joining/leaving, timer warnings |
+| `\|t:\|<unix seconds>` | 13/13 league replays | Timestamps through the game: first to last = game length (**tested** 2026-10-28, e.g. 2677227914: 806 s over 15 turns). None in games rebuilt from stream videos. |
+| `\|inactive\|X has N seconds left.` | 6/13 league replays | Only when someone turned the timer on, so per-player time can't be counted for every game (**tested** 2026-10-28) |
 
 ## Feature ideas this data supports
 - **Already used:** kills, deaths, wins, brought vs not, team preview.

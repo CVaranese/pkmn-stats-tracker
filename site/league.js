@@ -5,7 +5,8 @@
   const toID = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
   // a % field and its HP twin (filled once max HP is known: ReplayStats.addDamageHp)
   const PCT_TO_HP = { damage_dealt_pct: "damage_dealt_hp", damage_taken_pct: "damage_taken_hp",
-    hazard_damage_pct: "hazard_damage_hp", healing_pct: "healing_hp", healing_given_pct: "healing_given_hp" };
+    hazard_damage_pct: "hazard_damage_hp", healing_pct: "healing_hp", healing_given_pct: "healing_given_hp",
+    status_damage_pct: "status_damage_hp" };
 
   const pct = (v) => (typeof v === "number" ? Math.round(v) + "%" : "–");
   const sum = (rs, f) => rs.reduce((t, r) => t + (typeof r[f] === "number" ? r[f] : 0), 0);

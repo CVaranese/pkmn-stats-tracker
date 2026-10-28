@@ -41,6 +41,9 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
 - **Sprites**: `sprite(name, folders, size)` in app/core.js; sizes `tiny` 40px (lists), `small` 52px (team strip),
   `big` 96px (MVP). Pixel art stays pixelated (`image-rendering: pixelated`); never stretch or blur it.
 - **Luck**: the die (1–5 pips) plus a word, never a number alone.
+- **Line chart** (`.momentum`, Main viewer): a card like the team cards, a legend above (line samples + names), the
+  chart drawn at its real pixel width (text stays 12px), the winner's line `--accent`, the other `--text` dashed (so
+  colour is never the only difference), a readout line under it for the turn under the pointer (no hover-only info).
 - **Sections**: `h2.section-title` (18px). Collapsible extras are `details` with a bold `summary`.
 - **Notes**: `.hint` for help text (muted, 14px, max 80 characters wide); `.errors` / `.warnings` lists.
 

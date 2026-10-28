@@ -2,6 +2,9 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Main viewer Momentum chart (new): point at it (or tap on a phone) and check the line under it follows the turn. Readable in dark and light? Is "winner in green, loser dashed" clear, or would you rather have a colour per player?
+- [ ] Info shown % (team card): 7 facts per Pokémon (sent out, item, ability, 4 moves), all weighted the same. Does the number feel right for a game you know, or should moves count less?
+- [ ] Statuses on a game you know: a Pokémon's Statuses (detailed view) should match the burns / paralysis / poison it caused. Sleep from Yawn may go to the wrong Pokémon (same credit as burn damage today).
 - [ ] After the app.js split (site/app/): click through every tab on the live site once. Everything should look and work as before; checked locally by comparing every tab's text before and after (identical).
 - [ ] Keyboard (desktop): on Pokémon, press Tab until a header shows a ring, Enter sorts; Tab on to a Pokémon's name, Enter opens its games. Same on Players. Is the ring visible enough in dark mode?
 - [ ] Copy for Sheets with a nickname starting with + - = or @ (or edit one in a test sheet): Sheets should show it as typed, with no ' visible. In Excel from Download CSV the ' may show (not checked).
