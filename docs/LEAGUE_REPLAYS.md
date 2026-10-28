@@ -11,7 +11,7 @@ Add them with `python -I tools/add_game.py <link> --week "<week>"` (the `add-gam
 | https://replay.pokemonshowdown.com/gen9nationaldex-2696941700 | Week 6 | yes |
 | https://replay.pokemonshowdown.com/gen9nationaldex-2705148353 | Week 8 | yes |
 | https://replay.pokemonshowdown.com/gen9nationaldex-2705157049 | Week 8 | yes |
-| https://replay.pokemonshowdown.com/gen9nationaldex-2705438906 | Week 8 (2026-10-27, PotatoesAreYum won vs Big Large; week from date and replay ID next to the other Week 8 games) | yes, 2026-10-27 (sheets: Big Large full, PotatoesAreYum 3 of 6) |
+| https://replay.pokemonshowdown.com/gen9nationaldex-2705438906 | Week 8 (2026-10-27, PotatoesAreYum won vs Big Large; week from date and replay ID next to the other Week 8 games) | yes, 2026-10-27 (both sheets full) |
 | https://replay.pokemonshowdown.com/gen9nationaldex-2677227914 | Week 1 (2026-09-07, Nezergy won; matches round 1 of the bracket) | yes, 2026-10-27 (sprites for Aron, Bronzong, Lycanroc, Enamorus-Therian, Houndstone still to save: Showdown down) |
 
 Weeks confirmed 2026-10-27 from each replay's date and winner against the bracket (Week N = Swiss round N).

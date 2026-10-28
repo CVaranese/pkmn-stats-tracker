@@ -25,3 +25,30 @@ Jolly Nature
 - Play Rough
 - Temper Flare
 - Rapid Spin
+
+Azelf @ Expert Belt
+Ability: Levitate
+EVs: 56 HP / 252 SpA / 200 Spe
+Timid Nature
+- U-turn
+- Flamethrower
+- Psychic
+- Thunderbolt
+
+Iron Hands @ Payapa Berry
+Ability: Quark Drive
+EVs: 4 HP / 252 Atk / 252 SpD
+Adamant Nature
+- Drain Punch
+- Play Rough
+- Supercell Slam
+- Fire Punch
+
+Goodra-Hisui @ Dragonium Z
+Ability: Gooey
+EVs: 252 HP / 252 Def / 4 SpA
+Bold Nature
+- Thunderbolt
+- Flamethrower
+- Counter
+- Draco Meteor
