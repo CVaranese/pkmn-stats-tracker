@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- Games (leagues that play sets, Super Champions): every set shows three game rows, so a 2–0 can't be told from a 2–1 before Show results; after it, a game that wasn't played says "Not played" and one played without a saved replay says "No replay" (sets with no replays at all show too). `?results` in the address opens Games with results shown. Week 5 Lieby vs Dox game 2 added from a saved replay file.
+- Games (leagues that play sets, Super Champions): every set shows three game rows, so a 2–0 can't be told from a 2–1 before Show results; after it, a game that wasn't played says "Not played" and one played without a saved replay says "No replay" (sets with no replays at all show too). Until then the count by the filters is in sets, not games. `?results` in the address opens Games with results shown. Week 5 Lieby vs Dox game 2 added from a saved replay file.
 - Super Champions League Draft: each coach's free-agent moves (what they dropped and picked up, and after which week), from the league's Discord.
 - Super Champions League: the rest of the playoffs (Playoffs R1, Semifinals, Third place, Finals; 165 games). Players and Draft now count each coach's Showdown name as them.
 - Super Champions League: 155 games in Games, the whole regular season (Weeks 1-11) and the first two playoff sets, from the league's replay channel; sprites for its Pokémon (four Champions Megas still show initials).

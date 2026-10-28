@@ -61,6 +61,7 @@ function renderLibrary() {
   const pick = (g) => (!player || g.players.some((p) => TS.toID(p) === player)) && (!week || g.week === week);
   const shown = library.filter(pick), lostShown = missing.filter(pick);
   $("lib-count").textContent = library.length ? `${shown.length} of ${library.length} games` : "";
+  let setCount = 0;   // a league that plays sets counts sets until "Show results": a game count would give a 2–0 away
   $("lib-empty").hidden = shown.length + lostShown.length > 0;
   $("lib-empty").textContent = library.length ? "No games match." : "No games saved yet.";
   // one table, a heading row per week, so the columns line up across weeks
@@ -83,6 +84,7 @@ function renderLibrary() {
     for (const s of sets.reverse()) {
       if (bestOf) {
         const info = setSlots(s);
+        setCount++;
         table.append(setRow(s, info), ...info.slots.map((sl) => (sl.game ? libraryRow(sl.game, sl.n) : slotRow(s, sl))));
         continue;
       }
@@ -94,6 +96,7 @@ function renderLibrary() {
   wrap.className = "table-wrap";
   wrap.append(table);
   $("lib-list").replaceChildren(...(weeks.length ? [wrap] : []));
+  if (bestOf && !showResults && library.length) $("lib-count").textContent = `${setCount} set${setCount === 1 ? "" : "s"}`;
 }
 /** A set's line above its games: who, how many games (with "Show results"; before that "best of 3", so a 2–0 doesn't
     show), the score with "Show results", and Set stats. info: setSlots, in a league that plays sets. */
