@@ -441,11 +441,12 @@ function moveList(r, best) {
     const who = el("span", "move-name");
     const info = cls !== "other" && moveInfo && moveInfo[key(name)];
     if (info) {
-      // type chip: the name on its type's colour, with P / S / – for physical / special / status
-      const chip = el("span", "type-chip t-" + info.type.toLowerCase(), name);
-      chip.title = `${info.type}, ${info.category.toLowerCase()}`;
-      chip.append(el("span", "cat", { Physical: "P", Special: "S" }[info.category] || "–"));
-      who.append(chip);
+      // a small type tag (FIR, WAT...) on its type's colour, then the name, then P / S / – (physical / special / status)
+      const chip = el("span", "type-chip t-" + info.type.toLowerCase(), info.type.slice(0, 3).toUpperCase());
+      chip.title = info.type;
+      const cat = el("span", "move-cat", { Physical: "P", Special: "S" }[info.category] || "–");
+      cat.title = info.category;
+      who.append(chip, el("span", "move-label", name), cat);
     } else who.append(name);
     if (m && m.z) who.append(" ", el("span", "mark z", "Z"));
     if (m && m.uses) who.append(" ", el("span", "move-uses", "×" + m.uses));

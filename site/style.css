@@ -301,15 +301,15 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .move-row.best .move-bar > span { background: var(--accent); }
 .move-row.unused, .move-row.other { color: var(--muted); }
 .move-row.unused .move-bar { visibility: hidden; }
-/* type chips: the move on its type's colour (the games' usual type colours), dark or light text for contrast;
-   P / S / – after it for physical / special / status, so the colour is never the only cue */
-.type-chip { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 1px 7px; border-radius: 3px;
-  background: var(--chip, var(--row-alt)); color: #1c1c1a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.move-name:has(.type-chip) { display: flex; align-items: center; gap: 4px; }
-.move-name .type-chip { flex: 0 1 auto; min-width: 0; }
-.move-name .type-chip ~ * { flex: 0 0 auto; }
-.type-chip .cat { font-size: 11px; font-weight: 700; opacity: 0.75; }
-.move-row.unused .type-chip { opacity: 0.55; }
+/* type tags: the type's first three letters on its colour (the games' usual type colours), dark or light text for
+   contrast, a fixed width so names line up; P / S / – after the name for physical / special / status */
+.move-name:has(.type-chip) { display: flex; align-items: center; gap: 6px; }
+.move-name .move-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.move-name .type-chip ~ :not(.move-label) { flex: 0 0 auto; }
+.type-chip { flex: 0 0 auto; display: inline-block; width: 3.4em; padding: 1px 0; border-radius: 3px; text-align: center;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.5; background: var(--chip, var(--row-alt)); color: #1c1c1a; }
+.move-cat { font-size: 11px; color: var(--muted); }
+.move-row.unused .type-chip { opacity: 0.5; }
 .t-normal { --chip: #a8a77a; } .t-fire { --chip: #ee8130; } .t-water { --chip: #6390f0; } .t-electric { --chip: #f7d02c; }
 .t-grass { --chip: #7ac74c; } .t-ice { --chip: #96d9d6; } .t-ground { --chip: #e2bf65; } .t-flying { --chip: #a98ff3; }
 .t-psychic { --chip: #f95587; } .t-bug { --chip: #a6b91a; } .t-rock { --chip: #b6a136; } .t-steel { --chip: #b7b7ce; }

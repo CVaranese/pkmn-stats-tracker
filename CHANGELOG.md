@@ -2,7 +2,7 @@
 
 ## Unreleased
 - Momentum chart: a ▲ on the turn of each key moment (in that side's colour); the readout under the chart says what happened that turn.
-- Move lists: each move on its type's colour with P / S / – (physical / special / status); in a game without a team sheet, one greyed "Not shown" row per move the Pokémon never showed.
+- Move lists: a small three-letter type tag (FIR, WAT, DRA) in the type's colour before each move, and a muted P / S / – (physical / special / status) after it; in a game without a team sheet, one greyed "Not shown" row per move the Pokémon never showed.
 - Momentum chart: a misread name in a game rebuilt from video ("The opposing") no longer counts as an extra Pokémon that never faints. Four games ended with the loser still showing HP (Week 3 azpmCloudburst vs potatoesareyum stayed at 76%); every saved game now ends at 0%.
 - Draft tab: each player's trainer sprite from the league's draft sheet, small on their button and big next to their name.
 - Pokémon tab: a Weeks picker (all weeks or one), like Players; the table, moves, KO lists and games follow it.
