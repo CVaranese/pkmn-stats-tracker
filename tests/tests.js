@@ -458,7 +458,54 @@ Ability: Screen Cleaner
     mrmimegalar: { baseStats: { hp: 50 } } };
   const hp = sets.map((s) => TS.maxHp(s, DEX));
   check("max HP: 420, 362, 1, 314, 241", same(hp, [420, 362, 1, 314, 241]), JSON.stringify(hp));
+  {
+    const gap = TS.parseTeam("Azelf @ Life Orb\nTimid Nature\n\n- Psychic\n* Fire Blast\n\nBronzong\n\n- Stealth Rock");
+    check("sheet: moves after a blank line (and '* ' bullets) stay with their set", same(gap.map((s) => [s.species, s.moves]),
+      [["Azelf", ["Psychic", "Fire Blast"]], ["Bronzong", ["Stealth Rock"]]]), JSON.stringify(gap.map((s) => [s.species, s.moves])));
+  }
   check("max HP: unknown species -> null", TS.maxHp({ species: "Missingno", evs: {}, ivs: {} }, DEX) === null);
+  {
+    // max HP guesses (no sheet): 0 or 252 HP EVs. Garchomp base 108: 357 / 420. Blissey 255: 651 / 714.
+    const G = { garchomp: { baseStats: { hp: 108, atk: 130, def: 95, spa: 80, spd: 85, spe: 102 } },
+      blissey: { baseStats: { hp: 255, atk: 10, def: 10, spa: 75, spd: 135, spe: 55 } } };
+    const set = (sp, hp) => ({ set: { species: sp, evs: { hp }, ivs: {} }, label: "Week 1" });
+    const SMOGON = { mons: { garchomp: { hp: 252, share: 0.6 } } };
+    const g1 = TS.guessMaxHp("Garchomp", [set("Garchomp", 4), set("Garchomp", 0), set("Garchomp", 248)], SMOGON, G);
+    check("max HP guess: Smogon first, over the player's other sheets (252 HP)", g1.max_hp === 420 && g1.from === "smogon", JSON.stringify(g1));
+    const g1b = TS.guessMaxHp("Garchomp", [set("Garchomp", 4), set("Garchomp", 0), set("Garchomp", 248)], {}, G);
+    check("max HP guess: no Smogon entry -> the player's other sheets, majority (0 HP)", g1b.max_hp === 357 && g1b.from === "player", JSON.stringify(g1b));
+    const g2 = TS.guessMaxHp("Garchomp", [set("Garchomp", 0), set("Garchomp", 252)], {}, G);
+    check("max HP guess: a tie on the sheets goes to base stats (offensive: 0 HP)", g2.max_hp === 357 && g2.from === "stats", JSON.stringify(g2));
+    const g3 = TS.guessMaxHp("Blissey", [set("Garchomp", 0)], SMOGON, G);
+    check("max HP guess: no sheet or Smogon entry -> base stats (bulky: 252)", g3.max_hp === 714 && g3.from === "stats", JSON.stringify(g3));
+    check("max HP guess: unknown species -> null", TS.guessMaxHp("Missingno", [], SMOGON, G) === null);
+    const rows = [
+      { replay_id: "g", player: "A", opponent: "B", mon_key: "p1: X", max_hp: 400, max_hp_from: "sheet", damage_taken_pct: 10,
+        healing_pct: 0, hits_dealt: [["p2: Y", 50, false, "Tackle"]], move_stats: [{ move: "Tackle" }] },
+      { replay_id: "g", player: "B", opponent: "A", mon_key: "p2: Y", max_hp: 300, max_hp_from: "Smogon", damage_taken_pct: 50,
+        healing_pct: 0, hits_dealt: [["p1: X", 0, false, "Tackle"]] },
+    ];
+    RS.addDamageHp(rows);
+    check("raw HP: a guessed max HP marks every figure that used it", rows[0].damage_dealt_hp === 150 && rows[0].hp_est.damage_dealt_hp &&
+      !rows[0].hp_est.damage_taken_hp && rows[0].move_stats[0].dealt_hp_est && rows[1].hp_est.damage_taken_hp &&
+      !rows[1].hp_est.damage_dealt_hp, JSON.stringify(rows.map((r) => r.hp_est)));
+    const sum = RS.summarize(rows.map((r) => ({ ...r, brought: 1, won: 0, mvp: 0, mvp_score: 0 })));
+    check("summary: a guess in any game marks the total", sum.find((a) => a.player === "A").hp_est.damage_dealt_hp === true);
+  }
+  {
+    // what the game showed: first item / ability; nothing once Trick or Skill Swap could have changed it
+    const rows = RS.gameRows({ id: "seen", log: ["|player|p1|A|", "|player|p2|B|", "|poke|p1|Gardevoir|", "|poke|p1|Ferrothorn|",
+      "|poke|p2|Garchomp|", "|start", "|switch|p1a: Gardevoir|Gardevoir|100/100", "|switch|p2a: Garchomp|Garchomp|100/100",
+      "|-ability|p1a: Gardevoir|Rough Skin|[from] ability: Trace|[of] p2a: Garchomp", "|turn|1",
+      "|move|p1a: Gardevoir|Trick|p2a: Garchomp", "|-item|p2a: Garchomp|Choice Scarf|[from] move: Trick",
+      "|-item|p1a: Gardevoir|Rocky Helmet|[from] move: Trick", "|move|p2a: Garchomp|Earthquake|p1a: Gardevoir",
+      "|-damage|p1a: Gardevoir|50/100", "|-damage|p2a: Garchomp|84/100|[from] item: Rocky Helmet|[of] p1a: Gardevoir",
+      "|turn|2", "|switch|p1a: Ferrothorn|Ferrothorn|100/100", "|-heal|p1a: Ferrothorn|100/100|[from] item: Leftovers",
+      "|turn|3", "|win|A"].join("\n") });
+    const got = Object.fromEntries(rows.map((r) => [r.pokemon, [r.seen_item, r.seen_ability]]));
+    const exp = { Gardevoir: ["", "Trace"], Ferrothorn: ["Leftovers", ""], Garchomp: ["", "Rough Skin"] };
+    check("seen set: Trace / Trick / Leftovers", same(got, exp), JSON.stringify(got));
+  }
 
   // the user's league team, as copied off its Pokepaste page (``` around each set, trailing spaces)
   const FENCED = "```\nCeruledge @ Weakness Policy  \nAbility: Weak Armor  \nHappiness: 0  \nEVs: 4 HP / 252 Atk / 252 Spe  \n" +

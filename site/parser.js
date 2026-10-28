@@ -241,6 +241,39 @@
       }
     }
 
+    // What the game showed of each set (for teams without a sheet): the first item and ability revealed,
+    // on the stint (so an Illusion reveal keeps Zoroark's apart); nothing more once Trick, Skill Swap,
+    // Mummy, Transform... could have changed it (moved: key + "|item" / "|ability").
+    const moved = new Set();
+    function seen(ident, f, v) {
+      const s = ident && v ? stintOf(ident) : null;
+      if (s && !s[f] && !moved.has(s.key + (f === "seenItem" ? "|item" : "|ability"))) s[f] = v;
+    }
+    function noteSeen(cmd, parts, tags) {
+      if (!/^p\d/.test(parts[1] || "")) return;
+      const frm = tags.from || "";
+      const fa = /^ability:\s*(.+)$/.exec(frm);
+      if (cmd === "-item") {
+        if (!frm || /^ability: (Frisk|Harvest|Pickup)$|^move: Recycle$/.test(frm)) seen(parts[1], "seenItem", parts[2]);
+        else moved.add(monKey(parts[1]) + "|item"); // Trick, Switcheroo, Thief, Magician, Pickpocket, Bestow...
+      } else if (cmd === "-enditem") {
+        seen(parts[1], "seenItem", parts[2]); // used up, knocked off, eaten, flung: it held it
+      } else if (cmd === "-ability") {
+        if (/^move:/.test(frm)) moved.add(monKey(parts[1]) + "|ability"); // Worry Seed, Entrainment, Skill Swap...
+        else if (fa) { seen(parts[1], "seenAbility", fa[1]); if (tags.of) seen(tags.of, "seenAbility", parts[2]); } // Trace, Receiver
+        else seen(parts[1], "seenAbility", parts[2]);
+      } else if (cmd === "-transform") {
+        moved.add(monKey(parts[1]) + "|ability");
+      } else if (cmd === "-activate" && /^(ability: (Mummy|Wandering Spirit|Lingering Aroma)|move: Skill Swap)$/.test(parts[2] || "")) {
+        for (const id of [parts[1], tags.of, parts[3]]) if (/^p\d/.test(id || "")) moved.add(monKey(id) + "|ability");
+      } else {
+        if (cmd === "-activate" && /^ability: /.test(parts[2] || "")) seen(parts[1], "seenAbility", parts[2].slice(9));
+        const m = /^(ability|item):\s*(.+)$/.exec(frm);
+        // the healed / immune Pokemon owns Water Absorb, Volt Absorb...; elsewhere [of] names the owner (Rough Skin, Rocky Helmet)
+        if (m) seen(cmd === "-heal" || cmd === "-immune" ? parts[1] : tags.of || parts[1], m[1] === "item" ? "seenItem" : "seenAbility", m[2]);
+      }
+    }
+
     function moveKey(map, from, to) {
       if (map.has(from)) { map.set(to, map.get(from)); map.delete(from); }
     }
@@ -688,6 +721,7 @@
         if (frm) (frm[1] === "ability" ? abilityOf : itemOf).set(owner, frm[2]);
         if (cmd === "-activate" && /^ability: /.test(parts[2] || "")) abilityOf.set(monKey(parts[1]), parts[2].slice(9));
       }
+      noteSeen(cmd, parts, tags);
       prevFrom = tags.from || "";
       prevParts = parts;
     }
@@ -698,6 +732,7 @@
     // Sum stints per Pokemon (keys resolved after any Illusion reveal)
     const species = new Map();          // mon key -> species (insertion order = first seen)
     const stats = new Map();            // mon key -> COUNTS
+    const seenSet = new Map();          // mon key -> { item, ability } the game showed
     for (const s of stints) {
       if (!species.has(s.key) && s.species) species.set(s.key, s.species);
       if (!stats.has(s.key)) stats.set(s.key, zeroCounts());
@@ -705,6 +740,10 @@
       for (const f of COUNTS) st[f] += s[f];
       if (s.megaTurn !== undefined && st.megaTurn === undefined) st.megaTurn = s.megaTurn;
       if (s.zMove && !st.zMove) [st.zMove, st.zTurn] = [s.zMove, s.zTurn];
+      if (!seenSet.has(s.key)) seenSet.set(s.key, {});
+      const ss = seenSet.get(s.key);
+      if (s.seenItem && !ss.item) ss.item = s.seenItem;
+      if (s.seenAbility && !ss.ability) ss.ability = s.seenAbility;
     }
     const round2 = (x) => Math.round(x * 100) / 100;
     const add = (map, zero, key, f, pct) => {
@@ -751,7 +790,7 @@
     return {
       // alive at the end: its latest stay on the field didn't end in a faint (Revival Blessing brings one back)
       alive: new Set([...latestByKey].filter(([, st]) => !st.deaths).map(([k]) => k)),
-      players, preview, species, stats, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark,
+      players, preview, species, stats, seenSet, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
       hits: hits.map(([d, t, pct, hz, mv]) => [keyOf(d), keyOf(t), pct, hz, mv]),
       heals: heals.map(([h, t, pct]) => [keyOf(h), keyOf(t), pct]),
@@ -806,6 +845,7 @@
           hidden_zoroark: b.hiddenZoroark[side] ? 1 : 0,
           replay_url: replay.video || REPLAY_HOST + rid,
           // not exported: what addDamageHp needs once max HP is known
+          seen_item: (key && b.seenSet.get(key) || {}).item || "", seen_ability: (key && b.seenSet.get(key) || {}).ability || "",
           mon_key: key, hits_dealt: b.hits.filter(([d]) => d && d === key).map(([, t, pct, hz, mv]) => [t, pct, hz, mv || ""]),
           // per move, most damage first, then the other sources ("Rough Skin (ability)"..., source: true), then ""
           // (damage credited with no source named, e.g. a passive KO); dealt_hp added by addDamageHp
@@ -854,33 +894,48 @@
   /**
    * Raw HP from % once rows have max_hp (team sheets): damage_dealt_hp = sum of each hit's % x the
    * target's max HP, damage_taken_hp = % taken x own max HP. Blank ("") when a max HP is unknown.
+   * A max HP not from the game's own sheet (row.max_hp_from other than "sheet") is a guess: every HP
+   * figure that used one is listed in row.hp_est ({ field: true }) and its move_stats entry gets dealt_hp_est.
    */
   function addDamageHp(rows) {
-    const maxHp = new Map();            // replay id + mon key -> max HP
-    for (const r of rows) if (r.mon_key && r.max_hp) maxHp.set(r.replay_id + "\u0000" + r.mon_key, r.max_hp);
+    const maxHp = new Map();            // replay id + mon key -> [max HP, guessed]
     for (const r of rows) {
-      /** Sum of [target key, %] entries in HP, rounded; "" when a target's max HP is unknown. */
+      if (r.mon_key && r.max_hp) maxHp.set(r.replay_id + "\u0000" + r.mon_key, [r.max_hp, !!r.max_hp_from && r.max_hp_from !== "sheet"]);
+    }
+    for (const r of rows) {
+      let est = false;
+      /** Sum of [target key, %] entries in HP, rounded; "" when a target's max HP is unknown. Sets est. */
       const hpSum = (entries) => {
         let sum = 0;
+        est = false;
         for (const [t, pct] of entries) {
           const m = maxHp.get(r.replay_id + "\u0000" + t);
           if (!m) return "";
-          sum += (pct * m) / 100;
+          sum += (pct * m[0]) / 100;
+          if (m[1] && pct) est = true;
         }
         return Math.round(sum);
       };
+      r.hp_est = {};
+      const mark = (f, v) => { r[f] = v; if (v !== "" && est) r.hp_est[f] = true; };
       const own = r.mon_key && r.max_hp;
+      const ownEst = own && r.max_hp_from !== "sheet" && !!r.max_hp_from;
       const hits = r.hits_dealt || [];
-      r.damage_taken_hp = own ? Math.round((r.damage_taken_pct * r.max_hp) / 100) : "";
+      est = ownEst && r.damage_taken_pct > 0;
+      mark("damage_taken_hp", own ? Math.round((r.damage_taken_pct * r.max_hp) / 100) : "");
       // a Pokemon that dealt nothing still needs the opposing side's sheet to show 0
       const oppKnown = rows.some((o) => o.replay_id === r.replay_id && o.player === r.opponent && o.max_hp);
       const dealt = oppKnown ? hpSum(hits) : "";
-      r.damage_dealt_hp = dealt;
-      r.hazard_damage_hp = dealt === "" ? "" : hpSum(hits.filter(([, , hz]) => hz));
-      for (const m of r.move_stats || []) m.dealt_hp = dealt === "" ? "" : hpSum(hits.filter(([, , , mv]) => mv === m.move));
+      mark("damage_dealt_hp", dealt);
+      mark("hazard_damage_hp", dealt === "" ? "" : hpSum(hits.filter(([, , hz]) => hz)));
+      for (const m of r.move_stats || []) {
+        m.dealt_hp = dealt === "" ? "" : hpSum(hits.filter(([, , , mv]) => mv === m.move));
+        m.dealt_hp_est = m.dealt_hp !== "" && est;
+      }
       // healing stays within the team, so its own sheet covers both
-      r.healing_hp = own ? Math.round((r.healing_pct * r.max_hp) / 100) : "";
-      r.healing_given_hp = own ? hpSum(r.heals_given || []) : "";
+      est = ownEst && r.healing_pct > 0;
+      mark("healing_hp", own ? Math.round((r.healing_pct * r.max_hp) / 100) : "");
+      mark("healing_given_hp", own ? hpSum(r.heals_given || []) : "");
     }
     return rows;
   }
@@ -919,6 +974,8 @@
       a.mvp_score_per_game += r.mvp_score;
       // raw HP totals only when every game has it, so a blank never hides inside a sum
       for (const f of [...HP_FIELDS, ...LUCK_FIELDS]) a[f] = a[f] === "" || r[f] === "" || r[f] === undefined ? "" : a[f] + r[f];
+      a.hp_est = a.hp_est || {};
+      for (const f of HP_FIELDS) if (r.hp_est && r.hp_est[f]) a.hp_est[f] = true; // a guessed max HP went into it
     }
     const out = [...agg.values()];
     for (const a of out) {

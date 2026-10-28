@@ -26,7 +26,7 @@
     won: "Won", end_reason: "Ended by", turns: "Turns", pokemon: "Pokémon", nickname: "Nickname", brought: "Brought", kills: "Kills",
     direct_kills: "Direct", passive_kills: "Passive", deaths: "Deaths", self_kos: "Self KOs", replay_url: "Link",
     games_brought: "Games", wins_when_brought: "Wins", kills_per_game: "Kills / game",
-    max_hp: "Max HP", item: "Item", ability: "Ability", moves: "Moves",
+    max_hp: "Max HP", max_hp_from: "Max HP from", item: "Item", ability: "Ability", moves: "Moves",
     damage_dealt_pct: "Dealt %", damage_taken_pct: "Taken %", damage_dealt_hp: "Dealt HP", damage_taken_hp: "Taken HP",
     hazard_damage_pct: "Hazard %", hazard_damage_hp: "Hazard HP", hazard_kills: "Hazard KOs",
     hazards_set: "Hazards set", hazards_removed: "Hazards removed", hazard_turns: "Hazard turns",
@@ -54,20 +54,23 @@
     self_kos: "Times it knocked itself out: recoil, Life Orb, Explosion, Memento, Final Gambit, Healing Wish. Nobody gets the kill.", replay_url: "Link to the replay.",
     games_brought: "Games it was brought to.", wins_when_brought: "Games won when it was brought.",
     kills_per_game: "Kills divided by games brought.",
-    max_hp: "Max HP from the team sheet.", item: "Item from the team sheet.", ability: "Ability from the team sheet.", moves: "Moves from the team sheet.",
+    max_hp: "Max HP from the team sheet. Without one, a guess (marked ~): 0 or 252 HP EVs, as most Smogon Nat Dex sets, else as on the player's other sheets, else from its base stats.",
+    max_hp_from: "Where Max HP came from: sheet, other sheet (the same player, another game), Smogon (usage stats) or base stats.",
+    item: "Item from the team sheet, else the first one the game showed.", ability: "Ability from the team sheet, else the one the game showed.",
+    moves: "Moves from the team sheet, else the moves it used.",
     damage_dealt_pct: "Damage it dealt, in % of the targets' max HP (100 = one full Pokémon). Overkill doesn't count.",
     damage_taken_pct: "Damage it took, in % of its own max HP, self-inflicted damage included.",
-    damage_dealt_hp: "Damage dealt in HP (needs team sheets; about ±1% of max HP per hit).",
-    damage_taken_hp: "Damage taken in HP (needs team sheets; about ±1% of max HP per hit).",
+    damage_dealt_hp: "Damage dealt in HP (about ±1% of max HP per hit; ~ = uses a guessed max HP, no team sheet).",
+    damage_taken_hp: "Damage taken in HP (about ±1% of max HP per hit; ~ = uses a guessed max HP, no team sheet).",
     hazard_damage_pct: "Part of Dealt % done by Stealth Rock / Spikes / Steelsurge it set.",
-    hazard_damage_hp: "Part of Dealt HP done by hazards it set (needs team sheets).",
+    hazard_damage_hp: "Part of Dealt HP done by hazards it set (~ = uses a guessed max HP, no team sheet).",
     hazard_kills: "Part of its passive kills that came from hazards.", hazards_set: "Hazard layers it set.",
     hazards_removed: "Hazards it cleared from its own side (Defog, Rapid Spin…).",
     hazard_turns: "Turns that ended with this player's hazards on the opponent's side.",
     healing_pct: "HP it restored to itself (Leftovers, Recover, drain, berries…), in % of its max HP.",
-    healing_hp: "HP it restored to itself (needs team sheets).",
+    healing_hp: "HP it restored to itself (~ = uses a guessed max HP, no team sheet).",
     healing_given_pct: "HP it restored to teammates (Wish, Healing Wish, Heal Pulse…), in % of their max HP.",
-    healing_given_hp: "HP it restored to teammates (needs team sheets).",
+    healing_given_hp: "HP it restored to teammates (~ = uses a guessed max HP, no team sheet).",
     switches: "Times it switched out by choice.", pivots: "Times it left through its own move (U-turn, Volt Switch, Parting Shot…).",
     forced_out: "Times it was forced out (Roar, Whirlwind, Dragon Tail, Red Card, Eject Button…).",
     faint_switch_ins: "Times it came in to replace a fainted teammate.",
@@ -90,7 +93,8 @@
   const YES_NO = new Set(["won", "brought", "hidden_zoroark", "mvp", "survived", "mega"]);
   const GAME_VIEW_FIELDS = RS.GAME_FIELDS.filter((f) => f !== "replay_id" && f !== "format");
   const ONE_GAME_HIDDEN = new Set(["date", "opponent", "won", "end_reason", "turns", "player_luck", "replay_url"]);
-  const SHEET_FIELDS = ["max_hp", "item", "ability", "moves"]; // per game, once any sheet matched
+  const SHEET_FIELDS = ["max_hp", "max_hp_from", "item", "ability", "moves"]; // per game, once any max HP is known
+  const HP_FROM = { player: "other sheet", smogon: "Smogon", stats: "base stats" }; // max_hp_from of a guess
   const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"],
     healing_pct: ["healing_hp"], healing_given_pct: ["healing_given_hp"] };
   const PCT_TO_HP = { damage_dealt_pct: "damage_dealt_hp", damage_taken_pct: "damage_taken_hp",
@@ -563,7 +567,8 @@
   function amountStat(label, rs, pctFields) {
     const hp = rs.length > 0 && rs.every((r) => pctFields.every((f) => typeof r[PCT_TO_HP[f]] === "number"));
     const total = pctFields.reduce((t, f) => t + sum(rs, hp ? PCT_TO_HP[f] : f), 0);
-    return stat(label, hp ? Math.round(total) + " HP" : pct(total), hp ? PCT_TO_HP[pctFields[0]] : pctFields[0]);
+    const guess = hp && rs.some((r) => pctFields.some((f) => r.hp_est && r.hp_est[PCT_TO_HP[f]]));
+    return stat(label, hp ? (guess ? "~" : "") + Math.round(total) + " HP" : pct(total), hp ? PCT_TO_HP[pctFields[0]] : pctFields[0]);
   }
   function stat(label, value, field) {
     const d = el("div", "stat");
@@ -809,7 +814,7 @@
     if (!ms.length && !unused.length && !sources.length && !other) box.appendChild(el("p", "move-none", "It didn't use a move."));
     return box;
   }
-  const dealtText = (m) => (typeof m.dealt_hp === "number" ? m.dealt_hp + " HP" : pct(m.dealt_pct));
+  const dealtText = (m) => (typeof m.dealt_hp === "number" ? (m.dealt_hp_est ? "~" : "") + m.dealt_hp + " HP" : pct(m.dealt_pct));
 
   /** The rows and columns currently shown (also what copy/download export). */
   function currentTable() {
@@ -820,16 +825,16 @@
       // the game itself (date, result, turns, link) is in the team summary above, so not repeated per row
       data = filtered.slice();
       const base = GAME_VIEW_FIELDS.filter((f) => !ONE_GAME_HIDDEN.has(f));
-      fields = rows.some((r) => r.set) ? base.flatMap((f) => [f, ...(HP_AFTER[f] || [])]).concat(SHEET_FIELDS) : base;
+      fields = rows.some((r) => r.max_hp) ? base.flatMap((f) => [f, ...(HP_AFTER[f] || [])]).concat(SHEET_FIELDS) : base;
     } else if (view === "summary") {
       const byPlayer = $("group").value === "player";
       data = RS.summarize(filtered, byPlayer);
-      const anySheet = rows.some((r) => r.set);
+      const anySheet = rows.some((r) => r.max_hp);
       fields = RS.SUMMARY_FIELDS.filter((f) => (byPlayer || f !== "player") && (anySheet || !RS.HP_FIELDS.includes(f)));
     } else {
       data = filtered.slice();
       // with sheets: HP columns next to the % ones, set details at the end
-      fields = rows.some((r) => r.set) ? GAME_VIEW_FIELDS.flatMap((f) =>
+      fields = rows.some((r) => r.max_hp) ? GAME_VIEW_FIELDS.flatMap((f) =>
         [f, ...(HP_AFTER[f] || [])]).concat(SHEET_FIELDS) : GAME_VIEW_FIELDS;
     }
     // Dealt % / Taken % go when every row shown has the HP figure (sheets for both teams); kept when any is blank
@@ -892,7 +897,10 @@
         } else if (YES_NO.has(f)) {
           td.textContent = r[f] ? "yes" : "no";
         } else {
-          td.textContent = r[f];
+          const guess = (r.hp_est && r.hp_est[f]) || (f === "max_hp" && r.max_hp && r.max_hp_from !== "sheet");
+          td.textContent = (guess ? "~" : "") + r[f];
+          if (f === "max_hp" && r.max_hp_note) td.title = r.max_hp_note;
+          else if (guess) td.title = "Uses a guessed max HP (no team sheet).";
         }
       }
     }
@@ -948,7 +956,35 @@
     "video-vxtlxlnr19c": ["doxsego"],           // Week 4 vs azpmCloudburst
     "video-vxg51mjkssw": ["doxsego"],           // Week 5 vs potatoesareyum
     "gen9nationaldex-2696935281": ["doxsego"],  // Week 6 vs Zololab (the sheet's "Week 7" label was a typo)
+    "gen9nationaldex-2705438906": ["elkgbiglarge", "potatoesareyum"],  // Week 8
+    "video-ek4vkzvwny0": ["potatoesareyum"],    // Week 7 vs peterpikmon
   };
+  // every saved sheet, parsed, by player ID (draft aliases resolved): for guessing max HP in their other games
+  let mockPool = null;
+  async function loadMockPool() {
+    if (mockPool) return mockPool;
+    const pool = new Map();
+    await Promise.all(Object.entries(MOCK_SHEETS).flatMap(([id, players]) => players.map(async (player) => {
+      try {
+        const resp = await fetch(`mock/${id}-${player}.txt`);
+        if (resp.ok) addToPool(pool, player, id, TS.parseTeam(await resp.text()));
+      } catch (e) { /* missing file: just fewer guesses */ }
+    })));
+    return (mockPool = pool);
+  }
+  function playerKey(name) {
+    const alias = draft && Object.entries(draft.aliases || {}).find(([a]) => TS.toID(a) === TS.toID(name));
+    return TS.toID(alias ? alias[1] : name);
+  }
+  function addToPool(pool, player, gameId, sets) {
+    const k = playerKey(player);
+    if (!pool.has(k)) pool.set(k, []);
+    const g = library.find((x) => x.id === gameId);
+    const label = g && g.week ? g.week : gameId;
+    for (const set of sets) {
+      if (!pool.get(k).some((p) => p.gameId === gameId && p.set.species === set.species)) pool.get(k).push({ set, gameId, label });
+    }
+  }
   async function addMockSheets(ids) {
     const have = new Set(sheetInputs().map((t) => t.trim()));
     for (const id of ids) {
@@ -1010,16 +1046,31 @@
     }));
     const matches = TS.attachSheets(rows, sheets);
 
-    let dex = null;
-    if (rows.some((r) => r.set)) {
+    let dex = null, smogon = null, pool = new Map();
+    if (rows.length) {
       try { dex = await TS.loadDex(); } catch (e) { errors.push(`Pokédex (for max HP): ${e.message || e}`); }
+      [smogon, pool] = await Promise.all([TS.loadSmogonHp("data/smogon_hp.json"), loadMockPool()]);
+      pool = new Map([...pool].map(([k, v]) => [k, v.slice()]));
+      sheets.forEach((sh, i) => matches[i].forEach(([id, player]) => addToPool(pool, player, id, sh.sets)));
     }
     for (const r of rows) {
       const s = r.set;
-      r.max_hp = s && dex ? (TS.maxHp(s, dex) ?? "") : "";
-      r.item = s ? s.item : "";
-      r.ability = s ? s.ability : "";
-      r.moves = s ? s.moves.join(" / ") : "";
+      r.max_hp = ""; r.max_hp_from = ""; r.max_hp_note = "";
+      if (s && dex) {
+        r.max_hp = TS.maxHp(s, dex) ?? "";
+        if (r.max_hp) { r.max_hp_from = "sheet"; r.max_hp_note = "From the team sheet."; }
+      } else if (dex && r.mon_key) {
+        // no sheet for this side: Smogon's spreads, the same player's other sheets, then base stats
+        const others = (pool.get(playerKey(r.player)) || []).filter((p) => p.gameId !== r.replay_id);
+        const g = TS.guessMaxHp(r.pokemon, others, smogon, dex);
+        if (g) { r.max_hp = g.max_hp; r.max_hp_from = HP_FROM[g.from]; r.max_hp_note = "Guess, no sheet: " + g.note + "."; }
+      }
+      // without a sheet: what the game showed (first item / ability revealed, moves used)
+      const seenMoves = (r.move_stats || []).filter((m) => !m.source && !m.z && m.uses > 0 && m.move).map((m) => m.move);
+      r.item = s ? s.item : r.seen_item || "";
+      r.ability = s ? s.ability : r.seen_ability || "";
+      r.moves = s ? s.moves.join(" / ") : seenMoves.join(" / ");
+      r.set_from = s ? "sheet" : r.item || r.ability || r.moves ? "seen" : "";
     }
     RS.addDamageHp(rows);
 

@@ -2,6 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Guessed max HP (One game, any game with a missing sheet, e.g. Week 3 Pikmon vs Nezergy): ~ on Max HP, Dealt / Taken / Healed and the team cards. Is ~ clear enough, and is the "Max HP from" column (sheet / other sheet / Smogon / base stats) useful or clutter? Item / Ability / Moves now show what the game revealed when there's no sheet: any wrong ones?
+
 - [ ] Week 4 stream games (Zololab vs DEJIME, PotatoesAreYum vs Bad Bully, Dox vs Cloudburst, Big Large vs Fingy): winner from Challonge, last KO missing (each stream cut to a replay right at the end). Fill the last KO from the video if you know it. Week 4 Pikmon vs Sneez is not on the site (OCR too poor).
 
 - [ ] Games tab, live site: team sprites are the pixel sprites cropped and scaled to fill the box (HOME renders tried and dropped). Any Pokémon still small? Those have no saved copy in site/sprites/gen5/. Rows: lines full width, "vs" lined up; a long name like "chicken parm karm" fits, a longer one is cut with …. Phone layout not rechecked.

@@ -42,6 +42,8 @@
       // blank line, '=== [gen9] Team ===', or the ``` lines around each set when copied off a Pokepaste page
       if (!line || line.startsWith("===") || line.startsWith("```")) { cur = null; continue; }
       if (/^(https?:\/\/|pokepast\.es\/)/i.test(line)) continue; // a link pasted along with the team
+      // a move after a blank line (some exports put one before the moves): still the last set's
+      if (!cur && /^[-*]\s/.test(line) && sets.length) cur = sets[sets.length - 1];
       if (!cur) {
         let head = line, item = "";
         const at = head.lastIndexOf(" @ ");
@@ -58,7 +60,7 @@
         continue;
       }
       let m;
-      if (line.startsWith("-")) cur.moves.push(line.replace(/^-\s*/, ""));
+      if (/^[-*]\s/.test(line)) cur.moves.push(line.replace(/^[-*]\s*/, ""));
       else if ((m = /^Ability:\s*(.+)$/i.exec(line))) cur.ability = m[1].trim();
       else if ((m = /^Level:\s*(\d+)/i.exec(line))) cur.level = Number(m[1]);
       else if ((m = /^EVs:\s*(.+)$/i.exec(line))) cur.evs = parseStats(m[1]);
@@ -77,6 +79,43 @@
     if (base === 1) return 1;
     const iv = set.ivs.hp ?? 31, ev = set.evs.hp ?? 0, lvl = set.level || 100;
     return Math.floor(((2 * base + iv + Math.floor(ev / 4)) * lvl) / 100) + lvl + 10;
+  }
+
+  /**
+   * Max HP for a Pokemon its game has no sheet for, assuming HP investment is all or nothing (0 or 252
+   * EVs, 31 IVs, level 100). In order: Smogon's Nat Dex spreads (smogon: { mons: { id: { hp, share } } },
+   * tools/smogon_hp.py), the same player's sets for it on other sheets (EVs 128+ count as 252; the more
+   * common choice wins, a tie goes on), else 252 when its base HP + Def + SpD beat Atk + SpA + Spe.
+   * Smogon comes first: on the league's 66 saved sets it guessed 55 right, players' other sheets 31 of 43
+   * (players change HP EVs between games; user picked Smogon first, 2026-10-27).
+   * playerSets: [{ set, label }]. Returns { max_hp, from: "smogon" | "player" | "stats", note } or null.
+   */
+  function guessMaxHp(species, playerSets, smogon, dex) {
+    const sp = String(species).replace(/-\*$/, "");
+    const withEvs = (hp, s = sp) => maxHp({ species: s, evs: { hp }, ivs: {}, level: 100 }, dex);
+    const mons = (smogon && smogon.mons) || {};
+    const id = toID(sp);
+    const s = mons[id] || mons[toID(sp.split("-")[0])];
+    if (s) {
+      const v = withEvs(s.hp);
+      if (v) return { max_hp: v, from: "smogon", note: `${s.hp} HP EVs: ${Math.round(s.share * 100)}% of Smogon's Nat Dex sets invest in HP` };
+    }
+    const mine = (playerSets || []).filter((p) => speciesFit(species, p.set.species));
+    if (mine.length) {
+      const bulky = mine.filter((p) => (p.set.evs.hp || 0) >= 128);
+      if (bulky.length * 2 !== mine.length) {
+        const hp = bulky.length * 2 > mine.length ? 252 : 0;
+        const from = (hp ? bulky : mine.filter((p) => !bulky.includes(p))).map((p) => p.label);
+        const v = withEvs(hp, mine[0].set.species);
+        if (v) return { max_hp: v, from: "player", note: `${hp} HP EVs, as on the player's ${from.join(", ")} sheet` };
+      }
+    }
+    const entry = dex && (dex[id] || dex[toID(sp.split("-")[0])]);
+    if (!entry || !entry.baseStats) return null;
+    const b = entry.baseStats;
+    const hp = b.hp + b.def + b.spd > b.atk + b.spa + b.spe ? 252 : 0;
+    const v = withEvs(hp, dex[id] ? sp : sp.split("-")[0]);
+    return v ? { max_hp: v, from: "stats", note: `${hp} HP EVs, a guess from its base stats (${hp ? "bulky" : "offensive"})` } : null;
   }
 
   // ---------- matching a sheet to a replay side ----------
@@ -166,9 +205,16 @@
     return dexPromise;
   }
 
+  let smogonPromise = null;
+  /** site/data/smogon_hp.json (HP investment per Pokemon, tools/smogon_hp.py); null if it doesn't load. */
+  function loadSmogonHp(url, fetchFn = root.fetch) {
+    if (!smogonPromise) smogonPromise = fetchFn(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    return smogonPromise;
+  }
+
   const api = {
-    PASTE_HOST, DEX_URL, toID, pokepasteIdFrom, parseTeam, maxHp, speciesFit, pairSets, attachSheets,
-    fetchPokepaste, loadDex,
+    PASTE_HOST, DEX_URL, toID, pokepasteIdFrom, parseTeam, maxHp, guessMaxHp, speciesFit, pairSets, attachSheets,
+    fetchPokepaste, loadDex, loadSmogonHp,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TeamSheets = api;
