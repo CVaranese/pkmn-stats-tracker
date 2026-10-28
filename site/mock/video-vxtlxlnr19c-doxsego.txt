@@ -1,0 +1,56 @@
+Lola-punny (Lopunny-Mega) @ Lopunnite  
+Ability: Scrappy  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Adamant Nature  
+- Triple Axel  
+- Power-Up Punch  
+- Close Combat  
+- U-turn  
+
+brick wall (Ceruledge) @ Colbur Berry  
+Ability: Flash Fire  
+Happiness: 0  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Jolly Nature  
+- Bitter Blade  
+- Substitute  
+- Shadow Sneak  
+- Poltergeist  
+
+Rocks (Flygon) @ Rockium Z  
+Ability: Levitate  
+EVs: 4 HP / 252 Atk / 252 Spe  
+Jolly Nature  
+- Stone Edge  
+- Earthquake  
+- Dragon Dance  
+- Dragon Claw  
+
+snoozer (Slowbro) @ Heavy-Duty Boots  
+Ability: Regenerator  
+EVs: 252 HP / 252 Def / 4 SpA  
+Bold Nature  
+IVs: 0 Atk  
+- Future Sight  
+- Teleport  
+- Psychic Noise  
+- Ice Beam  
+
+not a threat (Lilligant-Hisui) (F) @ Life Orb  
+Ability: Chlorophyll  
+EVs: 4 HP / 252 Atk / 252 Spe  
+Jolly Nature  
+- Triple Axel  
+- Solar Blade  
+- Victory Dance  
+- Close Combat  
+
+what is love (Enamorus) (F) @ Heavy-Duty Boots  
+Ability: Contrary  
+EVs: 4 HP / 252 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Earth Power  
+- Moonblast  
+- Grass Knot  
+- Mystical Fire

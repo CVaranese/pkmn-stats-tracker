@@ -1,0 +1,56 @@
+I (Ceruledge) @ Weakness Policy  
+Ability: Weak Armor  
+Happiness: 0  
+EVs: 4 HP / 252 Atk / 252 Spe  
+Adamant Nature  
+- Bitter Blade  
+- Poltergeist  
+- Shadow Sneak  
+- Endure  
+
+Hardly (Lopunny-Mega) @ Lopunnite  
+Ability: Scrappy  
+EVs: 252 Atk / 4 Def / 252 Spe  
+Adamant Nature  
+- Close Combat  
+- Fake Out  
+- Triple Axel  
+- U-turn  
+
+Prepped (Slowbro) @ Heavy-Duty Boots  
+Ability: Regenerator  
+EVs: 248 HP / 252 Def / 8 SpD  
+Relaxed Nature  
+IVs: 0 Atk / 0 Spe  
+- Scald  
+- Future Sight  
+- Teleport  
+- Slack Off  
+
+Flower Girl (Lilligant-Hisui) @ Life Orb  
+Ability: Chlorophyll  
+EVs: 252 Atk / 4 Def / 252 Spe  
+Adamant Nature  
+- Victory Dance  
+- Close Combat  
+- Leaf Blade  
+- Ice Spinner  
+
+Bae <3 (Tinkaton) @ Air Balloon  
+Ability: Pickpocket  
+Tera Type: Water  
+EVs: 252 HP / 24 SpD / 232 Spe  
+Jolly Nature  
+- Stealth Rock  
+- Gigaton Hammer  
+- Play Rough  
+- Metronome  
+
+Hotm'n (Ninetales) @ Heat Rock  
+Ability: Drought  
+EVs: 48 Atk / 208 SpD / 252 Spe  
+Timid Nature  
+- Weather Ball  
+- Will-O-Wisp  
+- Quick Attack  
+- Healing Wish

@@ -1,0 +1,55 @@
+Lilligant-Hisui (F) @ Life Orb  
+Ability: Chlorophyll  
+EVs: 252 Atk / 252 Spe  
+- Triple Axel  
+- Grass Knot  
+- Trailblaze  
+- Victory Dance  
+
+Brute Bonnet @ Booster Energy  
+Ability: Protosynthesis  
+EVs: 252 HP / 252 Atk / 4 SpD  
+Adamant Nature  
+- Seed Bomb  
+- Sucker Punch  
+- Close Combat  
+- Synthesis  
+
+Big Iron (Tinkaton) (F) @ Air Balloon  
+Ability: Pickpocket  
+EVs: 8 HP / 248 Atk / 252 Spe  
+Jolly Nature  
+- Gigaton Hammer  
+- Swords Dance  
+- Knock Off  
+- Thunder Wave  
+
+Slowbro @ Heavy-Duty Boots  
+Ability: Regenerator  
+EVs: 252 HP / 252 Def / 4 SpD  
+Relaxed Nature  
+IVs: 0 Atk  
+- Iron Defense  
+- Teleport  
+- Body Press  
+- Slack Off  
+
+Lopunny-Mega @ Lopunnite  
+Ability: Limber  
+Happiness: 0  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Jolly Nature  
+- Frustration  
+- Close Combat  
+- Fake Out  
+- Triple Axel  
+
+Ninetales @ Heat Rock  
+Ability: Drought  
+EVs: 252 HP / 4 Def / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Weather Ball  
+- Encore  
+- Pain Split  
+- Will-O-Wisp

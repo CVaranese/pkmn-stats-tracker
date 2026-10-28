@@ -1,0 +1,56 @@
+LoLa-Punny (Lopunny-Mega) @ Lopunnite  
+Ability: Scrappy  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Jolly Nature  
+- Triple Axel  
+- Fake Out  
+- Close Combat  
+- U-turn  
+
+Gerard Blade (Ceruledge) @ Weakness Policy  
+Ability: Weak Armor  
+Happiness: 0  
+EVs: 252 Atk / 4 Def / 252 Spe  
+Adamant Nature  
+- Bitter Blade  
+- Endure  
+- Poltergeist  
+- Close Combat  
+
+Flygon @ Buginium Z  
+Ability: Levitate  
+EVs: 4 HP / 252 Atk / 252 Spe  
+Adamant Nature  
+- First Impression  
+- Defog  
+- Dragon Dance  
+- Earthquake  
+
+Slowbro @ Rocky Helmet  
+Ability: Regenerator  
+EVs: 252 HP / 252 Def / 4 SpA  
+Bold Nature  
+IVs: 0 Atk  
+- Future Sight  
+- Teleport  
+- Slack Off  
+- Scald  
+
+Big Iron (Tinkaton) (F) @ Occa Berry  
+Ability: Pickpocket  
+EVs: 252 HP / 252 Def / 4 SpD  
+Impish Nature  
+- Play Rough  
+- Stealth Rock  
+- Gigaton Hammer  
+- Thunder Wave  
+
+Enamorus (F) @ Fairy Feather  
+Ability: Contrary  
+EVs: 4 HP / 252 SpA / 252 Spe  
+Mild Nature  
+IVs: 0 Atk  
+- Earth Power  
+- Draining Kiss  
+- Grass Knot  
+- Healing Wish

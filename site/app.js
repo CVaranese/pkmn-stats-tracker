@@ -933,7 +933,15 @@
   // ---------- team sheets ----------
 
   // games that come with both team sheets (site/mock/<id>-<player>.txt), filled in when the game loads
-  const MOCK_SHEETS = { "gen9nationaldex-2705157049": ["peterpikmon", "weedinmyhonda"] };  // Week 8, sheets from the user
+  const MOCK_SHEETS = {
+    "gen9nationaldex-2705157049": ["peterpikmon", "weedinmyhonda"],  // Week 8, sheets from the user
+    // doxsego's own sheets (the user), matched to games by team
+    "gen9nationaldex-2676850166": ["doxsego"],  // Week 1 vs PeterPikmon
+    "video-4facablyaoc": ["doxsego"],           // Week 2 vs weedinmyhonda ("Bah Booey" on the sheet)
+    "video-i21s40qi4em": ["doxsego"],           // Week 3 vs DEJIME17
+    "video-vxtlxlnr19c": ["doxsego"],           // Week 4 vs azpmCloudburst
+    "gen9nationaldex-2696935281": ["doxsego"],  // Week 6 vs Zololab (the sheet's "Week 7" label was a typo)
+  };
   async function addMockSheets(ids) {
     const have = new Set(sheetInputs().map((t) => t.trim()));
     for (const id of ids) {
