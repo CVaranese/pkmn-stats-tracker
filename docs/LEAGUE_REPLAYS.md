@@ -91,43 +91,11 @@ vs Zololab (IYsf4aQc3jQ), Pikmon vs PotatoesAreYum (ek4VkZvwnY0), Dox vs Fingy (
 PotatoesAreYum stream shows the live battle id gen9nationaldex-2701939365 in the address bar; it isn't uploaded (404).
 Sneez vs Karm (9STJZ-Xvmj8) was already in.
 
-## Super Champions League (site/scl/games/, added 2026-10-28)
+## Super Champions League (site/scl/games/, done 2026-10-28)
 
-From the user's Discord paste of the league's replay channel (2026-06-29 to 2026-10-02): 155 games in
-site/scl/games/, every link in the paste that loads. Weeks 1-8: the league sheet's Data tab schedule (Week / C1 / C2
-columns); every scheduled pair has its set, and every replay's two players match its pair. Weeks 9-11 aren't on the
-sheet (12 coaches, 11 opponents each, 8 weeks scheduled): the 18 pairs not on it split into three rounds where each
-coach plays once in exactly one way, used with the user's OK; Week 9 = Aargab-Kirbyhat, Dox-Leaf, Soop-Ryan,
-Matt-benito, Sean-Lieby, Fayz-Saltyswede; Week 10 = Kirbyhat-Ryan, Soop-Lieby, Sean-Fayz, Matt-Leaf,
-Saltyswede-benito, Aargab-Dox; Week 11 = Dox-Kirbyhat, Fayz-Aargab, Leaf-Ryan, Matt-Soop, Sean-Saltyswede,
-Lieby-benito.
-
-Playoffs (Soop's bracket post, 09-21; second paste from the user, 2026-10-28): seeds 1 Fayz (bye), 2 Mattio, 3 Kirbyhat,
-4 Aargab, 5 Saltyswede, 6 Soop, 7 Ryan. Playoffs R1: Ryan 2-0 Mattio, Soop 2-0 Kirbyhat, Aargab 2-1 Saltyswede (only
-game 3 posted, 2688929438). Semifinals: Fayz 2-0 Ryan, Aargab 2-1 Soop. Third place: Ryan 2-0 Soop. Finals: Aargab 2-0
-Fayz (Fayz's game 3 link 2699096769 is 404).
-
-Checked 2026-10-28 (165 games, 69 sets): every game's two players are its pair; no set has a game after it was won;
-Weeks 1-8 results match the sheet's Schedule scores except three. Week 3 Soop vs Kirbyhat: sheet 2-1, the one Kirbyhat
-win wasn't posted. Week 3 Leaf vs Fayz and Week 6 Lieby vs Aargab: the replays give Fayz 2-1 and Aargab 2-1, the sheet
-the reverse (sheet entered the wrong way round?). tests/audit.html?league=scl: kills, winners, turns, MVPs and team
-preview all hold. Its FAILs were Pokémon off the coach's current roster: free-agent moves, now in draft.json `trades`
-from the user's paste of the Discord posts (Soop after Week 1, Aargab and Mattio after Week 2, Dox twice after Week 3,
-Leaf after Week 6, past the Week 5 deadline but on the sheet's roster). Every dropped Pokémon was last used before its
-week and every pickup first appears after it; the audit counts a trade's dropped Pokémon as drafted, and passes.
-
-Showdown names: AnimaSean0724 = Sean, Fayz Sharpie = Fayz, yungsmokey = Mattio, Leafeon Main? = Leaf, Philly Turtles
-= Saltyswede, Tijerben000 = benito, aargab11 = Aargab, Ryan Regirocks = RyanGab, Liebynight01 = Lieby, soupy36 = Soop,
-kirbyhat5 = Kirbyhat, doxsego = Dox.
-
-Not in (no replay):
-- Fayz's third link is 404 in every set he posted (2-0 sets, so there was no game 3): 2642940767, 2648498993,
-  2657458699, 2662470763, 2664601299, 2668554697, 2673621399, 2679658199, 2691890619.
-- Week 5 Lieby vs Dox: Dox posted battle-room links (bo3-2658025100, -2658030120), not replays; Discord has an
-  attachment of game 2 (Gen9ChampionsVGC2026RegMBBo3-2026-07-31-liebynight01-doxsego.html) and Dox's kills by hand.
-- Week 9 Dox vs Leaf, Week 10 Aargab vs Dox ("aargab11 2-0 dox", screens closed), Week 11 Matt vs Soop (played on
-  Champions, Matt 2-0, recording too big): no replay posted.
-- Week 3 Soop vs Kirbyhat: the sheet says 2-1 but only Soop's two wins were posted.
+Every regular-season and playoff set with a replay is in (165 games). Weeks 1-8 from the league sheet's schedule;
+Weeks 9-11 aren't on the sheet and were worked out (the only split of the remaining pairs into rounds where each
+coach plays once). Free-agent moves are in draft.json `trades`.
 ## Team sheets
 
 Saved in `site/mock/<game id>-<player>.txt`; each game lists its players' sheets in `site/games/index.json` (`sheets`).
