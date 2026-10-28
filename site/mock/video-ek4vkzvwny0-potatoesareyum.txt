@@ -1,0 +1,66 @@
+Enamorus-Therian (F) @ Choice Specs
+Ability: Overcoat
+EVs: 128 Def / 252 SpA / 128 SpD
+Modest Nature
+IVs: 0 Atk
+
+* Moonblast
+* Sludge Bomb
+* Earth Power
+* Draining Kiss
+
+
+Bronzong @ Leftovers
+Ability: Levitate
+EVs: 4 HP / 252 Def / 252 SpD
+Relaxed Nature
+IVs: 0 Spe
+
+* Stealth Rock
+* Trick Room
+* Gyro Ball
+* Earthquake
+
+
+Great Tusk @ Booster Energy
+Ability: Protosynthesis
+EVs: 248 HP / 4 Atk / 4 Def / 252 Spe
+Jolly Nature
+
+* Rapid Spin
+* Play Rough
+* Close Combat
+* Earthquake
+
+
+Azelf @ Life Orb
+Ability: Levitate
+EVs: 252 Atk / 4 SpA / 252 Spe
+Naive Nature
+
+* Psychic
+* U-turn
+* Dazzling Gleam
+* Drain Punch
+
+
+Iron Hands @ Assault Vest
+Ability: Quark Drive
+EVs: 4 HP / 252 Def / 252 SpD
+Careful Nature
+
+* Volt Switch
+* Drain Punch
+* Play Rough
+* Earthquake
+
+
+Ursaluna @ Flame Orb
+Ability: Guts
+EVs: 248 HP / 252 Atk / 8 SpD
+Adamant Nature
+
+* Facade
+* Play Rough
+* Earthquake
+* Drain Punch
