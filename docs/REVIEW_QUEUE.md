@@ -2,6 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Keyboard (desktop): on Pokémon, press Tab until a header shows a ring, Enter sorts; Tab on to a Pokémon's name, Enter opens its games. Same on Players. Is the ring visible enough in dark mode?
+- [ ] Copy for Sheets with a nickname starting with + - = or @ (or edit one in a test sheet): Sheets should show it as typed, with no ' visible. In Excel from Download CSV the ' may show (not checked).
 - [ ] Main viewer on the live site (Showdown replays load slower there): pick a game, then another one before the first finishes. The second should show, and Get stats should be clickable again. Then load one and switch to Players at once: no game stats should appear under Players.
 - [ ] Gambling tab: DEJIME has one row per Pokémon (Raging Bolt 7th, 6 games), no DEJIME17 rows. The records table comes from the bracket, so it was already right.
 - [ ] Main viewer error line when the hidden-Zoroark check fails: "<id>: the hidden Zoroark check failed (<reason>), so whatever it did is counted on the Pokémon it copied." and, when its data doesn't load, "<id>: the move / Pokédex data for the hidden Zoroark check didn't load (<reason>), so fewer stays are ruled out." Clear enough?

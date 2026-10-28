@@ -1212,6 +1212,10 @@ ${switchIn}`).hiddenZoroark;
   // ---- CSV / TSV escaping ----
   const csv = RS.toCsv(["a", "b"], [{ a: 'x,"y"', b: "Pokémon" }]);
   check("csv escaping", csv === 'a,b\r\n"x,""y""",Pokémon\r\n', JSON.stringify(csv));
+  const formula = [{ a: "+2 Atk", b: -0.25 }, { a: "=1+1", b: "@x" }];
+  check("csv / tsv: text starting like a formula gets a ', numbers don't",
+    RS.toCsv(["a", "b"], formula) === "a,b\r\n'+2 Atk,-0.25\r\n'=1+1,'@x\r\n" &&
+    RS.toTsv(["a", "b"], formula) === "a\tb\r\n'+2 Atk\t-0.25\r\n'=1+1\t'@x\r\n", JSON.stringify(RS.toTsv(["a", "b"], formula)));
   check("tsv strips tabs", RS.toTsv(["a"], [{ a: "x\ty" }]) === "a\r\nx y\r\n");
 
   // ---- Gambling tab (bet.js) ----

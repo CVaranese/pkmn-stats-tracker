@@ -31,7 +31,9 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
 - **Sub-tabs** (`.tabs`): small joined buttons, selected one filled with `--accent`. For switching a table's view.
 - **Select**: plain `select` inside `label.inline` ("Player [Everyone ▾]").
 - **Table**: inside `.table-wrap` (2px outline, 8px radius), striped rows, numbers right-aligned in tabular figures,
-  sortable headers with ▲▼, `title` on headers for explanations.
+  sortable headers with ▲▼, `title` on headers for explanations. A sortable header's label, and the first cell of a
+  row that opens details below the table, sit in a `button.cell-btn` (looks like the text, focus ring for the
+  keyboard); the selected row has `aria-current`.
 - **Badge**: `.badge` (Lost) / `.badge.win` (Won): small, square-ish (3px radius), next to a name.
 - **Mega / Z tag**: `.mark.mega`, `.mark.z`, on the bottom edge of a sprite.
 - **Sprites**: `sprite(name, folders, size)` in app.js; sizes `tiny` 40px (lists), `small` 52px (team strip),

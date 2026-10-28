@@ -582,11 +582,15 @@
       }));
     [...$("pl-table").rows].slice(1).forEach((tr, i) => {
       tr.className = "pl-row";
+      cellButton(tr.cells[0]);
       tr.title = "Show their games and Pokémon";
       tr.addEventListener("click", () => showPlayer(players[i].key));
     });
     showPlayer(playerPicked || (players[0] && players[0].key));
   }
+
+  /** Marks the row whose details show below its table (aria-current: screen readers announce it). */
+  const current = (tr, on) => (on ? tr.setAttribute("aria-current", "true") : tr.removeAttribute("aria-current"));
 
   /** One player's games (opponent, result, kills, MVP, luck) and Pokémon, under the players table. */
   function showPlayer(key) {
@@ -594,7 +598,7 @@
     $("pl-detail").hidden = !pl;
     if (!pl) return;
     playerPicked = key;
-    [...$("pl-table").rows].slice(1).forEach((tr, i) => tr.setAttribute("aria-selected", String(players[i].key === key)));
+    [...$("pl-table").rows].slice(1).forEach((tr, i) => current(tr, players[i].key === key));
     $("pl-name").textContent = pl.name;
     const nameOf = (p) => (players.find((x) => x.key === playerKey(p)) || { name: p }).name;
     simpleTable($("pl-games"), [["Week", ""], ["Opponent", ""], ["Result", ""], ["Kills", "num", DESCRIPTIONS.kills],
@@ -635,6 +639,7 @@
       simpleTable(table, cols.map((c) => [c.label, c.cls || "", c.title]), sorted.map(cells));
       [...table.rows[0].cells].forEach((th, i) => {
         th.scope = "col";
+        cellButton(th);
         if (i === state.col) th.setAttribute("aria-sort", state.dir < 0 ? "descending" : "ascending");
         th.addEventListener("click", () => {
           const tk = "sort:" + table.id + i;
@@ -720,8 +725,9 @@
       [...$("mon-table").rows].slice(1).forEach((tr, i) => {
         tr.className = "pl-row";
         tr.title = "Show its games and moves";
+        cellButton(tr.cells[0]);
         tr.dataset.mon = sorted[i].pokemon;
-        tr.setAttribute("aria-selected", String(sorted[i].pokemon === monPicked));
+        current(tr, sorted[i].pokemon === monPicked);
         tr.addEventListener("click", () => { showMon(sorted[i].pokemon); $("mon-detail").scrollIntoView({ block: "start" }); });
       });
     });
@@ -734,7 +740,7 @@
     $("mon-detail").hidden = !m;
     if (!m) return;
     monPicked = name;
-    [...$("mon-table").rows].slice(1).forEach((tr) => tr.setAttribute("aria-selected", String(tr.dataset.mon === name)));
+    [...$("mon-table").rows].slice(1).forEach((tr) => current(tr, tr.dataset.mon === name));
     const head = el("span", "bet-mon");
     head.append(sprite(m.pokemon, ["gen5/"], "small"), m.pokemon);
     $("mon-name").replaceChildren(head);
@@ -1024,6 +1030,14 @@
       out.className = "sprite-fill";
       box.replaceChildren(out);
     } catch (e) { /* tainted or unreadable: keep the plain image */ }
+  }
+  /** A cell's contents in a button that looks like the text, so a keyboard can reach it; the click still goes to the
+      row's or header's own handler. */
+  function cellButton(cell) {
+    const b = el("button", "cell-btn");
+    b.type = "button";
+    b.append(...cell.childNodes);
+    cell.append(b);
   }
   function el(tag, cls, text) {
     const e = document.createElement(tag);
@@ -1341,6 +1355,7 @@
     for (const f of fields) {
       const th = document.createElement("th");
       th.textContent = LABELS[f] || f;
+      cellButton(th);
       if (DESCRIPTIONS[f]) th.title = DESCRIPTIONS[f];
       th.scope = "col";
       if (numeric.has(f)) th.className = "num";

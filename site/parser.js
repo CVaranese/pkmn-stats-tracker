@@ -1077,7 +1077,9 @@
 
   function toDelimited(fields, rows, sep) {
     const cell = (v) => {
-      const s = String(v ?? "");
+      let s = String(v ?? "");
+      // text starting like a formula (a nickname "+2 Atk", "=x") gets a ' so Sheets / Excel keep it as text; numbers stay numbers
+      if (typeof v !== "number" && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
       if (sep === "\t") return s.replace(/[\t\r\n]+/g, " ");
       return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
     };

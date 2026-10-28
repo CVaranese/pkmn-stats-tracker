@@ -14,6 +14,7 @@ and the rebuilt JSON. It's stored as video-<youtube id, lowercase>, dated by --d
 """
 import argparse
 import json
+import os
 import re
 import sys
 import urllib.error
@@ -23,6 +24,13 @@ from pathlib import Path
 
 GAMES = Path(__file__).resolve().parent.parent / "site" / "games"
 INDEX = GAMES / "index.json"
+
+
+def write_atomic(path, text):
+    """Write a file in one step: a crash or Ctrl-C midway leaves the old file, never half of the new one."""
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
 REPLAY_HOST = "https://replay.pokemonshowdown.com/"
 SAVED = [GAMES.parent / "mock", GAMES.parent.parent / "tests" / "fixtures"]
 
@@ -91,13 +99,13 @@ def main():
                 sys.exit("This game has no upload time: pass --date YYYY-MM-DD")
             replay["uploadtime"] = int(datetime.strptime(args.date, "%Y-%m-%d").replace(hour=12, tzinfo=timezone.utc).timestamp())
         GAMES.mkdir(parents=True, exist_ok=True)
-        copy.write_text(json.dumps(replay, ensure_ascii=False), encoding="utf-8")
+        write_atomic(copy, json.dumps(replay, ensure_ascii=False))
     elif copy.exists():
         replay = json.loads(copy.read_text(encoding="utf-8"))
     else:
         replay = fetch(rid)
         GAMES.mkdir(parents=True, exist_ok=True)
-        copy.write_text(json.dumps(replay, ensure_ascii=False), encoding="utf-8")
+        write_atomic(copy, json.dumps(replay, ensure_ascii=False))
 
     index = json.loads(INDEX.read_text(encoding="utf-8")) if INDEX.exists() else {"games": []}
     entry = {"id": rid, "league": args.league, "week": args.week, **summary(replay), "note": args.note}
@@ -114,7 +122,7 @@ def main():
             if k in games[old]: entry[k] = games[old][k]
         if "known_errors" in entry and not args.note: entry["note"] = games[old]["note"]
         games[old] = entry
-    INDEX.write_text(json.dumps(index, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    write_atomic(INDEX, json.dumps(index, ensure_ascii=False, indent=1) + "\n")
     vs = " vs ".join(entry["players"])
     print(f"{'Updated' if old is not None else 'Added'} {rid}: {args.week}, {vs}, winner {entry['winner'] or '?'}, "
           f"{entry['turns']} turns, {entry['date']}")

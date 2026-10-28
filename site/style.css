@@ -136,7 +136,7 @@ button.small { padding: 4px 10px; font-size: 13px; }
 /* Players: a row opens that player's games and Pokémon below the table */
 .pl-row { cursor: pointer; }
 @media (hover: hover) { .pl-row:hover td { background: var(--row-alt); } }
-.pl-row[aria-selected="true"] td { background: var(--band); font-weight: 600; }
+.pl-row[aria-current="true"] td { background: var(--band); font-weight: 600; }
 .pl-mons { display: inline-flex; gap: 2px; }
 .library { padding: 4px 0 24px; }
 .lib-table .lib-week th { position: static; cursor: default; font-size: 15px; padding-top: 16px; background: var(--bg); }
@@ -179,6 +179,9 @@ button.small { padding: 4px 10px; font-size: 13px; }
 table { border-collapse: collapse; width: 100%; font-size: 14px; }
 th, td { padding: 7px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
 th { position: sticky; top: 0; background: var(--surface); cursor: pointer; user-select: none; }
+/* a header's or a row's first cell as a button (keyboard access): looks like the text around it */
+.cell-btn { all: unset; cursor: pointer; }
+.cell-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 th[aria-sort="descending"]::after { content: " ▼"; font-size: 0.7em; }
 th[aria-sort="ascending"]::after { content: " ▲"; font-size: 0.7em; }
 th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
