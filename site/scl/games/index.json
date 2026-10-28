@@ -1,3 +1,4809 @@
 {
-  "games": []
+ "games": [
+  {
+   "id": "gen9championsvgc2026regmbbo3-2641424393",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "soupy36",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Dragalge",
+     "Basculegion",
+     "Oranguru",
+     "Decidueye-Hisui",
+     "Skeledirge",
+     "Liepard"
+    ],
+    [
+     "Ceruledge",
+     "Kingambit",
+     "Incineroar",
+     "Sinistcha",
+     "Sylveon",
+     "Eelektross"
+    ]
+   ],
+   "winner": "doxsego",
+   "date": "2026-06-28",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2641427703",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "soupy36",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Dragalge",
+     "Basculegion",
+     "Oranguru",
+     "Decidueye-Hisui",
+     "Skeledirge",
+     "Liepard"
+    ],
+    [
+     "Ceruledge",
+     "Kingambit",
+     "Incineroar",
+     "Sinistcha",
+     "Sylveon",
+     "Eelektross"
+    ]
+   ],
+   "winner": "doxsego",
+   "date": "2026-06-28",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2642382494",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "animasean0724",
+    "YungSmokey"
+   ],
+   "teams": [
+    [
+     "Staraptor",
+     "Grimmsnarl",
+     "Clawitzer",
+     "Annihilape",
+     "Glimmora",
+     "Clefable"
+    ],
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ]
+   ],
+   "winner": "YungSmokey",
+   "date": "2026-06-28",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2642385200",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "animasean0724",
+    "YungSmokey"
+   ],
+   "teams": [
+    [
+     "Staraptor",
+     "Grimmsnarl",
+     "Clawitzer",
+     "Annihilape",
+     "Glimmora",
+     "Clefable"
+    ],
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ]
+   ],
+   "winner": "YungSmokey",
+   "date": "2026-06-28",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2642938677",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "Fayz Sharpie",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Aerodactyl",
+     "Orthworm",
+     "Scrafty",
+     "Mamoswine",
+     "Cofagrigus",
+     "Slowbro"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Empoleon",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-06-28",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2642940762",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "Fayz Sharpie",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Aerodactyl",
+     "Orthworm",
+     "Scrafty",
+     "Mamoswine",
+     "Cofagrigus",
+     "Slowbro"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Empoleon",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-06-28",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2642976567",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "aargab11",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Gyarados",
+     "Torkoal",
+     "Mimikyu",
+     "Kommo-o",
+     "Corviknight"
+    ],
+    [
+     "Skarmory",
+     "Ninetales-Alola",
+     "Gengar",
+     "Jolteon",
+     "Blastoise",
+     "Whimsicott"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-06-28",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2642978951",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "aargab11",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Gyarados",
+     "Torkoal",
+     "Mimikyu",
+     "Kommo-o",
+     "Corviknight"
+    ],
+    [
+     "Skarmory",
+     "Ninetales-Alola",
+     "Gengar",
+     "Jolteon",
+     "Blastoise",
+     "Whimsicott"
+    ]
+   ],
+   "winner": "Leafeon Main?",
+   "date": "2026-06-28",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2642982786",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "aargab11",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Gyarados",
+     "Torkoal",
+     "Mimikyu",
+     "Kommo-o",
+     "Corviknight"
+    ],
+    [
+     "Skarmory",
+     "Ninetales-Alola",
+     "Gengar",
+     "Jolteon",
+     "Blastoise",
+     "Whimsicott"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-06-28",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2644165383",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "Philly Turtles",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Armarouge"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-06-28",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2644168029",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "Philly Turtles",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Armarouge"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-06-28",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2645744961",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "Ryan Regirocks",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-07-05",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2645747983",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "Ryan Regirocks",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-07-05",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2645749540",
+   "league": "scl",
+   "week": "Week 1",
+   "players": [
+    "Ryan Regirocks",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-07-05",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2642991935",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "Leafeon Main?",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Politoed",
+     "Blastoise",
+     "Jolteon",
+     "Whimsicott",
+     "Absol",
+     "Gengar"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Empoleon",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-06-28",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2642994884",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "Leafeon Main?",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Politoed",
+     "Blastoise",
+     "Jolteon",
+     "Whimsicott",
+     "Absol",
+     "Gengar"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Empoleon",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-06-28",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2645685417",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "yungsmokey",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-07-05",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2645688841",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "yungsmokey",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-07-05",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2645691239",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "yungsmokey",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-07-05",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2645690122",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "Tijerben000",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Typhlosion-Hisui"
+    ],
+    [
+     "Ceruledge",
+     "Kingambit",
+     "Incineroar",
+     "Sinistcha",
+     "Sylveon",
+     "Eelektross"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-07-05",
+   "turns": 13,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2645694829",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "Tijerben000",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Typhlosion-Hisui"
+    ],
+    [
+     "Ceruledge",
+     "Kingambit",
+     "Incineroar",
+     "Sinistcha",
+     "Sylveon",
+     "Eelektross"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-07-05",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2646801306",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "soupy36",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Liepard",
+     "Gyarados",
+     "Rotom-Fan",
+     "Aerodactyl",
+     "Basculegion",
+     "Blaziken"
+    ],
+    [
+     "Venusaur",
+     "Gyarados",
+     "Torkoal",
+     "Mimikyu",
+     "Corviknight",
+     "Luxray"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-07-05",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2646803738",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "soupy36",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Liepard",
+     "Gyarados",
+     "Rotom-Fan",
+     "Aerodactyl",
+     "Basculegion",
+     "Blaziken"
+    ],
+    [
+     "Venusaur",
+     "Gyarados",
+     "Torkoal",
+     "Mimikyu",
+     "Corviknight",
+     "Luxray"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-07-05",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2646807561",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "soupy36",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Liepard",
+     "Gyarados",
+     "Rotom-Fan",
+     "Aerodactyl",
+     "Basculegion",
+     "Blaziken"
+    ],
+    [
+     "Venusaur",
+     "Gyarados",
+     "Torkoal",
+     "Mimikyu",
+     "Corviknight",
+     "Luxray"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-07-05",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2646812637",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "AnimaSean0724",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Grimmsnarl",
+     "Serperior",
+     "Clawitzer",
+     "Glimmora",
+     "Staraptor",
+     "Simisear"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-07-05",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2646815759",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "AnimaSean0724",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Grimmsnarl",
+     "Serperior",
+     "Clawitzer",
+     "Glimmora",
+     "Staraptor",
+     "Simisear"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-07-05",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2648497292",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "Liebynight01",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Charizard",
+     "Vileplume",
+     "Scrafty",
+     "Aerodactyl",
+     "Cofagrigus",
+     "Raichu"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-07-12",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2648498919",
+   "league": "scl",
+   "week": "Week 2",
+   "players": [
+    "Liebynight01",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Charizard",
+     "Vileplume",
+     "Scrafty",
+     "Aerodactyl",
+     "Cofagrigus",
+     "Raichu"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-07-12",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2649338124",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "soupy36",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Basculegion",
+     "Liepard",
+     "Gyarados",
+     "Aerodactyl",
+     "Blaziken",
+     "Rotom-Fan"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Empoleon",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-07-12",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2649339529",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "soupy36",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Basculegion",
+     "Liepard",
+     "Gyarados",
+     "Aerodactyl",
+     "Blaziken",
+     "Rotom-Fan"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Empoleon",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-07-12",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2649900494",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "yungsmokey",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-07-12",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2649902123",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "yungsmokey",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-07-12",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2649903814",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "yungsmokey",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-07-12",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2650383953",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "Aargab11",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Krookodile",
+     "Noivern",
+     "Pyroar"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Aargab11",
+   "date": "2026-07-12",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2650385421",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "Aargab11",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Krookodile",
+     "Noivern",
+     "Pyroar"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Aargab11",
+   "date": "2026-07-12",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2651146408",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "Philly Turtles",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-07-12",
+   "turns": 12,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2651149702",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "Philly Turtles",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-07-12",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2651151226",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "Philly Turtles",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-07-12",
+   "turns": 12,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2651202332",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "AnimaSean0724",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Annihilape",
+     "Glimmora",
+     "Staraptor",
+     "Grimmsnarl",
+     "Clawitzer",
+     "Clefable"
+    ],
+    [
+     "Ceruledge",
+     "Kingambit",
+     "Incineroar",
+     "Sinistcha",
+     "Sylveon",
+     "Eelektross"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-07-12",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2651204590",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "AnimaSean0724",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Annihilape",
+     "Glimmora",
+     "Staraptor",
+     "Grimmsnarl",
+     "Clawitzer",
+     "Clefable"
+    ],
+    [
+     "Ceruledge",
+     "Kingambit",
+     "Incineroar",
+     "Sinistcha",
+     "Sylveon",
+     "Eelektross"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-07-12",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2654166450",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "Leafeon Main?",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Blastoise",
+     "Jolteon",
+     "Whimsicott",
+     "Politoed",
+     "Gengar",
+     "Ninetales-Alola"
+    ],
+    [
+     "Charizard",
+     "Orthworm",
+     "Scrafty",
+     "Raichu",
+     "Vileplume",
+     "Aerodactyl"
+    ]
+   ],
+   "winner": "Leafeon Main?",
+   "date": "2026-07-19",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2654168770",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "Leafeon Main?",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Blastoise",
+     "Jolteon",
+     "Whimsicott",
+     "Politoed",
+     "Gengar",
+     "Ninetales-Alola"
+    ],
+    [
+     "Charizard",
+     "Orthworm",
+     "Scrafty",
+     "Raichu",
+     "Vileplume",
+     "Aerodactyl"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-07-19",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2654170576",
+   "league": "scl",
+   "week": "Week 3",
+   "players": [
+    "Leafeon Main?",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Blastoise",
+     "Jolteon",
+     "Whimsicott",
+     "Politoed",
+     "Gengar",
+     "Ninetales-Alola"
+    ],
+    [
+     "Charizard",
+     "Orthworm",
+     "Scrafty",
+     "Raichu",
+     "Vileplume",
+     "Aerodactyl"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-07-19",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2653894170",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "kirbyhat5",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Garchomp",
+     "Talonflame",
+     "Empoleon",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Staraptor",
+     "Umbreon",
+     "Typhlosion-Hisui"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-07-19",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2653896196",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "kirbyhat5",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Garchomp",
+     "Talonflame",
+     "Empoleon",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Staraptor",
+     "Umbreon",
+     "Typhlosion-Hisui"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-07-19",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2653898021",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "kirbyhat5",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Garchomp",
+     "Talonflame",
+     "Empoleon",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Staraptor",
+     "Umbreon",
+     "Typhlosion-Hisui"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-07-19",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2654636764",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "AnimaSean0724",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Grimmsnarl",
+     "Staraptor",
+     "Glimmora",
+     "Metagross",
+     "Clefable",
+     "Clawitzer"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Gyarados",
+     "Luxray"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-07-19",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2654638598",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "AnimaSean0724",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Grimmsnarl",
+     "Staraptor",
+     "Glimmora",
+     "Metagross",
+     "Clefable",
+     "Clawitzer"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Gyarados",
+     "Luxray"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-07-19",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2654640092",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "AnimaSean0724",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Grimmsnarl",
+     "Staraptor",
+     "Glimmora",
+     "Metagross",
+     "Clefable",
+     "Clawitzer"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Gyarados",
+     "Luxray"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-07-19",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2654891785",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "soupy36",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Basculegion",
+     "Liepard",
+     "Gyarados",
+     "Aerodactyl",
+     "Blaziken",
+     "Rotom-Fan"
+    ],
+    [
+     "Politoed",
+     "Gengar",
+     "Skarmory",
+     "Ninetales-Alola",
+     "Jolteon",
+     "Blastoise"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-07-19",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2654893020",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "soupy36",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Basculegion",
+     "Liepard",
+     "Gyarados",
+     "Aerodactyl",
+     "Blaziken",
+     "Rotom-Fan"
+    ],
+    [
+     "Politoed",
+     "Gengar",
+     "Skarmory",
+     "Ninetales-Alola",
+     "Jolteon",
+     "Blastoise"
+    ]
+   ],
+   "winner": "Leafeon Main?",
+   "date": "2026-07-19",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2654894599",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "soupy36",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Basculegion",
+     "Liepard",
+     "Gyarados",
+     "Aerodactyl",
+     "Blaziken",
+     "Rotom-Fan"
+    ],
+    [
+     "Politoed",
+     "Gengar",
+     "Skarmory",
+     "Ninetales-Alola",
+     "Jolteon",
+     "Blastoise"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-07-19",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2655154711",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "doxsego",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-07-26",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2655158866",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "doxsego",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-07-26",
+   "turns": 15,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2656461408",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "Liebynight01",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-07-26",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2656463416",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "Liebynight01",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-07-26",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2656465921",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "Liebynight01",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-07-26",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2657456916",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "yungsmokey",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Mamoswine",
+     "Orthworm",
+     "Scrafty",
+     "Charizard",
+     "Slowbro",
+     "Aerodactyl"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-07-26",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2657458646",
+   "league": "scl",
+   "week": "Week 4",
+   "players": [
+    "yungsmokey",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Mamoswine",
+     "Orthworm",
+     "Scrafty",
+     "Charizard",
+     "Slowbro",
+     "Aerodactyl"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-07-26",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2657139554",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "yungsmokey",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-07-26",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2657141512",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "yungsmokey",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-07-26",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2658217837",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "AnimaSean0724",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Clawitzer",
+     "Annihilape",
+     "Staraptor",
+     "Clefable"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Empoleon"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-07-26",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2658219433",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "AnimaSean0724",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Clawitzer",
+     "Annihilape",
+     "Staraptor",
+     "Clefable"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Empoleon"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-07-26",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2658220914",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "AnimaSean0724",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Clawitzer",
+     "Annihilape",
+     "Staraptor",
+     "Clefable"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Empoleon"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-07-26",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2658364117",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "aargab11",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ],
+    [
+     "Froslass",
+     "Crabominable",
+     "Slowking-Galar",
+     "Sableye",
+     "Armarouge",
+     "Primarina"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-07-26",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2658367162",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "aargab11",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ],
+    [
+     "Froslass",
+     "Crabominable",
+     "Slowking-Galar",
+     "Sableye",
+     "Armarouge",
+     "Primarina"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-07-26",
+   "turns": 13,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2658371353",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "aargab11",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ],
+    [
+     "Froslass",
+     "Crabominable",
+     "Slowking-Galar",
+     "Sableye",
+     "Armarouge",
+     "Primarina"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-07-26",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2659404514",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "soupy36",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Aerodactyl",
+     "Decidueye-Hisui"
+    ],
+    [
+     "Mamoswine",
+     "Aerodactyl",
+     "Scrafty",
+     "Charizard",
+     "Vileplume",
+     "Cofagrigus"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-08-02",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2659406473",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "soupy36",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Aerodactyl",
+     "Decidueye-Hisui"
+    ],
+    [
+     "Mamoswine",
+     "Aerodactyl",
+     "Scrafty",
+     "Charizard",
+     "Vileplume",
+     "Cofagrigus"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-02",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2659408708",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "soupy36",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Aerodactyl",
+     "Decidueye-Hisui"
+    ],
+    [
+     "Mamoswine",
+     "Aerodactyl",
+     "Scrafty",
+     "Charizard",
+     "Vileplume",
+     "Cofagrigus"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-02",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2659908790",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "Leafeon Main?",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Gengar",
+     "Ninetales-Alola",
+     "Whimsicott",
+     "Jolteon",
+     "Politoed",
+     "Leafeon"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Leafeon Main?",
+   "date": "2026-08-02",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2659911565",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "Leafeon Main?",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Gengar",
+     "Ninetales-Alola",
+     "Whimsicott",
+     "Jolteon",
+     "Politoed",
+     "Leafeon"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-08-02",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2659913596",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "Leafeon Main?",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Gengar",
+     "Ninetales-Alola",
+     "Whimsicott",
+     "Jolteon",
+     "Politoed",
+     "Leafeon"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-08-02",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2659475004",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "yungsmokey",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-08-02",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2659478549",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "yungsmokey",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-08-02",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2661571596",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "soupy36",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Decidueye-Hisui"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Staraptor",
+     "Starmie",
+     "Toxicroak",
+     "Meowstic"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-08-02",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2661573318",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "soupy36",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Decidueye-Hisui"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Staraptor",
+     "Starmie",
+     "Toxicroak",
+     "Meowstic"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-08-02",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2662245122",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "kirbyhat5",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Drampa"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-09",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2662247686",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "kirbyhat5",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Drampa"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-08-09",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2662249440",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "kirbyhat5",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Drampa"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-09",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2662468593",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "Fayz Sharpie",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Charizard",
+     "Raichu",
+     "Scrafty",
+     "Mamoswine",
+     "Cofagrigus",
+     "Vileplume"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-09",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2662470753",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "Fayz Sharpie",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Charizard",
+     "Raichu",
+     "Scrafty",
+     "Mamoswine",
+     "Cofagrigus",
+     "Vileplume"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-09",
+   "turns": 18,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2663023472",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "aargab11",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-08-09",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2663026211",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "aargab11",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-08-09",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2663028717",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "aargab11",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-08-09",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2663287270",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "AnimaSean0724",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Staraptor",
+     "Metagross",
+     "Serperior",
+     "Annihilape"
+    ],
+    [
+     "Ninetales-Alola",
+     "Blastoise",
+     "Whimsicott",
+     "Jolteon",
+     "Politoed",
+     "Gengar"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-08-09",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2663290021",
+   "league": "scl",
+   "week": "Week 6",
+   "players": [
+    "AnimaSean0724",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Staraptor",
+     "Metagross",
+     "Serperior",
+     "Annihilape"
+    ],
+    [
+     "Ninetales-Alola",
+     "Blastoise",
+     "Whimsicott",
+     "Jolteon",
+     "Politoed",
+     "Gengar"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-08-09",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2663483680",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "doxsego",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "doxsego",
+   "date": "2026-08-09",
+   "turns": 13,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2663488148",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "doxsego",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-08-09",
+   "turns": 12,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2663493675",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "doxsego",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-08-09",
+   "turns": 15,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2664514985",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "yungsmokey",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-08-09",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2664516965",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "yungsmokey",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-08-09",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2664600259",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "Fayz Sharpie",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Charizard",
+     "Aerodactyl",
+     "Raichu",
+     "Vileplume",
+     "Scrafty",
+     "Mamoswine"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Starmie",
+     "Gliscor",
+     "Meowstic",
+     "Typhlosion-Hisui"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-09",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2664601280",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "Fayz Sharpie",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Charizard",
+     "Aerodactyl",
+     "Raichu",
+     "Vileplume",
+     "Scrafty",
+     "Mamoswine"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Starmie",
+     "Gliscor",
+     "Meowstic",
+     "Typhlosion-Hisui"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-09",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2665240537",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "Liebynight01",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Drampa"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-09",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2665241756",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "Liebynight01",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Drampa"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-09",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2665732318",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "AnimaSean0724",
+    "soupy36"
+   ],
+   "teams": [
+    [
+     "Clefable",
+     "Staraptor",
+     "Serperior",
+     "Annihilape",
+     "Grimmsnarl",
+     "Glimmora"
+    ],
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Decidueye-Hisui"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-08-16",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2665733526",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "AnimaSean0724",
+    "soupy36"
+   ],
+   "teams": [
+    [
+     "Clefable",
+     "Staraptor",
+     "Serperior",
+     "Annihilape",
+     "Grimmsnarl",
+     "Glimmora"
+    ],
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Decidueye-Hisui"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-08-16",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2665735323",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "AnimaSean0724",
+    "soupy36"
+   ],
+   "teams": [
+    [
+     "Clefable",
+     "Staraptor",
+     "Serperior",
+     "Annihilape",
+     "Grimmsnarl",
+     "Glimmora"
+    ],
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Decidueye-Hisui"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-08-16",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2666419889",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "Philly Turtles",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ],
+    [
+     "Whimsicott",
+     "Politoed",
+     "Jolteon",
+     "Swampert",
+     "Corviknight",
+     "Leafeon"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-08-16",
+   "turns": 12,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2666423088",
+   "league": "scl",
+   "week": "Week 7",
+   "players": [
+    "Philly Turtles",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ],
+    [
+     "Whimsicott",
+     "Politoed",
+     "Jolteon",
+     "Swampert",
+     "Corviknight",
+     "Leafeon"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-08-16",
+   "turns": 13,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2666987233",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "Ryan Regirocks",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-08-16",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2666989344",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "Ryan Regirocks",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-08-16",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2667775477",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "soupy36",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Sharpedo"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-08-16",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2667778490",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "soupy36",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Sharpedo"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-08-16",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2668551682",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "doxsego",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ],
+    [
+     "Charizard",
+     "Aerodactyl",
+     "Scrafty",
+     "Vileplume",
+     "Orthworm",
+     "Mamoswine"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-16",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2668554380",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "doxsego",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ],
+    [
+     "Charizard",
+     "Aerodactyl",
+     "Scrafty",
+     "Vileplume",
+     "Orthworm",
+     "Mamoswine"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-16",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2669356329",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "AnimaSean0724",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Annihilape",
+     "Staraptor",
+     "Serperior",
+     "Simisear"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-08-23",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2669358076",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "AnimaSean0724",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Annihilape",
+     "Staraptor",
+     "Serperior",
+     "Simisear"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-08-23",
+   "turns": 13,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2669361518",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "AnimaSean0724",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Annihilape",
+     "Staraptor",
+     "Serperior",
+     "Simisear"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Meowstic",
+     "Toxicroak",
+     "Starmie",
+     "Staraptor"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-08-23",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2669405475",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "yungsmokey",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Empoleon"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-23",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2669408825",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "yungsmokey",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Empoleon"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-08-23",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2669410085",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "yungsmokey",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Garchomp",
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Empoleon"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-23",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2676039248",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "Liebynight01",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Swampert",
+     "Absol",
+     "Whimsicott",
+     "Politoed",
+     "Polteageist",
+     "Corviknight"
+    ]
+   ],
+   "winner": "Leafeon Main?",
+   "date": "2026-08-30",
+   "turns": 12,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2676041562",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "Liebynight01",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Swampert",
+     "Absol",
+     "Whimsicott",
+     "Politoed",
+     "Polteageist",
+     "Corviknight"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-08-30",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2676043182",
+   "league": "scl",
+   "week": "Week 8",
+   "players": [
+    "Liebynight01",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Swampert",
+     "Absol",
+     "Whimsicott",
+     "Politoed",
+     "Polteageist",
+     "Corviknight"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-08-30",
+   "turns": 13,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2670588261",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "soupy36",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Rotom-Fan",
+     "Liepard",
+     "Basculegion",
+     "Decidueye-Hisui",
+     "Sharpedo"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-08-23",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2670590269",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "soupy36",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Rotom-Fan",
+     "Liepard",
+     "Basculegion",
+     "Decidueye-Hisui",
+     "Sharpedo"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-08-23",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2672406995",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "aargab11",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Venusaur",
+     "Noivern",
+     "Gyarados"
+    ],
+    [
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Drampa",
+     "Empoleon"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-08-23",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2672409051",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "aargab11",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Venusaur",
+     "Noivern",
+     "Gyarados"
+    ],
+    [
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Drampa",
+     "Empoleon"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-08-23",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2672578640",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "yungsmokey",
+    "tijerben000"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Staraptor",
+     "Starmie",
+     "Toxicroak",
+     "Meowstic"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-08-23",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2672580144",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "yungsmokey",
+    "tijerben000"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Staraptor",
+     "Starmie",
+     "Toxicroak",
+     "Meowstic"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-08-23",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2672678022",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "AnimaSean0724",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Grimmsnarl",
+     "Glimmora",
+     "Clefable",
+     "Annihilape",
+     "Serperior",
+     "Clawitzer"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-08-23",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2672678821",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "AnimaSean0724",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Grimmsnarl",
+     "Glimmora",
+     "Clefable",
+     "Annihilape",
+     "Serperior",
+     "Clawitzer"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-08-23",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2672679955",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "AnimaSean0724",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Grimmsnarl",
+     "Glimmora",
+     "Clefable",
+     "Annihilape",
+     "Serperior",
+     "Clawitzer"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-08-23",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2673619824",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "Philly Turtles",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ],
+    [
+     "Charizard",
+     "Scrafty",
+     "Cofagrigus",
+     "Orthworm",
+     "Raichu",
+     "Vileplume"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-30",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2673621382",
+   "league": "scl",
+   "week": "Week 9",
+   "players": [
+    "Philly Turtles",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ],
+    [
+     "Charizard",
+     "Scrafty",
+     "Cofagrigus",
+     "Orthworm",
+     "Raichu",
+     "Vileplume"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-08-30",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2675335111",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "kirbyhat5",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Talonflame",
+     "Lycanroc-Dusk",
+     "Gardevoir",
+     "Drampa",
+     "Garchomp",
+     "Empoleon"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-08-30",
+   "turns": 3,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2675336254",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "kirbyhat5",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Talonflame",
+     "Lycanroc-Dusk",
+     "Gardevoir",
+     "Drampa",
+     "Garchomp",
+     "Empoleon"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-30",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2675338997",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "kirbyhat5",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Talonflame",
+     "Lycanroc-Dusk",
+     "Gardevoir",
+     "Drampa",
+     "Garchomp",
+     "Empoleon"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-30",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2676434726",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "soupy36",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Rotom-Fan",
+     "Liepard",
+     "Basculegion",
+     "Decidueye-Hisui",
+     "Gyarados"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-09-06",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2676436059",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "soupy36",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Rotom-Fan",
+     "Liepard",
+     "Basculegion",
+     "Decidueye-Hisui",
+     "Gyarados"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "Liebynight01",
+   "date": "2026-09-06",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2676437526",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "soupy36",
+    "Liebynight01"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Rotom-Fan",
+     "Liepard",
+     "Basculegion",
+     "Decidueye-Hisui",
+     "Gyarados"
+    ],
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-09-06",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2677159611",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "AnimaSean0724",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Metagross",
+     "Staraptor",
+     "Clefable",
+     "Annihilape"
+    ],
+    [
+     "Charizard",
+     "Raichu",
+     "Mamoswine",
+     "Slowbro",
+     "Cofagrigus",
+     "Aerodactyl"
+    ]
+   ],
+   "winner": "AnimaSean0724",
+   "date": "2026-09-06",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2677162332",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "AnimaSean0724",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Metagross",
+     "Staraptor",
+     "Clefable",
+     "Annihilape"
+    ],
+    [
+     "Charizard",
+     "Raichu",
+     "Mamoswine",
+     "Slowbro",
+     "Cofagrigus",
+     "Aerodactyl"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-09-06",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2677164447",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "AnimaSean0724",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Grimmsnarl",
+     "Metagross",
+     "Staraptor",
+     "Clefable",
+     "Annihilape"
+    ],
+    [
+     "Charizard",
+     "Raichu",
+     "Mamoswine",
+     "Slowbro",
+     "Cofagrigus",
+     "Aerodactyl"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-09-06",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2677816825",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "yungsmokey",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Swampert",
+     "Politoed",
+     "Corviknight",
+     "Blastoise",
+     "Polteageist",
+     "Whimsicott"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-09-06",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2677818192",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "yungsmokey",
+    "Leafeon Main?"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Swampert",
+     "Politoed",
+     "Corviknight",
+     "Blastoise",
+     "Polteageist",
+     "Whimsicott"
+    ]
+   ],
+   "winner": "yungsmokey",
+   "date": "2026-09-06",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2678395400",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "Philly Turtles",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Staraptor",
+     "Toxicroak",
+     "Umbreon",
+     "Meowstic"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-09-06",
+   "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2678400821",
+   "league": "scl",
+   "week": "Week 10",
+   "players": [
+    "Philly Turtles",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Staraptor",
+     "Toxicroak",
+     "Umbreon",
+     "Meowstic"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-09-06",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2673588430",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "doxsego",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ],
+    [
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Garchomp",
+     "Empoleon"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-30",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2673592308",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "doxsego",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ],
+    [
+     "Talonflame",
+     "Meowscarada",
+     "Gardevoir",
+     "Delphox",
+     "Garchomp",
+     "Empoleon"
+    ]
+   ],
+   "winner": "kirbyhat5",
+   "date": "2026-08-30",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2679655795",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "aargab11",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Venusaur",
+     "Gyarados",
+     "Luxray"
+    ],
+    [
+     "Charizard",
+     "Raichu",
+     "Aerodactyl",
+     "Cofagrigus",
+     "Scrafty",
+     "Slowbro"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-09-06",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2679658149",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "aargab11",
+    "Fayz Sharpie"
+   ],
+   "teams": [
+    [
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Venusaur",
+     "Gyarados",
+     "Luxray"
+    ],
+    [
+     "Charizard",
+     "Raichu",
+     "Aerodactyl",
+     "Cofagrigus",
+     "Scrafty",
+     "Slowbro"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-09-06",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2680747538",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "AnimaSean0724",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Metagross",
+     "Grimmsnarl",
+     "Simisear",
+     "Annihilape",
+     "Staraptor"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-09-13",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2680749585",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "AnimaSean0724",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Glimmora",
+     "Metagross",
+     "Grimmsnarl",
+     "Simisear",
+     "Annihilape",
+     "Staraptor"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "Philly Turtles",
+   "date": "2026-09-13",
+   "turns": 8,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2683800982",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "Leafeon Main?",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Swampert",
+     "Politoed",
+     "Corviknight",
+     "Blastoise",
+     "Whimsicott",
+     "Jolteon"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "Leafeon Main?",
+   "date": "2026-09-13",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2683803895",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "Leafeon Main?",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Swampert",
+     "Politoed",
+     "Corviknight",
+     "Blastoise",
+     "Whimsicott",
+     "Jolteon"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-09-13",
+   "turns": 9,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2683806938",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "Leafeon Main?",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Swampert",
+     "Politoed",
+     "Corviknight",
+     "Blastoise",
+     "Whimsicott",
+     "Jolteon"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-09-13",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2685573072",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "Liebynight01",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Typhlosion-Hisui",
+     "Meowstic",
+     "Umbreon",
+     "Starmie"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-09-20",
+   "turns": 12,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2685575238",
+   "league": "scl",
+   "week": "Week 11",
+   "players": [
+    "Liebynight01",
+    "Tijerben000"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Mawile",
+     "Rotom-Wash",
+     "Typhlosion-Hisui",
+     "Meowstic",
+     "Umbreon",
+     "Starmie"
+    ]
+   ],
+   "winner": "Tijerben000",
+   "date": "2026-09-20",
+   "turns": 5,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2688661099",
+   "league": "scl",
+   "week": "Playoffs",
+   "players": [
+    "soupy36",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Aerodactyl"
+    ],
+    [
+     "Talonflame",
+     "Lycanroc-Dusk",
+     "Gardevoir",
+     "Garchomp",
+     "Empoleon",
+     "Delphox"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-09-27",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2688662463",
+   "league": "scl",
+   "week": "Playoffs",
+   "players": [
+    "soupy36",
+    "kirbyhat5"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Aerodactyl"
+    ],
+    [
+     "Talonflame",
+     "Lycanroc-Dusk",
+     "Gardevoir",
+     "Garchomp",
+     "Empoleon",
+     "Delphox"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-09-27",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2691886643",
+   "league": "scl",
+   "week": "Playoffs",
+   "players": [
+    "Fayz Sharpie",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Charizard",
+     "Aerodactyl",
+     "Raichu",
+     "Scrafty",
+     "Cofagrigus",
+     "Mamoswine"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-09-27",
+   "turns": 11,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2691890620",
+   "league": "scl",
+   "week": "Playoffs",
+   "players": [
+    "Fayz Sharpie",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Charizard",
+     "Aerodactyl",
+     "Raichu",
+     "Scrafty",
+     "Cofagrigus",
+     "Mamoswine"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Rhyperior"
+    ]
+   ],
+   "winner": "Fayz Sharpie",
+   "date": "2026-09-27",
+   "turns": 10,
+   "note": ""
+  }
+ ]
 }

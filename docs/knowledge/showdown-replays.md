@@ -82,6 +82,10 @@ Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond 
 - **Tested (2026-10-27):** all 62 ids missing from `site/sprites/gen5/` downloaded with the `spriteId` rule, none
   failed, including `aegislash-blade`, `enamorus-therian`, `sinistcha-masterpiece`, `keldeo-resolute`, `basculegion-f`,
   `charizard-megax`. To refill: collect species from `site/ppppp/games/` teams and switch/detailschange lines, fetch the missing.
+- **Tested (2026-10-28):** the Super Champions League's games (Champions VGC) needed 64 more; 60 saved (gen5 and ani),
+  but `dragalge-mega`, `eelektross-mega`, `pyroar-mega` and `staraptor-mega` (Megas new in Champions) are 404 in
+  `sprites/gen5/`, so they show initials. The replay JSON API answers 403 to Python's default User-Agent; any
+  User-Agent header (add_game.py sends `showdown-replay-stats`) gets 200.
 
 ## Offline move / Pokédex data (2026-10-26)
 - **Tested:** `site/data/moves.json` and `pokedex.json` were made from the `pokemon-showdown` npm package 0.11.11
