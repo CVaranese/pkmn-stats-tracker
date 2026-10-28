@@ -2,6 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Gambling tab: DEJIME has one row per Pokémon (Raging Bolt 7th, 6 games), no DEJIME17 rows. The records table comes from the bracket, so it was already right.
+- [ ] Main viewer error line when the hidden-Zoroark check fails: "<id>: the hidden Zoroark check failed (<reason>), so whatever it did is counted on the Pokémon it copied." and, when its data doesn't load, "<id>: the move / Pokédex data for the hidden Zoroark check didn't load (<reason>), so fewer stays are ruled out." Clear enough?
 - [ ] Stream-video games with errors (Games tab note "Stream video, errors"; Main viewer shows the text): is the wording clear, and is the Week 2 PeterPikmon vs ElkG ending (Skeledirge at 49%) a forfeit or a missing last KO?
 - [ ] Pokémon tab (`?tab=mons`): the season table (sort by clicking headers) and the detail above it when you click a Pokémon (season moves, its games). Right columns? Wide on small laptops: Best move / Luck scroll sideways. Phone width and touch sorting (first tap explains, second sorts) not checked.
 - [ ] Players tab (`?tab=players`): is this the season view you wanted? Won / Lost count saved games only (Karm shows 6-1, the bracket 7-1); names stay Showdown names (user, 2026-10-28). Season luck is the total over their games, so "Very lucky" means lucky across the season. azpmCloudburst's Dealt is in % (3156%) because one of their games has no HP figures. Phone width not checked.

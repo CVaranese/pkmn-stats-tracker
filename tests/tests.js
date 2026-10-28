@@ -282,6 +282,21 @@
 |turn|4
 |-start|p2a: Victim|perish0
 |faint|p2a: Victim`, [["p1: Burner", "passive", "p2: Victim"]]],
+    "salt cure again later: the second user gets the KO": [`
+|move|p1a: Burner|Salt Cure|p2a: Victim
+|-damage|p2a: Victim|80/100
+|-start|p2a: Victim|Salt Cure
+|turn|2
+|switch|p2a: Third|Charizard, L50|100/100
+|turn|3
+|switch|p2a: Victim|Garchomp, L50|80/100
+|turn|4
+|move|p1b: Rocker|Salt Cure|p2a: Victim
+|-damage|p2a: Victim|10/100
+|-start|p2a: Victim|Salt Cure
+|upkeep
+|-damage|p2a: Victim|0 fnt|[from] Salt Cure
+|faint|p2a: Victim`, [["p1: Rocker", "passive", "p2: Victim"]]],
   };
   for (const [name, [body, expected]] of Object.entries(CASES)) {
     const got = RS.parseBattle(HEAD + body.replace(/^\n/, "")).kills;
@@ -1218,6 +1233,17 @@ ${switchIn}`).hiddenZoroark;
   check("bet: two forms of one species drafted, only the exact one matches",
     (Bet.drafted(forms, "Ann", "Arcanine-Hisui") || {}).tier === "RU" && Bet.drafted(forms, "Ann", "Arcanine-Paldea") === null);
   check("bet: a player's other Showdown name finds their pool through aliases", (Bet.drafted(forms, "ANN17", "Sinistcha") || {}).tier === "RU");
+  const aliasRecs = Bet.records([{ players: ["Ann 17", "Bob"], winner: "Ann 17" }, { players: ["Ann", "Bob"], winner: "Bob" }], forms);
+  check("bet: records count a player's other Showdown name as them", aliasRecs.map((p) => `${p.id} ${p.wins}-${p.losses}`).join(", ") ===
+    "ann 1-1, bob 1-1", JSON.stringify(aliasRecs));
+  const aliasFan = Bet.fantasy([
+    { player: "Ann 17", pokemon: "Sinistcha", brought: 1, kills: 1, damage_dealt_pct: 0, survived: 0, won: 0 },
+    { player: "Ann", pokemon: "Sinistcha", brought: 1, kills: 1, damage_dealt_pct: 0, survived: 0, won: 0 },
+  ], forms);
+  check("bet: fantasy, one row per Pokémon across a player's Showdown names", aliasFan.length === 1 && aliasFan[0].games === 2,
+    JSON.stringify(aliasFan));
+  check("bet: playerKey, the draft name's ID for an alias, else the name's own",
+    Bet.playerKey(forms, "ANN17") === "ann" && Bet.playerKey(forms, "Bob B") === "bobb" && Bet.playerKey(null, "Ann 17") === "ann17");
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
   const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],
     Cy: [{ pokemon: "Gyarados" }, { pokemon: "Gyarados-Mega" }] } };

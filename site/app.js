@@ -324,9 +324,12 @@
     const b = RS.parseBattle(replay.log);
     const sides = Object.keys(b.illusion).filter((sd) => b.hiddenZoroark[sd]);
     replay.zoroarks = {};
+    delete replay.illusionNote;
     if (!sides.length) return;
     let learn = null, dex = null;
-    try { [learn, dex] = await Promise.all([Illusion.loadLearnsets(), TS.loadDex()]); } catch (e) { /* fewer checks */ }
+    try { [learn, dex] = await Promise.all([Illusion.loadLearnsets(), TS.loadDex()]); } catch (e) {
+      replay.illusionNote = `the move / Pokédex data for the hidden Zoroark check didn't load (${e.message || e}), so fewer stays are ruled out`;
+    }
     const lib = (library.find((g) => g.id === replay.id) || {}).illusion || {};
     const mine = ADMIN ? savedPicks()[replay.id] || {} : {};
     replay.illusion = {};
@@ -465,15 +468,15 @@
     await libraryReady;
     if (fantasyRows) return;
     fantasyRows = [];  // marks the tab as rendering, so a second click doesn't start it again
-    const saved = Bet.records(library);
-    const nameOf = (p) => (saved.find((r) => r.id === TS.toID(p)) || { name: p }).name;  // one spelling per player
+    await loadDraft();  // aliases: a player's other Showdown names (DEJIME17) count as them
+    const saved = Bet.records(library, draft);
     // the bracket's records (tools/challonge_records.py); without them, the games saved here
     let bracket = null;
     // "no-cache": ask the server each time, so a new draft or record shows without waiting out the 10-minute browser cache
     try { bracket = await (await fetch("games/records.json", { cache: "no-cache" })).json(); } catch (e) { /* not there */ }
     const recs = bracket ? bracket.players : saved;
     simpleTable($("bet-ranks"), [["Player", ""], ["Won", "num"], ["Lost", "num"]],
-      recs.map((p) => [[p.name, ""], [String(p.wins), "num"], [String(p.losses), "num"]]));
+      recs.map((p) => [[bracket ? p.name : shownName(p.name), ""], [String(p.wins), "num"], [String(p.losses), "num"]]));
     $("bet-records-note").textContent = bracket
       ? `From the bracket (Swiss rounds), ${bracket.updated}.`
       : `From the ${library.length} games saved here. The full bracket is under Games.`;
@@ -497,7 +500,7 @@
       Bet.fantasy(fantasyRows, draft).slice(0, 20).map((f) => {
         const mon = el("span", "bet-mon");
         mon.append(sprite(f.pokemon, ["gen5/"], "tiny"), f.pokemon);
-        return [[mon, ""], [nameOf(f.player), ""], [f.tier || "–", ""], [f.cost ? String(f.cost) : "–", "num"], [String(f.games), "num"],
+        return [[mon, ""], [shownName(f.player), ""], [f.tier || "–", ""], [f.cost ? String(f.cost) : "–", "num"], [String(f.games), "num"],
           [String(f.kills), "num"], [typeof f.damageHp === "number" ? (f.damageHpEst ? "~" : "") + f.damageHp + " HP" : pct(f.damage), "num"], [f.points.toFixed(1), "num"], [f.perGame.toFixed(1), "num"],
           [f.perCost ? f.perCost.toFixed(1) : "–", "num"]];
       }));
@@ -916,7 +919,11 @@
     }
 
     rows = [];
-    await Promise.all(results.map((r) => prepareIllusion(r).catch(() => {})));
+    await Promise.all(results.map((r) => prepareIllusion(r).catch((e) => {
+      delete r.zoroarks;  // try again on the next run
+      errors.push(`${r.id}: the hidden Zoroark check failed (${e.message || e}), so whatever it did is counted on the Pokémon it copied.`);
+    })));
+    for (const r of results) if (r && r.illusionNote) errors.push(`${r.id}: ${r.illusionNote}.`);
     for (const replay of results) {
       if (!replay) continue;
       try {
@@ -1460,10 +1467,7 @@
     }
     RS.addDamageHp(rows);
   }
-  function playerKey(name) {
-    const alias = draft && Object.entries(draft.aliases || {}).find(([a]) => TS.toID(a) === TS.toID(name));
-    return TS.toID(alias ? alias[1] : name);
-  }
+  function playerKey(name) { return Bet.playerKey(draft, name); }
   function addToPool(pool, player, gameId, sets) {
     const k = playerKey(player);
     if (!pool.has(k)) pool.set(k, []);

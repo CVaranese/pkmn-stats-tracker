@@ -4,12 +4,19 @@
   "use strict";
   const toID = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
+  /** A player's ID: their draft name's when the name is one of their other Showdown names (draft.aliases,
+      {"DEJIME17": "DEJIME"}), else the name's own. Case and spaces never matter. */
+  function playerKey(draft, name) {
+    const alias = draft && Object.entries(draft.aliases || {}).find(([a]) => toID(a) === toID(name));
+    return toID(alias ? alias[1] : name);
+  }
+
   /** Win-loss records from library games ({players, winner}): [{id, name, wins, losses}], most wins first.
-      Names ignore case and spaces, spelled as first seen. */
-  function records(games) {
+      Names ignore case and spaces, spelled as first seen; with a draft, a player's other Showdown names count as them. */
+  function records(games, draft = null) {
     const byId = new Map();
     const get = (name) => {
-      const id = toID(name);
+      const id = playerKey(draft, name);
       if (!byId.has(id)) byId.set(id, { id, name, wins: 0, losses: 0 });
       return byId.get(id);
     };
@@ -25,8 +32,7 @@
       A player's other Showdown names map to their draft name through draft.aliases ({"DEJIME17": "DEJIME"}). */
   function drafted(draft, player, pokemon) {
     if (!draft || !draft.players) return null;
-    const alias = Object.entries(draft.aliases || {}).find(([a]) => toID(a) === toID(player));
-    const name = toID(alias ? alias[1] : player);
+    const name = playerKey(draft, player);
     const pool = Object.entries(draft.players).find(([p]) => toID(p) === name);
     if (!pool) return null;
     const id = toID(pokemon);
@@ -54,7 +60,7 @@
     const by = new Map();
     for (const r of rows) {
       if (!r.brought) continue;
-      const key = toID(r.player) + "|" + r.pokemon;
+      const key = playerKey(draft, r.player) + "|" + r.pokemon;
       if (!by.has(key)) by.set(key, { pokemon: r.pokemon, player: r.player, games: 0, kills: 0, damage: 0, damageHp: 0, damageHpEst: false, survived: 0, wins: 0 });
       const f = by.get(key);
       f.games++;
@@ -78,7 +84,7 @@
     return [...by.values()].sort((a, b) => b.points - a.points || b.kills - a.kills || a.pokemon.localeCompare(b.pokemon));
   }
 
-  const Bet = { SCORING, records, drafted, megaName, fantasy };
+  const Bet = { SCORING, playerKey, records, drafted, megaName, fantasy };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);

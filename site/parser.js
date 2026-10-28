@@ -667,8 +667,11 @@
         let effect = parts[2] ? norm(parts[2]) : "";
         if (effect.startsWith("perish")) effect = "perish";
         const src = "of" in tags ? stintOf(tags.of) : mover;
+        // a -start (or a line naming its source) begins the effect again: its new user, not an earlier one (the
+        // effect ended unlogged on a switch-out). Perish Song's countdown lines (perish2..0) keep the singer.
+        const fresh = (cmd === "-start" && !/^perish[0-2]$/.test(norm(parts[2]))) || "of" in tags;
         if (cmd === "-activate" && effect === "destinybond") destinyBond = stintOf(parts[1]);
-        else if (src && !effectSrc.has(target + "|" + effect)) effectSrc.set(target + "|" + effect, src);
+        else if (src && (fresh || !effectSrc.has(target + "|" + effect))) effectSrc.set(target + "|" + effect, src);
       } else if (cmd === "-sidestart") {
         const side = parts[1].slice(0, 2), hazard = norm(parts[2]);
         hazardSrc.set(side + "|" + hazard, mover);
