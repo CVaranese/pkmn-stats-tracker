@@ -36,10 +36,21 @@
       <button data-mode="players" type="button">Players</button>
       <button data-mode="mons" type="button">Pokémon</button>
       <button data-mode="many" type="button">Playoffs</button>
-      <button data-mode="bet" type="button">Gambling</button>
+      <button data-mode="fantasy" type="button">Fantasy</button>
+      <button data-mode="gamble" type="button">Gambling</button>
     </nav>
 
-    <section id="gambling" class="gambling" hidden>
+    <section id="gamble" class="tab-page" hidden>
+      <div class="soon">
+        <p class="soon-tag">Under construction</p>
+        <h2 class="section-title">The back room</h2>
+        <p>Nothing to see here. Yet.</p>
+        <p>Something is being set up for the playoffs. Bring a hunch about the bracket. Maybe a feeling about crits.</p>
+        <p class="muted">No real money, ever. Fantasy points and draft costs moved to the Fantasy tab.</p>
+      </div>
+    </section>
+
+    <section id="fantasy" class="tab-page" hidden>
       <p class="hint">Fantasy points from every league game so far, so this tab gives results away. Nothing here takes real bets.</p>
       <h2 class="section-title">Fantasy points</h2>
       <p class="hint" id="bet-scoring"></p>
@@ -51,7 +62,7 @@
       <div class="table-wrap bet-table"><table id="bet-ranks"></table></div>
     </section>
 
-    <section id="mons" class="gambling" hidden>
+    <section id="mons" class="tab-page" hidden>
       <p class="hint">Every Pokémon brought in the league games saved here, added up over the season, so this tab gives results away. Find one by name or player, or click a column name to sort and a Pokémon in the list to show its moves and games here.</p>
       <label for="mon-find">Find a Pokémon</label>
       <input type="text" id="mon-find" class="mon-find" autocomplete="off" spellcheck="false" enterkeyhint="go"
@@ -62,6 +73,7 @@
       <div id="mon-detail" hidden>
         <h2 class="section-title" id="mon-name"></h2>
         <div id="mon-moves"></div>
+        <div id="mon-kos" class="mon-kos"></div>
         <h2 class="section-title">Its games</h2>
         <div class="table-wrap"><table id="mon-games"></table></div>
       </div>
@@ -69,15 +81,37 @@
       <div class="table-wrap"><table id="mon-table" class="sortable"></table></div>
     </section>
 
-    <section id="players" class="gambling" hidden>
+    <section id="players" class="tab-page" hidden>
       <p class="hint">Every league game saved here, added up per player, so this tab gives results away. Won / Lost count the saved games only; the bracket under Games has every result.</p>
+      <div class="pl-bar">
+        <div class="tabs" id="pl-views">
+          <button data-plview="standings" aria-current="true" type="button">Standings</button>
+          <button data-plview="h2h" type="button">Head-to-head</button>
+          <button data-plview="kos" type="button">KO matrix</button>
+        </div>
+        <label class="inline">Weeks <select id="pl-week"><option value="">All weeks</option></select></label>
+      </div>
       <p class="muted" id="pl-status"></p>
-      <div class="table-wrap"><table id="pl-table"></table></div>
+      <div id="pl-standings">
+      <div class="table-wrap"><table id="pl-table" class="sortable"></table></div>
       <div id="pl-detail" hidden>
         <h2 class="section-title" id="pl-name"></h2>
         <div class="table-wrap"><table id="pl-games"></table></div>
         <h2 class="section-title">Pokémon</h2>
         <div class="table-wrap"><table id="pl-mons"></table></div>
+      </div>
+      </div>
+      <div id="pl-h2h" hidden>
+        <p class="hint">Two players side by side: their games against each other, then both seasons.</p>
+        <div class="pl-bar">
+          <label class="inline">Player <select id="h2h-a"></select></label>
+          <label class="inline">Against <select id="h2h-with"></select></label>
+        </div>
+        <div id="h2h-out" class="h2h"></div>
+      </div>
+      <div id="pl-kos-view" hidden>
+      <p class="hint">Who KO'd whom: each number is how many of the column player's Pokémon the row player's Pokémon knocked out. Hover (or tap) a number for which ones.</p>
+      <div class="table-wrap"><table id="pl-kos" class="ko-matrix"></table></div>
       </div>
     </section>
 
@@ -209,7 +243,7 @@
   <script src="app/games.js"></script>
   <script src="app/season.js"></script>
   <script src="app/zoroark.js"></script>
-  <script src="app/gambling.js"></script>
+  <script src="app/fantasy.js"></script>
   <script src="app/players.js"></script>
   <script src="app/mons.js"></script>
   <script src="app/sheets.js"></script>

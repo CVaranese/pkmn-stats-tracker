@@ -122,12 +122,33 @@ button.small { padding: 4px 10px; font-size: 13px; }
 
 .results { margin-top: 24px; }
 
-/* main tabs: Main viewer, Games, Players, Playoffs, Gambling */
+/* main tabs: Main viewer, Games, Players, Pokémon, Playoffs, Fantasy, Gambling */
 .modes { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--outline); }
 .modes button { border: 2px solid transparent; border-bottom: 0; border-radius: 6px 6px 0 0; margin-bottom: -2px;
   background: transparent; padding: 8px 16px; font-weight: 600; color: var(--muted); }
-.gambling { padding: 8px 0 24px; }
-.gambling .section-title { margin-top: 22px; }
+.tab-page { padding: 8px 0 24px; }
+/* Players: sub-tabs (Standings / Head-to-head / KO matrix) and the Weeks picker on one line */
+.pl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 4px 0 8px; }
+/* head-to-head: the games list, then the two seasons side by side */
+.h2h { margin-top: 10px; }
+.h2h-sub { margin: 16px 0 8px; font-size: 15px; }
+.h2h-table { max-width: 560px; }
+td.ko-list { font-size: 13px; }
+/* Pokémon tab: who it knocked out, and who knocked it out, as buttons */
+.mon-kos { margin-top: 10px; }
+.ko-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0; }
+/* KO matrix: player x player, numbers only; a number has its list as a title */
+.ko-matrix th:not(:first-child) { font-size: 12px; max-width: 90px; white-space: normal; text-align: right; }
+.ko-cell { cursor: help; text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
+.tab-page .section-title { margin-top: 22px; }
+/* Gambling, not built yet: one box with the header's black-and-white stripe along its top */
+.soon { max-width: 640px; margin-top: 8px; padding: 0 18px 14px; border: 2px solid var(--outline); border-radius: 8px;
+  background: var(--surface); overflow: hidden; }
+.soon::before { content: ""; display: block; height: 10px; margin: 0 -18px 14px;
+  background: repeating-linear-gradient(-45deg, #1c1c1a 0 12px, var(--porcelain) 12px 24px); }
+.soon .section-title { margin-top: 4px; }
+.soon-tag { display: inline-block; margin: 0; padding: 2px 8px; border-radius: 3px; font-size: 13px; font-weight: 600;
+  background: var(--accent); color: var(--accent-text); }
 .bet-table { max-width: 360px; }
 .bet-mon { display: inline-flex; align-items: center; gap: 8px; }
 /* Pokémon tab search: the box, then its matches as a row of buttons */

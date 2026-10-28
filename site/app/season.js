@@ -1,4 +1,4 @@
-/* Every saved league game's rows, loaded once for Players, Pokémon and Gambling; the draft (aliases, Megas, costs). */
+/* Every saved league game's rows, loaded once for Players, Pokémon and Fantasy; the draft (aliases, Megas, costs). */
 "use strict";
 
 let draft = null;        // site/games/draft.json: each player's drafted Pokémon and tiers
@@ -14,7 +14,7 @@ function megaNames(rs) {
   const league = new Set(library.map((g) => g.id));
   for (const r of rs) r.pokemon = Bet.megaName(draft, r, league.has(r.replay_id));
 }
-/** Every library game's rows, loaded once for Gambling and Players: saved sheets, else guessed max HP (same as
+/** Every library game's rows, loaded once for Fantasy and Players: saved sheets, else guessed max HP (same as
     Main viewer; stays in % if the Pokédex won't load), luck when the move data loads. Also loads the draft. */
 let leagueRows = null;
 function loadLeague() {
@@ -45,7 +45,7 @@ function loadLeague() {
     return all;
   })());
 }
-/** Forget everything counted from the league games (a Zoroark pick changed one), so Gambling, Players and
+/** Forget everything counted from the league games (a Zoroark pick changed one), so Fantasy, Players and
     Pokémon count again on their next visit. Every cache built from loadLeague goes here. */
 function invalidateLeague() {
   leagueRows = null;

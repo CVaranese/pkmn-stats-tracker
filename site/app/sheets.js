@@ -7,7 +7,7 @@ let savedSheets = [];
 const sheetsOf = (id) => (library.find((g) => g.id === id) || {}).sheets || [];
 // every saved sheet, parsed, by player ID (draft aliases resolved): for guessing max HP in their other games
 let mockPoolLoad = null;  // the load itself, so two callers at once share it
-const mockSheets = [];  // [{ gameId, sets }]: the same sheets, per game (the Gambling tab matches them itself)
+const mockSheets = [];  // [{ gameId, sets }]: the same sheets, per game (the Fantasy tab matches them itself)
 function loadMockPool() {
   return mockPoolLoad || (mockPoolLoad = readMockSheets());
 }

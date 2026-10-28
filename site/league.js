@@ -36,6 +36,19 @@
     return { z: sd > 0 ? round2(total / sd) : 0, total: round2(total), sd: round2(sd), games: v.length };
   }
 
+  /** Who KO'd whom: [{ killer, victim }] game rows, from each row's kos_dealt (the victims' mon keys in that game). */
+  function koPairs(rows) {
+    const byKey = new Map(rows.filter((r) => r.mon_key).map((r) => [r.replay_id + "|" + r.mon_key, r]));
+    const out = [];
+    for (const r of rows) {
+      for (const v of r.kos_dealt || []) {
+        const victim = byKey.get(r.replay_id + "|" + v);
+        if (victim) out.push({ killer: r, victim });
+      }
+    }
+    return out;
+  }
+
   /** Share of a normal at or below z (Abramowitz-Stegun 7.1.26, error under 2e-7): how often luck comes out this
       low or lower. */
   function normalCdf(z) {
@@ -85,7 +98,7 @@
     return toID(base) + (parts.length ? "-" + toID(parts.join("")) : "");
   }
 
-  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, seasonMoves, dealtKey, bestMove, spriteId };
+  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

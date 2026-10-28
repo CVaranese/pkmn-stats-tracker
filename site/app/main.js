@@ -364,7 +364,7 @@ function currentTable() {
   return { fields, data, numeric };
 }
 function render() {
-  for (const tab of document.querySelectorAll(".tabs button")) {
+  for (const tab of document.querySelectorAll("#results .tabs button")) {
     markCurrent(tab, tab.dataset.view === view);
   }
   $("group-wrap").hidden = mode === "one" || view !== "summary";

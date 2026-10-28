@@ -944,6 +944,8 @@
             a.source - b.source || b.dealt_pct - a.dealt_pct || b.kos - a.kos || b.uses - a.uses),
           rolls: b.rolls, // the whole game's, shared by its rows
           heals_given: b.heals.filter(([h, t]) => h && h === key && t !== key).map(([, t, pct]) => [t, pct]),
+          // the mon keys of the Pokemon it KO'd (direct or passive, as counted in kills): who KO'd whom
+          kos_dealt: b.kills.filter(([k, kind, v]) => k && k === key && v && (kind === "direct" || kind === "passive")).map(([, , v]) => v),
         };
       };
       for (const sp of b.preview[side] || []) {

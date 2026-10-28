@@ -117,6 +117,11 @@
     const off = rows.filter((r) => r.brought && Math.abs(r.move_stats.reduce((t, m) => t + m.dealt_pct, 0) - r.damage_dealt_pct) > 0.05 ||
       r.move_stats.reduce((t, m) => t + m.kos, 0) !== r.kills).map((r) => r.pokemon);
     check("moves: per-move damage and KOs add up to Dealt % and Kills", off.length === 0, JSON.stringify(off));
+    const koOff = rows.filter((r) => (r.kos_dealt || []).length !== r.kills).map((r) => r.pokemon);
+    check("kos_dealt: one victim per kill", koOff.length === 0, JSON.stringify(koOff));
+    const pairs = window.League.koPairs(rows);
+    check("koPairs: every kill finds its victim, a Pokémon that fainted", pairs.length === rows.reduce((t, r) => t + r.kills, 0) &&
+      pairs.length > 0 && pairs.every((p) => p.victim.deaths > 0), JSON.stringify(pairs.map((p) => [p.killer.pokemon, p.victim.pokemon])));
   }
   {
     const b = RS.parseBattle(`|player|p1|Alice|
@@ -1270,7 +1275,7 @@ ${switchIn}`).hiddenZoroark;
     RS.toTsv(["a", "b"], formula) === "a\tb\r\n'+2 Atk\t-0.25\r\n'=1+1\t'@x\r\n", JSON.stringify(RS.toTsv(["a", "b"], formula)));
   check("tsv strips tabs", RS.toTsv(["a"], [{ a: "x\ty" }]) === "a\r\nx y\r\n");
 
-  // ---- Gambling tab (bet.js) ----
+  // ---- Fantasy tab (bet.js) ----
   const recs = Bet.records([
     { players: ["Ann", "Bob"], winner: "ann" },
     { players: ["Bob", "Cy"], winner: "Bob" },

@@ -1,8 +1,8 @@
-/* Gambling tab (bet.js): records and Pokémon fantasy points with draft costs. */
+/* Fantasy tab (mode "fantasy", bet.js): records and Pokémon fantasy points with draft costs. */
 "use strict";
 
 let fantasyRows = null;  // every library game's rows, loaded the first time the tab opens
-async function renderGambling() {
+async function renderFantasy() {
   await libraryReady;
   if (fantasyRows) return;
   fantasyRows = [];  // marks the tab as rendering, so a second click doesn't start it again

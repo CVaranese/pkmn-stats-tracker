@@ -3,6 +3,7 @@
 
 let mons = null;  // [summary fields + { rows, players, moves, best }], most games first
 let monPicked = "";
+let monKos = [];  // koPairs over the season: who KO'd whom
 let monWanted = "";  // asked for by a link (?mon=, the game viewer) before the tab had loaded
 // search text: letters and digits only, no accents or case ("Iron-Valiant" and "ironval" match)
 const findKey = (s) => s.normalize("NFD").replace(/[^a-z0-9]/gi, "").toLowerCase();
@@ -13,6 +14,7 @@ async function renderMons() {
   $("mon-status").textContent = "Loading games…";
   const all = (await loadLeague()).filter((r) => r.brought);
   const nameOf = shownName;
+  monKos = koPairs(all);
   mons = RS.summarize(all, false).map((m) => {
     const rows = all.filter((r) => r.pokemon === m.pokemon);
     const moves = seasonMoves(rows);
@@ -90,6 +92,25 @@ function pickMon(name, follow = true) {
   if (follow) replaceNav();
   $("mon-detail").scrollIntoView({ block: "start" });
 }
+/** "Knocked out: [Garchomp ×2] [Latios]": the other Pokémon as buttons that open them, most often first. */
+function koLine(label, others, m) {
+  const line = el("p", "ko-line");
+  line.append(el("span", "stat-label", label + " "));
+  const by = new Map();
+  for (const r of others) {
+    const k = r.pokemon + "|" + m.nameOf(r.player);
+    by.set(k, { pokemon: r.pokemon, owner: m.nameOf(r.player), n: ((by.get(k) || {}).n || 0) + 1 });
+  }
+  const list = [...by.values()].sort((a, b) => b.n - a.n || a.pokemon.localeCompare(b.pokemon));
+  if (!list.length) line.append(el("span", "muted", "none"));
+  for (const o of list) {
+    const b = Object.assign(el("button", "small mon-match"), { type: "button", title: `${o.pokemon} (${o.owner})` });
+    b.append(sprite(o.pokemon, ["gen5/"], "tiny"), el("span", "", o.pokemon + (o.n > 1 ? ` ×${o.n}` : "")));
+    b.addEventListener("click", () => pickMon(o.pokemon));
+    line.append(b);
+  }
+  return line;
+}
 /** One Pokémon's season moves and its games (player, opponent, result, kills, damage), under the Pokémon table. */
 function showMon(name) {
   const m = mons.find((x) => x.pokemon === name);
@@ -101,6 +122,8 @@ function showMon(name) {
   head.append(sprite(m.pokemon, ["gen5/"], "small"), m.pokemon);
   $("mon-name").replaceChildren(head);
   $("mon-moves").replaceChildren(moveList({ move_stats: m.moves }, m.best));
+  $("mon-kos").replaceChildren(koLine("Knocked out", monKos.filter((k) => k.killer.pokemon === name).map((k) => k.victim), m),
+    koLine("Knocked out by", monKos.filter((k) => k.victim.pokemon === name).map((k) => k.killer), m));
   simpleTable($("mon-games"), [["Week", ""], ["Player", ""], ["Opponent", ""], ["Result", ""], ["Kills", "num", DESCRIPTIONS.kills],
     ["Dealt", "num", DESCRIPTIONS.damage_dealt_hp], ["Taken", "num", DESCRIPTIONS.damage_taken_hp], ["Survived", "", "Still standing at the end."],
     ["Best move", "", "The move that did the most damage that game (ties: more KOs)."], ["", ""]],

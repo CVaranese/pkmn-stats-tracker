@@ -5,7 +5,7 @@
 const RS = window.ReplayStats;
 const TS = window.TeamSheets;
 const LK = window.Luck;
-const { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, seasonMoves, dealtKey, bestMove, spriteId } = window.League;
+const { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId } = window.League;
 const $ = (id) => document.getElementById(id);
 // served from this computer: no requests to Showdown at all (replays only from site/games/, move / Pokedex data from
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
@@ -100,23 +100,26 @@ const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], haz
 // Main viewer (one game, the default) or Playoffs (several games); each has its own input, remembered separately
 let mode = "one";
 const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
-const activeIds = () => (mode === "bet" || mode === "games" || mode === "players" || mode === "mons" ? [] :
+// tabs with no link box: their own views over the saved league games (gamble: Gambling, still a "coming soon" page)
+const NO_INPUT_TABS = ["fantasy", "gamble", "games", "players", "mons"];
+const activeIds = () => (NO_INPUT_TABS.includes(mode) ? [] :
   RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
 function setMode(m, load = true) {
   mode = m;
   try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
   for (const tab of document.querySelectorAll(".modes [data-mode]")) markCurrent(tab, tab.dataset.mode === m);
-  // phones scroll the tab row sideways: keep the selected tab in sight (e.g. a ?tab=bet link)
+  // phones scroll the tab row sideways: keep the selected tab in sight (e.g. a ?tab=fantasy link)
   const current = document.querySelector('.modes [aria-current="true"]');
   if (current) {
     const nav = current.parentNode;
     const right = current.getBoundingClientRect().right - nav.getBoundingClientRect().left + nav.scrollLeft;
     nav.scrollLeft = Math.max(0, right - nav.clientWidth + 28);
   }
-  const noInputs = m === "bet" || m === "games" || m === "players" || m === "mons";
+  const noInputs = NO_INPUT_TABS.includes(m);
   $("one-input").hidden = m !== "one";
   $("many-input").hidden = m !== "many";
-  $("gambling").hidden = m !== "bet";
+  $("fantasy").hidden = m !== "fantasy";
+  $("gamble").hidden = m !== "gamble";
   $("players").hidden = m !== "players";
   $("mons").hidden = m !== "mons";
   $("library").hidden = m !== "games";
@@ -131,7 +134,7 @@ function setMode(m, load = true) {
   $("warnings").hidden = true;
   $("status").textContent = "";
   if (load && activeIds().length) run();
-  if (m === "bet") renderGambling();
+  if (m === "fantasy") renderFantasy();
   if (m === "players") renderPlayers();
   if (m === "mons") renderMons();
 }

@@ -12,7 +12,9 @@ try { savedSheets = JSON.parse(localStorage.getItem(SHEETS_KEY) || "[]"); } catc
 for (const text of savedSheets) addSheetBox(text);
 $("add-sheet").addEventListener("click", () => addSheetBox("").querySelector("textarea").focus());
 $("run").addEventListener("click", run);
-try { mode = ["many", "games", "players", "mons", "bet"].includes(localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : "one"; } catch (e) { /* storage blocked */ }
+// "bet": the Fantasy tab's old name (saved tab, old ?tab=bet links)
+const tabName = (t) => (t === "bet" ? "fantasy" : t);
+try { mode = ["many", ...NO_INPUT_TABS].includes(tabName(localStorage.getItem(MODE_KEY))) ? tabName(localStorage.getItem(MODE_KEY)) : "one"; } catch (e) { /* storage blocked */ }
 try { $("one-link").value = localStorage.getItem(ONE_KEY) || ""; } catch (e) { /* storage blocked */ }
 $("one-link").addEventListener("input", () => {
   try { localStorage.setItem(ONE_KEY, $("one-link").value); } catch (e) { /* storage blocked */ }
@@ -105,7 +107,7 @@ $("clear").addEventListener("click", () => {
   $("warnings").hidden = true;
   $("status").textContent = "";
 });
-for (const tab of document.querySelectorAll(".tabs button")) {
+for (const tab of document.querySelectorAll("#results .tabs button")) {
   tab.addEventListener("click", () => {
     view = tab.dataset.view;
     sort = view === "summary" ? { field: "kills", dir: -1 } : { field: "", dir: 1 };  // Per game: the games' own order
@@ -140,8 +142,8 @@ if (shared.length === 1) $("one-link").value = linkFor(shared[0]);
 else if (shared.length) $("links").value = shared.map(linkFor).join("\n");
 if (shared.length) activeInput().dispatchEvent(new Event("input"));
 // ?tab=games (or many / bet) opens that tab, e.g. a link to the game list
-const tabParam = params.get("tab");
-if (["one", "games", "players", "mons", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
+const tabParam = tabName(params.get("tab"));
+if (["one", "many", ...NO_INPUT_TABS].includes(tabParam) && !shared.length) mode = tabParam;
 setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
 // ?tab=players&player=<key> / ?tab=mons&mon=<name>: that player or Pokémon picked (links from the game viewer)
 if (mode === "players" && params.get("player")) wantPlayer(params.get("player"));
