@@ -35,7 +35,8 @@
     // singles, no team preview; Dondozo's Wave Crash recoil -> passive kill for Galvantula
     "gen9randombattle-2704944065": { rows: 10, winner: "Stolemyusername", mons: {
       "Stolemyusername|Pelipper": [4, 0, 0], "Stolemyusername|Dunsparce": [1, 0, 0],
-      "Stolemyusername|Galvantula": [0, 1, 1], "Stolemyusername|Blissey": [0, 0, 0],
+      // Dondozo's recoil KO: no kill since 2026-10-27 (was Galvantula's passive kill as the last attacker)
+      "Stolemyusername|Galvantula": [0, 0, 1], "Stolemyusername|Blissey": [0, 0, 0],
       "Blattur|Dondozo": [1, 0, 1], "Blattur|Glimmora": [0, 0, 1], "Blattur|Gouging Fire": [0, 0, 1],
       "Blattur|Iron Jugulis": [0, 0, 1], "Blattur|Moltres-Galar": [0, 0, 1], "Blattur|Zekrom": [0, 0, 1] } },
     // Nat Dex (the league's format); 7-hit Population Bomb KOs, then p1 loses to the timer
@@ -215,14 +216,22 @@
 |upkeep
 |-damage|p2b: Other|0 fnt|[from] Sandstorm
 |faint|p2b: Other`, [["p1: Rocker", "passive", "p2: Other"]]],
-    "life orb recoil -> last opposing attacker": [`
+    "life orb recoil -> no kill, a self KO (user, 2026-10-27)": [`
 |move|p1a: Burner|Foul Play|p2a: Victim
 |-damage|p2a: Victim|5/100
 |turn|2
 |move|p2a: Victim|Earthquake|p1b: Rocker
 |-damage|p1b: Rocker|50/100
 |-damage|p2a: Victim|0 fnt|[from] item: Life Orb
-|faint|p2a: Victim`, [["p1: Burner", "passive", "p2: Victim"]]],
+|faint|p2a: Victim`, [[null, "self", "p2: Victim"]]],
+    "recoil -> no kill, a self KO": [`
+|move|p1a: Burner|Foul Play|p2a: Victim
+|-damage|p2a: Victim|5/100
+|turn|2
+|move|p2a: Victim|Steel Beam|p1b: Rocker
+|-damage|p1b: Rocker|50/100
+|-damage|p2a: Victim|0 fnt|[from] Recoil
+|faint|p2a: Victim`, [[null, "self", "p2: Victim"]]],
     "ally spread move -> last opposing attacker": [`
 |move|p1b: Rocker|Earthquake|p2a: Victim|[spread] p2a,p2b
 |-damage|p2b: Other|40/100
@@ -248,7 +257,7 @@
 |-damage|p1a: Burner|0 fnt
 |-damage|p1b: Rocker|40/100
 |faint|p1a: Burner
-|faint|p2b: Other`, [["p2: Other", "direct", "p1: Burner"], [null, "none", "p2: Other"]]],
+|faint|p2b: Other`, [["p2: Other", "direct", "p1: Burner"], [null, "self", "p2: Other"]]],
     "leech seed": [`
 |move|p2b: Other|Leech Seed|p1b: Rocker
 |-start|p1b: Rocker|move: Leech Seed

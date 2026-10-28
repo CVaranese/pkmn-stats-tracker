@@ -24,7 +24,7 @@
   const LABELS = {
     replay_id: "Replay", date: "Date", format: "Format", player: "Player", opponent: "Opponent",
     won: "Won", end_reason: "Ended by", turns: "Turns", pokemon: "Pokémon", nickname: "Nickname", brought: "Brought", kills: "Kills",
-    direct_kills: "Direct", passive_kills: "Passive", deaths: "Deaths", replay_url: "Link",
+    direct_kills: "Direct", passive_kills: "Passive", deaths: "Deaths", self_kos: "Self KOs", replay_url: "Link",
     games_brought: "Games", wins_when_brought: "Wins", kills_per_game: "Kills / game",
     max_hp: "Max HP", item: "Item", ability: "Ability", moves: "Moves",
     damage_dealt_pct: "Dealt %", damage_taken_pct: "Taken %", damage_dealt_hp: "Dealt HP", damage_taken_hp: "Taken HP",
@@ -50,7 +50,8 @@
     brought: "Whether it was brought to the battle (not just shown at team preview).",
     kills: "Opponents it KO'd: direct + passive.", direct_kills: "KOs from its own attacks (spread KOs count each; Destiny Bond counts).",
     passive_kills: "KOs from indirect damage it caused: burn, poison, hazards, weather, Leech Seed, Rocky Helmet…",
-    deaths: "Times it fainted (still standing at a forfeit doesn't count).", replay_url: "Link to the replay.",
+    deaths: "Times it fainted (still standing at a forfeit doesn't count).",
+    self_kos: "Times it knocked itself out: recoil, Life Orb, Explosion, Memento, Final Gambit, Healing Wish. Nobody gets the kill.", replay_url: "Link to the replay.",
     games_brought: "Games it was brought to.", wins_when_brought: "Games won when it was brought.",
     kills_per_game: "Kills divided by games brought.",
     max_hp: "Max HP from the team sheet.", item: "Item from the team sheet.", ability: "Ability from the team sheet.", moves: "Moves from the team sheet.",

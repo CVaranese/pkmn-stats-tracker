@@ -7,10 +7,11 @@
  *   passive  indirect damage credited to whoever caused it: burn/poison (who inflicted it),
  *            Leech Seed, Salt Cure, Curse, binding moves, hazards (who set them), weather
  *            (who set it), Rocky Helmet / Rough Skin / Iron Barbs, Perish Song.
- *   fallback if the KO's cause is the fainted Pokemon itself or its own team (recoil, Life Orb,
- *            confusion, own weather, an ally's spread move...), the last opposing Pokemon that
- *            damaged it gets a passive kill. If no opponent ever damaged it, nobody gets a kill.
- *   self-KO  Explosion / Memento / Final Gambit / Healing Wish: a death, no kill.
+ *   fallback if the KO's cause is the fainted Pokemon's own team (confusion, own weather, an
+ *            ally's spread move...), the last opposing Pokemon that damaged it gets a passive kill.
+ *            If no opponent ever damaged it, nobody gets a kill.
+ *   self-KO  recoil, Life Orb (user, 2026-10-27), Explosion / Memento / Final Gambit / Healing
+ *            Wish: a death and a self_kos count, no kill.
  *   forfeit  Pokemon left standing after a forfeit are not counted as deaths.
  *
  * Hazards: hazard_damage_pct is the part of damage_dealt_pct done by Stealth Rock / Spikes /
@@ -79,6 +80,11 @@
   const sideOf = (key) => key.slice(0, 2);
 
   /** 'move: Leech Seed' / 'Leech Seed' / 'leechseed' -> 'leechseed'. */
+  // a faint caused by its own recoil / Life Orb, or by a move that faints its user: no kill (kind "self")
+  const SELF_KO_DAMAGE = new Set(["recoil", "lifeorb", "mindblown", "steelbeam", "chloroblast"]); // the last three: own HP cut
+  const SELF_KO_MOVES = new Set(["explosion", "selfdestruct", "mistyexplosion", "memento", "finalgambit", "healingwish",
+    "lunardance"]);
+
   function norm(effect) {
     return String(effect).trim().replace(/^(move|ability|item):\s*/i, "")
       .toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -110,7 +116,7 @@
   const COUNTS = ["direct", "passive", "deaths", "hazardKills", "hazardsSet", "hazardsRemoved",
     "switches", "pivots", "forcedOut", "faintSwitchIns",
     "crits", "critsTaken", "misses", "dodges", "fullParas", "sleepTurns", "flinched", "confusionHits", "procs",
-    "turnsOnField", "koBeforeMoving"];
+    "turnsOnField", "koBeforeMoving", "selfKos"];
   const zeroCounts = () => Object.fromEntries(COUNTS.map((f) => [f, 0]));
   const NO_DAMAGE = { dealt: 0, taken: 0, hazard: 0 };
   const NO_HEALING = { self: 0, given: 0 };
@@ -621,7 +627,7 @@
         }
         if (source && source.side !== sideOf(target)) lastOppHit.set(target, source);
         if ((parts[2] || "").startsWith("0")) {
-          const [killer, k] = credit(target, source, kind);
+          const [killer, k] = "from" in tags && SELF_KO_DAMAGE.has(norm(tags.from)) ? [null, "self"] : credit(target, source, kind);
           pendingKo.set(target, [killer, k, hazard && killer === source, killer === source ? move : null]);
         }
         const hp = hpOf(parts[2]);
@@ -647,8 +653,10 @@
           [killer, kind] = credit(victim.key, effectSrc.get(victim.key + "|perish"), "passive");
           if (killer === effectSrc.get(victim.key + "|perish")) move = "Perish Song";
         } else {
-          [killer, kind] = [null, "none"]; // Explosion, Memento, Final Gambit...
+          // Explosion, Memento, Final Gambit...; a faint with no cause seen at all stays "none"
+          [killer, kind] = [null, mover === victim && SELF_KO_MOVES.has(norm(moveName || "")) ? "self" : "none"];
         }
+        if (kind === "self") victim.selfKos += 1;
         if (killer && (kind === "direct" || kind === "passive")) killer[kind] += 1;
         if (killer && byHazard) killer.hazardKills += 1;
         hit(victim, kind === "direct" || kind === "passive" ? killer : null, 0, false, move); // HP left at a faint with no 0 HP hit
@@ -759,7 +767,7 @@
   const LUCK_FIELDS = ["luck", "luck_against"];
 
   const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "end_reason", "turns", "pokemon", "nickname",
-    "brought", "kills", "direct_kills", "passive_kills", "deaths", "damage_dealt_pct", "damage_taken_pct",
+    "brought", "kills", "direct_kills", "passive_kills", "deaths", "self_kos", "damage_dealt_pct", "damage_taken_pct",
     "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "healing_pct",
     "healing_given_pct", "switches", "pivots", "forced_out", "faint_switch_ins", "turns_on_field", "survived", "ko_before_moving", "mega", "mega_turn", "z_move", "z_turn",
     "mvp_score", "mvp", ...LUCK_COUNT_FIELDS,
@@ -785,7 +793,7 @@
           won: b.winner === player ? 1 : 0, end_reason: b.endReason, turns: b.turns,
           pokemon: sp, nickname: key ? key.slice(4) : "", brought: key ? 1 : 0,
           kills: st.direct + st.passive, direct_kills: st.direct, passive_kills: st.passive,
-          deaths: st.deaths, damage_dealt_pct: dm.dealt, damage_taken_pct: dm.taken,
+          deaths: st.deaths, self_kos: st.selfKos, damage_dealt_pct: dm.dealt, damage_taken_pct: dm.taken,
           hazard_damage_pct: dm.hazard, hazard_kills: st.hazardKills, hazards_set: st.hazardsSet,
           hazards_removed: st.hazardsRemoved, hazard_turns: b.hazardTurns[side],
           healing_pct: hl.self, healing_given_pct: hl.given, switches: st.switches, pivots: st.pivots,
@@ -878,13 +886,13 @@
   }
 
   const SUMMARY_FIELDS = ["player", "pokemon", "games_brought", "wins_when_brought", "kills",
-    "direct_kills", "passive_kills", "deaths", "kills_per_game", "mvps", "mvp_score_per_game", "damage_dealt_pct", "damage_taken_pct",
+    "direct_kills", "passive_kills", "deaths", "self_kos", "kills_per_game", "mvps", "mvp_score_per_game", "damage_dealt_pct", "damage_taken_pct",
     "damage_dealt_hp", "damage_taken_hp", "hazard_damage_pct", "hazard_damage_hp", "hazard_kills",
     "hazards_set", "hazards_removed", "healing_pct", "healing_hp", "healing_given_pct", "healing_given_hp",
     "switches", "pivots", "forced_out", "faint_switch_ins", "turns_on_field", "survived", "ko_before_moving",
     "megas", "mega_wins", "z_moves", "z_wins", ...LUCK_COUNT_FIELDS, ...LUCK_FIELDS];
   const PCT_FIELDS = ["damage_dealt_pct", "damage_taken_pct", "hazard_damage_pct", "healing_pct", "healing_given_pct"];
-  const SUM_FIELDS = ["kills", "direct_kills", "passive_kills", "deaths", "hazard_kills", "hazards_set",
+  const SUM_FIELDS = ["kills", "direct_kills", "passive_kills", "deaths", "self_kos", "hazard_kills", "hazards_set",
     "hazards_removed", "switches", "pivots", "forced_out", "faint_switch_ins", "turns_on_field", "survived",
     "ko_before_moving", ...LUCK_COUNT_FIELDS, ...PCT_FIELDS];
   const HP_FIELDS = ["damage_dealt_hp", "damage_taken_hp", "hazard_damage_hp", "healing_hp", "healing_given_hp"];
