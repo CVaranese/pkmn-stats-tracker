@@ -33,11 +33,11 @@ function fillMaxHp(rows, dex, smogon, pool) {
   for (const r of rows) {
     const s = r.set;
     r.max_hp = ""; r.max_hp_from = ""; r.max_hp_note = "";
-    if (s && dex) {
+    if (s && dex && s.evsListed !== false) {
       r.max_hp = TS.maxHp(s, dex) ?? "";
       if (r.max_hp) { r.max_hp_from = "sheet"; r.max_hp_note = "From the team sheet."; }
     } else if (dex && r.mon_key) {
-      // no sheet for this side: Smogon's spreads, the same player's other sheets, then base stats
+      // no sheet for this side, or a set with no EVs: Smogon's spreads, the same player's other sheets, then base stats
       const others = (pool.get(playerKey(r.player)) || []).filter((p) => p.gameId !== r.replay_id);
       const g = TS.guessMaxHp(r.pokemon, others, smogon, dex);
       if (g) { r.max_hp = g.max_hp; r.max_hp_from = HP_FROM[g.from]; r.max_hp_note = "Guess, no sheet: " + g.note + "."; }

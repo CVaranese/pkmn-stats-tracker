@@ -541,7 +541,7 @@ Ability: Screen Cleaner
   check("sheet: 5 sets", sets.length === 5, JSON.stringify(sets.map((s) => s.species)));
   check("sheet: nickname, gender, item, EVs, nature, moves", same(sets[0], {
     nickname: "Chompy", species: "Garchomp", gender: "M", item: "Rocky Helmet", ability: "Rough Skin",
-    level: 100, nature: "Jolly", evs: { hp: 252, def: 4, spe: 252 }, ivs: {},
+    level: 100, nature: "Jolly", evs: { hp: 252, def: 4, spe: 252 }, evsListed: true, ivs: {},
     moves: ["Stealth Rock", "Earthquake", "Dragon Tail", "Spikes"] }), JSON.stringify(sets[0]));
   check("sheet: level, IVs, CRLF lines", sets[1].species === "Blissey" && sets[1].nickname === "" &&
     sets[1].gender === "F" && sets[1].level === 50 && same(sets[1].ivs, { atk: 0 }) && sets[1].nature === "Bold",
@@ -575,6 +575,12 @@ Ability: Screen Cleaner
     const g3 = TS.guessMaxHp("Blissey", [set("Garchomp", 0)], SMOGON, G);
     check("max HP guess: no sheet or Smogon entry -> base stats (bulky: 252)", g3.max_hp === 714 && g3.from === "stats", JSON.stringify(g3));
     check("max HP guess: unknown species -> null", TS.guessMaxHp("Missingno", [], SMOGON, G) === null);
+    // a set pieced together from a game has no EVs line: not "0 HP EVs", so it never counts towards a guess
+    const noEvs = TS.parseTeam("Nightwing (Suicune) @ Leftovers\nAbility: Pressure\n- Calm Mind\n\nGarchomp\nEVs: 252 HP\n- Earthquake");
+    const g4 = TS.guessMaxHp("Garchomp", [{ set: noEvs[0], label: "Week 1" }, { set: { ...noEvs[0], species: "Garchomp" }, label: "Week 2" },
+      set("Garchomp", 252)], {}, G);
+    check("sheet set with no EVs line: unknown, not 0 HP (its own max HP is a guess)", same(noEvs.map((x) => x.evsListed), [false, true]) &&
+      g4.max_hp === 420 && g4.from === "player", JSON.stringify([noEvs.map((x) => x.evsListed), g4]));
     const rows = [
       { replay_id: "g", player: "A", opponent: "B", mon_key: "p1: X", max_hp: 400, max_hp_from: "sheet", damage_taken_pct: 10,
         healing_pct: 0, hits_dealt: [["p2: Y", 50, false, "Tackle"]], move_stats: [{ move: "Tackle" }] },

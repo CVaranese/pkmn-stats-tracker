@@ -54,8 +54,9 @@
         let nickname = "", species = head;
         const n = /^(.*\S)\s+\(([^()]+)\)$/.exec(head);
         if (n) { nickname = n[1]; species = n[2].trim(); }
+        // evsListed: false for a set without an EVs line (pieced together from a game): its max HP is a guess
         cur = { nickname, species, gender, item, ability: "", level: 100, nature: "",
-          evs: {}, ivs: {}, moves: [] };
+          evs: {}, evsListed: false, ivs: {}, moves: [] };
         sets.push(cur);
         continue;
       }
@@ -63,7 +64,7 @@
       if (/^[-*]\s/.test(line)) cur.moves.push(line.replace(/^[-*]\s*/, ""));
       else if ((m = /^Ability:\s*(.+)$/i.exec(line))) cur.ability = m[1].trim();
       else if ((m = /^Level:\s*(\d+)/i.exec(line))) cur.level = Number(m[1]);
-      else if ((m = /^EVs:\s*(.+)$/i.exec(line))) cur.evs = parseStats(m[1]);
+      else if ((m = /^EVs:\s*(.+)$/i.exec(line))) { cur.evs = parseStats(m[1]); cur.evsListed = true; }
       else if ((m = /^IVs:\s*(.+)$/i.exec(line))) cur.ivs = parseStats(m[1]);
       else if ((m = /^(\w+)\s+Nature\s*$/i.exec(line))) cur.nature = m[1];
       // Shiny, Tera Type, Happiness, Gigantamax, ... don't matter here
@@ -100,7 +101,7 @@
       const v = withEvs(s.hp);
       if (v) return { max_hp: v, from: "smogon", note: `${s.hp} HP EVs: ${Math.round(s.share * 100)}% of Smogon's Nat Dex sets invest in HP` };
     }
-    const mine = (playerSets || []).filter((p) => speciesFit(species, p.set.species));
+    const mine = (playerSets || []).filter((p) => p.set.evsListed !== false && speciesFit(species, p.set.species));
     if (mine.length) {
       const bulky = mine.filter((p) => (p.set.evs.hp || 0) >= 128);
       if (bulky.length * 2 !== mine.length) {
