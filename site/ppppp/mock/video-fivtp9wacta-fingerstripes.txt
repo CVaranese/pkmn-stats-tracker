@@ -1,0 +1,66 @@
+Sparkyx2 Boom Man (Tapu Koko) @ Terrain Extender
+Ability: Electric Surge
+Shiny: Yes
+Tera Type: Electric
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Thunderbolt
+- Dazzling Gleam
+- U-turn
+- Nature's Madness
+
+Appa ate Momo! (Zygarde-10%) @ Choice Band
+Ability: Aura Break
+Shiny: Yes
+Tera Type: Dragon
+EVs: 252 Atk / 252 Spe
+Jolly Nature
+- Thousand Arrows
+- Extreme Speed
+- Outrage
+- Glare
+
+MY CABBAGES!! (Rotom-Wash) @ Rocky Helmet
+Ability: Levitate
+Shiny: Yes
+Tera Type: Electric
+EVs: 252 HP / 252 Def / 4 SpD
+Bold Nature
+IVs: 0 Atk
+- Hydro Pump
+- Volt Switch
+- Will-O-Wisp
+- Pain Split
+
+That’s Rough Buddy (Hawlucha) (M) @ Electric Seed
+Ability: Unburden
+Tera Type: Flying
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Swords Dance
+- Acrobatics
+- Close Combat
+- Substitute
+
+Flameo, Hotman (Iron Moth) @ Heavy-Duty Boots
+Ability: Quark Drive
+Shiny: Yes
+Tera Type: Fire
+EVs: 124 HP / 132 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Fiery Dance
+- Sludge Wave
+- Energy Ball
+- Protect
+
+Pants = illusion (Jirachi) @ Normalium Z
+Ability: Serene Grace
+Shiny: Yes
+Tera Type: Steel
+EVs: 4 Atk / 252 SpA / 252 Spe
+Timid Nature
+- Stored Power
+- Happy Hour
+- Iron Head
+- Aura Sphere

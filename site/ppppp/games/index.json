@@ -384,7 +384,10 @@
    "date": "2026-09-13",
    "turns": 18,
    "note": "Stream video",
-   "video": "https://youtu.be/yytUZXI96hg"
+   "video": "https://youtu.be/yytUZXI96hg",
+   "sheets": [
+    "fingerstripes"
+   ]
   },
   {
    "id": "video-yj0pgvbcbli",
@@ -650,7 +653,10 @@
    "date": "2026-09-20",
    "turns": 43,
    "note": "Stream video",
-   "video": "https://youtu.be/mqDA-Z2vZ9E"
+   "video": "https://youtu.be/mqDA-Z2vZ9E",
+   "sheets": [
+    "fingerstripes"
+   ]
   },
   {
    "id": "video-mebkxaukmlw",
@@ -787,7 +793,10 @@
    "note": "Stream video, errors",
    "video": "https://youtu.be/yyCXiIsZQek",
    "note_detail": "Last KO from the players. Some lines of the stream were misread; Main viewer says which.",
-   "known_errors": "Turn 10: Sableye is shown at 0% after Dark Pulse but didn't faint (it comes back at 1%). One Thunder Cage line names no Pokémon."
+   "known_errors": "Turn 10: Sableye is shown at 0% after Dark Pulse but didn't faint (it comes back at 1%). One Thunder Cage line names no Pokémon.",
+   "sheets": [
+    "fingerstripes"
+   ]
   },
   {
    "id": "gen9nationaldex-2676843288",
@@ -980,7 +989,10 @@
    "date": "2026-10-04",
    "turns": 30,
    "note": "Stream video",
-   "video": "https://youtu.be/CKLxgWZL3HM"
+   "video": "https://youtu.be/CKLxgWZL3HM",
+   "sheets": [
+    "fingerstripes"
+   ]
   },
   {
    "id": "video-vxg51mjkssw",
@@ -1213,7 +1225,10 @@
    "note": "Stream video, errors",
    "video": "https://youtu.be/FiVtP9WAcTA",
    "known_errors": "Three stat-change lines name no Pokémon; damage and KOs are unaffected.",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which."
+   "note_detail": "Some lines of the stream were misread; Main viewer says which.",
+   "sheets": [
+    "fingerstripes"
+   ]
   },
   {
    "id": "video-ecis5-ls6i0",
@@ -1346,7 +1361,10 @@
    "date": "2026-10-18",
    "turns": 26,
    "note": "Stream video",
-   "video": "https://youtu.be/pq9jWAX63Pc"
+   "video": "https://youtu.be/pq9jWAX63Pc",
+   "sheets": [
+    "fingerstripes"
+   ]
   },
   {
    "id": "video-s2znfx4ir1m",

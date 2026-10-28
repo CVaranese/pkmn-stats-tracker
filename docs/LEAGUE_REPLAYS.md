@@ -98,3 +98,6 @@ Saved in `site/mock/<game id>-<player>.txt`; each game lists its players' sheets
 - doxsego's own sheets (from the user), matched to games by team: Weeks 1-6. On the Week 2 sheet (vs weedinmyhonda) the opponent is "Bah Booey"; the
   Week 6 sheet's "Week 7" label was a typo.
 - potatoesareyum, Week 7 vs peterpikmon.
+- FingerStripes (Fingy), from the user 2026-10-28: Weeks 2-7 saved and matched (all 6 Pokémon each). Held in
+  `docs/sheets-pending/`: Week 1 vs DEJIME (the sheet has Jirachi, the game 2676843288 brought Suicune instead: wrong
+  week's sheet or a late swap?) and Week 8 vs Karm (no Week 8 Fingy vs Karm game saved yet).

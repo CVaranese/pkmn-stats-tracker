@@ -1,0 +1,61 @@
+Kid Flash (Tapu Koko) @ Terrain Extender
+Ability: Electric Surge
+Tera Type: Electric
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Thunderbolt
+- Dazzling Gleam
+- U-turn
+- Toxic
+
+Aqualad (Rotom-Wash) @ Rocky Helmet
+Ability: Levitate
+Tera Type: Electric
+EVs: 248 HP / 252 Def / 8 SpD
+Bold Nature
+IVs: 0 Atk
+- Hydro Pump
+- Volt Switch
+- Will-O-Wisp
+- Pain Split
+
+Robin (Hawlucha) @ Electric Seed
+Ability: Unburden
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Swords Dance
+- Acrobatics
+- Close Combat
+- Substitute
+
+Cyborg (Iron Moth) @ Booster Energy
+Ability: Quark Drive
+Shiny: Yes
+Tera Type: Fire
+EVs: 124 HP / 132 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Fiery Dance
+- Sludge Wave
+- Bug Buzz
+- Toxic Spikes
+
+Geo-Force (Heatran) @ Air Balloon
+Ability: Flash Fire
+EVs: 252 Def / 4 SpA / 252 SpD
+Bold Nature
+IVs: 0 Atk
+- Stealth Rock
+- Roar
+- Protect
+- Body Press
+
+Zygarde-10% @ Groundium Z
+Ability: Aura Break
+Tera Type: Fairy
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Thousand Waves
+- Extreme Speed
+- Superpower
+- Glare

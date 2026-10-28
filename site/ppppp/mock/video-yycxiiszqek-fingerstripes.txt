@@ -1,0 +1,58 @@
+Cyborg (Iron Moth) @ Booster Energy
+Ability: Quark Drive
+Shiny: Yes
+Tera Type: Fire
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Fiery Dance
+- Sludge Wave
+- Bug Buzz
+- Morning Sun
+
+Kid Flash (Tapu Koko) @ Fairium Z
+Ability: Electric Surge
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Thunderbolt
+- Dazzling Gleam
+- U-turn
+- Toxic
+
+Aqualad (Rotom-Wash) @ Blunder Policy
+Ability: Levitate
+EVs: 252 HP / 252 Def / 4 Spe
+Bold Nature
+IVs: 0 Atk
+- Hydro Pump
+- Volt Switch
+- Will-O-Wisp
+- Defog
+
+Robin (Hawlucha) @ Electric Seed
+Ability: Unburden
+EVs: 4 HP / 252 Atk / 252 Spe
+Adamant Nature
+- Swords Dance
+- Acrobatics
+- Close Combat
+- Substitute
+
+Geo-Force (Heatran) @ Air Balloon
+Ability: Flash Fire
+EVs: 252 HP / 4 SpA / 252 SpD
+Calm Nature
+IVs: 0 Atk
+- Stealth Rock
+- Magma Storm
+- Toxic
+- Protect
+
+Raven (Sableye-Mega) @ Sablenite
+Ability: Prankster
+EVs: 248 HP / 8 Atk / 252 Def
+Careful Nature
+- Knock Off
+- Will-O-Wisp
+- Pain Split
+- Recover

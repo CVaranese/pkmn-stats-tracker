@@ -1,0 +1,59 @@
+Kid Flash (Tapu Koko) @ Electrium Z
+Ability: Electric Surge
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Thunderbolt
+- Dazzling Gleam
+- Volt Switch
+- Roost
+
+Geo-Force (Heatran) (M) @ Air Balloon
+Ability: Flash Fire
+Tera Type: Fire
+EVs: 252 HP / 252 SpA / 4 SpD
+Modest Nature
+- Magma Storm
+- Earth Power
+- Stealth Rock
+- Taunt
+
+Cyborg (Iron Moth) @ Heavy-Duty Boots
+Ability: Quark Drive
+Shiny: Yes
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Fiery Dance
+- Sludge Wave
+- Energy Ball
+- Morning Sun
+
+Beast Boy (Hydreigon) (M) @ Choice Scarf
+Ability: Levitate
+Shiny: Yes
+Tera Type: Dark
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Draco Meteor
+- Dark Pulse
+- Flamethrower
+- U-turn
+
+Robin (Hawlucha) (M) @ Electric Seed
+Ability: Unburden
+Tera Type: Fighting
+EVs: 4 HP / 252 Atk / 252 Spe
+Adamant Nature
+- Swords Dance
+- Close Combat
+- Acrobatics
+- Substitute
+
+Raven (Sableye-Mega) (F) @ Sablenite
+Ability: Prankster
+Tera Type: Dark
+EVs: 248 HP / 8 Atk / 252 SpD
+Careful Nature
+- Knock Off
+- Toxic
+- Recover
+- Foul Play

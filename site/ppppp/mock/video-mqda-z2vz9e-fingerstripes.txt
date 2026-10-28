@@ -1,0 +1,59 @@
+Geo-Force (Heatran) @ Air Balloon
+Ability: Flame Body
+EVs: 252 HP / 252 Def / 4 SpD
+Calm Nature
+IVs: 0 Atk
+- Magma Storm
+- Taunt
+- Stealth Rock
+- Protect
+
+Aqualad (Rotom-Wash) @ Leftovers
+Ability: Levitate
+EVs: 252 HP / 252 Def / 4 SpA
+Bold Nature
+IVs: 0 Atk
+- Hydro Pump
+- Volt Switch
+- Pain Split
+- Will-O-Wisp
+
+Robin (Hawlucha) @ Electric Seed
+Ability: Unburden
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Swords Dance
+- Close Combat
+- Acrobatics
+- Substitute
+
+Kid Flash (Tapu Koko) @ Tapunium Z
+Ability: Electric Surge
+EVs: 252 HP / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Volt Switch
+- Dazzling Gleam
+- Reflect
+- Nature's Madness
+
+Raven (Sableye-Mega) (F) @ Sablenite
+Ability: Prankster
+Tera Type: Dark
+EVs: 252 HP / 252 Def
+IVs: 0 Atk
+- Recover
+- Will-O-Wisp
+- Foul Play
+- Encore
+
+Starfire (Jirachi) @ Metronome
+Ability: Serene Grace
+Shiny: Yes
+Tera Type: Steel
+EVs: 252 HP / 224 Def / 32 Spe
+Lax Nature
+- Iron Head
+- Wish
+- Protect
+- Thunderbolt

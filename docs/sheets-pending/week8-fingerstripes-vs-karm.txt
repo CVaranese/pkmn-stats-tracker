@@ -1,0 +1,60 @@
+Kid Flash (Tapu Koko) @ Terrain Extender
+Ability: Electric Surge
+Tera Type: Electric
+EVs: 64 HP / 252 SpA / 192 Spe
+Timid Nature
+- Thunderbolt
+- Dazzling Gleam
+- U-turn
+- Defog
+
+Cyborg (Iron Moth) @ Air Balloon
+Ability: Quark Drive
+Shiny: Yes
+Tera Type: Fire
+EVs: 48 HP / 4 Def / 252 SpA / 204 Spe
+Modest Nature
+IVs: 0 Atk
+- Fiery Dance
+- Sludge Wave
+- Toxic Spikes
+- Overheat
+
+Starfire (Jirachi) @ Normalium Z
+Ability: Serene Grace
+Shiny: Yes
+Tera Type: Steel
+EVs: 4 Atk / 252 SpA / 252 Spe
+Naive Nature
+- Happy Hour
+- Stored Power
+- Iron Head
+- Thunderbolt
+
+Aqualad (Rotom-Wash) @ Choice Specs
+Ability: Levitate
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Hydro Pump
+- Volt Switch
+- Trick
+- Rising Voltage
+
+Beast Boy (Zygarde-10%) @ Choice Band
+Ability: Aura Break
+EVs: 124 HP / 252 Atk / 132 Spe
+Adamant Nature
+- Thousand Arrows
+- Extreme Speed
+- Outrage
+- Toxic
+
+Robin (Hawlucha) @ Electric Seed
+Ability: Unburden
+EVs: 28 HP / 252 Atk / 228 Spe
+Adamant Nature
+- Swords Dance
+- Acrobatics
+- Close Combat
+- Encore

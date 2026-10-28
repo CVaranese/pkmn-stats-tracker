@@ -1,0 +1,60 @@
+Kid Flash (Tapu Koko) @ Heavy-Duty Boots
+Ability: Electric Surge
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Thunderbolt
+- Dazzling Gleam
+- Volt Switch
+- Taunt
+
+Beast Boy (Hydreigon) @ Choice Scarf
+Ability: Levitate
+Shiny: Yes
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Draco Meteor
+- Dark Pulse
+- Flamethrower
+- U-turn
+
+Robin (Hawlucha) @ Electric Seed
+Ability: Unburden
+EVs: 4 HP / 252 Atk / 252 Spe
+Adamant Nature
+- Swords Dance
+- Acrobatics
+- Close Combat
+- Stone Edge
+
+Cyborg (Iron Moth) @ Assault Vest
+Ability: Quark Drive
+Shiny: Yes
+Tera Type: Fire
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Fiery Dance
+- Sludge Wave
+- Energy Ball
+- Bug Buzz
+
+Silky (Toedscool) @ Eviolite
+Ability: Mycelium Might
+EVs: 252 HP / 4 Atk / 252 SpD
+Careful Nature
+- Spore
+- Spikes
+- Knock Off
+- Light Screen
+
+Starfire (Jirachi) @ Metronome
+Ability: Serene Grace
+Shiny: Yes
+Tera Type: Steel
+EVs: 252 HP / 224 SpD / 32 Spe
+Careful Nature
+- Iron Head
+- Wish
+- U-turn
+- Protect
