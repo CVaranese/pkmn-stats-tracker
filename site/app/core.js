@@ -1,0 +1,318 @@
+/* Shared by every tab: the libraries, page state (mode, rows, sort), column labels and tooltips, navigation
+   (tabs, Back / Forward), small DOM helpers (el, sprite, tables, luck badge, tap tips). */
+"use strict";
+
+const RS = window.ReplayStats;
+const TS = window.TeamSheets;
+const LK = window.Luck;
+const { PCT_TO_HP, pct, sum, amount, moveDealt, totalLuck, seasonMoves, dealtKey, bestMove, spriteId } = window.League;
+const $ = (id) => document.getElementById(id);
+// served from this computer: no requests to Showdown at all (replays only from site/games/, move / Pokedex data from
+// site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
+const LOCAL = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname) &&
+  !new URLSearchParams(location.search).has("online");
+const STORAGE_KEY = "replay-kill-tracker.links";
+const SHEETS_KEY = "replay-kill-tracker.sheets";
+const ONE_KEY = "replay-kill-tracker.one-link";
+const MODE_KEY = "replay-kill-tracker.mode";
+const cache = new Map();   // replay id -> replay json (for this page visit)
+const pasteCache = new Map(); // pokepaste id -> export text
+let rows = [];             // game rows from the last run
+let view = "summary";
+let sort = { field: "kills", dir: -1 };
+const LABELS = {
+  replay_id: "Replay", date: "Date", format: "Format", player: "Player", opponent: "Opponent",
+  won: "Won", end_reason: "Ended by", turns: "Turns", pokemon: "Pokémon", nickname: "Nickname", brought: "Brought", kills: "Kills",
+  direct_kills: "Direct", passive_kills: "Passive", deaths: "Deaths", self_kos: "Self KOs", replay_url: "Link",
+  games_brought: "Games", wins_when_brought: "Wins", kills_per_game: "Kills / game",
+  max_hp: "Max HP", max_hp_from: "Max HP from", item: "Item", ability: "Ability", moves: "Moves",
+  damage_dealt_pct: "Dealt %", damage_taken_pct: "Taken %", damage_dealt_hp: "Dealt HP", damage_taken_hp: "Taken HP",
+  hazard_damage_pct: "Hazard %", hazard_damage_hp: "Hazard HP", hazard_kills: "Hazard KOs",
+  hazards_set: "Hazards set", hazards_removed: "Hazards removed", hazard_turns: "Hazard turns",
+  healing_pct: "Healed %", healing_hp: "Healed HP", healing_given_pct: "Heal given %", healing_given_hp: "Heal given HP",
+  switches: "Switches", pivots: "Pivots", forced_out: "Forced out", faint_switch_ins: "In after KO",
+  crits: "Crits", crits_taken: "Crits taken", misses: "Misses", dodges: "Dodged", full_paras: "Full paras",
+  sleep_turns: "Sleep turns", flinched: "Flinched", confusion_hits: "Hit itself", procs: "Effects landed",
+  luck: "Luck", luck_against: "Luck against", player_luck: "Player luck",
+  hidden_zoroark: "Hidden Zoroark",
+  turns_on_field: "Turns on field", survived: "Survived", ko_before_moving: "KO'd before moving",
+  mega: "Mega", mega_turn: "Mega turn", z_move: "Z-move", z_turn: "Z turn",
+  megas: "Megas", mega_wins: "Mega wins", z_moves: "Z-moves", z_wins: "Z wins",
+  mvp_score: "Performance", mvp: "Team MVP", mvps: "MVPs", mvp_score_per_game: "Performance / game",
+};
+// column header tooltips (title text); "How each column is counted" has the full rules
+const DESCRIPTIONS = {
+  replay_id: "Showdown replay ID.", date: "Day the replay was uploaded.", format: "Showdown format.",
+  player: "The player who brought this Pokémon.", opponent: "The other player in that game.",
+  won: "Whether this player won the game.", end_reason: "How the game ended: normal, forfeit, timer, tie or unfinished.",
+  turns: "Number of turns the game lasted.", pokemon: "Species (form included).", nickname: "Nickname used in the game.",
+  brought: "Whether it was brought to the battle (not just shown at team preview).",
+  kills: "Opponents it KO'd: direct + passive.", direct_kills: "KOs from its own attacks (spread KOs count each; Destiny Bond counts).",
+  passive_kills: "KOs from indirect damage it caused: burn, poison, hazards, weather, Leech Seed, Rocky Helmet…",
+  deaths: "Times it fainted (still standing at a forfeit doesn't count).",
+  self_kos: "Times it knocked itself out: recoil, Life Orb, Explosion, Memento, Final Gambit, Healing Wish. Nobody gets the kill.", replay_url: "Link to the replay.",
+  games_brought: "Games it was brought to.", wins_when_brought: "Games won when it was brought.",
+  kills_per_game: "Kills divided by games brought.",
+  max_hp: "Max HP from the team sheet. Without one, a guess (marked ~): 0 or 252 HP EVs, as most Smogon Nat Dex sets, else as on the player's other sheets, else from its base stats.",
+  max_hp_from: "Where Max HP came from: sheet, other sheet (the same player, another game), Smogon (usage stats) or base stats.",
+  item: "Item from the team sheet, else the first one the game showed.", ability: "Ability from the team sheet, else the one the game showed.",
+  moves: "Moves from the team sheet, else the moves it used.",
+  damage_dealt_pct: "Damage it dealt, in % of the targets' max HP (100 = one full Pokémon). Overkill doesn't count.",
+  damage_taken_pct: "Damage it took, in % of its own max HP, self-inflicted damage included.",
+  damage_dealt_hp: "Damage dealt in HP (about ±1% of max HP per hit; ~ = uses a guessed max HP, no team sheet).",
+  damage_taken_hp: "Damage taken in HP (about ±1% of max HP per hit; ~ = uses a guessed max HP, no team sheet).",
+  hazard_damage_pct: "Part of Dealt % done by Stealth Rock / Spikes / Steelsurge it set.",
+  hazard_damage_hp: "Part of Dealt HP done by hazards it set (~ = uses a guessed max HP, no team sheet).",
+  hazard_kills: "Part of its passive kills that came from hazards.", hazards_set: "Hazard layers it set.",
+  hazards_removed: "Hazards it cleared from its own side (Defog, Rapid Spin…).",
+  hazard_turns: "Turns that ended with this player's hazards on the opponent's side.",
+  healing_pct: "HP it restored to itself (Leftovers, Recover, drain, berries…), in % of its max HP.",
+  healing_hp: "HP it restored to itself (~ = uses a guessed max HP, no team sheet).",
+  healing_given_pct: "HP it restored to teammates (Wish, Healing Wish, Heal Pulse…), in % of their max HP.",
+  healing_given_hp: "HP it restored to teammates (~ = uses a guessed max HP, no team sheet).",
+  switches: "Times it switched out by choice.", pivots: "Times it left through its own move (U-turn, Volt Switch, Parting Shot…).",
+  forced_out: "Times it was forced out (Roar, Whirlwind, Dragon Tail, Red Card, Eject Button…).",
+  faint_switch_ins: "Times it came in to replace a fainted teammate.",
+  crits: "Critical hits it landed.", crits_taken: "Critical hits it took.", misses: "Its moves that missed.",
+  dodges: "Opponents' moves that missed it.", full_paras: "Turns it was fully paralyzed.", sleep_turns: "Turns it stayed asleep.",
+  flinched: "Times it flinched.", confusion_hits: "Times it hit itself in confusion.",
+  procs: "Status conditions and flinches its attacks caused.",
+  luck: "Its luck: each random roll counts as result minus odds. About 0 is average; higher is luckier.",
+  luck_against: "Opponents' luck on rolls aimed at it. High means they got lucky against it.",
+  player_luck: "The player's luck minus the opponent's in that game.",
+  hidden_zoroark: "This team had a Zoroark that never dropped its disguise; its stats sit on the Pokémon it copied.",
+  turns_on_field: "Turns it started on the field.", survived: "Still standing when the game ended.",
+  ko_before_moving: "Times it fainted during a stay on the field before it got to act.",
+  mega: "Whether it Mega Evolved.", mega_turn: "Turn it Mega Evolved.", z_move: "Z-move it used.", z_turn: "Turn it used the Z-move.",
+  megas: "Games it Mega Evolved.", mega_wins: "Games won after it Mega Evolved.", z_moves: "Games it used a Z-move.",
+  z_wins: "Games won after it used a Z-move.",
+  mvp_score: "Performance, roughly in KOs' worth: +1 per 100% dealt, +1 per kill, +0.5 per 100% taken, +0.05 per turn on field, +0.5 for surviving.",
+  mvp: "Best Performance on its team in that game.", mvps: "Times it was Team MVP.", mvp_score_per_game: "Average Performance per game brought.",
+};
+const YES_NO = new Set(["won", "brought", "hidden_zoroark", "mvp", "survived", "mega"]);
+const GAME_VIEW_FIELDS = RS.GAME_FIELDS.filter((f) => f !== "replay_id" && f !== "format");
+const ONE_GAME_HIDDEN = new Set(["date", "opponent", "won", "end_reason", "turns", "player_luck", "replay_url"]);
+const SHEET_FIELDS = ["max_hp", "max_hp_from", "item", "ability", "moves"]; // per game, once any max HP is known
+const HP_FROM = { player: "other sheet", smogon: "Smogon", stats: "base stats" }; // max_hp_from of a guess
+const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"],
+  healing_pct: ["healing_hp"], healing_given_pct: ["healing_given_hp"] };
+// Main viewer (one game, the default) or Playoffs (several games); each has its own input, remembered separately
+let mode = "one";
+const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
+const activeIds = () => (mode === "bet" || mode === "games" || mode === "players" || mode === "mons" ? [] :
+  RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
+function setMode(m, load = true) {
+  mode = m;
+  try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
+  for (const tab of document.querySelectorAll(".modes [data-mode]")) markCurrent(tab, tab.dataset.mode === m);
+  const noInputs = m === "bet" || m === "games" || m === "players" || m === "mons";
+  $("one-input").hidden = m !== "one";
+  $("many-input").hidden = m !== "many";
+  $("gambling").hidden = m !== "bet";
+  $("players").hidden = m !== "players";
+  $("mons").hidden = m !== "mons";
+  $("library").hidden = m !== "games";
+  setCollapsed(false);  // the button lives with the results, which a mode change hides
+  $("inputs").hidden = noInputs;
+  cancelRun();
+  view = m === "one" ? "games" : "summary";
+  sort = m === "one" ? { field: "player", dir: 1 } : { field: "kills", dir: -1 };
+  rows = [];
+  $("results").hidden = true;
+  $("errors").hidden = true;
+  $("warnings").hidden = true;
+  $("status").textContent = "";
+  if (load && activeIds().length) run();
+  if (m === "bet") renderGambling();
+  if (m === "players") renderPlayers();
+  if (m === "mons") renderMons();
+}
+// Back / Forward: each tab, game and Watch panel is a history entry ({ mode, r, watch }), so Back returns to
+// the previous one instead of leaving the site. The address follows (?tab=games, ?r=<id>); other params stay.
+const navState = () => ({ mode, r: mode === "one" ? activeIds()[0] || "" : "", watch: $("lib-watch").hidden ? "" : watching });
+function navUrl(st) {
+  const q = new URLSearchParams(location.search);
+  q.delete("r"); q.delete("tab");
+  if (st.r) q.set("r", st.r);
+  else if (st.mode !== "one") q.set("tab", st.mode);
+  const s = q.toString().replace(/%2C/g, ",");
+  return location.pathname + (s ? "?" + s : "");
+}
+function pushNav() {
+  const st = navState();
+  if (JSON.stringify(st) === JSON.stringify(history.state)) return;
+  try { history.pushState(st, "", navUrl(st)); } catch (e) { /* sandboxed frame: no history */ }
+}
+/** A table with a header row; each cell is [text or node, "num" or ""], a header cell may add a title. */
+function simpleTable(table, head, body) {
+  const tr = (cells, tag) => {
+    const r = document.createElement("tr");
+    r.append(...cells.map(([v, cls, title]) => { const c = el(tag, cls); c.append(v); if (title) c.title = title; return c; }));
+    return r;
+  };
+  table.replaceChildren(tr(head, "th"), ...body.map((cells) => tr(cells, "td")));
+}
+/** Marks the selected tab, or the row whose details show below its table (aria-current: screen readers announce it). */
+const markCurrent = (tr, on) => (on ? tr.setAttribute("aria-current", "true") : tr.removeAttribute("aria-current"));
+/** A table sorted by clicking a header (▲▼; numbers biggest first). cols: { label, cls, title, key(item) }.
+    On a phone the first tap on a header with a title explains it, a second sorts (like the results table). */
+function sortableTable(table, cols, items, state, cells, after) {
+  const draw = () => {
+    const k = cols[state.col].key;
+    const order = (x, y) => (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y)));
+    const sorted = [...items].sort((a, b) => order(k(a), k(b)) * state.dir);  // stable: ties keep the items' order
+    simpleTable(table, cols.map((c) => [c.label, c.cls || "", c.title]), sorted.map(cells));
+    [...table.rows[0].cells].forEach((th, i) => {
+      th.scope = "col";
+      cellButton(th);
+      if (i === state.col) th.setAttribute("aria-sort", state.dir < 0 ? "descending" : "ascending");
+      th.addEventListener("click", () => {
+        const tk = "sort:" + table.id + i;
+        if (TOUCH && th.title && tipKey !== tk) { showTip(th, th.title + " Tap again to sort.", tk); return; }
+        hideTip();
+        state.dir = state.col === i ? -state.dir : cols[i].cls === "num" ? -1 : 1;  // numbers biggest first
+        state.col = i;
+        draw();
+      });
+    });
+    if (after) after(sorted);
+  };
+  draw();
+}
+/** What goes in the link box: a Showdown link, or the bare id of a game rebuilt from its stream video. */
+const linkFor = (id) => (id.startsWith("video-") ? id : RS.REPLAY_HOST + id);
+/** Open a stored game in Main viewer (stats, so the result shows). */
+function openGame(id) {
+  $("one-link").value = linkFor(id);
+  $("one-link").dispatchEvent(new Event("input"));
+  setMode("one");
+  pushNav();
+  $("sheets-wrap").open = false;
+  window.scrollTo(0, 0);
+}
+const SPRITES = "https://play.pokemonshowdown.com/sprites/";
+/** A sprite <img> that tries each folder in turn, then shows the name's initials (unknown form, no copy). */
+function sprite(species, folders, cls, fill = false) {
+  const box = el("span", "sprite " + cls);
+  const img = document.createElement("img");
+  img.alt = species;
+  img.loading = "lazy";
+  // the copies saved in site/sprites/ (league Pokémon; animated ones where Showdown has them): the only source
+  // locally, the fallback when Showdown is down.
+  // fill: the saved copy first, since only a same-site image can be cropped (Showdown's server sends no CORS header)
+  const saved = folders.includes("ani/") ? ["sprites/ani/", "sprites/gen5/"] : ["sprites/gen5/"];
+  const list = LOCAL ? saved : fill ? ["sprites/gen5/", ...folders.map((f) => SPRITES + f)]
+    : [...folders.map((f) => SPRITES + f), ...saved];
+  if (fill) img.addEventListener("load", () => fillBox(img, box), { once: true });
+  let i = 0;
+  const next = () => {
+    if (i < list.length) { img.src = list[i++] + spriteId(species) + (list[i - 1].endsWith("ani/") ? ".gif" : ".png"); return; }
+    img.remove();
+    box.textContent = species.replace(/[^A-Za-z ]/g, " ").split(/\s+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2);
+  };
+  img.addEventListener("error", next);
+  next();
+  box.appendChild(img);
+  return box;
+}
+/** Crop a sprite to the Pokémon itself and scale it to fill its box, so a Joltik isn't tiny next to a Hoopa
+ * (gen5 sprites keep each Pokémon's true size in the same 96px frame). Leaves the image as it is if it can't be read. */
+function fillBox(img, box) {
+  if (!img.src.includes("/sprites/gen5/") || img.src.startsWith(SPRITES)) return;   // only the saved copies
+  try {
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const c = Object.assign(document.createElement("canvas"), { width: w, height: h });
+    const g = c.getContext("2d", { willReadFrequently: true });
+    g.drawImage(img, 0, 0);
+    const px = g.getImageData(0, 0, w, h).data;
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (px[(y * w + x) * 4 + 3] > 16) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    }
+    if (x1 < 0) return;
+    const bw = x1 - x0 + 1, bh = y1 - y0 + 1, side = Math.max(bw, bh);
+    const out = Object.assign(document.createElement("canvas"), { width: side, height: side });
+    const o = out.getContext("2d");
+    o.drawImage(c, x0, y0, bw, bh, Math.floor((side - bw) / 2), Math.floor((side - bh) / 2), bw, bh);
+    out.setAttribute("role", "img");
+    out.setAttribute("aria-label", img.alt);
+    out.className = "sprite-fill";
+    box.replaceChildren(out);
+  } catch (e) { /* tainted or unreadable: keep the plain image */ }
+}
+/** A cell's contents in a button that looks like the text, so a keyboard can reach it; the click still goes to the
+    row's or header's own handler. */
+function cellButton(cell) {
+  const b = el("button", "cell-btn");
+  b.type = "button";
+  b.append(...cell.childNodes);
+  cell.append(b);
+}
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+function stat(label, value, field) {
+  const d = el("div", "stat");
+  d.append(el("span", "stat-value", String(value)), el("span", "stat-label", label));
+  if (field && DESCRIPTIONS[field]) d.title = DESCRIPTIONS[field];
+  return d;
+}
+// luck in words: the score is the sum of (result - odds) over a game's rolls. Cut-offs from 34 Nat Dex games
+// (2026-10-26): player luck (own minus opponent's) has its middle half within +-0.9, a Pokémon's within +-0.15.
+const LUCK_STEPS = { player: [0.75, 2], pokemon: [0.25, 0.75] };
+const LUCK_WORDS = ["Very unlucky", "Unlucky", "Fair", "Lucky", "Very lucky"];
+const PIPS = [[50, 50], [25, 25, 75, 75], [25, 25, 50, 50, 75, 75], [25, 25, 75, 25, 25, 75, 75, 75],
+  [25, 25, 75, 25, 50, 50, 25, 75, 75, 75]];
+/** A die face (1 pip = very unlucky ... 5 = very lucky) and the word; the number is in the tooltip. */
+function luckBadge(v, kind, top = []) {
+  const box = el("span", "luck");
+  if (typeof v !== "number") { box.textContent = "–"; box.title = "No luck score (move data didn't load)."; return box; }
+  const [a, b] = LUCK_STEPS[kind];
+  const level = v <= -b ? 0 : v <= -a ? 1 : v < a ? 2 : v < b ? 3 : 4;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 100 100");
+  svg.setAttribute("class", "die level-" + level);
+  svg.setAttribute("aria-hidden", "true");
+  let inner = '<rect x="4" y="4" width="92" height="92" rx="18"/>';
+  const pips = PIPS[level];
+  for (let i = 0; i < pips.length; i += 2) inner += `<circle cx="${pips[i]}" cy="${pips[i + 1]}" r="10"/>`;
+  svg.innerHTML = inner;
+  box.append(svg, el("span", "", LUCK_WORDS[level]));
+  box.title = `Luck score ${v > 0 ? "+" : ""}${v.toFixed(2)}. ` + (kind === "player"
+    ? "This player's rolls (hits, crits, status chances…) against the opponent's: about 0 is fair."
+    : "Its own rolls (hits, crits, status chances…): about 0 is fair.") +
+    (top.length ? " Biggest: " + top.map((g) => `${g.label}${g.n > 1 ? " ×" + g.n : ""} (${g.v > 0 ? "+" : "−"}${Math.abs(g.v).toFixed(2)})`).join("; ") + "." : "");
+  return box;
+}
+function flash(btn, text) {
+  const old = btn.textContent;
+  btn.textContent = text;
+  setTimeout(() => { btn.textContent = old; }, 1800);
+}
+// phones can't hover: a tap on anything with a title (luck words, sprites…) shows it in a tip under it.
+// Headers call showTip themselves (first tap explains, second sorts).
+const TOUCH = matchMedia("(hover: none)").matches;
+let tip = null, tipTimer = 0, tipKey = "";
+function showTip(target, text, key = "") {
+  if (!tip) {
+    tip = el("div", "tap-tip");
+    tip.setAttribute("role", "status");
+    document.body.append(tip);
+  }
+  tip.textContent = text;
+  tip.hidden = false;
+  tipKey = key;
+  const r = target.getBoundingClientRect();
+  const maxLeft = document.documentElement.clientWidth - tip.offsetWidth - 8;
+  tip.style.left = window.scrollX + Math.max(8, Math.min(r.left, maxLeft)) + "px";
+  tip.style.top = window.scrollY + r.bottom + 6 + "px";
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(hideTip, 5000);
+}
+function hideTip() {
+  if (tip) tip.hidden = true;
+  tipKey = "";
+}

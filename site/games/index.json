@@ -220,7 +220,11 @@
    "winner": "peterpikmon",
    "date": "2026-10-27",
    "turns": 19,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "peterpikmon",
+    "weedinmyhonda"
+   ]
   },
   {
    "id": "video-d5ivr2s_7de",
@@ -480,7 +484,10 @@
    "note": "Stream video, errors",
    "video": "https://youtu.be/4fACABLYaoc",
    "known_errors": "Five lines name no Pokémon (a Rocky Helmet hit, a hit, a Roost heal, an Aftermath hit), so a little damage and healing is missing.",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which."
+   "note_detail": "Some lines of the stream were misread; Main viewer says which.",
+   "sheets": [
+    "doxsego"
+   ]
   },
   {
    "id": "video-oqam2awttbc",
@@ -544,7 +551,10 @@
    "date": "2026-09-23",
    "turns": 15,
    "note": "Stream video",
-   "video": "https://youtu.be/I21S40QI4EM"
+   "video": "https://youtu.be/I21S40QI4EM",
+   "sheets": [
+    "doxsego"
+   ]
   },
   {
    "id": "video-bgmhhbybbam",
@@ -742,7 +752,10 @@
    "note": "Stream video, errors",
    "video": "https://youtu.be/vxtlxLNR19c",
    "note_detail": "Last KO from the players. Some lines of the stream were misread; Main viewer says which.",
-   "known_errors": "Turn 19: Ceruledge is shown at 0% after Sucker Punch but didn't faint (it comes back at 1%), so that hit is about 1% too high."
+   "known_errors": "Turn 19: Ceruledge is shown at 0% after Sucker Punch but didn't faint (it comes back at 1%), so that hit is about 1% too high.",
+   "sheets": [
+    "doxsego"
+   ]
   },
   {
    "id": "video-yycxiiszqek",
@@ -838,7 +851,10 @@
    "winner": "PeterPikmon",
    "date": "2026-09-07",
    "turns": 26,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "doxsego"
+   ]
   },
   {
    "id": "gen9nationaldex-2677236487",
@@ -931,7 +947,10 @@
    "winner": "Zololab",
    "date": "2026-10-12",
    "turns": 27,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "doxsego"
+   ]
   },
   {
    "id": "video-cklxgwzl3hm",
@@ -995,7 +1014,10 @@
    "date": "2026-10-07",
    "turns": 23,
    "note": "Stream video",
-   "video": "https://youtu.be/vXg51MJkSSw"
+   "video": "https://youtu.be/vXg51MJkSSw",
+   "sheets": [
+    "doxsego"
+   ]
   },
   {
    "id": "video-opud2yunqrs",
@@ -1291,7 +1313,10 @@
    "note": "Stream video, errors",
    "video": "https://youtu.be/ek4VkZvwnY0",
    "known_errors": "Ursaluna's Flame Orb burn names no Pokémon, so its burn isn't counted (burn damage after it still is).",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which."
+   "note_detail": "Some lines of the stream were misread; Main viewer says which.",
+   "sheets": [
+    "potatoesareyum"
+   ]
   },
   {
    "id": "video-pq9jwax63pc",
@@ -1388,7 +1413,11 @@
    "winner": "potatoesareyum",
    "date": "2026-10-28",
    "turns": 22,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "elkgbiglarge",
+    "potatoesareyum"
+   ]
   },
   {
    "id": "video-ktyq3nes_gm",

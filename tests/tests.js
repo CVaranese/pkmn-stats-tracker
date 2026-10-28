@@ -433,6 +433,41 @@
     check("2693018008: admin pick, Zoroark-Hisui KOs Cresselia, Iron Valiant not brought", same(g.illusion, { p2: [5] }) &&
       same([r("Zoroark-Hisui").kills, r("Zoroark-Hisui").deaths, r("Zoroark-Hisui").brought, r("Iron Valiant").brought], [1, 0, 1, 0]),
       JSON.stringify(rows.filter((x) => x.player === "nezergy").map((x) => [x.pokemon, x.kills, x.deaths, x.brought])));
+    // Illusion.picks: the admin's pick beats the proven stays; with no pick, the proven ones (none here)
+    const b = RS.parseBattle(replay.log);
+    const withPick = Illusion.picks(b, g.illusion, null, null), without = Illusion.picks(b, {}, null, null);
+    check("Illusion.picks: admin's pick, else the proven stays", same(Illusion.hiddenSides(b), ["p2"]) &&
+      same(withPick.illusion, { p2: [5] }) && same(without.illusion, { p2: without.analyses.p2.proven }) &&
+      same(without.analyses.p2.proven, []), JSON.stringify([withPick.illusion, without.illusion]));
+  }
+  // ---- league.js: season maths and HP-or-% text ----
+  {
+    const LG = window.League;
+    const a = { damage_dealt_pct: 120, damage_dealt_hp: 400, hp_est: {}, healing_pct: 10, healing_hp: 30, healing_given_pct: 5, healing_given_hp: 12 };
+    const b = { damage_dealt_pct: 30.4, damage_dealt_hp: 99.6, hp_est: { damage_dealt_hp: true } };
+    const c = { damage_dealt_pct: 50, damage_dealt_hp: "" };
+    check("league: amount in HP when every row has it, ~ when a guess went in, else in %",
+      LG.amount([a], ["damage_dealt_pct"]).text === "400 HP" && LG.amount([a, b], ["damage_dealt_pct"]).text === "~500 HP" &&
+      LG.amount([a, c], ["damage_dealt_pct"]).text === "170%" && LG.amount([a, c], ["damage_dealt_pct"]).hp === false &&
+      LG.amount([a], ["healing_pct", "healing_given_pct"]).text === "42 HP" && LG.amount([], ["damage_dealt_pct"]).text === "0%",
+      JSON.stringify([LG.amount([a, b], ["damage_dealt_pct"]), LG.amount([a, c], ["damage_dealt_pct"])]));
+    check("league: moveDealt", LG.moveDealt({ dealt_hp: 120, dealt_hp_est: true, dealt_pct: 40 }) === "~120 HP" &&
+      LG.moveDealt({ dealt_hp: "", dealt_pct: 40.4 }) === "40%");
+    check("league: totalLuck adds the numbers, blank when none", LG.totalLuck([0.25, "", -0.125, null]) === 0.13 && LG.totalLuck(["", null]) === "");
+    const g1 = { move_stats: [{ move: "Earthquake", source: 0, uses: 2, dealt_pct: 80, kos: 1, dealt_hp: 300 },
+      { move: "Stealth Rock", source: 0, uses: 1, dealt_pct: 12, kos: 0, dealt_hp: 40 }] };
+    const g2 = { move_stats: [{ move: "Earthquake", source: 0, uses: 1, dealt_pct: 50, kos: 1, dealt_hp: "" },
+      { move: "Burn (status)", source: 1, uses: 0, dealt_pct: 6, kos: 0, dealt_hp: 20 }] };
+    const sm = LG.seasonMoves([g1, g2]);
+    check("league: seasonMoves adds up a move over games; HP blank once a game lacks it; damage sources last",
+      sm.map((m) => `${m.move} ${m.uses} ${m.dealt_pct} ${m.kos} ${m.dealt_hp}`).join(", ") ===
+      "Earthquake 3 130 2 , Stealth Rock 1 12 0 40, Burn (status) 0 6 0 20", JSON.stringify(sm));
+    check("league: bestMove, most damage then KOs, not a damage source", LG.bestMove({ move_stats: sm }).move === "Earthquake" &&
+      LG.bestMove({ move_stats: [{ move: "Protect", source: 0, dealt_pct: 0, kos: 0 }] }) === null);
+    check("league: dealtKey counts a % game at the average max HP", LG.dealtKey([a, c], 300) === 550);
+    check("league: spriteId", ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"]
+      .map(LG.spriteId).join(" ") === "hooh urshifu-rapidstrike zamazenta tapukoko charizard-megax ironvaliant kommoo",
+      ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"].map(LG.spriteId).join(" "));
   }
   // ---- team sheets ----
   const TS = window.TeamSheets;

@@ -31,6 +31,6 @@ Found (sizes worked out from the CSS, not measured on a phone):
 6. Games list: two teams of six 40 px sprites side by side ≈ 520 px before date / note / buttons, so the row
    scrolls sideways and Watch / Stats are off screen.
 7. Team card move rows: fixed columns leave the move name ≈ 20 px at 320 px and ≈ 90 px at 390 px.
-Fixed the same day (CSS under `max-width: 600px`, `pointer: coarse` and `hover: hover`; the tap tip in app.js):
+Fixed the same day (CSS under `max-width: 600px`, `pointer: coarse` and `hover: hover`; the tap tip in app/core.js):
 all 7, with the tab row at 14px / 8px padding (≈ 300px wide, so 320px is borderline). Not seen on a real phone yet.
 Not checked: Copy for Google Sheets / Copy share link (clipboard) and Download CSV on iPhone Safari.

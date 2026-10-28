@@ -163,11 +163,11 @@ button.small { padding: 4px 10px; font-size: 13px; }
   border: 2px solid var(--outline); border-radius: 6px; background: var(--surface); }
 .watch { margin: 0 0 24px; }
 .watch summary { cursor: pointer; font-weight: 600; }
-.modes button[aria-selected="true"] { background: var(--bg); color: var(--text); border-color: var(--outline);
+.modes button[aria-current="true"] { background: var(--bg); color: var(--text); border-color: var(--outline);
   border-bottom: 2px solid var(--bg); }
 .tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .tabs button { border: 0; border-radius: 0; }
-.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-text); }
+.tabs button[aria-current="true"] { background: var(--accent); color: var(--accent-text); }
 
 .table-wrap {
   margin-top: 12px;

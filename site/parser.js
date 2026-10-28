@@ -198,11 +198,16 @@
 
     let mover = null;                   // stint whose move is resolving
     let moveName = null;                // that move, as the log names it (per-move damage / KOs)
-    // Per-target state, keyed by mon key (it survives switching out); values are stints.
-    const statusSrc = new Map();        // mon key -> who inflicted its status
-    const effectSrc = new Map();        // 'key|effect' -> source (Leech Seed, Salt Cure, perish...)
-    const lastOppHit = new Map();       // mon key -> last opposing stint that damaged it
-    const pendingKo = new Map();        // mon key -> [killer, kind], set on the 0 HP damage line
+    // Who did what to each Pokemon, by mon key (it survives switching out; an Illusion reveal moves it to Zoroark):
+    //   status     stint that inflicted its status (null: its own Flame Orb...; absent: no status)
+    //   effects    effect id -> stint that started it (Leech Seed, Salt Cure, Curse, binding, perish)
+    //   lastOpp    last opposing stint that damaged it (the fallback credit)
+    //   pendingKo  [killer, kind, byHazard, move], set on the 0 HP damage line, used by the faint line
+    const targets = new Map();
+    function target(key) {
+      if (!targets.has(key)) targets.set(key, { effects: new Map() });
+      return targets.get(key);
+    }
     const hazardSrc = new Map();        // 'side|hazard' -> setter
     let weatherSrc = null;
     const delayedSrc = new Map();       // 'side|move' -> user of Future Sight / Doom Desire
@@ -247,14 +252,14 @@
 
     /** Snapshot of the per-target state for a key, so an Illusion reveal can restore it. */
     function targetState(key) {
-      const effects = [...effectSrc].filter(([k]) => k.startsWith(key + "|"));
-      return { status: statusSrc.get(key), hasStatus: statusSrc.has(key), lastOpp: lastOppHit.get(key), effects };
+      const t = target(key);
+      return { status: t.status, hasStatus: "status" in t, lastOpp: t.lastOpp, effects: [...t.effects] };
     }
 
     /** Apply the 'source must be an opponent, else fall back' rule. */
     function credit(targetKey, source, kind) {
       if (source && source.side !== sideOf(targetKey)) return [source, kind];
-      const fallback = lastOppHit.get(targetKey);
+      const fallback = target(targetKey).lastOpp;
       return fallback ? [fallback, "passive"] : [null, "none"];
     }
 
@@ -325,16 +330,14 @@
       const oldKey = s.key;
       const entry = s.entryState || targetState(oldKey);
       // per-target state gathered while disguised belongs to Zoroark
-      moveKey(statusSrc, oldKey, newKey);
-      moveKey(lastOppHit, oldKey, newKey);
-      moveKey(pendingKo, oldKey, newKey);
-      for (const [k] of [...effectSrc]) {
-        if (k.startsWith(oldKey + "|")) moveKey(effectSrc, k, newKey + k.slice(oldKey.length));
-      }
+      const from = target(oldKey), to = target(newKey);
+      for (const f of ["status", "lastOpp", "pendingKo"]) if (f in from) to[f] = from[f];
+      for (const [e, src] of from.effects) to.effects.set(e, src);
       // ...and the copied Pokemon gets back what it had before this stint
-      if (entry.hasStatus) statusSrc.set(oldKey, entry.status);
-      if (entry.lastOpp) lastOppHit.set(oldKey, entry.lastOpp);
-      for (const [k, v] of entry.effects) effectSrc.set(k, v);
+      const back = { effects: new Map(entry.effects) };
+      if (entry.hasStatus) back.status = entry.status;
+      if (entry.lastOpp) back.lastOpp = entry.lastOpp;
+      targets.set(oldKey, back);
       if (latestByKey.get(oldKey) === s) {
         if (s.prev) latestByKey.set(oldKey, s.prev); else latestByKey.delete(oldKey);
       }
@@ -535,20 +538,20 @@
         mover = delayedSrc.get(parts[1].slice(0, 2) + "|" + norm(parts[2])) || null;
         moveName = parts[2].replace(/^move: /, "");
       } else if (cmd === "-status") {
-        const target = monKey(parts[1]);
+        const key = monKey(parts[1]);
         const frm = tags.from || "";
-        if ("of" in tags) statusSrc.set(target, stintOf(tags.of));
-        else if (frm.startsWith("item:")) statusSrc.set(target, null); // Flame Orb / Toxic Orb
-        else if (mover) statusSrc.set(target, mover);
-        else statusSrc.set(target, hazardSrc.get(sideOf(target) + "|toxicspikes") || null);
-        statusOf.set(target, parts[2]);
-        if (parts[2] === "slp") sleepOf.set(target, { rest: norm(frm) === "rest", attempts: 0 });
+        if ("of" in tags) target(key).status = stintOf(tags.of);
+        else if (frm.startsWith("item:")) target(key).status = null; // Flame Orb / Toxic Orb
+        else if (mover) target(key).status = mover;
+        else target(key).status = hazardSrc.get(sideOf(key) + "|toxicspikes") || null;
+        statusOf.set(key, parts[2]);
+        if (parts[2] === "slp") sleepOf.set(key, { rest: norm(frm) === "rest", attempts: 0 });
         // a damaging move's secondary effect (a status move makes no hit roll)
         const t = stintOf(parts[1]);
         if (ctx && !frm && ctx.lastHit.has(t)) { ctx.lastHit.get(t).status = parts[2]; ctx.actor.procs += 1; }
       } else if (cmd === "-curestatus") {
         const key = monKey(parts[1]);
-        statusSrc.delete(key);
+        delete target(key).status;
         statusOf.delete(key);
         // waking up / thawing on its own, right before moving (Chesto / Lum / Shed Skin show a line about it first)
         const cause = (prevParts[0] === "-enditem" || prevParts[0] === "-activate") && monKey(prevParts[1] || "") === key;
@@ -643,7 +646,7 @@
       } else if (cmd === "-end" && parts[2] === "typechange") {
         stintOf(parts[1]).types = null;
       } else if (cmd === "-start" || cmd === "-activate") {
-        const target = monKey(parts[1]);
+        const key = monKey(parts[1]);
         const s = stintOf(parts[1]);
         if (cmd === "-activate" && parts[2] === "confusion") {
           endMove(); // it is about to act
@@ -671,7 +674,7 @@
         // effect ended unlogged on a switch-out). Perish Song's countdown lines (perish2..0) keep the singer.
         const fresh = (cmd === "-start" && !/^perish[0-2]$/.test(norm(parts[2]))) || "of" in tags;
         if (cmd === "-activate" && effect === "destinybond") destinyBond = stintOf(parts[1]);
-        else if (src && (fresh || !effectSrc.has(target + "|" + effect))) effectSrc.set(target + "|" + effect, src);
+        else if (src && (fresh || !target(key).effects.has(effect))) target(key).effects.set(effect, src);
       } else if (cmd === "-sidestart") {
         const side = parts[1].slice(0, 2), hazard = norm(parts[2]);
         hazardSrc.set(side + "|" + hazard, mover);
@@ -709,7 +712,7 @@
         const hp = hpOf(parts[2]);
         if (hp !== null) hit(stintOf(parts[1]), mover, hp, false, moveName);
       } else if (cmd === "-damage") {
-        const target = monKey(parts[1]);
+        const key = monKey(parts[1]);
         let source, kind, hazard = false;
         let move = null;                // the move it counts for: the one resolving, or a hazard / Leech Seed...
         if (!("from" in tags) || /^pokemon:/i.test(tags.from)) { // no tag, or Disguise bust
@@ -718,20 +721,20 @@
           const frm = norm(tags.from);
           kind = "passive";
           const named = tags.from.replace(/^move: /, "");
-          if (STATUS_DAMAGE.has(frm)) { source = statusSrc.get(target); move = STATUS_NAMES[frm] + " (status)"; }
-          else if ("of" in tags && monKey(tags.of) !== target) { // Leech Seed, Rocky Helmet...
+          if (STATUS_DAMAGE.has(frm)) { source = target(key).status; move = STATUS_NAMES[frm] + " (status)"; }
+          else if ("of" in tags && monKey(tags.of) !== key) { // Leech Seed, Rocky Helmet...
             source = stintOf(tags.of);
             const ai = /^(ability|item): (.+)$/.exec(tags.from);
             move = ai ? `${ai[2]} (${ai[1]})` : named;
-          } else if (HAZARDS.has(frm)) { source = hazardSrc.get(sideOf(target) + "|" + frm); hazard = true; move = named; }
+          } else if (HAZARDS.has(frm)) { source = hazardSrc.get(sideOf(key) + "|" + frm); hazard = true; move = named; }
           else if (WEATHERS.has(frm)) { source = weatherSrc; move = named + " (weather)"; }
-          else if (effectSrc.has(target + "|" + frm)) { source = effectSrc.get(target + "|" + frm); move = named; } // Salt Cure, Curse, binding
+          else if (target(key).effects.has(frm)) { source = target(key).effects.get(frm); move = named; } // Salt Cure, Curse, binding
           else source = null; // recoil, Life Orb, confusion, etc.
         }
-        if (source && source.side !== sideOf(target)) lastOppHit.set(target, source);
+        if (source && source.side !== sideOf(key)) target(key).lastOpp = source;
         if ((parts[2] || "").startsWith("0")) {
-          const [killer, k] = "from" in tags && SELF_KO_DAMAGE.has(norm(tags.from)) ? [null, "self"] : credit(target, source, kind);
-          pendingKo.set(target, [killer, k, hazard && killer === source, killer === source ? move : null]);
+          const [killer, k] = "from" in tags && SELF_KO_DAMAGE.has(norm(tags.from)) ? [null, "self"] : credit(key, source, kind);
+          target(key).pendingKo = [killer, k, hazard && killer === source, killer === source ? move : null];
         }
         const hp = hpOf(parts[2]);
         if (hp !== null) hit(stintOf(parts[1]), source, hp, hazard, move);
@@ -747,14 +750,15 @@
         if (!victim.acted) victim.koBeforeMoving += 1;
         statusOf.delete(victim.key);
         let killer, kind, byHazard = false, move = null;
-        if (pendingKo.has(victim.key)) {
-          [killer, kind, byHazard, move] = pendingKo.get(victim.key);
-          pendingKo.delete(victim.key);
+        const vt = target(victim.key);
+        if (vt.pendingKo) {
+          [killer, kind, byHazard, move] = vt.pendingKo;
+          delete vt.pendingKo;
         } else if (destinyBond && destinyBond.side !== victim.side) {
           [killer, kind, move] = [destinyBond, "direct", "Destiny Bond"];
-        } else if (effectSrc.has(victim.key + "|perish")) {
-          [killer, kind] = credit(victim.key, effectSrc.get(victim.key + "|perish"), "passive");
-          if (killer === effectSrc.get(victim.key + "|perish")) move = "Perish Song";
+        } else if (vt.effects.has("perish")) {
+          [killer, kind] = credit(victim.key, vt.effects.get("perish"), "passive");
+          if (killer === vt.effects.get("perish")) move = "Perish Song";
         } else {
           // Explosion, Memento, Final Gambit...; a faint with no cause seen at all stays "none"
           [killer, kind] = [null, mover === victim && SELF_KO_MOVES.has(norm(moveName || "")) ? "self" : "none"];

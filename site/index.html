@@ -30,13 +30,13 @@
       </div>
     </header>
 
-    <nav class="modes" role="tablist" aria-label="View">
-      <button role="tab" data-mode="one" aria-selected="true" type="button">Main viewer</button>
-      <button role="tab" data-mode="games" aria-selected="false" type="button">Games</button>
-      <button role="tab" data-mode="players" aria-selected="false" type="button">Players</button>
-      <button role="tab" data-mode="mons" aria-selected="false" type="button">Pokémon</button>
-      <button role="tab" data-mode="many" aria-selected="false" type="button">Playoffs</button>
-      <button role="tab" data-mode="bet" aria-selected="false" type="button">Gambling</button>
+    <nav class="modes" aria-label="View">
+      <button data-mode="one" aria-current="true" type="button">Main viewer</button>
+      <button data-mode="games" type="button">Games</button>
+      <button data-mode="players" type="button">Players</button>
+      <button data-mode="mons" type="button">Pokémon</button>
+      <button data-mode="many" type="button">Playoffs</button>
+      <button data-mode="bet" type="button">Gambling</button>
     </nav>
 
     <section id="gambling" class="gambling" hidden>
@@ -90,7 +90,7 @@
       <details id="bracket" class="watch">
         <summary>Bracket</summary>
         <p class="hint">From <a href="https://challonge.com/peepeepeepeepiss" target="_blank" rel="noopener">Challonge</a>. It shows every result.</p>
-        <iframe id="bracket-frame" title="League bracket" hidden></iframe>
+        <iframe id="bracket-frame" title="League bracket" referrerpolicy="no-referrer" loading="lazy" hidden></iframe>
       </details>
       <div id="lib-watch" class="lib-watch" hidden>
         <div class="row">
@@ -168,9 +168,9 @@
         </ul>
       </details>
       <div class="toolbar">
-        <div class="tabs" role="tablist">
-          <button role="tab" data-view="summary" aria-selected="true" type="button">Leaderboard</button>
-          <button role="tab" data-view="games" aria-selected="false" type="button">Per game</button>
+        <div class="tabs">
+          <button data-view="summary" aria-current="true" type="button">Leaderboard</button>
+          <button data-view="games" type="button">Per game</button>
         </div>
         <label class="inline" id="group-wrap">Group by
           <select id="group">
@@ -197,6 +197,17 @@
   <script src="luck.js"></script>
   <script src="illusion.js"></script>
   <script src="bet.js"></script>
-  <script src="app.js"></script>
+  <script src="league.js"></script>
+  <!-- the page: plain scripts sharing one scope, in this order; startup.js last -->
+  <script src="app/core.js"></script>
+  <script src="app/games.js"></script>
+  <script src="app/season.js"></script>
+  <script src="app/zoroark.js"></script>
+  <script src="app/gambling.js"></script>
+  <script src="app/players.js"></script>
+  <script src="app/mons.js"></script>
+  <script src="app/sheets.js"></script>
+  <script src="app/main.js"></script>
+  <script src="app/startup.js"></script>
 </body>
 </html>

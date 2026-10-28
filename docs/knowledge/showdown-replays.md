@@ -70,7 +70,7 @@ Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond 
   Pokémon of gen9nationaldex-2705117998 (Iron Crown, Tapu Koko, Zamazenta, Kingambit… included).
 - **Guess (from Showdown's naming):** `<id>` = species ID, plus `-` + form ID for forms: `urshifu-rapidstrike`,
   `necrozma-dawnwings`, `latios-mega`. Names whose hyphen is part of the species have none: `hooh`, `porygonz`,
-  `kommoo`, `chienpao`, `nidoranf`. Only the gen9nationaldex-2705117998 team was checked; `app.js` falls back to
+  `kommoo`, `chienpao`, `nidoranf`. Only the gen9nationaldex-2705117998 team was checked; `app/core.js` falls back to
   initials when a sprite fails.
 - **Tested:** team preview can show `Zamazenta-*` while plain `Zamazenta` is sent out, so `-*` must also match the
   base form, not only `Zamazenta-Crowned`.
@@ -91,8 +91,8 @@ Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond 
 ## Luck score spread (2026-10-26, 30-game corpus + 4 Nat Dex fixtures)
 - **Tested:** player luck (own minus opponent's) over 68 player-games: p10 -2.51, p25 -0.92, median 0, p75 0.87, p90 1.85, range ±3.05.
   Pokémon luck over 352 brought Pokémon: p10 -0.34, p25 -0.12, median -0.04, p75 0, p90 0.20, range -2.08..1.88.
-  Used for the word cut-offs in app.js (`LUCK_STEPS`).
-- **Tested:** all 164 species in the corpus and fixtures have a gen5 sprite at the id app.js builds (all returned 200).
+  Used for the word cut-offs in app/core.js (`LUCK_STEPS`).
+- **Tested:** all 164 species in the corpus and fixtures have a gen5 sprite at the id app.js (now `League.spriteId`) builds (all returned 200).
 
 ## Replay player embed (2026-10-27)
 - **Researched (read the script):** `https://play.pokemonshowdown.com/js/replay-embed.js` (MIT, "can also be used by third parties to embed PS replays") plays a battle from a log on any page. It reads the log from `<script type="text/plain" class="battle-log-data">`, uses an existing `.wrapper` (with `.battle`, `.battle-log`, `.replay-controls`, `.replay-controls-2`) or appends one, and starts on `window.onload` (`Replays.init()`). It pulls jQuery, `battle.js`, data files, CSS and sprites from play.pokemonshowdown.com, so it only works while Showdown is up. Downloaded replay HTML files use the same script.

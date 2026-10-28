@@ -51,13 +51,13 @@ def fetch(rid):
         with urllib.request.urlopen(req, timeout=30) as resp:
             return json.load(resp)
     except (urllib.error.URLError, TimeoutError) as e:
+        if isinstance(e, urllib.error.HTTPError) and e.code < 500:
+            sys.exit(f"{rid}: not found (deleted, private, or never saved)" if e.code == 404 else f"{rid}: HTTP {e.code}")
         # Showdown down: a copy already saved in the repo will do
         for saved in SAVED:
             if (saved / (rid + ".json")).exists():
                 print(f"Showdown didn't answer ({e}); using {saved.name}/{rid}.json")
                 return json.loads((saved / (rid + ".json")).read_text(encoding="utf-8"))
-        if getattr(e, "code", None) == 404:
-            sys.exit(f"{rid}: not found (deleted, private, or never saved)")
         sys.exit(f"{rid}: Showdown didn't answer ({e}). Try again later, or pass --file with a saved copy.")
 
 
@@ -117,9 +117,10 @@ def main():
     if old is None:
         games.append(entry)
     else:
-        # hidden-Zoroark picks, the misread lines of a stream video and the hover note stay on a relabel
-        for k in ("illusion", "known_errors", "note_detail"):
-            if k in games[old]: entry[k] = games[old][k]
+        # everything the new entry doesn't set stays on a relabel (hidden-Zoroark picks, a stream video's misread
+        # lines, the hover note, team sheets...)
+        for k, v in games[old].items():
+            entry.setdefault(k, v)
         if "known_errors" in entry and not args.note: entry["note"] = games[old]["note"]
         games[old] = entry
     write_atomic(INDEX, json.dumps(index, ensure_ascii=False, indent=1) + "\n")

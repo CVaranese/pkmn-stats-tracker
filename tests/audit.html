@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Library audit</title></head>
+<body>
+<!-- Every saved league game (site/games/) through parser.js, with hidden-Zoroark picks as the site counts them.
+     Title PASS / FAIL (n): FAIL lines break a rule that holds in every game; the other lines are worth a look.
+     Run: .claude/skills/test/run-audit.ps1 (the add-game skill runs it after adding a game). -->
+<pre id="out">running</pre>
+<script src="../site/parser.js"></script>
+<script src="../site/teams.js"></script>
+<script src="../site/bet.js"></script>
+<script src="../site/illusion.js"></script>
+<script>
+const RS = window.ReplayStats, TS = window.TeamSheets, Bet = window.Bet, IL = window.Illusion;
+(async () => {
+  const out = [];
+  // fail: a rule that holds in every game (kills balance, winner / turns, team preview, one MVP, draft pool...);
+  // note: worth a look, often explained (Regenerator heals, Revival Blessing, a hidden Zoroark, stream-video misreads)
+  const fails = [];
+  const fail = (id, msg) => fails.push("FAIL " + id + " | " + msg);
+  const note = (id, msg) => out.push(id + " | " + msg);
+  const lib = (await (await fetch("../site/games/index.json")).json()).games;
+  const draft = await (await fetch("../site/games/draft.json")).json();
+  const all = [];
+  const learn = await IL.loadLearnsets("../site/data/learnsets.json");
+  const dex = await (await fetch("../site/data/pokedex.json")).json();
+  for (const g of lib) {
+    let replay;
+    try { replay = await (await fetch("../site/games/" + g.id + ".json")).json(); } catch (e) { fail(g.id, "won't load"); continue; }
+    // hidden Zoroark: the site's rule (illusion.js), with the library's picks; the admin's local picks don't apply here
+    const zb = RS.parseBattle(replay.log);
+    if (IL.hiddenSides(zb).length) {
+      const { illusion, analyses } = IL.picks(zb, g.illusion, learn, dex);
+      replay.illusion = illusion;
+      for (const sd of Object.keys(illusion)) note(g.id, `zoroark ${sd}: proven ${JSON.stringify(analyses[sd].proven)} used ${JSON.stringify(illusion[sd])}`);
+    }
+    let rows;
+    try { rows = RS.gameRows(replay); } catch (e) { fail(g.id, "gameRows crash " + e.message); continue; }
+    const tag = (g.id.startsWith("video") ? "VIDEO " : "") + g.week + " " + g.players.join(" v ") + " (" + g.id + ")";
+    // a switch-in above the HP it last had, nothing logged healing it in between: a misread HP (stream videos).
+    // Regenerator heals a third on switching out without a log line. A hidden Zoroark can trip this too.
+    const lastHp = new Map();
+    for (const line of replay.log.split("\n")) {
+      const p = line.split("|"), cmd = p[1];
+      if (!["switch", "drag", "-damage", "-heal", "-sethp"].includes(cmd)) continue;
+      const key = p[2].replace(/^(p\d)[a-z]:/, "$1:");
+      const text = cmd === "switch" || cmd === "drag" ? p[4] : p[3];
+      const hp = /^0 fnt/.test(text || "") ? 0 : parseInt(text, 10);
+      if (Number.isNaN(hp)) continue;
+      if ((cmd === "switch" || cmd === "drag") && lastHp.has(key)) {
+        const species = p[3].split(",")[0];
+        const regen = Object.values((dex[TS.toID(species)] || {}).abilities || {}).includes("Regenerator");
+        if (hp > lastHp.get(key) + (regen ? 34 : 0)) note(tag, `${key} (${species}) switches in at ${hp}% but last had ${lastHp.get(key)}%`);
+      }
+      lastHp.set(key, hp);
+    }
+    const sides = [...new Set(rows.map((r) => r.player))];
+    if (sides.length !== 2) fail(tag, "sides " + sides.join(","));
+    const br = (p) => rows.filter((r) => r.player === p && r.brought);
+    const s = (rs, f) => rs.reduce((t, r) => t + (Number(r[f]) || 0), 0);
+    const end = rows[0] && rows[0].end_reason;
+    // winner / turns vs index.json
+    const winners = sides.filter((p) => br(p).some((r) => r.won));
+    if (g.winner && (winners.length !== 1 || TS.toID(winners[0]) !== TS.toID(g.winner))) fail(tag, `winner: index ${g.winner}, rows ${winners}`);
+    if (g.turns && rows[0] && rows[0].turns !== g.turns) fail(tag, `turns: index ${g.turns}, rows ${rows[0].turns}`);
+    for (const p of sides) {
+      const me = br(p), opp = br(sides.find((x) => x !== p));
+      const kills = s(me, "kills"), oppDeaths = s(opp, "deaths"), oppSelf = s(opp, "self_kos");
+      if (kills + oppSelf !== oppDeaths) fail(tag, `${p}: kills ${kills} + opp self-KOs ${oppSelf} != opp deaths ${oppDeaths}`);
+      if (me.length > 6 || me.length < 1) note(tag, `${p}: brought ${me.length}`);
+      const won = me.some((r) => r.won);
+      if (end === "normal" && !won && s(me, "deaths") !== me.length) note(tag, `${p} lost normally but deaths ${s(me, "deaths")} of brought ${me.length}`);
+      for (const r of me) {
+        if (r.deaths + r.survived !== 1) note(tag, `${p} ${r.pokemon}: deaths ${r.deaths} survived ${r.survived}`);
+        const ms = r.move_stats || [];
+        const mk = ms.reduce((t, m) => t + m.kos, 0), md = ms.reduce((t, m) => t + m.dealt_pct, 0);
+        if (mk !== r.kills) fail(tag, `${p} ${r.pokemon}: move KOs ${mk} != kills ${r.kills}`);
+        if (Math.abs(md - r.damage_dealt_pct) > 0.6) note(tag, `${p} ${r.pokemon}: move dealt ${md} != dealt ${r.damage_dealt_pct}`);
+        for (const f of ["damage_dealt_pct", "damage_taken_pct", "healing_pct", "healing_given_pct", "hazard_damage_pct"]) if (r[f] < 0) note(tag, `${p} ${r.pokemon}: ${f} ${r[f]}`);
+        if (r.damage_taken_pct > 100 + r.healing_pct + s(rows.filter((x) => x.player === p), "healing_given_pct") + 1) note(tag, `${p} ${r.pokemon}: taken ${r.damage_taken_pct} > 100 + healed ${r.healing_pct}`);
+        if (r.direct_kills + r.passive_kills !== r.kills) note(tag, `${p} ${r.pokemon}: direct+passive != kills`);
+        if (r.hazard_kills > r.passive_kills) note(tag, `${p} ${r.pokemon}: hazard kills > passive`);
+        for (const [t, pct] of r.hits_dealt || []) if (!rows.some((o) => o.mon_key === t)) note(tag, `${p} ${r.pokemon}: hit ${pct}% on ${t}, which has no row`);
+        if (r.mega && !r.mega_form) note(tag, `${p} ${r.pokemon}: mega without mega_form`);
+        // the drafted Pokemon
+        const d = Bet.drafted(draft, p, r.pokemon);
+        if (!d) fail(tag, `${p} ${r.pokemon}: not in ${p}'s draft pool`);
+      }
+      // damage A dealt vs damage B took (B's taken includes self-inflicted)
+      const dealt = s(me, "damage_dealt_pct"), taken = s(opp, "damage_taken_pct");
+      if (dealt > taken + 1) note(tag, `${p}: dealt ${dealt.toFixed(0)}% > opp taken ${taken.toFixed(0)}%`);
+      if (taken - dealt > 150) note(tag, `${p}: opp took ${taken.toFixed(0)}% but ${p} dealt only ${dealt.toFixed(0)}% (self/unattributed ${(taken - dealt).toFixed(0)})`);
+      const mvps = me.filter((r) => r.mvp).length;
+      if (mvps !== 1) fail(tag, `${p}: ${mvps} MVPs`);
+      // teams in index.json vs team preview rows
+      const ti = g.players.findIndex((x) => TS.toID(x) === TS.toID(p));
+      if (g.teams && ti >= 0) {
+        const preview = rows.filter((r) => r.player === p).map((r) => TS.toID(r.pokemon)).sort().join(",");
+        const idx = g.teams[ti].map((x) => TS.toID(x)).sort().join(",");
+        if (preview !== idx) fail(tag, `${p}: team preview ${preview} vs index ${idx}`);
+      }
+    }
+    all.push(...rows);
+  }
+  out.push("ROWS " + all.length + " brought " + all.filter((r) => r.brought).length + " games " + new Set(all.map((r) => r.replay_id)).size);
+  out.push("TOTAL kills " + all.reduce((t, r) => t + r.kills, 0) + " deaths " + all.reduce((t, r) => t + r.deaths, 0) + " selfKOs " + all.reduce((t, r) => t + r.self_kos, 0));
+  document.getElementById("out").textContent = [...fails, ...out].join("\n");
+  document.title = fails.length ? `FAIL (${fails.length})` : "PASS";
+})().catch((e) => { document.getElementById("out").textContent = "CRASH " + e.stack; document.title = "CRASH"; });
+</script></body></html>

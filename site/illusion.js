@@ -158,7 +158,21 @@
     return { zoroark: zoro, stints: out, proven: out.filter((o) => o.verdict === "zoroark").map((o) => o.n), splits };
   }
 
-  const api = { loadLearnsets, parseLearnsets, canLearn, analyze };
+  /** Sides whose Zoroark never dropped its disguise in a parsed battle (ReplayStats.parseBattle). */
+  const hiddenSides = (battle) => Object.keys(battle.illusion).filter((sd) => battle.hiddenZoroark[sd]);
+
+  /** Which stays count as Zoroark, per hidden side: the admin's pick when there is one (chosen = { p1: [n, ...] }, from
+      index.json or tried out locally), else the stays analyze() proves. Returns { illusion: { side: [n] }, analyses }. */
+  function picks(battle, chosen, learn, dex) {
+    const illusion = {}, analyses = {};
+    for (const side of hiddenSides(battle)) {
+      analyses[side] = analyze(battle.illusion[side], learn, dex);
+      illusion[side] = chosen && side in chosen ? chosen[side] : analyses[side].proven;
+    }
+    return { illusion, analyses };
+  }
+
+  const api = { loadLearnsets, parseLearnsets, canLearn, analyze, hiddenSides, picks };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.Illusion = api;
 })(typeof window !== "undefined" ? window : globalThis);

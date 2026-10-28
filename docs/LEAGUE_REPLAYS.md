@@ -90,3 +90,11 @@ vs Zololab (IYsf4aQc3jQ), Pikmon vs PotatoesAreYum (ek4VkZvwnY0), Dox vs Fingy (
 (s2ZnFx4iR1M) are in site/games/ from their videos, every winner matching Challonge round 7. The Pikmon vs
 PotatoesAreYum stream shows the live battle id gen9nationaldex-2701939365 in the address bar; it isn't uploaded (404).
 Sneez vs Karm (9STJZ-Xvmj8) was already in.
+
+## Team sheets
+
+Saved in `site/mock/<game id>-<player>.txt`; each game lists its players' sheets in `site/games/index.json` (`sheets`).
+- Week 8 PeterPikmon vs weedinmyhonda, Week 8 ElkGBigLarge vs potatoesareyum: both sheets, from the user.
+- doxsego's own sheets (from the user), matched to games by team: Weeks 1-6. On the Week 2 sheet (vs weedinmyhonda) the opponent is "Bah Booey"; the
+  Week 6 sheet's "Week 7" label was a typo.
+- potatoesareyum, Week 7 vs peterpikmon.

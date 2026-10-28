@@ -18,5 +18,5 @@ python -I tools/add_game.py <link> --week "Week 3" [--note "Game 2"] [--league p
   and weeks in the order they were first added (latest on top), so add them in play order.
 - Showdown down: the script falls back to a copy in `site/mock/` or `tests/fixtures/`, else stops with a message;
   `--file <saved.json>` uses a copy the user downloaded.
-- Check each printed line (players, winner, turns) looks right, run the `test` skill, take a `screenshot` with
+- Check each printed line (players, winner, turns) looks right, run the `test` skill and `.claude/skills/test/run-audit.ps1` (every saved game: PASS, or FAIL lines to fix before committing; with `-All` the lines worth a look, e.g. a stream game's misread HP), take a `screenshot` with
   `-Query tab=games`, then commit `site/games/` with a message listing the games added.

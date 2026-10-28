@@ -36,9 +36,10 @@ def grab(video, out_dir, times, box, jsonl, filt=FILTER):
 
 def load_frames(jsonl):
     frames = collections.OrderedDict()
-    for line in open(jsonl, encoding="utf-8"):
-        o = json.loads(line)
-        frames.setdefault(o["frame"], []).append(o)
+    with open(jsonl, encoding="utf-8") as f:
+        for line in f:
+            o = json.loads(line)
+            frames.setdefault(o["frame"], []).append(o)
     for f in frames:
         frames[f].sort(key=lambda o: (o["y"], o["x"]))
     return frames
@@ -251,7 +252,9 @@ def main():
         dest = os.path.join(args.templates, kind + ".js")
         if not os.path.exists(dest):
             import urllib.request
-            urllib.request.urlretrieve(f"https://cdn.jsdelivr.net/npm/pokemon-showdown@0.11.11/dist/data/text/{kind}.js", dest)
+            url = f"https://cdn.jsdelivr.net/npm/pokemon-showdown@0.11.11/dist/data/text/{kind}.js"
+            with urllib.request.urlopen(url, timeout=60) as resp, open(dest, "wb") as f:
+                f.write(resp.read())
 
     grab(args.video, w("log"), [t * 5 for t in range(int(args.start // 5), int(args.length // 5) + 1)], args.log_box, w("log.jsonl"), args.filter)
     log_frames = load_frames(w("log.jsonl"))
@@ -281,8 +284,8 @@ def main():
 
     comp = vc.compile_templates(vc.load_templates(args.templates))
     score = lambda v: (vc.match(comp, v)[0] is not None, "%" in v or "lost" not in v)
-    move_names = {m["name"].lower() for m in json.load(open(os.path.join(ROOT, "site", "data", "moves.json"),
-                                                            encoding="utf-8")).values()}
+    with open(os.path.join(ROOT, "site", "data", "moves.json"), encoding="utf-8") as f:
+        move_names = {m["name"].lower() for m in json.load(f).values()}
     preview, turns, notes = merge(log_frames, scene_frames, score, move_names)
     with open(w("merged.txt"), "w", encoding="utf-8") as f:
         f.write("".join(l + "\n" for l in preview))

@@ -27,7 +27,8 @@ def main():
     bracket = {p["participant"]["id"]: p["participant"]["name"].strip() for p in t["participants"]}
     rec = {pid: [0, 0] for pid in bracket}
     for m in (m["match"] for m in t["matches"]):
-        if m["state"] != "complete" or not m["winner_id"]:
+        # unfinished, a bye (no loser) or a removed participant: not a result
+        if m["state"] != "complete" or m["winner_id"] not in rec or m["loser_id"] not in rec:
             continue
         rec[m["winner_id"]][0] += 1
         rec[m["loser_id"]][1] += 1
@@ -35,9 +36,11 @@ def main():
     players.sort(key=lambda p: (-p["wins"], p["losses"], p["name"].lower()))
     out = {"source": f"https://challonge.com/{SLUG}", "updated": date.today().isoformat(),
            "players": players}
-    with open(OUT, "w", encoding="utf-8", newline="\n") as f:
+    tmp = OUT + ".tmp"  # written in one step: a crash midway leaves the old records
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
         json.dump(out, f, indent=1, ensure_ascii=False)
         f.write("\n")
+    os.replace(tmp, OUT)
     print(f"{len(players)} players written -> {OUT}")
 
 

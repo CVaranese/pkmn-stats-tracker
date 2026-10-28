@@ -27,7 +27,13 @@ if __name__ == "__main__":
     if pick == "auto":
         picks.pop(side, None)
     else:
-        picks[side] = [] if pick == "none" else sorted({int(n) for n in pick.split(",")})
+        try:
+            ns = [] if pick == "none" else sorted({int(n) for n in pick.split(",")})
+        except ValueError:
+            sys.exit(f"Stays are numbers like 1,8 (or none / auto), not {pick!r}")
+        if any(n < 1 for n in ns):
+            sys.exit("Stays count from 1 (the lead)")
+        picks[side] = ns
     if picks: game["illusion"] = picks
     else: game.pop("illusion", None)
     write_atomic(INDEX, json.dumps(index, ensure_ascii=False, indent=1) + "\n")
