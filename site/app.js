@@ -137,6 +137,7 @@
     $("library").hidden = m !== "games";
     setCollapsed(false);  // the button lives with the results, which a mode change hides
     $("inputs").hidden = noInputs;
+    cancelRun();
     view = m === "one" ? "games" : "summary";
     sort = m === "one" ? { field: "player", dir: 1 } : { field: "kills", dir: -1 };
     rows = [];
@@ -344,10 +345,7 @@
   function pickZoroark(replay, side, ns) {
     savePicks(replay.id, side, ns);
     delete replay.zoroarks;
-    leagueRows = null;
-    fantasyRows = null;
-    players = null;  // Players and Pokémon count again on their next visit
-    mons = null;
+    invalidateLeague();
     run(true);
   }
   const turnSpan = (s) => {
@@ -462,6 +460,15 @@
       megaNames(all);
       return all;
     })());
+  }
+
+  /** Forget everything counted from the league games (a Zoroark pick changed one), so Gambling, Players and
+      Pokémon count again on their next visit. Every cache built from loadLeague goes here. */
+  function invalidateLeague() {
+    leagueRows = null;
+    fantasyRows = null;
+    players = null;
+    mons = null;
   }
 
   async function renderGambling() {
@@ -837,6 +844,7 @@
   $("collapse").addEventListener("click", () => setCollapsed($("collapse").getAttribute("aria-expanded") === "true"));
 
   $("clear").addEventListener("click", () => {
+    cancelRun();
     activeInput().value = "";
     activeInput().dispatchEvent(new Event("input"));
     rows = [];
@@ -858,27 +866,21 @@
   $("download").addEventListener("click", downloadCsv);
   $("share").addEventListener("click", copyShareLink);
 
-  // ?r=id1,id2 opens with those replays filled in and loaded (shareable leaderboard link);
-  // &t=paste1,paste2 adds those Pokepaste team sheets
-  const params = new URLSearchParams(location.search);
-  const sharedPastes = (params.get("t") || "").split(",").map((t) => TS.pokepasteIdFrom(TS.PASTE_HOST + t.trim()))
-    .filter((id) => id && !sheetInputs().some((s) => TS.pokepasteIdFrom(s) === id));
-  for (const id of sharedPastes) addSheetBox(TS.PASTE_HOST + id);
-  if (sharedPastes.length) { $("sheets-wrap").open = true; saveSheets(); }
-  // one replay in the link opens Main viewer, more open Playoffs
-  const shared = RS.replayIdsFromText(params.get("r") || "");
-  if (shared.length === 1) $("one-link").value = linkFor(shared[0]);
-  else if (shared.length) $("links").value = shared.map(linkFor).join("\n");
-  if (shared.length) activeInput().dispatchEvent(new Event("input"));
-  // ?tab=games (or many / bet) opens that tab, e.g. a link to the game list
-  const tabParam = params.get("tab");
-  if (["one", "games", "players", "mons", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
-  setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
-  try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }
 
+  // each run gets a number: a newer run, a tab change or Clear makes an older one stop at its next await, so a slow
+  // game can't replace the one picked after it or show its results on another tab
+  let runSeq = 0;
+  function cancelRun() {
+    runSeq++;
+    $("run").disabled = false;
+  }
   async function run(again) {
+    const my = ++runSeq;
+    const stale = () => my !== runSeq;
     await libraryReady;  // stored games load from site/games/, not Showdown
-    if (mode === "one" && again !== true) pushNav(); // again: the same games counted again (a Zoroark pick) // a new game typed or pasted in: its own history entry
+    if (stale()) return;
+    // a new game typed or pasted in gets its own history entry (again: the same games counted again, after a Zoroark pick)
+    if (mode === "one" && again !== true) pushNav();
     const ids = activeIds();
     const errors = [];
     if (!ids.length) {
@@ -886,74 +888,80 @@
       return;
     }
     $("run").disabled = true;
-    let done = 0;
-    const status = () => { $("status").textContent = `Loading ${done} of ${ids.length}…`; };
-    status();
+    try {
+      let done = 0;
+      const status = () => { if (!stale()) $("status").textContent = `Loading ${done} of ${ids.length}…`; };
+      status();
 
-    // a few at a time, to be gentle on Showdown's server
-    const results = new Array(ids.length);
-    let next = 0;
-    let down = null;                    // first "Showdown is down" error: skip the rest, report it once
-    let notTried = 0;
-    async function worker() {
-      while (next < ids.length) {
-        const i = next++;
-        const id = ids[i];
-        try {
-          if (!cache.has(id)) {
-            if (down) { notTried++; done++; status(); continue; }
-            cache.set(id, await RS.fetchReplay(id));
+      // a few at a time, to be gentle on Showdown's server
+      const results = new Array(ids.length);
+      let next = 0;
+      let down = null;                    // first "Showdown is down" error: skip the rest, report it once
+      let notTried = 0;
+      async function worker() {
+        while (next < ids.length) {
+          const i = next++;
+          const id = ids[i];
+          try {
+            if (!cache.has(id)) {
+              if (down) { notTried++; done++; status(); continue; }
+              cache.set(id, await RS.fetchReplay(id));
+            }
+            results[i] = cache.get(id);
+          } catch (e) {
+            if (e.down) { down = down || e; notTried++; } else errors.push(`${id}: ${e.message || e}`);
           }
-          results[i] = cache.get(id);
-        } catch (e) {
-          if (e.down) { down = down || e; notTried++; } else errors.push(`${id}: ${e.message || e}`);
+          done++;
+          status();
         }
-        done++;
-        status();
       }
-    }
-    await Promise.all([worker(), worker(), worker(), worker()]);
-    if (down) {
-      errors.unshift(`Pokémon Showdown isn't responding, so ${notTried} replay${notTried === 1 ? " wasn't" : "s weren't"} loaded: ` +
-        `${down.message}.`);
-    }
-
-    rows = [];
-    await Promise.all(results.map((r) => prepareIllusion(r).catch((e) => {
-      delete r.zoroarks;  // try again on the next run
-      errors.push(`${r.id}: the hidden Zoroark check failed (${e.message || e}), so whatever it did is counted on the Pokémon it copied.`);
-    })));
-    for (const r of results) if (r && r.illusionNote) errors.push(`${r.id}: ${r.illusionNote}.`);
-    for (const replay of results) {
-      if (!replay) continue;
-      try {
-        rows.push(...RS.gameRows(replay));
-      } catch (e) {
-        errors.push(`${replay.id}: could not read the battle log (${e.message || e})`);
+      await Promise.all([worker(), worker(), worker(), worker()]);
+      if (stale()) return;
+      if (down) {
+        errors.unshift(`Pokémon Showdown isn't responding, so ${notTried} replay${notTried === 1 ? " wasn't" : "s weren't"} loaded: ` +
+          `${down.message}.`);
       }
+
+      const rs = [];  // this run's rows; they replace the shown ones only if no newer run started meanwhile
+      await Promise.all(results.map((r) => prepareIllusion(r).catch((e) => {
+        delete r.zoroarks;  // try again on the next run
+        errors.push(`${r.id}: the hidden Zoroark check failed (${e.message || e}), so whatever it did is counted on the Pokémon it copied.`);
+      })));
+      for (const r of results) if (r && r.illusionNote) errors.push(`${r.id}: ${r.illusionNote}.`);
+      for (const replay of results) {
+        if (!replay) continue;
+        try {
+          rs.push(...RS.gameRows(replay));
+        } catch (e) {
+          errors.push(`${replay.id}: could not read the battle log (${e.message || e})`);
+        }
+      }
+      await loadDraft();  // before the sheets: draft aliases (DEJIME17 -> DEJIME) for the player's other sheets
+      await addMockSheets(ids);
+      await applySheets(rs, errors);
+      await applyLuck(rs, errors);
+      if (stale()) return;
+      megaNames(rs);
+      rows = rs;
+      const ok = results.filter(Boolean).length;
+      $("status").textContent = `Loaded ${ok} replay${ok === 1 ? "" : "s"}` +
+        (ids.length > ok ? `, ${ids.length - ok} failed.` : ".");
+      $("errors").hidden = !errors.length;
+      $("errors").replaceChildren(...errors.map((t) => Object.assign(document.createElement("li"), { textContent: t })));
+      renderZoroarks(results);
+
+      const players = [...new Set(rows.map((r) => r.player))].sort((a, b) => a.localeCompare(b));
+      const current = $("player").value;
+      $("player").replaceChildren(new Option("All players", ""), ...players.map((p) => new Option(p, p)));
+      if (players.includes(current)) $("player").value = current;
+
+      $("results").hidden = !rows.length;
+      renderTeams();
+      updateWatch();
+      render();
+    } finally {
+      if (!stale()) $("run").disabled = false;
     }
-    await loadDraft();  // before the sheets: draft aliases (DEJIME17 -> DEJIME) for the player's other sheets
-    await addMockSheets(ids);
-    await applySheets(errors);
-    await applyLuck(errors);
-    megaNames(rows);
-    const ok = results.filter(Boolean).length;
-    $("status").textContent = `Loaded ${ok} replay${ok === 1 ? "" : "s"}` +
-      (ids.length > ok ? `, ${ids.length - ok} failed.` : ".");
-    $("errors").hidden = !errors.length;
-    $("errors").replaceChildren(...errors.map((t) => Object.assign(document.createElement("li"), { textContent: t })));
-    renderZoroarks(results);
-    $("run").disabled = false;
-
-    const players = [...new Set(rows.map((r) => r.player))].sort((a, b) => a.localeCompare(b));
-    const current = $("player").value;
-    $("player").replaceChildren(new Option("All players", ""), ...players.map((p) => new Option(p, p)));
-    if (players.includes(current)) $("player").value = current;
-
-    $("results").hidden = !rows.length;
-    renderTeams();
-    updateWatch();
-    render();
   }
 
   // ---------- team summary (one game only) ----------
@@ -1521,7 +1529,7 @@
   }
 
   /** Read every sheet box, match the sheets to the loaded games, add max HP / item / ability / moves to rows. */
-  async function applySheets(errors) {
+  async function applySheets(rows, errors) {
     const boxes = [...$("sheets").querySelectorAll(".sheet")];
     const sheets = await Promise.all(boxes.map(async (box) => {
       const text = box.querySelector("textarea").value;
@@ -1563,7 +1571,7 @@
   }
 
   /** Luck score columns: need Showdown's move data (and the Pokedex for types); blank if they don't load. */
-  async function applyLuck(errors) {
+  async function applyLuck(rows, errors) {
     let data = null;
     if (rows.length) {
       try {
@@ -1583,8 +1591,9 @@
   }
 
   // phones can't hover: a tap on anything with a title (luck words, sprites…) shows it in a tip under it.
-  // Headers call showTip themselves (first tap explains, second sorts). var: render() may run before this line.
-  var TOUCH = matchMedia("(hover: none)").matches, tip = null, tipTimer = 0, tipKey = "";
+  // Headers call showTip themselves (first tap explains, second sorts).
+  const TOUCH = matchMedia("(hover: none)").matches;
+  let tip = null, tipTimer = 0, tipKey = "";
   function showTip(target, text, key = "") {
     if (!tip) {
       tip = el("div", "tap-tip");
@@ -1614,4 +1623,23 @@
       showTip(t, t.title);
     }, true);  // capture: measure before the element's own click handler can re-render it
   }
+  // ---------- startup: last, so everything above is declared ----------
+
+  // ?r=id1,id2 opens with those replays filled in and loaded (shareable leaderboard link);
+  // &t=paste1,paste2 adds those Pokepaste team sheets
+  const params = new URLSearchParams(location.search);
+  const sharedPastes = (params.get("t") || "").split(",").map((t) => TS.pokepasteIdFrom(TS.PASTE_HOST + t.trim()))
+    .filter((id) => id && !sheetInputs().some((s) => TS.pokepasteIdFrom(s) === id));
+  for (const id of sharedPastes) addSheetBox(TS.PASTE_HOST + id);
+  if (sharedPastes.length) { $("sheets-wrap").open = true; saveSheets(); }
+  // one replay in the link opens Main viewer, more open Playoffs
+  const shared = RS.replayIdsFromText(params.get("r") || "");
+  if (shared.length === 1) $("one-link").value = linkFor(shared[0]);
+  else if (shared.length) $("links").value = shared.map(linkFor).join("\n");
+  if (shared.length) activeInput().dispatchEvent(new Event("input"));
+  // ?tab=games (or many / bet) opens that tab, e.g. a link to the game list
+  const tabParam = params.get("tab");
+  if (["one", "games", "players", "mons", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
+  setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
+  try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }
 })();
