@@ -122,7 +122,12 @@
    "winner": "nezergy",
    "date": "2026-10-05",
    "turns": 15,
-   "note": ""
+   "note": "",
+   "illusion": {
+    "p2": [
+     5
+    ]
+   }
   },
   {
    "id": "gen9nationaldex-2696941700",

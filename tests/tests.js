@@ -406,6 +406,19 @@
       JSON.stringify([...b.species]));
   }
 
+  {
+    // gen9nationaldex-2693018008 (Week 5): the league admin's pick in index.json says nezergy's "Iron Valiant"
+    // (stint 5, turns 14-15) was Zoroark-Hisui. Hand-counted: it KOs Cresselia (Space Lapras) with Shadow Ball
+    // on turn 15; the real Iron Valiant never came in.
+    const index = await (await fetch("../site/games/index.json")).json();
+    const g = index.games.find((x) => x.id === "gen9nationaldex-2693018008");
+    const replay = await (await fetch("../site/games/gen9nationaldex-2693018008.json")).json();
+    const rows = RS.gameRows({ ...replay, illusion: g.illusion });
+    const r = (sp) => rows.find((x) => x.player === "nezergy" && x.pokemon === sp) || {};
+    check("2693018008: admin pick, Zoroark-Hisui KOs Cresselia, Iron Valiant not brought", same(g.illusion, { p2: [5] }) &&
+      same([r("Zoroark-Hisui").kills, r("Zoroark-Hisui").deaths, r("Zoroark-Hisui").brought, r("Iron Valiant").brought], [1, 0, 1, 0]),
+      JSON.stringify(rows.filter((x) => x.player === "nezergy").map((x) => [x.pokemon, x.kills, x.deaths, x.brought])));
+  }
   // ---- team sheets ----
   const TS = window.TeamSheets;
   const EXPORT = `=== [gen9nationaldex] League ===
