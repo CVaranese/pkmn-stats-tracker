@@ -1,0 +1,57 @@
+Slayus ex machina (Ceruledge) @ Life Orb  
+Ability: Flash Fire  
+Happiness: 0  
+EVs: 4 HP / 252 Atk / 252 Spe  
+Adamant Nature  
+- Bitter Blade  
+- Poltergeist  
+- Close Combat  
+- Shadow Sneak  
+
+Lola-punny (Lopunny-Mega) @ Lopunnite  
+Ability: Scrappy  
+EVs: 48 HP / 236 Def / 224 Spe  
+Jolly Nature  
+- Triple Axel  
+- Healing Wish  
+- Close Combat  
+- U-turn  
+
+snoozer (Slowbro) @ Colbur Berry  
+Ability: Regenerator  
+EVs: 128 HP / 240 Def / 140 SpA  
+Bold Nature  
+IVs: 0 Atk  
+- Psychic  
+- Teleport  
+- Scald  
+- Slack Off  
+
+Fuck You Robert (Nihilego) @ Poison Barb  
+Ability: Beast Boost  
+EVs: 4 HP / 252 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Sludge Wave  
+- Grass Knot  
+- Dazzling Gleam  
+- Hidden Power [Fire]  
+
+Enamorus (F) @ Choice Scarf  
+Ability: Cute Charm  
+EVs: 4 HP / 252 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Moonblast  
+- Focus Blast  
+- Earth Power  
+- Tailwind  
+
+Brute Bonnet @ Darkinium Z  
+Ability: Protosynthesis  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Jolly Nature  
+- Sucker Punch  
+- Crunch  
+- Sucker Punch  
+- Close Combat

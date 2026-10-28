@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Games: Week 5 from the stream videos (Pikmon vs Fingy, Dox vs PotatoesAreYum, Zololab vs Karm, Bad Bully vs Sneez, DEJIME vs Big Large), winners matching the bracket and every KO including the last; doxsego's Week 5 team sheet fills in on the Robert game. Sprites for the six new Pokémon.
 - Team sheets: doxsego's sheets fill in on their five games in the library (Weeks 1-4 and the Zololab game), matched by team.
 - Sprites: saved copies for every Pokémon in the league library (62 more, games added since the last batch), so local mode and the Showdown-down fallback show sprites instead of initials. Week 4 Cloudburst vs Dox: Mawile's mega form was misread from the stream as "Mav-Mega"; fixed.
 - Games: five more league games found as saved Showdown replays (Week 1 DEJIME vs Fingy, Dox vs Pikmon, Zololab vs Sneez; Week 2 Zololab vs PotatoesAreYum; Week 6 Zololab vs Dox); the three that were rebuilt from stream videos now use the real replay. Week 4: four games from stream videos, winners from the bracket, the last KO not credited (the stream cut away before it).

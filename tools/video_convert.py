@@ -210,7 +210,9 @@ class Converter:
             if n:
                 events.append(("turn", n))
             events += [("text", t) for t in ls]
-        for kind, t in events:
+        for i, (kind, t) in enumerate(events):
+            if kind == "text" and re.match(r"Battle started between .+ and$", t) and i + 1 < len(events):
+                t += " " + str(events[i + 1][1])   # a narrow log wraps the second name onto the next line
             m = kind == "text" and re.match(r"Battle started between (.+) and (.+?)\W?$", t)
             if m:
                 self.players = [m.group(1).strip(), re.sub(r"[il']$", "", m.group(2).strip())]

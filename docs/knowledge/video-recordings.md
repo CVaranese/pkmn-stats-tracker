@@ -128,3 +128,25 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
 - **Tested** (2026-10-27): three games turned out to have Showdown replays after all; the video conversions match
   the replays exactly on every Pokémon's kills, deaths and the winner (Week 1 DEJIME vs Fingy, Sneez vs Zololab
   including the hand-filled Future Sight KO, Week 2 PotatoesAreYum vs Zololab). HP numbers weren't compared.
+- **Tested** (2026-10-27, Week 5 playlist PLV29dBZQCWjY, 5 videos): four layouts. Pikmon vs Fingy is dark theme with
+  a narrow log (`--log-box 880,40,400,680 --filter "invert(1) grayscale(1) contrast(2)"`) and read well this time
+  (the Week 1 dark video's text was smaller). Zololab vs Karm `--log-box 580,56,540,664`, Dox vs PotatoesAreYum
+  `--log-box 820,60,460,660`; the other two the default box. Message box at the win: `--scene-box 110,395,480,50`
+  for the default-box layout (y 360-430 missed it).
+- **Tested**: a narrow log wraps "Battle started between X and" / "Y!" onto two lines and the players came out
+  blank; `video_convert.py` now joins them. Other slips fixed by hand: "U-" for U-turn (wrapped), a species glued
+  onto a nickname on the switch line ("Mr Goon Samurott-Hisui"), "Metagrossr", team preview "Metapod" for
+  Metagross and "Enamorus" for a wrapped "Enamorus-Therian", a timer line read as the Pokémon using a move, a
+  nickname OCR can't read ("===D~~~", Dox's Enamorus: its switch-in, hits and faint were rebuilt from the frames),
+  "Basculegion-F)! Go! Fish-F (" (a wrapped switch, unparsed, so the Pokémon had no species), and an unparsed
+  "(X lost 48% of its health')" that left a KO looking passive. Real nicknames that look like slips: "<",
+  "Booster Energy" (a Brute Bonnet), "Latinos (Maga)", "of Bethlehem".
+- **Tested**: endings. Pikmon vs Fingy: the Discord stream ended ~10 s after the win and restarted on a replay, so
+  the box window missed it; the last turn (Excadrill Earthquake on Iron Moth) and the win were read by eye from
+  frames at 819-821 s. Dox vs PotatoesAreYum: the box was empty for the last move; frames at 955 s show "Booster
+  Energy used Sucker Punch" on Azelf (-100%) then the win. DEJIME vs Big Large: the box reading joined two lines
+  into the move ("Surfl (Pie lost 42%...)") and the turn 28 header was missing. Bad Bully vs Sneez: the box read
+  the last two turns twice (the streamer stepped back), so turns 16-17 were rebuilt from the clean readings.
+  Revival Blessing again (DEJIME's Pawmot, twice): 8 faints on one side is right.
+- **Guess**: HP numbers in these five are as rough as before (hazards, Sandstorm, Black Sludge estimated); kills,
+  deaths and winners were each checked against the video text or frames.

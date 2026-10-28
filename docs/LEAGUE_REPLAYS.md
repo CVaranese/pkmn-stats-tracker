@@ -68,3 +68,9 @@ Week 4 (playlist PLOM0N8ucrccY, stream 2026-09-29): Zololab vs DEJIME, PotatoesA
 Cloudburst, Big Large vs Fingy are in site/games/ from their videos with the winner from Challonge round 4 and the
 last KO missing (the stream cut to a replay). Pikmon vs Sneez (ktYq3NES_GM) not added: OCR too poor. Karm vs Nezergy
 has a replay (2689027321).
+
+Week 5 (playlist PLV29dBZQCWjY, uploaded 2026-10-07; added 2026-10-27): Pikmon vs Fingy (CKLxgWZL3HM), Dox vs
+PotatoesAreYum (vXg51MJkSSw), Zololab vs Karm (oPUD2yUnQrs), Bad Bully vs Sneez (4n49BQ2LQsY), DEJIME vs Big Large
+(xcoo3llJSpM) are in site/games/ from their videos, every winner matching Challonge round 5 and the last KO read
+from the video (four were added by hand from frames, see docs/knowledge/video-recordings.md). Cloudburst vs
+Nezergy (E7IuvY-7OBU) has a replay (2693018008).

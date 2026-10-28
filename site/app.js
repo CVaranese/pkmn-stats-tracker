@@ -940,6 +940,7 @@
     "video-4facablyaoc": ["doxsego"],           // Week 2 vs weedinmyhonda ("Bah Booey" on the sheet)
     "video-i21s40qi4em": ["doxsego"],           // Week 3 vs DEJIME17
     "video-vxtlxlnr19c": ["doxsego"],           // Week 4 vs azpmCloudburst
+    "video-vxg51mjkssw": ["doxsego"],           // Week 5 vs potatoesareyum
     "gen9nationaldex-2696935281": ["doxsego"],  // Week 6 vs Zololab (the sheet's "Week 7" label was a typo)
   };
   async function addMockSheets(ids) {

@@ -885,6 +885,150 @@
    "date": "2026-10-12",
    "turns": 27,
    "note": ""
+  },
+  {
+   "id": "video-cklxgwzl3hm",
+   "league": "pinecord",
+   "week": "Week 5",
+   "players": [
+    "FingerStripes",
+    "PeterPikmon"
+   ],
+   "teams": [
+    [],
+    []
+   ],
+   "winner": "PeterPikmon",
+   "date": "2026-10-07",
+   "turns": 30,
+   "note": "From the stream video",
+   "video": "https://youtu.be/CKLxgWZL3HM"
+  },
+  {
+   "id": "video-vxg51mjkssw",
+   "league": "pinecord",
+   "week": "Week 5",
+   "players": [
+    "doxsego",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Ceruledge",
+     "Lopunny",
+     "Slowbro",
+     "Nihilego",
+     "Enamorus"
+    ],
+    [
+     "Great Tusk",
+     "Tyranitar",
+     "Azelf",
+     "Bronzong",
+     "Enamorus-Therian"
+    ]
+   ],
+   "winner": "doxsego",
+   "date": "2026-10-07",
+   "turns": 23,
+   "note": "From the stream video",
+   "video": "https://youtu.be/vXg51MJkSSw"
+  },
+  {
+   "id": "video-opud2yunqrs",
+   "league": "pinecord",
+   "week": "Week 5",
+   "players": [
+    "chicken parm karm",
+    "Zololab"
+   ],
+   "teams": [
+    [
+     "Gholdengo",
+     "Greninja",
+     "Alomomola",
+     "Aerodactyl",
+     "Nidoking",
+     "Metagross"
+    ],
+    [
+     "Thundurus",
+     "Pecharunt",
+     "Iron Treads",
+     "Serperior",
+     "Latios",
+     "Lokix"
+    ]
+   ],
+   "winner": "chicken parm karm",
+   "date": "2026-10-07",
+   "turns": 26,
+   "note": "From the stream video",
+   "video": "https://youtu.be/oPUD2yUnQrs"
+  },
+  {
+   "id": "video-4n49bq2lqsy",
+   "league": "pinecord",
+   "week": "Week 5",
+   "players": [
+    "weedinmyhonda",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian",
+     "Magnezone",
+     "Starmie"
+    ],
+    [
+     "Slowking-Galar",
+     "Charizard",
+     "Gliscor",
+     "Weavile",
+     "Quaquaval",
+     "Ninetales-Alola"
+    ]
+   ],
+   "winner": "pee nation",
+   "date": "2026-10-07",
+   "turns": 17,
+   "note": "From the stream video",
+   "video": "https://youtu.be/4n49BQ2LQsY"
+  },
+  {
+   "id": "video-xcoo3lljspm",
+   "league": "pinecord",
+   "week": "Week 5",
+   "players": [
+    "DEJIME17",
+    "ElkG Big Large"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Basculegion-F",
+     "Sinistcha-Masterpiece",
+     "Pawmot",
+     "Raging Bolt",
+     "Overqwil"
+    ],
+    [
+     "Cloyster",
+     "Hoopa-Unbound",
+     "Tangrowth",
+     "Zamazenta",
+     "Keldeo-Resolute",
+     "Scizor"
+    ]
+   ],
+   "winner": "ElkG Big Large",
+   "date": "2026-10-07",
+   "turns": 28,
+   "note": "From the stream video",
+   "video": "https://youtu.be/xcoo3llJSpM"
   }
  ]
 }
