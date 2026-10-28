@@ -1,6 +1,6 @@
 {
  "note": "From the league's Google Sheet, Rosters tab (tools/scl_draft.py). Prices are per Pokémon, budget 100 for 9 to 11 Pokémon. aliases: other Showdown names a coach used -> their name here.",
- "aliases": {},
+ "aliases": {"AnimaSean0724": "Sean", "Fayz Sharpie": "Fayz", "yungsmokey": "Mattioli", "Leafeon Main?": "Leaf", "Philly Turtles": "Saltyswede", "Tijerben000": "Benito", "aargab11": "Aargab", "Ryan Regirocks": "RyanGab", "Liebynight01": "Liebynight", "soupy36": "Soop", "kirbyhat5": "Kirbyhat", "doxsego": "Dox"},
  "costs": {},
  "teams": {
   "Dox": "Gerard Blades",

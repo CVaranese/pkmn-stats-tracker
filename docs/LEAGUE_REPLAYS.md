@@ -100,8 +100,21 @@ sheet (12 coaches, 11 opponents each, 8 weeks scheduled): the 18 pairs not on it
 coach plays once in exactly one way, used with the user's OK; Week 9 = Aargab-Kirbyhat, Dox-Leaf, Soop-Ryan,
 Matt-benito, Sean-Lieby, Fayz-Saltyswede; Week 10 = Kirbyhat-Ryan, Soop-Lieby, Sean-Fayz, Matt-Leaf,
 Saltyswede-benito, Aargab-Dox; Week 11 = Dox-Kirbyhat, Fayz-Aargab, Leaf-Ryan, Matt-Soop, Sean-Saltyswede,
-Lieby-benito. Playoffs: the rematches Soop vs Kirbyhat (09-27) and Fayz vs Ryan (10-02); the paste ends there, so
-later playoff sets may be missing.
+Lieby-benito.
+
+Playoffs (Soop's bracket post, 09-21; second paste from the user, 2026-10-28): seeds 1 Fayz (bye), 2 Mattio, 3 Kirbyhat,
+4 Aargab, 5 Saltyswede, 6 Soop, 7 Ryan. Playoffs R1: Ryan 2-0 Mattio, Soop 2-0 Kirbyhat, Aargab 2-1 Saltyswede (only
+game 3 posted, 2688929438). Semifinals: Fayz 2-0 Ryan, Aargab 2-1 Soop. Third place: Ryan 2-0 Soop. Finals: Aargab 2-0
+Fayz (Fayz's game 3 link 2699096769 is 404).
+
+Checked 2026-10-28 (165 games, 69 sets): every game's two players are its pair; no set has a game after it was won;
+Weeks 1-8 results match the sheet's Schedule scores except three. Week 3 Soop vs Kirbyhat: sheet 2-1, the one Kirbyhat
+win wasn't posted. Week 3 Leaf vs Fayz and Week 6 Lieby vs Aargab: the replays give Fayz 2-1 and Aargab 2-1, the sheet
+the reverse (sheet entered the wrong way round?). tests/audit.html?league=scl: kills, winners, turns, MVPs and team
+preview all hold; its only FAILs are Pokémon not on the coach's current roster (free-agent moves, not in draft.json):
+Leaf's Gengar, Ninetales-Alola (Weeks 1-6) and Skarmory (Weeks 1-4), Dox's Eelektross (Weeks 1-3), Soop's Dragalge,
+Oranguru, Skeledirge (Week 1). Aargab's Kommo-o (Week 1) and Corviknight (Weeks 1-2) were on team preview but never
+brought, so the audit (brought Pokémon only) doesn't flag them.
 
 Showdown names: AnimaSean0724 = Sean, Fayz Sharpie = Fayz, yungsmokey = Mattio, Leafeon Main? = Leaf, Philly Turtles
 = Saltyswede, Tijerben000 = benito, aargab11 = Aargab, Ryan Regirocks = RyanGab, Liebynight01 = Lieby, soupy36 = Soop,

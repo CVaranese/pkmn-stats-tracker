@@ -4684,7 +4684,7 @@
   {
    "id": "gen9championsvgc2026regmb-2688661099",
    "league": "scl",
-   "week": "Playoffs",
+   "week": "Playoffs R1",
    "players": [
     "soupy36",
     "kirbyhat5"
@@ -4715,7 +4715,7 @@
   {
    "id": "gen9championsvgc2026regmb-2688662463",
    "league": "scl",
-   "week": "Playoffs",
+   "week": "Playoffs R1",
    "players": [
     "soupy36",
     "kirbyhat5"
@@ -4746,7 +4746,7 @@
   {
    "id": "gen9championsvgc2026regmb-2691886643",
    "league": "scl",
-   "week": "Playoffs",
+   "week": "Semifinals",
    "players": [
     "Fayz Sharpie",
     "Ryan Regirocks"
@@ -4777,7 +4777,7 @@
   {
    "id": "gen9championsvgc2026regmb-2691890620",
    "league": "scl",
-   "week": "Playoffs",
+   "week": "Semifinals",
    "players": [
     "Fayz Sharpie",
     "Ryan Regirocks"
@@ -4803,6 +4803,316 @@
    "winner": "Fayz Sharpie",
    "date": "2026-09-27",
    "turns": 10,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2687932179",
+   "league": "scl",
+   "week": "Playoffs R1",
+   "players": [
+    "yungsmokey",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-09-20",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2687933991",
+   "league": "scl",
+   "week": "Playoffs R1",
+   "players": [
+    "yungsmokey",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Metagross",
+     "Hydreigon",
+     "Tyranitar",
+     "Excadrill",
+     "Sneasler",
+     "Clefable"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-09-20",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2688929438",
+   "league": "scl",
+   "week": "Playoffs R1",
+   "players": [
+    "aargab11",
+    "Philly Turtles"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Pyroar",
+     "Luxray",
+     "Gyarados"
+    ],
+    [
+     "Froslass",
+     "Primarina",
+     "Crabominable",
+     "Slowking-Galar",
+     "Tsareena",
+     "Sableye"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-09-27",
+   "turns": 11,
+   "note": "Only game 3"
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2695317022",
+   "league": "scl",
+   "week": "Semifinals",
+   "players": [
+    "soupy36",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Aerodactyl"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Luxray",
+     "Pyroar",
+     "Krookodile"
+    ]
+   ],
+   "winner": "soupy36",
+   "date": "2026-10-04",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2695318337",
+   "league": "scl",
+   "week": "Semifinals",
+   "players": [
+    "soupy36",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Aerodactyl"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Luxray",
+     "Pyroar",
+     "Krookodile"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-10-04",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2695321200",
+   "league": "scl",
+   "week": "Semifinals",
+   "players": [
+    "soupy36",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Rotom-Fan",
+     "Aerodactyl"
+    ],
+    [
+     "Venusaur",
+     "Torkoal",
+     "Mimikyu",
+     "Luxray",
+     "Pyroar",
+     "Krookodile"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-10-04",
+   "turns": 7,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2697397634",
+   "league": "scl",
+   "week": "Third place",
+   "players": [
+    "soupy36",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Sharpedo",
+     "Aerodactyl"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-10-11",
+   "turns": 4,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2697400207",
+   "league": "scl",
+   "week": "Third place",
+   "players": [
+    "soupy36",
+    "Ryan Regirocks"
+   ],
+   "teams": [
+    [
+     "Blaziken",
+     "Gyarados",
+     "Liepard",
+     "Basculegion",
+     "Sharpedo",
+     "Aerodactyl"
+    ],
+    [
+     "Dragonite",
+     "Pelipper",
+     "Archaludon",
+     "Scizor",
+     "Overqwil",
+     "Torterra"
+    ]
+   ],
+   "winner": "Ryan Regirocks",
+   "date": "2026-10-11",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2699090388",
+   "league": "scl",
+   "week": "Finals",
+   "players": [
+    "Fayz Sharpie",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Charizard",
+     "Raichu",
+     "Aerodactyl",
+     "Cofagrigus",
+     "Scrafty",
+     "Slowbro"
+    ],
+    [
+     "Torkoal",
+     "Mimikyu",
+     "Venusaur",
+     "Pyroar",
+     "Krookodile",
+     "Gyarados"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-10-11",
+   "turns": 6,
+   "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmb-2699093649",
+   "league": "scl",
+   "week": "Finals",
+   "players": [
+    "Fayz Sharpie",
+    "aargab11"
+   ],
+   "teams": [
+    [
+     "Charizard",
+     "Raichu",
+     "Aerodactyl",
+     "Cofagrigus",
+     "Scrafty",
+     "Slowbro"
+    ],
+    [
+     "Torkoal",
+     "Mimikyu",
+     "Venusaur",
+     "Pyroar",
+     "Krookodile",
+     "Gyarados"
+    ]
+   ],
+   "winner": "aargab11",
+   "date": "2026-10-11",
+   "turns": 12,
    "note": ""
   }
  ]

@@ -20,5 +20,5 @@ python -I tools/add_game.py <link> --league <id> --week "Week 3" [--set "QF Karm
   and weeks in the order they were first added (latest on top), so add them in play order.
 - Showdown down: the script falls back to a copy in `site/<league>/mock/` or `tests/fixtures/`, else stops with a message;
   `--file <saved.json>` uses a copy the user downloaded.
-- Check each printed line (players, winner, turns) looks right, run the `test` skill and `.claude/skills/test/run-audit.ps1` (every saved game: PASS, or FAIL lines to fix before committing; with `-All` the lines worth a look, e.g. a stream game's misread HP), take a `screenshot` with
+- Check each printed line (players, winner, turns) looks right, run the `test` skill and `.claude/skills/test/run-audit.ps1 -League <id>` (every saved game of that league, ppppp by default: PASS, or FAIL lines to fix before committing; with `-All` the lines worth a look, e.g. a stream game's misread HP), take a `screenshot` with
   `-Query tab=games`, then commit `site/<league>/games/` and `site/index.html` (game count on the league list) with a message listing the games added.
