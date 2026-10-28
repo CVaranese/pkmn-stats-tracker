@@ -80,8 +80,9 @@ Week 6 (playlist PLO8Z8KH9KMh8, uploaded 2026-10-13; added 2026-10-27): Cloudbur
 vs DEJIME (D-SnlPgNt04), PotatoesAreYum vs Fingy (FiVtP9WAcTA) are in site/games/ from their videos, every winner
 matching Challonge round 6 and every KO checked against the video. The Cloudburst vs Bad Bully video holds two full
 games with the same teams: a played-back one weedinmyhonda won (3:20-11:30) and the live one azpmCloudburst won
-(21:50-28:40); only the second is in: the first was illegal and the set was replayed (user, 2026-10-27). Pikmon vs Karm (efjkWhTidmM) not
-added: OCR too poor (dark theme, small text, 190 unconverted lines over 47 turns). Big Large vs Nezergy and Dox vs
+(21:50-28:40); only the second is in: the first was illegal and the set was replayed (user, 2026-10-27). Pikmon vs Karm (efjkWhTidmM): OCR too
+poor (dark theme, small text, 190 unconverted lines over 47 turns); added 2026-10-27 from the user's screenshots of
+the log (turns 1-46, turn 47 told in words), PeterPikmon won; not yet checked against Challonge round 6. Big Large vs Nezergy and Dox vs
 Zololab have replays.
 
 Week 7 (playlist PLZdfOlhvaGgA, uploaded 2026-10-21; added 2026-10-27): Bad Bully vs Nezergy (eCis5-Ls6i0), Big Large

@@ -179,3 +179,9 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   (guess, within a few %). Leads come from turn 1's "withdrew" lines. Hits printed with no "Pointed stones" line on
   switch-in mean Heavy-Duty Boots (Golisopod here; not recorded as an item). Parser result matched the counts worked
   out by hand before running it (kills 3/1/1 vs 3/1/1, 5 deaths each).
+- **Tested** (2026-10-27, Week 6 Karm vs Pikmon, https://youtu.be/efjkWhTidmM): same screenshot method, 47 turns from
+  34 images plus the last turn told in words. Regenerator (Hydrapple) heals a third on switch-out with no log line;
+  without it Hydrapple's HP went to 0 by turn 24, so it was added on every switch-out (guess-level HP, fitted to the
+  next "lost N%" line). A Pokemon never "caught in a sticky web" while grounded (Fezandipiti) has Heavy-Duty Boots;
+  not recorded. Parser result matched the hand count (Karm 1/1 kills with 6 deaths, Pikmon Excadrill 4, Ogerpon 1,
+  Samurott-H 1, 2 deaths).

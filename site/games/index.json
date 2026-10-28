@@ -1332,6 +1332,38 @@
    "turns": 25,
    "note": "From screenshots of the stream log; HP after hazards / weather / items estimated; pee nation forfeited turn 25",
    "video": "https://youtu.be/ktYq3NES_GM"
+  },
+  {
+   "id": "video-efjkwhtidmm",
+   "league": "pinecord",
+   "week": "Week 6",
+   "players": [
+    "chicken parm karm",
+    "PeterPikmon"
+   ],
+   "teams": [
+    [
+     "Greninja",
+     "Glimmora",
+     "Gholdengo",
+     "Hydrapple",
+     "Araquanid",
+     "Aerodactyl"
+    ],
+    [
+     "Arcanine-Hisui",
+     "Fezandipiti",
+     "Excadrill",
+     "Samurott-Hisui",
+     "Ogerpon-Wellspring",
+     "Tyranitar"
+    ]
+   ],
+   "winner": "PeterPikmon",
+   "date": "2026-10-13",
+   "turns": 47,
+   "note": "From screenshots of the stream log; HP after hazards / poison / sand / Regenerator estimated",
+   "video": "https://youtu.be/efjkWhTidmM"
   }
  ]
 }
