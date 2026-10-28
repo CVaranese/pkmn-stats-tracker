@@ -149,6 +149,12 @@ header:has(.palette-pick) > div { padding-right: 170px; }
 .league-list img { width: 160px; height: auto; border-radius: 4px; flex: none; }
 .league-list strong { display: block; font-size: 18px; }
 @media (hover: hover) { .league-list a:hover { border-color: var(--accent); } }
+/* What's new on the league list (site/releases.json), and the version line at the bottom of each league page */
+.news { max-width: 720px; }
+.news h3 { font-size: 16px; margin: 14px 0 4px; }
+.news ul { margin: 0; padding-left: 20px; }
+.site-foot { margin-top: 32px; padding-top: 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; }
+.site-foot a { color: var(--accent); }
 @media (max-width: 600px) { .league-list a { flex-direction: column; align-items: flex-start; } .league-list img { width: 100%; } }
 
 label { font-weight: 600; display: block; margin-bottom: 6px; }
@@ -270,6 +276,9 @@ input[type=text].mon-find { max-width: 360px; font-family: inherit; }
 .lib-table .lib-week:first-child th { padding-top: 8px; }
 .lib-table td:first-child { width: 100%; }
 .lib-row { cursor: pointer; }
+/* a set's line (Games): above its games, in the band colour */
+.lib-table .lib-set td { background: var(--band); padding-top: 6px; padding-bottom: 6px; }
+.lib-table .lib-set .lib-actions { text-align: right; }
 @media (hover: hover) { .lib-row:hover td { background: var(--row-alt); } }
 .lib-table .lib-actions button { margin-left: 6px; }
 .lib-table td.muted { min-width: 150px; max-width: 190px; white-space: normal; }   /* a long note wraps instead of pushing the buttons out */
@@ -290,6 +299,7 @@ input[type=text].mon-find { max-width: 360px; font-family: inherit; }
   border: 2px solid var(--outline); border-radius: 6px; background: var(--surface); }
 .watch { margin: 0 0 24px; }
 .watch summary { cursor: pointer; font-weight: 600; }
+.watch .tabs { margin: 10px 0 4px; }
 .modes button[aria-current="true"] { background: var(--bg); color: var(--text); border-color: var(--outline);
   border-bottom: 2px solid var(--bg); }
 .tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
@@ -499,6 +509,8 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
     border-bottom: 1px solid var(--border); padding: 8px 0; }
   .lib-table tr.lib-row td { border: 0; padding: 2px 10px; }
   .lib-table tr.lib-row td:empty { display: none; }
+  .lib-table tr.lib-set { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .lib-table tr.lib-set td { border: 0; }
   /* each team three sprites a line (two lines of three, not five and one), the two teams side by side */
   .lib-table td.lib-match { flex: 1 0 100%; }
   .lib-table .lib-pair { align-items: flex-start; gap: 10px; }

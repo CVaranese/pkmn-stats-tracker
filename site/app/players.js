@@ -37,7 +37,7 @@ async function renderPlayers() {
   const byKey = new Map();
   const get = (name) => {
     const key = playerKey(name);
-    if (!byKey.has(key)) byKey.set(key, { key, name: shownName(name), games: [], rows: [], wins: 0, losses: 0 });
+    if (!byKey.has(key)) byKey.set(key, { key, name: shownName(name), games: [], rows: [], wins: 0, losses: 0, setWins: 0, setLosses: 0 });
     return byKey.get(key);
   };
   for (const g of games) {
@@ -46,6 +46,12 @@ async function renderPlayers() {
       pl.games.push(g);
       if (g.winner) TS.toID(g.winner) === TS.toID(p) ? pl.wins++ : pl.losses++;
     }
+  }
+  // sets (a week's games between the same two players): a set record when the league plays them (Bo3)
+  const leagueSets = librarySets(games);
+  const hasSets = leagueSets.some((s) => s.games.length > 1);
+  for (const s of leagueSets) {
+    if (s.winner) for (const p of s.players) playerKey(p) === playerKey(s.winner) ? get(p).setWins++ : get(p).setLosses++;
   }
   // one spelling on the rows too, so RS.summarize keeps one line per Pokémon
   for (const r of all) { const pl = get(r.player); pl.rows.push({ ...r, player: pl.name }); }
@@ -59,6 +65,8 @@ async function renderPlayers() {
     { label: "Player", key: (pl) => pl.name.toLowerCase() },
     num("Won", "Games won among the games saved here.", (pl) => pl.wins),
     num("Lost", "Games lost among the games saved here.", (pl) => pl.losses),
+    ...(hasSets ? [num("Sets", "Sets won – lost: a set is a week's games between the same two players (a best of three); a level set isn't counted.",
+      (pl) => pl.setWins - pl.setLosses)] : []),
     num("Kills", DESCRIPTIONS.kills, (pl) => sum(pl.rows, "kills")),
     num("Deaths", DESCRIPTIONS.deaths, (pl) => sum(pl.rows, "deaths")),
     num("Dealt", "Damage dealt in all their games: in HP (~ = a guessed max HP went in), or in % when a game has no HP figures.",
@@ -73,6 +81,7 @@ async function renderPlayers() {
     const used = el("span", "pl-mons");
     used.append(...pl.used.map((m) => Object.assign(sprite(m.pokemon, ["gen5/"], "tiny"), { title: `${m.pokemon}: ${m.games_brought} games` })));
     return [[pl.name, ""], [String(pl.wins), "num"], [String(pl.losses), "num"],
+      ...(hasSets ? [[`${pl.setWins}–${pl.setLosses}`, "num"]] : []),
       [String(sum(pl.rows, "kills")), "num"], [String(sum(pl.rows, "deaths")), "num"], [rowsDealt(pl.rows), "num"],
       [seasonLuckBadge(perGameRows(pl.rows), "player_luck", "player_luck_var"), ""],
       [paceOf(pl.rows) === null ? "–" : paceOf(pl.rows) + " s", "num"], [String(sum(perGameRows(pl.rows), "timer_on")), "num"], [used, ""],

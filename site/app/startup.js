@@ -94,12 +94,28 @@ $("lib-spoilers").addEventListener("click", () => {
 $("lib-watch-close").addEventListener("click", () => {
   if (history.state && history.state.watch) history.back(); else closeWatch();
 });
-// the Challonge bracket: shows results, so it loads only when opened
-$("bracket").addEventListener("toggle", () => {
+// the league's Challonge brackets (site/leagues.json, newest first: playoffs, then the Swiss rounds), one sub-tab
+// each; they show results, so one loads only when the box is opened. No brackets: no box.
+const brackets = LEAGUE.brackets || [];
+let bracketPicked = brackets[0];
+function showBracket() {
+  for (const b of $("bracket-views").children) b.setAttribute("aria-current", String(b.dataset.slug === bracketPicked.slug));
+  $("bracket-link").href = "https://challonge.com/" + bracketPicked.slug;
   if (!$("bracket").open) return;
-  if (!$("bracket-frame").src) $("bracket-frame").src = "https://challonge.com/peepeepeepeepiss/module";
+  const src = "https://challonge.com/" + bracketPicked.slug + "/module";
+  if ($("bracket-frame").src !== src) $("bracket-frame").src = src;
   $("bracket-frame").hidden = false;
-});
+}
+$("bracket").hidden = !brackets.length;
+$("bracket-views").hidden = brackets.length < 2;
+for (const b of brackets) {
+  const btn = Object.assign(el("button", "", b.name), { type: "button" });
+  btn.dataset.slug = b.slug;
+  btn.addEventListener("click", () => { bracketPicked = b; showBracket(); });
+  $("bracket-views").append(btn);
+}
+if (brackets.length) showBracket();
+$("bracket").addEventListener("toggle", () => { if (brackets.length) showBracket(); });
 $("watch").addEventListener("toggle", () => {
   if (!$("watch").open || !watchId) return;
   if (LOCAL && !isVideo(watchId)) {

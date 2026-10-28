@@ -33,6 +33,12 @@ def games_in(league_id):
         return 0
 
 
+def load_releases():
+    """site/releases.json's releases, newest first (What's new on the league list, the version in each footer)."""
+    with open(os.path.join(SITE, "releases.json"), encoding="utf-8") as f:
+        return json.load(f)["releases"]
+
+
 def fill(template, values):
     for key, value in values.items():
         template = template.replace("{{" + key + "}}", value)
@@ -57,6 +63,8 @@ def league_page(template, cfg, lg):
                     f'  <meta property="og:image:alt" content="{e(p["alt"])}">\n')
     # what the page's scripts need (app/core.js LEAGUE); "</" can't end the script early
     page_info = {k: lg.get(k, "") for k in ("id", "name", "short", "tag", "format", "format_name")}
+    page_info["brackets"] = lg.get("brackets", [])
+    page_info["best_of"] = lg.get("best_of", 0)
     page_info["palette"] = "" if lg.get("theme_css") else lg.get("palette", PALETTES[0])
     league_json = json.dumps(page_info, ensure_ascii=False).replace("</", "<\\/")
     # the league's own theme (its tokens over style.css's default theme), when it has one
@@ -73,7 +81,8 @@ def league_page(template, cfg, lg):
         buttons = "".join(f'<button type="button" data-palette="{p}" aria-pressed="false" title="{p.title()} theme">'
                           f'<img src="sprites/gen5/{p}.png" width="48" height="48" alt="{p.title()}"></button>' for p in PALETTES)
         palette_picker = f'      <div class="palette-pick" id="palette" role="group" aria-label="Theme">{buttons}</div>\n'
-    return fill(template, {"palette_script": palette_script, "palette_picker": palette_picker,
+    version = "v" + load_releases()[0]["version"]
+    return fill(template, {"version": e(version), "palette_script": palette_script, "palette_picker": palette_picker,
                            "theme_css": theme_css, "title": e(lg["title"]), "description": e(lg["description"]), "name": e(lg["name"]),
                            "url": e(url), "og_image": og_image, "theme": e(lg.get("theme", "#2f5d9e")),
                            "league_json": league_json, "banner": banner, "lede": e(lg["lede"])})
@@ -91,7 +100,11 @@ def landing_page(template, cfg):
             img = f'<img src="{e(lg["id"])}/{e(b["src"])}" width="{b["width"]}" height="{b["height"]}" alt="">'
         items.append(f'      <li><a href="{e(lg["id"])}/">{img}<span><strong>{e(lg["name"])}</strong>'
                      f'<span class="hint">{e(lg["format_name"])}, {games}</span></span></a></li>\n')
-    return fill(template, {"url": e(cfg["site_url"]), "leagues": "".join(items)})
+    news = []
+    for r in load_releases():
+        notes = "".join(f"<li>{e(n)}</li>" for n in r["notes"])
+        news.append(f'      <h3>Version {e(r["version"])}: {e(r["title"])}</h3>\n      <ul>{notes}</ul>\n')
+    return fill(template, {"url": e(cfg["site_url"]), "leagues": "".join(items), "releases": "".join(news)})
 
 
 def pages():

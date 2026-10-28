@@ -232,6 +232,15 @@ function openGame(id) {
   $("sheets-wrap").open = false;
   window.scrollTo(0, 0);
 }
+/** Open a set's games together in Playoffs, their stats added up. */
+function openSet(ids) {
+  $("links").value = ids.map(linkFor).join("\n");
+  $("links").dispatchEvent(new Event("input"));
+  setMode("many");
+  pushNav();
+  $("sheets-wrap").open = false;
+  window.scrollTo(0, 0);
+}
 /** Open a player's season (tab "players", their name or key) or a Pokémon's ("mons", its name as the Pokémon tab
     shows it), picked and scrolled into view; Back returns here. */
 function openSeason(tab, value) {

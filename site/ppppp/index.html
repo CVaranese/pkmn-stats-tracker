@@ -20,7 +20,7 @@
   <meta property="og:image:alt" content="Peter Pikmon&#x27;s Pinecord Pokémon Pissfest banner">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#1f6f61">
-  <script>window.LEAGUE = {"id": "ppppp", "name": "Pinecord Pokémon Pissfest", "short": "Pinecord", "tag": "PPPPP", "format": "gen9nationaldex", "format_name": "Nat Dex singles", "palette": ""};</script>
+  <script>window.LEAGUE = {"id": "ppppp", "name": "Pinecord Pokémon Pissfest", "short": "Pinecord", "tag": "PPPPP", "format": "gen9nationaldex", "format_name": "Nat Dex singles", "brackets": [{"name": "Playoffs", "slug": "peepeepeepeepisspiss"}, {"name": "Swiss rounds", "slug": "peepeepeepeepiss"}], "best_of": 0, "palette": ""};</script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="ppppp/theme.css">
 </head>
@@ -144,7 +144,8 @@
       </div>
       <details id="bracket" class="watch">
         <summary>Bracket</summary>
-        <p class="hint">From <a href="https://challonge.com/peepeepeepeepiss" target="_blank" rel="noopener">Challonge</a>. It shows every result.</p>
+        <div class="tabs" id="bracket-views"></div>
+        <p class="hint">From <a id="bracket-link" href="https://challonge.com/" target="_blank" rel="noopener">Challonge</a>. It shows every result.</p>
         <iframe id="bracket-frame" title="League bracket" referrerpolicy="no-referrer" loading="lazy" hidden></iframe>
       </details>
       <div id="lib-watch" class="lib-watch" hidden>
@@ -250,6 +251,7 @@
         <table id="table"></table>
       </div>
     </section>
+    <footer class="site-foot">Replay Kill Tracker v1.0 · <a href="./#news">What's new</a> · <a href="./">Other leagues</a></footer>
   </main>
 
   <script src="parser.js"></script>

@@ -2,7 +2,9 @@
 
 Saves the replay's JSON as site/<league>/games/<id>.json and adds a line to site/<league>/games/index.json
 (players, winner, date and turns read from the replay). Running it again for the same game
-updates its labels instead of adding it twice. --league is a league id from site/leagues.json.
+updates its labels instead of adding it twice. --league is a league id from site/leagues.json. --set labels the set
+(best of three, playoff series) a game belongs to; a league with best_of in site/leagues.json groups unlabelled games
+of a week between the same two players by itself, and the Games tab flags a group that can't be one set.
 
     python tools/add_game.py https://replay.pokemonshowdown.com/gen9nationaldex-123 --league ppppp --week "Week 3"
     python tools/add_game.py gen9nationaldex-123 --league ppppp --week "Playoffs R1" --note "Game 2"
@@ -105,6 +107,7 @@ def main():
     ap.add_argument("--week", required=True, help='label to group by, e.g. "Week 3" or "Playoffs R1"')
     ap.add_argument("--league", required=True, help="league id from site/leagues.json, e.g. ppppp")
     ap.add_argument("--note", default="")
+    ap.add_argument("--set", help='the set (best of three, playoff series) it belongs to: games with the same label are one set, e.g. "QF Karm-Joey"')
     ap.add_argument("--file", help="a saved copy of the replay's .json, when Showdown is down; for a video, the rebuilt one")
     ap.add_argument("--date", help="YYYY-MM-DD, for a game with no upload time (a video): the day it was played, not the upload day")
     args = ap.parse_args()
@@ -139,6 +142,8 @@ def main():
 
     index = json.loads(INDEX.read_text(encoding="utf-8")) if INDEX.exists() else {"games": []}
     entry = {"id": rid, "league": args.league, "week": args.week, **summary(replay), "note": args.note}
+    if args.set:
+        entry["set"] = args.set
     if replay.get("video"):   # rebuilt from the stream: Watch plays the video; HP / damage numbers are partly estimated
         entry["video"] = replay["video"]
         entry["note"] = args.note or "Stream video"  # short: details go in note_detail (the Games row tooltip)

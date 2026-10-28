@@ -13,10 +13,19 @@ Status: `todo` · `in progress` · `done` · `later` (the user set it aside). So
 - Illusion (Zoroark / Zoroark-Hisui) appears in real games.
 
 ## v1.0 release (target set 2026-10-28)
-User 2026-10-28: prep a v1.0 after the Pinecord data corrections, with the missing playoffs features. Not scoped yet.
-Candidates: the video-game fixes (`docs/VIDEO_GAMES_AUDIT.md`), saved games matching the bracket (Karm 6-1 vs 7-1),
-playoff labels in Games and the Weeks picker, Playoff series view (Bo3 sets; the Super Champions League plays every
-week in sets), the review queue cleared, and a version / release note.
+User 2026-10-28: data later (the user posts the links first); v1.0 = feature complete for now, with the missing playoffs features; the new
+league addresses (site root = league list, `/ppppp/`, `/scl/`) went live 2026-10-28. Checklist (proposed, not yet
+agreed with the user):
+- [ ] Pinecord data: the 72 checks in `docs/VIDEO_GAMES_AUDIT.md` fixed or marked fine (needs the videos).
+- [ ] Pinecord data: saved games match the bracket (Karm 6-1 saved vs 7-1 on Challonge): find the missing games in
+      `docs/LEAGUE_REPLAYS.md` and add them.
+- [ ] Super Champions League: games added (user, from 2026-10-28), coaches' Showdown names as draft aliases, format id.
+- [ ] Playoffs: playoff games labelled in Games and the Weeks picker.
+- [x] Sets / playoff series (2026-10-28): `League.sets` (index.json `set` labels from `add_game.py --set`; else, for a league with `best_of`, week + pair of players, flagged `unclear` when it can't be one set; user 2026-10-28: label manually, flag when unclear), Games set line + Set stats (Playoffs tab, stats summed), Main viewer set line, Players Sets column.
+- [ ] Review queue (`docs/REVIEW_QUEUE.md`) gone through by the user, phone width above all.
+- [x] Release notes for visitors: `site/releases.json` (What's new on the league list, version in each league page's footer), 2026-10-28.
+- [ ] Release: CHANGELOG's Unreleased cut as 1.0, a git tag `v1.0`.
+- [x] Playoffs bracket: `peepeepeepeepisspiss` on Challonge (user, 2026-10-28), shown under Games next to the Swiss rounds (`brackets` in site/leagues.json). Playoff records / results on the site itself (beyond the Challonge frame): not done.
 
 ## Bugs / correctness first
 | Status | Item | Notes |
@@ -60,7 +69,7 @@ week in sets), the review queue cleared, and a version / release note.
 | in progress | Game library per league | Requested 2026-10-27: store and group games so they can be browsed per league, with labels (week, playoffs, players). User picked (2026-10-27): a file in the repo that we add to (`tools/add_game.py`), a saved copy of every replay, and a replay player. Done 2026-10-27: `site/games/index.json` + copies, Games tab (by week, player / week filter, Stats / Watch), Watch the battle via Showdown's replay-embed.js in `site/watch.html`. Spoiler-free by default (2026-10-27): no winner / turns until "Show results", team-preview sprites per game, Watch plays in the Games tab. `tools/showdown_status.py` checks Showdown before fetching. Todo: the real league games, several leagues (the `league` field is stored but not shown yet), team sheets saved per game. |
 | in progress | Player stats / Draft tab | Requested 2026-10-27: a page per player across their games, including all of their drafted Pokémon (also ones they never brought). Needs the draft lists. User 2026-10-28: one Draft tab with a sub-tab per player. Done 2026-10-28 (`site/app/draft.js`, `?tab=draft&player=<key>`): every drafted Pokémon with tier, cost, games, wins, KOs, fantasy points and points per cost (never-brought picks greyed), the player's record, draft points spent and best value; brought Pokémon not on the sheet listed under the table. Trades / drops: placeholder `trades` in draft.json ({player: [{out, in, after}]}), shown under the table; only doxsego's so far (Falinks out, user 2026-10-28; what came in not known). The user is getting the full list; then a traded-away Pokémon should keep its cost and games on its player's page. Trainer sprites from the draft sheet (`site/img/trainers/<player key>.png`) on each button and next to the name, 2026-10-28. Ideas: biggest bust, the draft order (not in draft.json). |
 | in progress | Gambling / sportsbook | Requested 2026-10-27: betting on league games. Live 2026-10-27 (`site/bet.js`): Pokémon fantasy points with draft tier / cost / points per cost (`site/games/draft.json`), a note that points aren't exact without team sheets. Win odds dropped (too few games). Records under bracket names from the Challonge API (`tools/challonge_records.py`, re-run after each round). Ideas: placing play-money bets per player and settling them from replays, props (first KO, MVP), fantasy drafts. |
-| later | Playoff series view | Suggested 2026-10-27: group a Bo3 series' games, series score, stats summed. User: not now. |
+| done | Playoff series view | Suggested 2026-10-27: group a Bo3 series' games, series score, stats summed. User 2026-10-28: now, for the Super Champions League's Bo3 sets (last feature before 1.0). Done 2026-10-28: see the v1.0 checklist. Not done: a set's own page (the Playoffs tab sums its games), points for sets (Super Champions: 2-0 = 3, 2-1 = 2, 1-2 = 1). |
 | idea | Draft report card | Suggested 2026-10-27: per player, each drafted Pokémon with games brought, fantasy points and points per cost; best pick and biggest bust. From `site/games/draft.json` + fantasy points. |
 | idea | Fantasy team builder | Suggested 2026-10-27: a viewer picks 6 Pokémon from the league's pools within a point budget; the page scores them with fantasy points; the team lives in a share link (no server). |
 | idea | Weekly awards | Suggested 2026-10-27: per week, auto-picked superlatives (most damage, luckiest roll, biggest comeback, fastest KO) with a "Copy for Discord" button. |

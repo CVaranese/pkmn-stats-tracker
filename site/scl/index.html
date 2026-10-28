@@ -16,7 +16,7 @@
   <meta property="og:url" content="https://cvaranese.github.io/pkmn-stats-tracker/scl/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#2f5d9e">
-  <script>window.LEAGUE = {"id": "scl", "name": "Super Champions League", "short": "Super Champions", "tag": "SCL", "format": "", "format_name": "Pokémon Champions VGC doubles", "palette": "blastoise"};</script>
+  <script>window.LEAGUE = {"id": "scl", "name": "Super Champions League", "short": "Super Champions", "tag": "SCL", "format": "", "format_name": "Pokémon Champions VGC doubles", "brackets": [], "best_of": 3, "palette": "blastoise"};</script>
   <script>try { const p = new URLSearchParams(location.search).get("palette") || localStorage.getItem("replay-kill-tracker.scl.palette") || window.LEAGUE.palette; if (p) document.documentElement.dataset.palette = p; } catch (e) { document.documentElement.dataset.palette = window.LEAGUE.palette; }</script>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -139,7 +139,8 @@
       </div>
       <details id="bracket" class="watch">
         <summary>Bracket</summary>
-        <p class="hint">From <a href="https://challonge.com/peepeepeepeepiss" target="_blank" rel="noopener">Challonge</a>. It shows every result.</p>
+        <div class="tabs" id="bracket-views"></div>
+        <p class="hint">From <a id="bracket-link" href="https://challonge.com/" target="_blank" rel="noopener">Challonge</a>. It shows every result.</p>
         <iframe id="bracket-frame" title="League bracket" referrerpolicy="no-referrer" loading="lazy" hidden></iframe>
       </details>
       <div id="lib-watch" class="lib-watch" hidden>
@@ -245,6 +246,7 @@
         <table id="table"></table>
       </div>
     </section>
+    <footer class="site-foot">Replay Kill Tracker v1.0 · <a href="./#news">What's new</a> · <a href="./">Other leagues</a></footer>
   </main>
 
   <script src="parser.js"></script>

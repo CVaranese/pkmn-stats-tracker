@@ -99,7 +99,38 @@
     return toID(base) + (parts.length ? "-" + toID(parts.join("")) : "");
   }
 
-  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId };
+  /** Sets (a best of three, a playoff series), each set's games in the order given (the library's: as played).
+      A game labelled with a set (index.json `set`, from tools/add_game.py --set) goes with the other games of that
+      label. Unlabelled games in a league that plays sets (bestOf, e.g. 3) are grouped by guess: a week's games
+      between the same two players; the guess is marked unclear when it can't be one set (more games than bestOf, or
+      a game after someone had already won). Otherwise (bestOf 0) every unlabelled game is a set of one. keyOf gives
+      one id per player (case, spaces, draft aliases). Each set: {key, week, players, games, wins (per player, in
+      players' order), winner ("" while level), labelled, unclear}. */
+  function sets(games, keyOf = toID, bestOf = 0) {
+    const by = new Map();
+    for (const g of games) {
+      const pair = g.players.map(keyOf).sort().join("|");
+      const key = g.set ? "set|" + g.set : bestOf ? g.week + "|" + pair : "game|" + g.id;
+      if (!by.has(key)) by.set(key, { key, week: g.week, players: g.players.slice(), games: [], labelled: !!g.set });
+      by.get(key).games.push(g);
+    }
+    for (const s of by.values()) {
+      s.wins = s.players.map((p) => s.games.filter((g) => g.winner && keyOf(g.winner) === keyOf(p)).length);
+      s.winner = s.wins[0] === s.wins[1] ? "" : s.players[s.wins[0] > s.wins[1] ? 0 : 1];
+      // a guessed set that can't be one: too many games, or played on after someone reached the wins needed
+      const need = Math.floor(bestOf / 2) + 1, tally = [0, 0];
+      let playedOn = false;
+      for (const g of s.games) {
+        if (Math.max(...tally) >= need) playedOn = true;
+        const w = g.winner ? s.players.findIndex((p) => keyOf(p) === keyOf(g.winner)) : -1;
+        if (w >= 0) tally[w]++;
+      }
+      s.unclear = !s.labelled && s.games.length > 1 && (s.games.length > bestOf || playedOn);
+    }
+    return [...by.values()];
+  }
+
+  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

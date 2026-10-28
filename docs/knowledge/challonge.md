@@ -15,6 +15,11 @@
   complete. Each match also has `loser_id`. `tools/challonge_records.py` turns this into `site/ppppp/games/records.json`
   under the bracket's names (the user OK'd showing them on the site, 2026-10-27).
 
+- **Tested** (2026-10-28): the Swiss (`peepeepeepeepiss`) is `complete`, 48 of 48 matches. The playoffs are a second
+  tournament, `peepeepeepeepisspiss` ("Peter Pikmon's Pinecord Pokemon Pissfest Playoffs"): single elimination, 12
+  players, no third-place match; round 1 is four matches (seeds 5-12), the top four wait in round 2; 11 matches in all.
+  The API reads it with the same key.
+
 ## Draft sheet (Google Sheets)
 - **Tested** (2026-10-27): the league draft sheet exports without sign-in (`/export?format=xlsx`, or one tab as CSV with
   `/gviz/tq?tqx=out:csv&sheet=<tab>`). Tabs: Rules, Draft table, New ZA Moves. Rules: 48 points, OU 7, UUBL 6, UU 5,

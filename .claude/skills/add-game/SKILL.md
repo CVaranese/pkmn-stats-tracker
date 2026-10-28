@@ -10,9 +10,10 @@ instead of waiting on timeouts.
 
 For each replay (link or id):
 ```
-python -I tools/add_game.py <link> --league <id> --week "Week 3" [--note "Game 2"]
+python -I tools/add_game.py <link> --league <id> --week "Week 3" [--set "QF Karm-Joey"] [--note "Game 2"]
 ```
 - `--league` is required: a league id from `site/leagues.json` (`ppppp`, `scl`). Ask the user if the links could be from either league. A new league: add it to `site/leagues.json`, then `python -I tools/build_pages.py`.
+- `--set "<label>"` puts the game in a set (best of three, playoff series): every game with the same label is one set. Use it for playoff series and whenever a pair played more than one set in a week. The Super Champions League (`best_of` 3 in `site/leagues.json`) groups a week's games between the same two players by itself; the Games tab marks a group that can't be one set ("May be two sets"): label those.
 - `--week` is required and is the group shown in the Games tab ("Week 3", "Playoffs R1", "Finals"). Ask the user
   if they didn't say; never guess a week.
 - Running it again for the same game updates its labels (no duplicate). Games show newest-added first within a week,

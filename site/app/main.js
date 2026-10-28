@@ -133,6 +133,14 @@ function renderTeams() {
   const timer = rows.find((r) => r.timer_on);
   head.append(link, `${lib ? " · " + lib.week : ""} · ${g.turns} turns${gameTime(g)}${timer ? ` · timer on by ${timer.player}` : ""}` +
     ` · ended by ${g.end_reason}`);
+  // a game in a set (Bo3 / playoff series): which game, the set's score, and the whole set added up
+  const set = lib && setOf(lib);
+  if (set && set.games.length > 1) {
+    head.append(` · game ${set.games.indexOf(lib) + 1} of ${set.games.length} in the set (${setScore(set)}) · `);
+    const all = Object.assign(el("a", "", "Set stats"), { href: "#" });
+    all.addEventListener("click", (e) => { e.preventDefault(); openSet(set.games.map((x) => x.id)); });
+    head.append(all);
+  }
   // winner first
   const players = [...new Set(rows.map((r) => r.player))].sort((a, b) =>
     rows.find((r) => r.player === b).won - rows.find((r) => r.player === a).won);

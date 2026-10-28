@@ -124,6 +124,25 @@
       pairs.length > 0 && pairs.every((p) => p.victim.deaths > 0), JSON.stringify(pairs.map((p) => [p.killer.pokemon, p.victim.pokemon])));
   }
   {
+    // sets: a week's games between the same two players, names matched loosely, other weeks / pairs apart
+    const g = (id, week, players, winner) => ({ id, week, players, winner });
+    const games = [g("a", "Week 1", ["Fayz", "Kirbyhat"], "Fayz"), g("b", "Week 1", ["kirbyhat", "Fayz"], "kirbyhat"),
+      g("c", "Week 1", ["Fayz", "Kirbyhat"], "Fayz"), g("d", "Week 1", ["Leaf", "Soop"], "Soop"), g("e", "Week 2", ["Fayz", "Kirbyhat"], "")];
+    const sets = window.League.sets(games, undefined, 3);
+    const s1 = sets.find((s) => s.games.length === 3);
+    check("sets (best of 3): one set per week and pair, games in order, score and winner", sets.length === 3 && s1 &&
+      s1.games.map((x) => x.id).join() === "a,b,c" && same(s1.wins, [2, 1]) && s1.winner === "Fayz" && !s1.unclear &&
+      sets.find((s) => s.week === "Week 2").winner === "", JSON.stringify(sets.map((s) => [s.key, s.wins, s.winner])));
+    check("sets: no best_of, so each unlabelled game stands alone", window.League.sets(games).length === 5);
+    // two sets in one week: guessed as one, flagged (a game after Fayz had won 2); labels split them
+    const two = [g("a", "W1", ["Fayz", "Leaf"], "Fayz"), g("b", "W1", ["Fayz", "Leaf"], "Fayz"), g("c", "W1", ["Fayz", "Leaf"], "Leaf")];
+    const guessed = window.League.sets(two, undefined, 3);
+    const labelled = window.League.sets(two.map((x, i) => ({ ...x, set: i < 2 ? "first" : "second" })), undefined, 3);
+    check("sets: a group that can't be one set is unclear; set labels win", guessed.length === 1 && guessed[0].unclear &&
+      labelled.length === 2 && labelled.every((s) => !s.unclear) && same(labelled[0].wins, [2, 0]),
+      JSON.stringify([guessed.map((s) => s.unclear), labelled.map((s) => s.wins)]));
+  }
+  {
     const b = RS.parseBattle(`|player|p1|Alice|
 |player|p2|Bob|
 |switch|p1a: Burner|Sableye, L50|100/100

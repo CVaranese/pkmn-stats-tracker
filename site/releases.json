@@ -1,0 +1,17 @@
+{
+  "_note": "What's new, for people using the site (newest first): shown on the league list (site/index.html) and as the version in each league page's footer. CHANGELOG.md is the detailed log for us. After any change run python -I tools/build_pages.py.",
+  "releases": [
+    {
+      "version": "1.0",
+      "title": "First release",
+      "notes": [
+        "One page per draft league: Pinecord Pokémon Pissfest and the Super Champions League.",
+        "Main viewer: kills, damage, MVPs, luck, key moments and a momentum chart for any Showdown replay, singles or doubles.",
+        "Games: every league game by week, with the replay player and results hidden until you ask.",
+        "Sets and playoff series: a best of three shows as one set, with its score and the stats of all its games added up.",
+        "Players, Pokémon and Draft: season tables, head-to-head, the KO matrix and how each draft pick has done.",
+        "Copy any table straight into Google Sheets."
+      ]
+    }
+  ]
+}
