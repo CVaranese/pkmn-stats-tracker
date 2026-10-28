@@ -1130,6 +1130,16 @@ ${switchIn}`).hiddenZoroark;
   check("bet: fantasy per player's Pokémon, unbrought skipped, cost from the draft", fan.map((f) =>
     `${f.player} ${f.pokemon} ${f.points} ${f.perGame} ${f.tier || "-"} ${f.cost} ${f.perCost}`).join(", ") ===
     "Ann Garchomp 10 5 OU 7 1.4, Bob Garchomp 3 3 - null null", JSON.stringify(fan));
+  const fanHp = Bet.fantasy([
+    { player: "Ann", pokemon: "Garchomp", brought: 1, kills: 0, damage_dealt_pct: 100, damage_dealt_hp: 350, hp_est: {}, survived: 0, won: 0 },
+    { player: "Ann", pokemon: "Garchomp", brought: 1, kills: 0, damage_dealt_pct: 50, damage_dealt_hp: 200, hp_est: { damage_dealt_hp: true }, survived: 0, won: 0 },
+    { player: "Bob", pokemon: "Toxapex", brought: 1, kills: 0, damage_dealt_pct: 30, damage_dealt_hp: 90, survived: 0, won: 0 },
+    { player: "Bob", pokemon: "Toxapex", brought: 1, kills: 0, damage_dealt_pct: 10, damage_dealt_hp: "", survived: 0, won: 0 },
+  ], draft);
+  const ann = fanHp.find((f) => f.player === "Ann"), bob = fanHp.find((f) => f.player === "Bob");
+  check("bet: damage in HP summed, ~ when a guess went in, blank when a game has none; points still per 100%",
+    ann.damageHp === 550 && ann.damageHpEst && ann.points === 1.5 && bob.damageHp === "" && !bob.damageHpEst,
+    JSON.stringify(fanHp.map((f) => [f.damageHp, f.damageHpEst, f.points])));
 
   // ---- report ----
   const failed = results.filter((r) => !r.ok);

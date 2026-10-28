@@ -46,11 +46,14 @@
     for (const r of rows) {
       if (!r.brought) continue;
       const key = toID(r.player) + "|" + r.pokemon;
-      if (!by.has(key)) by.set(key, { pokemon: r.pokemon, player: r.player, games: 0, kills: 0, damage: 0, survived: 0, wins: 0 });
+      if (!by.has(key)) by.set(key, { pokemon: r.pokemon, player: r.player, games: 0, kills: 0, damage: 0, damageHp: 0, damageHpEst: false, survived: 0, wins: 0 });
       const f = by.get(key);
       f.games++;
       f.kills += r.kills;
       f.damage += Number(r.damage_dealt_pct) || 0;
+      // in HP once every game has it (rows with max HP, ReplayStats.addDamageHp); "" otherwise
+      f.damageHp = f.damageHp === "" || typeof r.damage_dealt_hp !== "number" ? "" : f.damageHp + r.damage_dealt_hp;
+      if (r.hp_est && r.hp_est.damage_dealt_hp) f.damageHpEst = true;
       f.survived += r.survived;
       f.wins += r.won;
     }

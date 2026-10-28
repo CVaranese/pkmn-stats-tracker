@@ -294,7 +294,7 @@
       ? `From the bracket (Swiss rounds), ${bracket.updated}.`
       : `From the ${library.length} games saved here. The full bracket is under Games.`;
     const s = Bet.SCORING;
-    $("bet-scoring").textContent = `Each Pokémon on each player's team: ${s.kill} points a KO, ${s.damagePer100} per 100% damage dealt, ` +
+    $("bet-scoring").textContent = `Each Pokémon on each player's team: ${s.kill} points a KO, ${s.damagePer100} per 100% damage dealt (a full health bar, shown in HP), ` +
       `${s.survived} for being alive at the end, ${s.won} when its team won. Cost is its draft price (OU 7, UUBL 6, UU 5, ` +
       `RUBL 4, RU 3, NFE 2, LC 1, set by the tier on draft day); Per cost is points for each draft point spent. Top 20.`;
     $("bet-status").textContent = "Loading games…";
@@ -306,7 +306,15 @@
         return RS.gameRows(cache.get(g.id));
       } catch (e) { return []; }  // a game that won't load just isn't counted
     }));
-    for (const rows of loaded) fantasyRows.push(...rows);
+    // damage in HP: each game's saved sheets, else guessed max HP (same as One game); stays in % if the Pokédex won't load
+    let dex = null;
+    try { dex = await TS.loadDex(); } catch (e) { /* % only */ }
+    const [smogon, pool] = await Promise.all([TS.loadSmogonHp("data/smogon_hp.json"), loadMockPool()]);
+    for (const rows of loaded) {
+      if (rows.length) TS.attachSheets(rows, mockSheets.filter((s) => s.gameId === rows[0].replay_id));
+      fillMaxHp(rows, dex, smogon, pool);
+      fantasyRows.push(...rows);
+    }
     const games = new Set(fantasyRows.map((r) => r.replay_id)).size;
     $("bet-status").textContent = (games < library.length ? `Counted ${games} of ${library.length} games (the rest didn't load). ` : "") +
       (draft ? "" : "Draft costs didn't load.");
@@ -314,14 +322,15 @@
       ["Tier", "", "Its Nat Dex tier on draft day, from the draft sheet."],
       ["Cost", "num", "Draft points it cost: OU 7, UUBL 6, UU 5, RUBL 4, RU 3, NFE 2, LC 1."],
       ["Games", "num", "Games it was brought to (not just shown at team preview)."],
-      ["KOs", "num", DESCRIPTIONS.kills], ["Damage", "num", DESCRIPTIONS.damage_dealt_pct],
+      ["KOs", "num", DESCRIPTIONS.kills],
+      ["Damage", "num", "Damage dealt in HP, from each target's max HP (team sheet, or a guess when marked ~). Points still count 1 per 100% of a Pokémon's health, so bulky targets don't count extra."],
       ["Points", "num", "3 a KO, 1 per 100% damage, 1 for each game it was alive at the end, 1 for each win."],
       ["Per game", "num", "Points divided by games."], ["Per cost", "num", "Points for each draft point it cost."]],
       Bet.fantasy(fantasyRows, draft).slice(0, 20).map((f) => {
         const mon = el("span", "bet-mon");
         mon.append(sprite(f.pokemon, ["gen5/"], "tiny"), f.pokemon);
         return [[mon, ""], [nameOf(f.player), ""], [f.tier || "–", ""], [f.cost ? String(f.cost) : "–", "num"], [String(f.games), "num"],
-          [String(f.kills), "num"], [pct(f.damage), "num"], [f.points.toFixed(1), "num"], [f.perGame.toFixed(1), "num"],
+          [String(f.kills), "num"], [typeof f.damageHp === "number" ? (f.damageHpEst ? "~" : "") + f.damageHp + " HP" : pct(f.damage), "num"], [f.points.toFixed(1), "num"], [f.perGame.toFixed(1), "num"],
           [f.perCost ? f.perCost.toFixed(1) : "–", "num"]];
       }));
   }
@@ -996,16 +1005,45 @@
   };
   // every saved sheet, parsed, by player ID (draft aliases resolved): for guessing max HP in their other games
   let mockPool = null;
+  const mockSheets = [];  // [{ gameId, sets }]: the same sheets, per game (the Gambling tab matches them itself)
   async function loadMockPool() {
     if (mockPool) return mockPool;
     const pool = new Map();
     await Promise.all(Object.entries(MOCK_SHEETS).flatMap(([id, players]) => players.map(async (player) => {
       try {
         const resp = await fetch(`mock/${id}-${player}.txt`);
-        if (resp.ok) addToPool(pool, player, id, TS.parseTeam(await resp.text()));
+        if (!resp.ok) return;
+        const sets = TS.parseTeam(await resp.text());
+        addToPool(pool, player, id, sets);
+        mockSheets.push({ gameId: id, sets });
       } catch (e) { /* missing file: just fewer guesses */ }
     })));
     return (mockPool = pool);
+  }
+
+  /** Max HP on each row: its sheet (row.set), else a guess (Smogon, the player's other sheets, base stats);
+      item / ability / moves from the sheet, else what the game showed. Then raw HP from the % figures. */
+  function fillMaxHp(rows, dex, smogon, pool) {
+    for (const r of rows) {
+      const s = r.set;
+      r.max_hp = ""; r.max_hp_from = ""; r.max_hp_note = "";
+      if (s && dex) {
+        r.max_hp = TS.maxHp(s, dex) ?? "";
+        if (r.max_hp) { r.max_hp_from = "sheet"; r.max_hp_note = "From the team sheet."; }
+      } else if (dex && r.mon_key) {
+        // no sheet for this side: Smogon's spreads, the same player's other sheets, then base stats
+        const others = (pool.get(playerKey(r.player)) || []).filter((p) => p.gameId !== r.replay_id);
+        const g = TS.guessMaxHp(r.pokemon, others, smogon, dex);
+        if (g) { r.max_hp = g.max_hp; r.max_hp_from = HP_FROM[g.from]; r.max_hp_note = "Guess, no sheet: " + g.note + "."; }
+      }
+      // without a sheet: what the game showed (first item / ability revealed, moves used)
+      const seenMoves = (r.move_stats || []).filter((m) => !m.source && !m.z && m.uses > 0 && m.move).map((m) => m.move);
+      r.item = s ? s.item : r.seen_item || "";
+      r.ability = s ? s.ability : r.seen_ability || "";
+      r.moves = s ? s.moves.join(" / ") : seenMoves.join(" / ");
+      r.set_from = s ? "sheet" : r.item || r.ability || r.moves ? "seen" : "";
+    }
+    RS.addDamageHp(rows);
   }
   function playerKey(name) {
     const alias = draft && Object.entries(draft.aliases || {}).find(([a]) => TS.toID(a) === TS.toID(name));
@@ -1088,26 +1126,7 @@
       pool = new Map([...pool].map(([k, v]) => [k, v.slice()]));
       sheets.forEach((sh, i) => matches[i].forEach(([id, player]) => addToPool(pool, player, id, sh.sets)));
     }
-    for (const r of rows) {
-      const s = r.set;
-      r.max_hp = ""; r.max_hp_from = ""; r.max_hp_note = "";
-      if (s && dex) {
-        r.max_hp = TS.maxHp(s, dex) ?? "";
-        if (r.max_hp) { r.max_hp_from = "sheet"; r.max_hp_note = "From the team sheet."; }
-      } else if (dex && r.mon_key) {
-        // no sheet for this side: Smogon's spreads, the same player's other sheets, then base stats
-        const others = (pool.get(playerKey(r.player)) || []).filter((p) => p.gameId !== r.replay_id);
-        const g = TS.guessMaxHp(r.pokemon, others, smogon, dex);
-        if (g) { r.max_hp = g.max_hp; r.max_hp_from = HP_FROM[g.from]; r.max_hp_note = "Guess, no sheet: " + g.note + "."; }
-      }
-      // without a sheet: what the game showed (first item / ability revealed, moves used)
-      const seenMoves = (r.move_stats || []).filter((m) => !m.source && !m.z && m.uses > 0 && m.move).map((m) => m.move);
-      r.item = s ? s.item : r.seen_item || "";
-      r.ability = s ? s.ability : r.seen_ability || "";
-      r.moves = s ? s.moves.join(" / ") : seenMoves.join(" / ");
-      r.set_from = s ? "sheet" : r.item || r.ability || r.moves ? "seen" : "";
-    }
-    RS.addDamageHp(rows);
+    fillMaxHp(rows, dex, smogon, pool);
 
     boxes.forEach((box, i) => {
       const st = box.querySelector(".status");
