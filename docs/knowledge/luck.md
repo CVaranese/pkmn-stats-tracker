@@ -10,9 +10,44 @@ Sources: `smogon/pokemon-showdown` master, `data/conditions.ts` and `sim/battle-
 - A Pokémon's own luck per game: sd 0.43, |luck| median 0.08, 75th 0.21, 90th 0.8: heavy-tailed (one crit or miss
   decides it). ±0.25 / ±0.75 kept.
 - Season (user 2026-10-28: a plain total mostly grew with games played; a count of lucky games didn't read well):
-  z = total / (sd per game × √games), games taken as independent. Words: Fair within ±0.67 (middle half of a normal),
+  first z = total / (sd per game × √games), replaced the same day by the spread from the rolls' own odds (below), games taken as independent. Words: Fair within ±0.67 (middle half of a normal),
   Very beyond ±1.64 (1 in 10). League after Week 8: z from −1.07 (weedinmyhonda) to +0.90 (Karm). **Guess:** the
   Pokémon z is rougher, its per-game luck being far from normal.
+
+## Spread from our own odds (explored 2026-10-28, tests/luck-var.html; on the site the same day)
+**Switched (user 2026-10-28):** season luck (Players, Pokémon tab, a player's Pokémon) = total / √(Σ variance), from
+`luck_var` / `player_luck_var` that luck.js now puts on rows; words at ±0.67 / ±1.64 as before; tooltips give the
+share of seasons it beats (normal CDF, `League.normalCdf`). Per-game words keep the raw cut-offs below (a game's z is
+skewed for a Pokémon, and only 3 of 45 games moved). Re-run on the site's rows (scores rounded to 2 places): same
+numbers, 19 of 128 Pokémon change word instead of 20, 0 of 12 players. "+1" in words: about one crit more than the odds.
+
+Idea: every scored roll with chance p adds variance p(1−p) to its luck, so a game's (or a season's) expected spread
+can be added up from the rolls instead of taken from a sampled sd; z = luck / √(variance).
+- **Tested (code read + prototype):** every roll goes through `score()` in site/luck.js as a yes/no with its p, except
+  the 2-5 hit count (`hitCountLuck`, scored P(fewer) − P(more): mean 0, variance 0.3025; Loaded Dice ±0.5, variance
+  0.25). Rolls with more outcomes are already split into yes/no rolls: sleep is one roll per attempt with its
+  conditional chance (1/3, then 1/2), Triple Axel / Population Bomb one accuracy roll per hit. No roll is weighted.
+  The p isn't kept today: `scoreValue` gets only the result; adding variance is one more argument.
+- **Researched (maths):** rolls are scored one after another, each with its chance given what happened before, so
+  the luck total is a sum of zero-mean steps and the variances add even when rolls depend on each other (sleep turns,
+  later hits). Player luck = own − opponent's, variance = both sides' sum.
+- **Tested, 45 league games (site rows: sheets, Megas) + 30 corpus (no sheets):** the recount matches the site's
+  player_luck in all 75. Expected sd per game from the odds 1.39 league / 1.36 corpus (sampled 1.42 / 1.50); one
+  game's own sd ranges 0.72–2.32 (league). Σluck² / Σvariance 1.04 league, 1.21 corpus, 1.10 both (1 = odds right).
+  Game z: sd 1.15, |z| < 0.67 in 41% (normal 50%), > 1.64 in 14% (normal 10%): a bit wider than the odds say.
+  **Guess** why: items / abilities the log doesn't show give wrong p (corpus has no sheets and is wider), a game with
+  few rolls is far from normal (one 1/24 crit = z 4.8), flinch counted for each pending hit; 75 games puts about
+  ±0.08 on that sd.
+- **Tested, Pokémon-games (678 with a roll):** z sd 1.04 but 80% within ±0.67: very skewed (most games are a few
+  −1/24 no-crits, a few are one big crit). All Pokémon luck added up: −20.5 against a spread of 12.0 (−1.7 sd); the
+  player scale can't show this (own − opponent's cancels it). **Guess:** some systematic under-scoring for the actor
+  (unknown items / abilities), as crits came in under the expected count before (see Checked).
+- **Tested, season words (normal cut-offs ±0.67 / ±1.64 on both scales):** Players: 0 of 12 change (z sd 0.68 over 12
+  players; players' spreads differ, 11.6–19.2 variance over 7–8 games, but not enough to move a word yet). Pokémon tab
+  (same rows as a player's Pokémon, each Pokémon has one owner): 20 of 128 change, e.g. Enamorus Lucky → Very lucky
+  (4 games, variance 0.16: few rolls, so +0.83 is a lot), Hydrapple Lucky → Fair (variance 2.07: many rolls), Metagross
+  Very unlucky → Unlucky. New Pokémon z sd 1.02, 66% Fair, 11% beyond ±1.64. Per game (league, old raw ±1.1 / ±2.25
+  vs z ±0.67 / ±1.64): 3 of 45 change.
 
 ## Odds (gen 9)
 - **Researched:** full paralysis 1/4 per move attempt (`par.onBeforeMove`, priority 1).

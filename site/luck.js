@@ -9,6 +9,8 @@
  *   luck_against  opponents' accuracy, crit and secondary rolls aimed at it, scored for them (high = they
  *                 got lucky against it).
  *   player_luck   (per game) the player's luck minus the opponent's: one number for "who got the rolls".
+ *   luck_var, player_luck_var   the spread those scores could have had: each roll with chance p adds p(1 - p).
+ *                 Season luck = total / sqrt(total variance) (League.seasonLuck).
  *
  * Odds come from Showdown's moves.json and pokedex.json (types, possible abilities). An ability is known when the
  * log revealed it, a team sheet gives it, or the species (Mega forms) has only one. Otherwise each roll is worked
@@ -48,15 +50,16 @@
 
   /**
    * Score one game's rolls. data: {moves, dex}; sets: mon key -> team-sheet set ({item, ability}).
-   * Returns {byMon: Map key -> {luck, against}, bySide: {p1, p2}}.
+   * Returns {byMon: Map key -> {luck, against, luckVar}, bySide: {p1, p2}, varSide: {p1, p2}}: varSide / luckVar add up
+   * each roll's variance (p(1 - p) for a yes/no roll), the spread the score could have had.
    */
   function scoreGame(rolls, data, sets = new Map()) {
     const moves = data.moves || {}, dex = data.dex || {};
     const byMon = new Map();
-    const bySide = { p1: 0, p2: 0 };
+    const bySide = { p1: 0, p2: 0 }, varSide = { p1: 0, p2: 0 };
     const events = [];  // every scored roll: {actor, form, v, label}, for "biggest contributors"
     const add = (key, f, v) => {
-      if (!byMon.has(key)) byMon.set(key, { luck: 0, against: 0 });
+      if (!byMon.has(key)) byMon.set(key, { luck: 0, against: 0, luckVar: 0 });
       byMon.get(key)[f] += v;
     };
     const setOf = (r, who) => sets.get(who === "a" ? r.actor : r.target) || {};
@@ -90,17 +93,20 @@
       return first;
     }
 
-    /** Add v (positive = went the actor's way) to the actor's luck, and to the target's 'against' when aimed at it. */
-    function scoreValue(r, v, aimed, label) {
+    /** Add v (positive = went the actor's way) to the actor's luck, and to the target's 'against' when aimed at it;
+        variance: the roll's expected spread (v averages 0). */
+    function scoreValue(r, v, aimed, label, variance) {
       events.push({ actor: r.actor, form: r.aForm || "", v, label });
       add(r.actor, "luck", v);
+      add(r.actor, "luckVar", variance);
       if (aimed) add(r.target, "against", v);
       bySide[r.actor.slice(0, 2)] += v;
+      varSide[r.actor.slice(0, 2)] += variance;
     }
     /** good: the roll went the actor's way; p: chance it would. */
     function score(r, good, p, aimed, label) {
       if (p === null || p === undefined || p <= 0 || p >= 1) return;
-      scoreValue(r, good ? 1 - p : -p, aimed, label);
+      scoreValue(r, good ? 1 - p : -p, aimed, label, p * (1 - p));
     }
     const moveName = (r) => (moves[r.move] && moves[r.move].name) || r.move || "a move";
 
@@ -201,16 +207,16 @@
       return { ok: Math.max(0, r.hits - 1), failed: !r.cut && r.hits < max ? 1 : 0 };
     }
 
-    /** 2-5 hit moves: chance of fewer hits minus chance of more (null when there is no roll to score). */
+    /** 2-5 hit moves: chance of fewer hits minus chance of more, and that score's variance over all hit counts
+        ([v, variance]; null when there is no roll to score). */
     function hitCountLuck(r) {
       const m = moves[r.move];
       if (!m || !Array.isArray(m.multihit) || r.cut || knownItem(r, "a") === null) return null;
       if (ability(r, "a") === "Skill Link") return null;
       const odds = item(r, "a") === "Loaded Dice" ? DICE_ODDS : HIT_ODDS;
       if (!(r.count in odds)) return null;
-      let v = 0;
-      for (const [n, p] of Object.entries(odds)) v += Number(n) < r.count ? p : Number(n) > r.count ? -p : 0;
-      return v;
+      const scoreOf = (count) => Object.entries(odds).reduce((t, [n, p]) => t + (Number(n) < count ? p : Number(n) > count ? -p : 0), 0);
+      return [scoreOf(r.count), Object.entries(odds).reduce((t, [n, p]) => t + p * scoreOf(Number(n)) ** 2, 0)];
     }
 
     for (const r of rolls) {
@@ -229,8 +235,8 @@
           score(r, good, p, true, (good ? "" : "no ") + what + " from " + moveName(r));
         }
       } else if (r.kind === "hits") {
-        const v = agree(r, () => hitCountLuck(r));
-        if (typeof v === "number" && Math.abs(v) > 1e-9) scoreValue(r, v, true, `${moveName(r)} hit ${r.count} times`);
+        const [v, variance] = agree(r, () => hitCountLuck(r)) || [];
+        if (typeof v === "number" && Math.abs(v) > 1e-9) scoreValue(r, v, true, `${moveName(r)} hit ${r.count} times`, variance);
       }
       else if (r.kind === "par") score(r, !r.fullPara, 3 / 4, false, r.fullPara ? "fully paralyzed" : "moved through paralysis");
       else if (r.kind === "frz") score(r, r.thawed, 1 / 5, false, r.thawed ? "thawed out" : "stayed frozen");
@@ -241,7 +247,7 @@
           : r.attempt === 2 ? 1 / 3 : r.attempt === 3 ? 1 / 2 : null)), false, r.woke ? "woke up early" : "stayed asleep");
       }
     }
-    return { byMon, bySide, events };
+    return { byMon, bySide, varSide, events };
   }
 
   /** The rolls that moved a score most: events grouped by label (sign: +1 for the player, -1 for the opponent),
@@ -262,6 +268,7 @@
   }
 
   const round2 = (x) => Math.round(x * 100) / 100;
+  const round4 = (x) => Math.round(x * 10000) / 10000;
 
   /**
    * Fill luck / luck_against / player_luck on game rows (parser.js gameRows, after team sheets set row.set).
@@ -276,20 +283,22 @@
     for (const group of games.values()) {
       const rolls = group[0].rolls;
       if (!data || !data.moves || !rolls) {
-        for (const r of group) r.luck = r.luck_against = r.player_luck = "";
+        for (const r of group) r.luck = r.luck_against = r.player_luck = r.luck_var = r.player_luck_var = "";
         continue;
       }
       const sets = new Map(group.filter((r) => r.mon_key && r.set).map((r) => [r.mon_key, r.set]));
-      const { byMon, bySide, events } = scoreGame(rolls, data, sets);
+      const { byMon, bySide, varSide, events } = scoreGame(rolls, data, sets);
       const sideOf = new Map(group.filter((r) => r.mon_key).map((r) => [r.player, r.mon_key.slice(0, 2)]));
       const sideEv = (side) => events.map((e) => ({ ...e,
         prefix: (e.actor.slice(0, 2) === side ? "" : "their ") + (e.form || e.actor.slice(5)) + ": " }));
       for (const r of group) {
-        const m = (r.mon_key && byMon.get(r.mon_key)) || { luck: 0, against: 0 };
+        const m = (r.mon_key && byMon.get(r.mon_key)) || { luck: 0, against: 0, luckVar: 0 };
         r.luck = r.brought ? round2(m.luck) : "";
         r.luck_against = r.brought ? round2(m.against) : "";
+        r.luck_var = r.brought ? round4(m.luckVar) : "";
         const side = sideOf.get(r.player) || (sideOf.get(r.opponent) === "p1" ? "p2" : "p1");
         r.player_luck = round2(bySide[side] - bySide[side === "p1" ? "p2" : "p1"]);
+        r.player_luck_var = round4(varSide.p1 + varSide.p2);
         // not exported: what the hover lists
         r.luck_top = r.mon_key ? topContributors(events, (e) => (e.actor === r.mon_key ? 1 : 0)) : [];
         r.player_luck_top = topContributors(sideEv(side), (e) => (e.actor.slice(0, 2) === side ? 1 : -1));

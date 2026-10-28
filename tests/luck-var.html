@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Luck variance</title></head>
+<body>
+<!-- Prototype (2026-10-28): luck on a scale from our own odds instead of a sampled sd. Each scored roll with chance p
+     adds variance p(1-p) (2-5 hit count: 0.3025, Loaded Dice 0.25); z = luck / sqrt(variance), from the rows'
+     luck_var / player_luck_var (site/luck.js). Old words: the sampled sd of 2026-10-28 (1.44 / 0.43). League rows come from the real site
+     (loadLeague in a frame: team sheets, Megas as the site shows them); the corpus (tests/corpus/) without sheets.
+     Run headless with --dump-dom; the numbers land in #out. -->
+<pre id="out">running</pre>
+<iframe id="site" src="../site/index.html" style="width:1px;height:1px;border:0"></iframe>
+<script src="../site/parser.js"></script>
+<script src="../site/luck.js"></script>
+<script>
+const RS = window.ReplayStats;
+const f = (x) => (x > 0 ? "+" : "") + x.toFixed(2);
+const sdAround0 = (xs) => Math.sqrt(xs.reduce((t, x) => t + x * x, 0) / xs.length);
+const share = (xs, fn) => (100 * xs.filter(fn).length / xs.length).toFixed(0) + "%";
+const WORDS = ["Very unlucky", "Unlucky", "Fair", "Lucky", "Very lucky"];
+const word = (v, [a, b]) => WORDS[v <= -b ? 0 : v <= -a ? 1 : v < a ? 2 : v < b ? 3 : 4];
+const SEASON = [0.67, 1.64];
+
+/** One game's rows (luck.js addLuck run: luck_var, player_luck_var) -> {players: [{name, luck, v}], mons: [{row, luck, v}]} */
+function scoreRows(group) {
+  const players = [...new Map(group.map((r) => [r.player, { name: r.player, luck: r.player_luck, v: r.player_luck_var }])).values()];
+  const mons = group.filter((r) => r.mon_key && r.brought && typeof r.luck === "number").map((r) => ({ row: r, luck: r.luck, v: r.luck_var }));
+  return { players, mons };
+}
+
+function byGame(rows) {
+  const g = new Map();
+  for (const r of rows) { if (!g.has(r.replay_id)) g.set(r.replay_id, []); g.get(r.replay_id).push(r); }
+  return [...g.values()].filter((rs) => rs[0].rolls);
+}
+
+function report(out, name, games) {
+  const gz = [], gl = [], gv = [], mz = [], ml = [], mv = [];
+  for (const g of games) {
+    const p = g.players[0];
+    gl.push(p.luck); gv.push(p.v); if (p.v > 0) gz.push(p.luck / Math.sqrt(p.v));
+    for (const m of g.mons) { ml.push(m.luck); mv.push(m.v); if (m.v > 0) mz.push(m.luck / Math.sqrt(m.v)); }
+  }
+  const sum = (xs) => xs.reduce((t, x) => t + x, 0);
+  const sd = (xs) => Math.sqrt(xs.reduce((t, x) => t + x * x, 0) / xs.length);
+  out.push(`== ${name}: ${games.length} games`);
+  out.push(`  player luck per game: sampled sd ${sd(gl).toFixed(2)}; expected sd from odds sqrt(mean var) ${Math.sqrt(sum(gv) / gv.length).toFixed(2)}` +
+    ` (per game ${Math.sqrt(Math.min(...gv)).toFixed(2)}..${Math.sqrt(Math.max(...gv)).toFixed(2)}); sum luck^2 / sum var ${(sum(gl.map((x) => x * x)) / sum(gv)).toFixed(2)}`);
+  out.push(`  game z: sd ${sd(gz).toFixed(2)}, mean ${f(sum(gz) / gz.length)}, |z|<0.67 ${share(gz, (z) => Math.abs(z) < 0.67)} (normal 50%), |z|>1.64 ${share(gz, (z) => Math.abs(z) > 1.64)} (10%), max |z| ${Math.max(...gz.map(Math.abs)).toFixed(2)}`);
+  out.push(`  Pokémon-games: ${ml.length} (${mz.length} with any roll); sampled sd ${sd(ml).toFixed(2)}, expected ${Math.sqrt(sum(mv) / mv.length).toFixed(2)}; sum luck^2 / sum var ${(sum(ml.map((x) => x * x)) / sum(mv)).toFixed(2)}; total luck ${f(sum(ml))} vs sd of total ${Math.sqrt(sum(mv)).toFixed(2)}`);
+  out.push(`  Pokémon z: sd ${sd(mz).toFixed(2)}, |z|<0.67 ${share(mz, (z) => Math.abs(z) < 0.67)}, |z|>1.64 ${share(mz, (z) => Math.abs(z) > 1.64)}, max |z| ${Math.max(...mz.map(Math.abs)).toFixed(2)}`);
+  return { gz, mz };
+}
+
+/** Season words, old (sampled sd) vs new (own odds), for groups of [{luck, v}] */
+function seasonTable(out, title, groups, sampledSd) {
+  out.push(`-- ${title}: name, games, total, var, old z (sd ${sampledSd}) word -> new z word`);
+  const zs = [];
+  let moved = 0;
+  const lines = [];
+  for (const [name, xs] of groups) {
+    const tot = xs.reduce((t, x) => t + x.luck, 0), v = xs.reduce((t, x) => t + x.v, 0);
+    const oldZ = tot / (sampledSd * Math.sqrt(xs.length)), newZ = v > 0 ? tot / Math.sqrt(v) : 0;
+    zs.push(newZ);
+    const ow = word(oldZ, SEASON), nw = word(newZ, SEASON);
+    if (ow !== nw) moved++;
+    lines.push([newZ, `  ${ow === nw ? " " : "*"} ${name}: ${xs.length}, ${f(tot)}, ${v.toFixed(2)}, ${f(oldZ)} ${ow} -> ${f(newZ)} ${nw}`]);
+  }
+  lines.sort((a, b) => b[0] - a[0]).forEach((l) => out.push(l[1]));
+  out.push(`  ${groups.length} rows, ${moved} change word; new z sd ${sdAround0(zs).toFixed(2)}, |z|<0.67 ${share(zs, (z) => Math.abs(z) < 0.67)}, |z|>1.64 ${share(zs, (z) => Math.abs(z) > 1.64)}`);
+}
+
+(async () => {
+  const out = [];
+  const data = { moves: await (await fetch("../site/data/moves.json")).json(), dex: await (await fetch("../site/data/pokedex.json")).json() };
+
+  // league: the site's own rows
+  const site = document.getElementById("site");
+  await new Promise((ok) => (site.contentWindow.document.readyState === "complete" ? ok() : site.addEventListener("load", ok)));
+  const W = site.contentWindow;
+  for (let i = 0; i < 100 && typeof W.loadLeague !== "function"; i++) await new Promise((ok) => setTimeout(ok, 50));
+  const all = await W.loadLeague();
+  const league = byGame(all).map(scoreRows).filter((g) => g.players.length && typeof g.players[0].luck === "number");
+  const L = report(out, "league (site rows, sheets)", league);
+
+  // corpus: no sheets
+  let corpusUrls = [];
+  try {
+    const listing = await (await fetch("corpus/")).text();
+    corpusUrls = [...listing.matchAll(/href="([^"]+\.json)"/g)].map((m) => "corpus/" + decodeURIComponent(m[1]));
+  } catch (e) { /* no corpus */ }
+  const corpus = [];
+  for (const u of corpusUrls) {
+    try { const rows = RS.gameRows(await (await fetch(u)).json()); if (!rows.length || !rows[0].rolls) continue; window.Luck.addLuck(rows, data); corpus.push(scoreRows(rows)); } catch (e) { out.push("skip " + u + " " + e.message); }
+  }
+  if (corpus.length) report(out, "corpus (no sheets)", corpus);
+  if (corpus.length) report(out, "both", [...league, ...corpus]);
+
+  // per game words, league: old cut-offs on raw luck vs normal cut-offs on z
+  let gm = 0;
+  const flips = [];
+  for (const g of league) {
+    const p = g.players[0], z = p.luck / Math.sqrt(p.v || 1);
+    const ow = word(p.luck, [1.1, 2.25]), nw = word(z, SEASON);
+    if (ow !== nw) { gm++; flips.push(`${p.row ? "" : ""}${g.mons[0] ? g.mons[0].row.replay_id : "?"} ${p.name}: ${f(p.luck)} sd ${Math.sqrt(p.v).toFixed(2)} ${ow} -> z ${f(z)} ${nw}`); }
+  }
+  out.push(`== league per-game words (old: raw luck at ±1.1 / ±2.25; new: z at ±0.67 / ±1.64): ${gm} of ${league.length} games change`);
+  flips.forEach((l) => out.push("  " + l));
+
+  // seasons
+  const key = (n) => W.playerKey(n);
+  const perPlayer = new Map();
+  for (const g of league) for (const p of g.players) {
+    const k = W.shownName(p.name);
+    if (!perPlayer.has(k)) perPlayer.set(k, []);
+    perPlayer.get(k).push(p);
+  }
+  seasonTable(out, "Players season", [...perPlayer], 1.44);
+  const perMon = new Map(), perPlayerMon = new Map();
+  for (const g of league) for (const m of g.mons) {
+    const n = m.row.pokemon, pm = W.shownName(m.row.player) + " / " + n;
+    if (!perMon.has(n)) perMon.set(n, []);
+    perMon.get(n).push(m);
+    if (!perPlayerMon.has(pm)) perPlayerMon.set(pm, []);
+    perPlayerMon.get(pm).push(m);
+  }
+  seasonTable(out, "Pokémon season (Pokémon tab)", [...perMon], 0.43);
+  seasonTable(out, "A player's Pokémon (Players tab, picked player)", [...perPlayerMon], 0.43);
+
+  document.getElementById("out").textContent = out.join("\n");
+  document.title = "DONE";
+})().catch((e) => { document.getElementById("out").textContent = "CRASH " + e.stack; document.title = "CRASH"; });
+</script>
+</body></html>

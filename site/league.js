@@ -22,14 +22,26 @@
   /** One move's damage (a move_stats entry): HP when known, else %. */
   const moveDealt = (m) => (typeof m.dealt_hp === "number" ? (m.dealt_hp_est ? "~" : "") + m.dealt_hp + " HP" : pct(m.dealt_pct));
 
-  /** Season luck on one scale whatever the number of games: the total over the expected spread of a total over that
-      many games (sdPerGame * sqrt(games), rolls being independent between games). About 0 is fair; within +-0.67 is
-      the middle half of seasons. { z, total, games }, or "" when no game has a score. */
-  function seasonLuck(values, sdPerGame) {
-    const v = values.filter((x) => typeof x === "number");
+  /** Season luck on one scale whatever the games and rolls: the total over the spread those rolls could have given
+      (each roll with chance p adds variance p(1 - p); luck.js puts it on rows next to the score), so z is a normal
+      z: within +-0.67 is the middle half of seasons. rows: one per game; luckField / varField name the score and its
+      variance (player_luck / player_luck_var, or a Pokémon's luck / luck_var). { z, total, sd, games }, or "" when no
+      game has a score. */
+  function seasonLuck(rows, luckField, varField) {
+    const v = rows.filter((r) => typeof r[luckField] === "number");
     if (!v.length) return "";
-    const total = v.reduce((t, x) => t + x, 0);
-    return { z: Math.round((total / (sdPerGame * Math.sqrt(v.length))) * 100) / 100, total: Math.round(total * 100) / 100, games: v.length };
+    const total = v.reduce((t, r) => t + r[luckField], 0);
+    const sd = Math.sqrt(v.reduce((t, r) => t + (typeof r[varField] === "number" ? r[varField] : 0), 0));
+    const round2 = (x) => Math.round(x * 100) / 100;
+    return { z: sd > 0 ? round2(total / sd) : 0, total: round2(total), sd: round2(sd), games: v.length };
+  }
+
+  /** Share of a normal at or below z (Abramowitz-Stegun 7.1.26, error under 2e-7): how often luck comes out this
+      low or lower. */
+  function normalCdf(z) {
+    const x = Math.abs(z) / Math.SQRT2, t = 1 / (1 + 0.3275911 * x);
+    const erf = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+    return z >= 0 ? (1 + erf) / 2 : (1 - erf) / 2;
   }
 
   /** Its moves added up over some games, in the shape of a row's move_stats: HP only when every game with that
@@ -73,7 +85,7 @@
     return toID(base) + (parts.length ? "-" + toID(parts.join("")) : "");
   }
 
-  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, seasonMoves, dealtKey, bestMove, spriteId };
+  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, seasonMoves, dealtKey, bestMove, spriteId };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

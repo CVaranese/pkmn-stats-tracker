@@ -5,7 +5,7 @@
 const RS = window.ReplayStats;
 const TS = window.TeamSheets;
 const LK = window.Luck;
-const { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, seasonMoves, dealtKey, bestMove, spriteId } = window.League;
+const { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, seasonMoves, dealtKey, bestMove, spriteId } = window.League;
 const $ = (id) => document.getElementById(id);
 // served from this computer: no requests to Showdown at all (replays only from site/games/, move / Pokedex data from
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
@@ -271,9 +271,10 @@ function stat(label, value, field) {
 // luck in words: the score is the sum of (result - odds) over a game's rolls. Cut-offs re-sampled 2026-10-28 from
 // 75 games (45 league + 30 Nat Dex ladder, tests/luck-sample.html): player luck (own minus opponent's) has sd 1.44,
 // its middle half within +-1.1, 1 game in 8 beyond +-2.25; a Pokémon's luck: 3 in 4 within +-0.21, 1 in 10 beyond 0.8.
-// season: the total over its expected spread (seasonLuck), a normal z: middle half +-0.67, 1 season in 10 beyond 1.64
+// season: the total over the spread its own rolls could have given (seasonLuck: each roll with chance p adds
+// p(1-p)), a normal z: middle half +-0.67, 1 season in 10 beyond 1.64. Checked on the 75 games 2026-10-28
+// (tests/luck-var.html, docs/knowledge/luck.md).
 const LUCK_STEPS = { player: [1.1, 2.25], pokemon: [0.25, 0.75], season: [0.67, 1.64] };
-const LUCK_SD = { player: 1.44, pokemon: 0.43 };
 const LUCK_WORDS = ["Very unlucky", "Unlucky", "Fair", "Lucky", "Very lucky"];
 const PIPS = [[50, 50], [25, 25, 75, 75], [25, 25, 50, 50, 75, 75], [25, 25, 75, 25, 25, 75, 75, 75],
   [25, 25, 75, 25, 50, 50, 25, 75, 75, 75]];
@@ -294,22 +295,30 @@ function luckBadge(v, kind, top = []) {
   box.append(svg, el("span", "", LUCK_WORDS[level]));
   box.title = `Luck score ${v > 0 ? "+" : ""}${v.toFixed(2)}. ` + (kind === "player"
     ? "This player's rolls (hits, crits, status chances…) against the opponent's: about 0 is fair."
-    : "Its own rolls (hits, crits, status chances…): about 0 is fair.") +
+    : "Its own rolls (hits, crits, status chances…): about 0 is fair.") + " +1 is about one crit more than the odds." +
     (top.length ? " Biggest: " + top.map((g) => `${g.label}${g.n > 1 ? " ×" + g.n : ""} (${g.v > 0 ? "+" : "−"}${Math.abs(g.v).toFixed(2)})`).join("; ") + "." : "");
   return box;
 }
-/** Luck over a season (a player's games, or a Pokémon's): the die and word on the season scale, the total and
-    what reads Fair for that many games in the tooltip. */
-function seasonLuckBadge(values, kind) {
-  const s = seasonLuck(values, LUCK_SD[kind]);
-  if (!s) return luckBadge("", kind);
+/** Luck over a season (a player's games, or a Pokémon's): the die and word on the season scale; in the tooltip the
+    total, the spread these rolls could have given, and how often a season is this lucky. rows: one per game,
+    luckField / varField: player_luck / player_luck_var or luck / luck_var. */
+function seasonLuckBadge(rows, luckField, varField) {
+  const s = seasonLuck(rows, luckField, varField);
+  if (!s) return luckBadge("", "season");
   const box = luckBadge(s.z, "season");
-  const spread = LUCK_SD[kind] * Math.sqrt(s.games);
   const sign = (x) => (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x).toFixed(1);
-  box.title = `${s.games} game${s.games === 1 ? "" : "s"}, luck added up ${sign(s.total)}. ` +
-    `Over ${s.games} games, a total within ±${(LUCK_STEPS.season[0] * spread).toFixed(1)} is Fair (half of all seasons), ` +
-    `beyond ±${(LUCK_STEPS.season[1] * spread).toFixed(1)} Very lucky / unlucky (1 in 10).`;
+  box.title = `${s.games} game${s.games === 1 ? "" : "s"}, luck added up ${sign(s.total)} (rolls that went their way ` +
+    `minus the odds: a crit is +0.96, a 70% move missing −0.7). ` + (s.sd > 0 ? `With these rolls half of all seasons ` +
+    `would land within ±${(LUCK_STEPS.season[0] * s.sd).toFixed(1)}. ` + luckOdds(s.z) : "No rolls to judge.");
   return box;
+}
+/** "Luckier than 84% of seasons with these rolls (about 1 in 6 is this lucky)." for a season z. */
+function luckOdds(z) {
+  const below = normalCdf(z), tail = z >= 0 ? 1 - below : below;
+  const pct = Math.round(100 * (1 - tail));
+  const word = z >= 0 ? "Luckier" : "Unluckier", adj = z >= 0 ? "lucky" : "unlucky";
+  return `${word} than ${Math.min(pct, 99)}% of seasons with these rolls` +
+    (tail <= 0.25 ? ` (about 1 in ${Math.round(1 / tail)} is this ${adj}).` : ".");
 }
 function flash(btn, text) {
   const old = btn.textContent;

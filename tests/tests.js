@@ -453,9 +453,15 @@
       JSON.stringify([LG.amount([a, b], ["damage_dealt_pct"]), LG.amount([a, c], ["damage_dealt_pct"])]));
     check("league: moveDealt", LG.moveDealt({ dealt_hp: 120, dealt_hp_est: true, dealt_pct: 40 }) === "~120 HP" &&
       LG.moveDealt({ dealt_hp: "", dealt_pct: 40.4 }) === "40%");
-    // 4 games totalling 2.88 with sd 1.44 a game: spread 1.44 * 2 = 2.88, so z 1
-    check("league: seasonLuck scales the total by sd * sqrt(games), skipping blanks; blank when none",
-      JSON.stringify(LG.seasonLuck([1, 0.88, "", 2, -1, null], 1.44)) === JSON.stringify({ z: 1, total: 2.88, games: 4 }) && LG.seasonLuck(["", null], 1.44) === "");
+    // 4 games totalling 2.88, variance 1 each: spread sqrt(4) = 2, so z 1.44
+    const lg = (l, v) => ({ luck: l, luck_var: v });
+    check("league: seasonLuck = total / sqrt(total variance), skipping blanks; blank when none; z 0 without rolls",
+      JSON.stringify(LG.seasonLuck([lg(1, 1), lg(0.88, 1), lg("", 5), lg(2, 1), lg(-1, 1)], "luck", "luck_var")) ===
+        JSON.stringify({ z: 1.44, total: 2.88, sd: 2, games: 4 }) && LG.seasonLuck([lg("", 1)], "luck", "luck_var") === "" &&
+      LG.seasonLuck([lg(0, 0)], "luck", "luck_var").z === 0,
+      JSON.stringify(LG.seasonLuck([lg(1, 1), lg(0.88, 1), lg("", 5), lg(2, 1), lg(-1, 1)], "luck", "luck_var")));
+    const cdf = [0, 1.64, -0.67].map((z) => Math.round(LG.normalCdf(z) * 10000) / 10000);
+    check("league: normalCdf", JSON.stringify(cdf) === "[0.5,0.9495,0.2514]", JSON.stringify(cdf));
     const g1 = { move_stats: [{ move: "Earthquake", source: 0, uses: 2, dealt_pct: 80, kos: 1, dealt_hp: 300 },
       { move: "Stealth Rock", source: 0, uses: 1, dealt_pct: 12, kos: 0, dealt_hp: 40 }] };
     const g2 = { move_stats: [{ move: "Earthquake", source: 0, uses: 1, dealt_pct: 50, kos: 1, dealt_hp: "" },
@@ -1117,6 +1123,12 @@ ${switchIn}`).hiddenZoroark;
       "Bullet Seed KOs on hit 3: count cut short, no roll": [seed(["50/100", "20/100", "0 fnt"]), known,
         { "p1: A": [-0.125, 0], "p2: B": [0, -0.125] }],
     });
+    // variance: a yes/no roll with chance p adds p(1 - p) (a crit roll 23/576); 2-5 hits 0.3025, Loaded Dice 0.25
+    const varOf = (log, sets) => Math.round(LK.scoreGame(RS.parseBattle(log).rolls, { moves: L_MOVES, dex: L_DEX }, sets)
+      .byMon.get("p1: A").luckVar * 10000) / 10000;
+    const vs = [varOf(seed(["90/100", "80/100", "70/100", "60/100", "50/100"]), known),
+      varOf(seed(["90/100", "80/100", "70/100", "60/100"]), sheet("p1: A", "Drizzle", "Loaded Dice"))];
+    check("luck variance: 5 crit rolls + hit count; with Loaded Dice 4 + 0.25", JSON.stringify(vs) === "[0.5022,0.4097]", JSON.stringify(vs));
     for (const [name, [log, sets, expected]] of Object.entries(AB_CASES)) {
       const got = luckOf(log, sets);
       check(`luck: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
@@ -1140,6 +1152,9 @@ ${switchIn}`).hiddenZoroark;
     LK.addLuck(rows, { moves: L_MOVES, dex: L_DEX });
     const lr = rows.map((r) => [r.player, r.luck, r.luck_against, r.player_luck]);
     check("luck rows: luck, luck against, player luck", same(lr, [["Alice", -0.75, 0.96, -1.71], ["Bob", 0.96, 0, 1.71]]), JSON.stringify(lr));
+    // full para roll 3/4 * 1/4 = 0.1875; Bob's crit roll 23/576; the game's spread is both sides'
+    const lv = rows.map((r) => [r.luck_var, r.player_luck_var]);
+    check("luck rows: variance of luck and player luck", same(lv, [[0.1875, 0.2274], [0.0399, 0.2274]]), JSON.stringify(lv));
     // what the hover lists (moves without a name in the data show their id)
     const top = (r, f) => r[f].map((g) => `${g.label} ${g.v} ${g.n}`).join("; ");
     check("luck top: a Pokémon's own rolls", top(rows[0], "luck_top") === "fully paralyzed -0.75 1", top(rows[0], "luck_top"));

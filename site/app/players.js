@@ -32,7 +32,7 @@ async function renderPlayers() {
     ["Won", "num", "Games won among the games saved here."], ["Lost", "num", "Games lost among the games saved here."],
     ["Kills", "num", DESCRIPTIONS.kills], ["Deaths", "num", DESCRIPTIONS.deaths],
     ["Dealt", "num", "Damage dealt in all their games: in HP (~ = a guessed max HP went in), or in % when a game has no HP figures."],
-    ["Luck", "", "Their rolls against their opponents' over the season, scaled to their number of games."],
+    ["Luck", "", "Their rolls against their opponents' over the season, against the spread those rolls could have given."],
     ["Most used", "", "The Pokémon they brought most often."],
     ["Top MVP", "", "The Pokémon that was Team MVP most often."]],
     players.map((pl) => {
@@ -41,10 +41,10 @@ async function renderPlayers() {
       used.append(...[...mons].sort((a, b) => b.games_brought - a.games_brought || b.kills - a.kills).slice(0, 3)
         .map((m) => Object.assign(sprite(m.pokemon, ["gen5/"], "tiny"), { title: `${m.pokemon}: ${m.games_brought} games` })));
       const mvp = [...mons].sort((a, b) => b.mvps - a.mvps || b.kills - a.kills)[0];
-      const perGame = [...new Map(pl.rows.map((r) => [r.replay_id, r.player_luck])).values()];
+      const perGame = [...new Map(pl.rows.map((r) => [r.replay_id, r])).values()];
       return [[pl.name, ""], [String(pl.wins), "num"], [String(pl.losses), "num"],
         [String(sum(pl.rows, "kills")), "num"], [String(sum(pl.rows, "deaths")), "num"], [rowsDealt(pl.rows), "num"],
-        [seasonLuckBadge(perGame, "player"), ""], [used, ""],
+        [seasonLuckBadge(perGame, "player_luck", "player_luck_var"), ""], [used, ""],
         [mvp && mvp.mvps ? `${mvp.pokemon} ×${mvp.mvps}` : "–", ""]];
     }));
   [...$("pl-table").rows].slice(1).forEach((tr, i) => {
@@ -82,12 +82,12 @@ function showPlayer(key) {
   simpleTable($("pl-mons"), [["Pokémon", ""], ["Games", "num", DESCRIPTIONS.games_brought], ["Wins", "num", DESCRIPTIONS.wins_when_brought],
     ["Kills", "num", DESCRIPTIONS.kills], ["Deaths", "num", DESCRIPTIONS.deaths],
     ["Dealt", "num", "Damage dealt in all its games (HP, or % when a game has no HP figures)."],
-    ["MVPs", "num", DESCRIPTIONS.mvps], ["Luck", "", "Its own rolls over its games, scaled to the number of games."]],
+    ["MVPs", "num", DESCRIPTIONS.mvps], ["Luck", "", "Its own rolls over its games, against the spread those rolls could have given."]],
     RS.summarize(pl.rows).sort((a, b) => b.games_brought - a.games_brought || b.kills - a.kills).map((m) => {
       const rs = pl.rows.filter((r) => r.pokemon === m.pokemon);
       const mon = el("span", "bet-mon");
       mon.append(sprite(m.pokemon, ["gen5/"], "tiny"), m.pokemon);
       return [[mon, ""], [String(m.games_brought), "num"], [String(m.wins_when_brought), "num"], [String(m.kills), "num"],
-        [String(m.deaths), "num"], [rowsDealt(rs), "num"], [String(m.mvps), "num"], [seasonLuckBadge(rs.map((r) => r.luck), "pokemon"), ""]];
+        [String(m.deaths), "num"], [rowsDealt(rs), "num"], [String(m.mvps), "num"], [seasonLuckBadge(rs, "luck", "luck_var"), ""]];
     }));
 }
