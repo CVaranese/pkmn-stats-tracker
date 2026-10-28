@@ -410,14 +410,18 @@ function monDetail(r) {
   return [sprite(r.pokemon, ["ani/", "dex/", "gen5/"], "big"), who, mark, grid, adv(moveList(r, best)), luck, more];
 }
 // simple view (name, best move, kills, damage, survived) or detailed (+ turns, healing, damage sources, luck);
-// per team card (opening one doesn't shift the other); the last choice is remembered as the default for new games
+// cards side by side (wide screen) switch together so their rows line up; stacked (phone) only the tapped card
+// switches, so opening one doesn't push the other down. The last choice is remembered as the default for new games
 const DETAIL_KEY = "replay-kill-tracker.detailed";
 let detailed = false;
 function toggleDetail(card) {
   detailed = card.classList.contains("simple");
   try { localStorage.setItem(DETAIL_KEY, detailed ? "1" : "0"); } catch (e) { /* storage blocked */ }
-  card.classList.toggle("simple", !detailed);
-  syncDetail(card);
+  const row = [...card.parentElement.querySelectorAll(":scope > .team-card")].filter((c) => c.offsetTop === card.offsetTop);
+  for (const c of row) {
+    c.classList.toggle("simple", !detailed);
+    syncDetail(c);
+  }
 }
 function syncDetail(card) {
   const on = !card.classList.contains("simple");

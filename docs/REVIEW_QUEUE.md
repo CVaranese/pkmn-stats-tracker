@@ -86,3 +86,4 @@ Things only a person can check. Remove an item once checked.
 - [ ] Move type tags (FIR, WAT…): open any game, More detail; the tags read on dark and light, the P / S / – marks are clear, long names (cut with …) still readable on a phone (samples on tests/style.html).
 - [ ] "Not shown" rows: a game without a team sheet, More detail: a Pokémon that used 2 moves shows 2 greyed "Not shown" rows.
 - [ ] Momentum ▲ marks: Week 8 ElkGBigLarge vs potatoesareyum, turns 7 and 8; tapping a turn on a phone shows the moment in the readout.
+- [ ] More detail on both cards: open any game on a computer, More detail on one card opens both (Less detail closes both). On a phone (cards stacked) it still opens only the tapped card.
