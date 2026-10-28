@@ -256,7 +256,10 @@
     const actions = el("td", "lib-actions");
     actions.append(open("Watch", "Play the battle here, without the result", () => watchHere(g)),
       open("Stats", "Open in One game (shows the result)", () => openGame(g.id)));
-    tr.append(cell, el("td", "num", results ? g.turns + " turns" : ""), el("td", "", g.date), el("td", "muted", g.note), actions);
+    // a short note keeps rows one height; the details (where the last KO came from...) go in its tooltip
+    const note = el("td", "muted", g.note);
+    if (g.note_detail) note.title = g.note_detail;
+    tr.append(cell, el("td", "num", results ? g.turns + " turns" : ""), el("td", "", g.date), note, actions);
     // the whole row opens the game, like Stats (its own buttons keep their action)
     tr.className = "lib-row";
     tr.title = "Open in One game (shows the result)";

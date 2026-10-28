@@ -246,7 +246,7 @@
    "winner": "chicken parm karm",
    "date": "2026-09-08",
    "turns": 24,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/d5iVr2s_7dE"
   },
   {
@@ -278,7 +278,7 @@
    "winner": "ElkG Big Large",
    "date": "2026-09-08",
    "turns": 27,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/ff5WImD_i3k"
   },
   {
@@ -310,7 +310,7 @@
    "winner": "chicken parm karm",
    "date": "2026-10-21",
    "turns": 16,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/9STJZ-Xvmj8"
   },
   {
@@ -342,7 +342,7 @@
    "winner": "pee nation",
    "date": "2026-09-15",
    "turns": 45,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/d1nX5QVh-CA"
   },
   {
@@ -374,7 +374,7 @@
    "winner": "FingerStripes",
    "date": "2026-09-15",
    "turns": 18,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/yytUZXI96hg"
   },
   {
@@ -406,7 +406,7 @@
    "winner": "chicken parm karm",
    "date": "2026-09-15",
    "turns": 26,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/Yj0PgVbcblI"
   },
   {
@@ -438,7 +438,7 @@
    "winner": "ElkG Big Large",
    "date": "2026-09-15",
    "turns": 36,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/JJaCbPX4g2E"
   },
   {
@@ -470,7 +470,7 @@
    "winner": "doxsego",
    "date": "2026-09-15",
    "turns": 19,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/4fACABLYaoc"
   },
   {
@@ -502,7 +502,7 @@
    "winner": "Zololab",
    "date": "2026-09-23",
    "turns": 48,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/OQAm2AwTtBc"
   },
   {
@@ -534,7 +534,7 @@
    "winner": "DEJIME17",
    "date": "2026-09-23",
    "turns": 15,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/I21S40QI4EM"
   },
   {
@@ -566,7 +566,7 @@
    "winner": "chicken parm karm",
    "date": "2026-09-23",
    "turns": 17,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/BGMHhByBbaM"
   },
   {
@@ -598,7 +598,7 @@
    "winner": "potatoesareyum",
    "date": "2026-09-23",
    "turns": 19,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/UFfx_QuquZw"
   },
   {
@@ -630,7 +630,7 @@
    "winner": "FingerStripes",
    "date": "2026-09-23",
    "turns": 43,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/mqDA-Z2vZ9E"
   },
   {
@@ -662,8 +662,9 @@
    "winner": "DEJIME17",
    "date": "2026-09-29",
    "turns": 15,
-   "note": "From the stream video; last KO from the players",
-   "video": "https://youtu.be/mEbKXAuKmLw"
+   "note": "Stream video",
+   "video": "https://youtu.be/mEbKXAuKmLw",
+   "note_detail": "Last KO from the players."
   },
   {
    "id": "video-yvl4oae9bmc",
@@ -694,8 +695,9 @@
    "winner": "weedinmyhonda",
    "date": "2026-09-29",
    "turns": 13,
-   "note": "From the stream video; last two KOs from the players",
-   "video": "https://youtu.be/yvl4OaE9BMc"
+   "note": "Stream video",
+   "video": "https://youtu.be/yvl4OaE9BMc",
+   "note_detail": "Last two KOs from the players."
   },
   {
    "id": "video-vxtlxlnr19c",
@@ -726,8 +728,9 @@
    "winner": "azpmCloudburst",
    "date": "2026-09-29",
    "turns": 33,
-   "note": "From the stream video; last KO from the players",
-   "video": "https://youtu.be/vxtlxLNR19c"
+   "note": "Stream video",
+   "video": "https://youtu.be/vxtlxLNR19c",
+   "note_detail": "Last KO from the players."
   },
   {
    "id": "video-yycxiiszqek",
@@ -758,8 +761,9 @@
    "winner": "ElkG Big Large",
    "date": "2026-09-29",
    "turns": 33,
-   "note": "From the stream video; last KO from the players",
-   "video": "https://youtu.be/yyCXiIsZQek"
+   "note": "Stream video",
+   "video": "https://youtu.be/yyCXiIsZQek",
+   "note_detail": "Last KO from the players."
   },
   {
    "id": "gen9nationaldex-2676843288",
@@ -945,7 +949,7 @@
    "winner": "PeterPikmon",
    "date": "2026-10-07",
    "turns": 30,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/CKLxgWZL3HM"
   },
   {
@@ -977,7 +981,7 @@
    "winner": "doxsego",
    "date": "2026-10-07",
    "turns": 23,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/vXg51MJkSSw"
   },
   {
@@ -1009,7 +1013,7 @@
    "winner": "chicken parm karm",
    "date": "2026-10-07",
    "turns": 26,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/oPUD2yUnQrs"
   },
   {
@@ -1041,7 +1045,7 @@
    "winner": "pee nation",
    "date": "2026-10-07",
    "turns": 17,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/4n49BQ2LQsY"
   },
   {
@@ -1073,7 +1077,7 @@
    "winner": "ElkG Big Large",
    "date": "2026-10-07",
    "turns": 28,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/xcoo3llJSpM"
   },
   {
@@ -1105,7 +1109,7 @@
    "winner": "azpmCloudburst",
    "date": "2026-10-13",
    "turns": 18,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/-ZRRN-yi98U"
   },
   {
@@ -1137,7 +1141,7 @@
    "winner": "DEJIME",
    "date": "2026-10-13",
    "turns": 16,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/D-SnlPgNt04"
   },
   {
@@ -1169,7 +1173,7 @@
    "winner": "potatoesareyum",
    "date": "2026-10-13",
    "turns": 34,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/FiVtP9WAcTA"
   },
   {
@@ -1201,7 +1205,7 @@
    "winner": "Nezergy",
    "date": "2026-10-21",
    "turns": 26,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/eCis5-Ls6i0"
   },
   {
@@ -1233,7 +1237,7 @@
    "winner": "ElkGBigLarge",
    "date": "2026-10-21",
    "turns": 36,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/IYsf4aQc3jQ"
   },
   {
@@ -1265,7 +1269,7 @@
    "winner": "peterpikmon",
    "date": "2026-10-21",
    "turns": 22,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/ek4VkZvwnY0"
   },
   {
@@ -1297,7 +1301,7 @@
    "winner": "FingerStripes",
    "date": "2026-10-21",
    "turns": 26,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/pq9jWAX63Pc"
   },
   {
@@ -1329,7 +1333,7 @@
    "winner": "DEJIME",
    "date": "2026-10-21",
    "turns": 18,
-   "note": "From the stream video",
+   "note": "Stream video",
    "video": "https://youtu.be/s2ZnFx4iR1M"
   },
   {
@@ -1392,8 +1396,9 @@
    "winner": "PeterPikmon",
    "date": "2026-09-29",
    "turns": 25,
-   "note": "From screenshots of the stream log; HP after hazards / weather / items estimated; pee nation forfeited turn 25",
-   "video": "https://youtu.be/ktYq3NES_GM"
+   "note": "Stream screenshots",
+   "video": "https://youtu.be/ktYq3NES_GM",
+   "note_detail": "HP after hazards / weather / items estimated. pee nation forfeited turn 25."
   },
   {
    "id": "video-efjkwhtidmm",
@@ -1424,8 +1429,9 @@
    "winner": "PeterPikmon",
    "date": "2026-10-13",
    "turns": 47,
-   "note": "From screenshots of the stream log; HP after hazards / poison / sand / Regenerator estimated",
-   "video": "https://youtu.be/efjkWhTidmM"
+   "note": "Stream screenshots",
+   "video": "https://youtu.be/efjkWhTidmM",
+   "note_detail": "HP after hazards / poison / sand / Regenerator estimated."
   }
  ]
 }

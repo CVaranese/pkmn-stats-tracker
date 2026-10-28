@@ -103,7 +103,7 @@ def main():
     entry = {"id": rid, "league": args.league, "week": args.week, **summary(replay), "note": args.note}
     if replay.get("video"):   # rebuilt from the stream: Watch plays the video; HP / damage numbers are partly estimated
         entry["video"] = replay["video"]
-        entry["note"] = args.note or "From the stream video"
+        entry["note"] = args.note or "Stream video"  # short: details go in note_detail (the Games row tooltip)
     games = index["games"]
     old = next((i for i, g in enumerate(games) if g["id"] == rid), None)
     if old is None:
