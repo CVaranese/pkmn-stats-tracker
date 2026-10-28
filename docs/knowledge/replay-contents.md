@@ -68,6 +68,7 @@ Full protocol reference: `SIM-PROTOCOL.md` in smogon/pokemon-showdown.
 | `\|c\|☆name\|gl hf` | 5/5 | Chat |
 | `\|j\|` / `\|l\|`, `\|inactive\|` | 3–5/5 | Spectators joining/leaving, timer warnings |
 | `\|t:\|<unix seconds>` | 13/13 league replays | Timestamps through the game: first to last = game length (**tested** 2026-10-28, e.g. 2677227914: 806 s over 15 turns). None in games rebuilt from stream videos. |
+| `\|inactive\|Battle timer is ON: ... (requested by X)` | 7/13 league replays | Who turned the timer on; the name may differ in case from `\|player\|` (`peterpikmon`), so compare as IDs. 2680876325 has it but no countdown lines (**tested** 2026-10-28) |
 | `\|inactive\|X has N seconds left.` | 6/13 league replays | Only when someone turned the timer on, so per-player time can't be counted for every game (**tested** 2026-10-28) |
 
 ## Feature ideas this data supports

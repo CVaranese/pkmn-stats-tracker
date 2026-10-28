@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Players tab: Pace (seconds a turn in their games) and Timer on (games they turned on the battle timer) in the standings, Head-to-head and each player's games (with how long each took). Main viewer's game line says who turned the timer on; exports have a Timer on column.
 - Main viewer: a Momentum chart under the team cards, each team's HP after every turn (a dot where a side lost a Pokémon); point at or tap a turn to read both sides' Pokémon left and HP. The game line now says how long the game took ("17 min, about 35 s a turn"; not for games rebuilt from stream videos).
 - New per-Pokémon columns: Statuses (burns, poison, paralysis, sleep, freeze it put on opponents) and Status dmg % / HP; Moves shown, Item shown, Ability shown; and per player Info shown % (how much of their team the game gave away). Team cards show Info shown; a Pokémon's detailed view shows its Statuses and what it showed. Also in the exports, with Game length (s) and Seconds / turn.
 - Players tab, in three sub-tabs (Standings / Head-to-head / KO matrix) so it isn't one long page: a Weeks picker (all weeks or one week) for all three, sortable headers, a Head-to-head view with two player pickers (their games against each other with who KO'd whom, then both seasons side by side: record, kills and Pokémon lost a game, damage a game, luck, most used, top scorer), and a KO matrix (how many of each player's Pokémon each other player KO'd; hover a number for which).

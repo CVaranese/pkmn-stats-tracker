@@ -1274,6 +1274,11 @@ ${switchIn}`).hiddenZoroark;
     check("momentum: team HP and Pokemon left after each turn", same(mom, expMom),
       `expected ${JSON.stringify(expMom)}\ngot      ${JSON.stringify(mom)}`);
     const noTime = RS.gameRows({ id: "test-notime", log: log.replace(/^\|t:\|\d+\n?/gm, "") })[0];
+    const timed = RS.gameRows({ id: "test-timer", log: log.replace("|teamsize|p1|2\n",
+      "|teamsize|p1|2\n|inactive|Battle timer is ON: inactive players will automatically lose when time's up. (requested by alice)\n") });
+    const tOn = [...new Set(timed.map((r) => r.player + " " + r.timer_on))];
+    check("timer on: credited to who asked (any case), the other player 0", same(tOn, ["Alice 1", "Bob 0"]) &&
+      rows.every((r) => r.timer_on === 0), JSON.stringify(tOn));
     check("no timestamps: game length blank", noTime.game_seconds === "" && noTime.seconds_per_turn === "",
       JSON.stringify([noTime.game_seconds, noTime.seconds_per_turn]));
     const sum = Object.fromEntries(RS.summarize(rows).map((a) => [a.pokemon, [a.statuses_inflicted, a.status_damage_pct]]));

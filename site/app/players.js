@@ -17,6 +17,13 @@ function playerMons(pl) {
 }
 /** One row per game (player luck is the same on every row of a game). */
 const perGameRows = (rs) => [...new Map(rs.map((r) => [r.replay_id, r])).values()];
+/** Seconds a turn over their games with timestamps (both players' time: replays don't split it), or null. */
+function paceOf(rs) {
+  const timed = perGameRows(rs).filter((r) => r.game_seconds && r.turns);
+  return timed.length ? Math.round(sum(timed, "game_seconds") / sum(timed, "turns")) : null;
+}
+const PACE_TITLE = "Seconds a turn in their games (both players' thinking time together; games rebuilt from video have no times).";
+const TIMER_TITLE = "Games where they turned on the battle timer (the replay says who asked for it; video games don't show it).";
 async function renderPlayers() {
   if (players) return;
   players = [];  // marks the tab as rendering
@@ -58,6 +65,8 @@ async function renderPlayers() {
       (pl) => dealtKey(pl.rows, 300)),
     { label: "Luck", title: "Their rolls against their opponents' over the season, against the spread those rolls could have given.",
       key: (pl) => (pl.luck ? pl.luck.z : -Infinity) },
+    num("Pace", PACE_TITLE, (pl) => paceOf(pl.rows) ?? Infinity),
+    num("Timer on", TIMER_TITLE, (pl) => sum(perGameRows(pl.rows), "timer_on")),
     { label: "Most used", title: "The Pokémon they brought most often.", key: (pl) => (pl.used[0] ? pl.used[0].pokemon : "") },
     { label: "Top MVP", title: "The Pokémon that was Team MVP most often.", key: (pl) => (pl.mvp && pl.mvp.mvps ? pl.mvp.pokemon : "") },
   ], players, plSort, (pl) => {
@@ -65,7 +74,8 @@ async function renderPlayers() {
     used.append(...pl.used.map((m) => Object.assign(sprite(m.pokemon, ["gen5/"], "tiny"), { title: `${m.pokemon}: ${m.games_brought} games` })));
     return [[pl.name, ""], [String(pl.wins), "num"], [String(pl.losses), "num"],
       [String(sum(pl.rows, "kills")), "num"], [String(sum(pl.rows, "deaths")), "num"], [rowsDealt(pl.rows), "num"],
-      [seasonLuckBadge(perGameRows(pl.rows), "player_luck", "player_luck_var"), ""], [used, ""],
+      [seasonLuckBadge(perGameRows(pl.rows), "player_luck", "player_luck_var"), ""],
+      [paceOf(pl.rows) === null ? "–" : paceOf(pl.rows) + " s", "num"], [String(sum(perGameRows(pl.rows), "timer_on")), "num"], [used, ""],
       [pl.mvp && pl.mvp.mvps ? `${pl.mvp.pokemon} ×${pl.mvp.mvps}` : "–", ""]];
   }, (sorted) => {
     [...$("pl-table").rows].slice(1).forEach((tr, i) => {
@@ -140,7 +150,8 @@ function showPlayer(key) {
   $("pl-name").textContent = pl.name;
   const nameOf = (p) => (players.find((x) => x.key === playerKey(p)) || { name: p }).name;
   simpleTable($("pl-games"), [["Week", ""], ["Opponent", ""], ["Result", ""], ["Kills", "num", DESCRIPTIONS.kills],
-    ["Deaths", "num", DESCRIPTIONS.deaths], ["Team MVP", "", DESCRIPTIONS.mvp], ["Luck", "", DESCRIPTIONS.player_luck], ["", ""]],
+    ["Deaths", "num", DESCRIPTIONS.deaths], ["Team MVP", "", DESCRIPTIONS.mvp], ["Luck", "", DESCRIPTIONS.player_luck],
+    ["Length", "num", "How long the game took, and seconds a turn (not for games rebuilt from video)."], ["Timer", "", DESCRIPTIONS.timer_on], ["", ""]],
     [...pl.games].reverse().map((g) => {
       const rs = pl.rows.filter((r) => r.replay_id === g.id);
       const me = g.players.find((p) => playerKey(p) === key);
@@ -152,7 +163,9 @@ function showPlayer(key) {
       stats.addEventListener("click", () => openGame(g.id));
       return [[g.week, ""], [nameOf(opp), ""], [result, ""],
         [rs.length ? String(sum(rs, "kills")) : "–", "num"], [rs.length ? String(sum(rs, "deaths")) : "–", "num"],
-        [mvp ? mvp.pokemon : "–", ""], [rs.length ? luckBadge(rs[0].player_luck, "player", rs[0].player_luck_top) : "–", ""], [stats, ""]];
+        [mvp ? mvp.pokemon : "–", ""], [rs.length ? luckBadge(rs[0].player_luck, "player", rs[0].player_luck_top) : "–", ""],
+        [rs.length && rs[0].game_seconds ? `${Math.round(rs[0].game_seconds / 60)} min, ${rs[0].seconds_per_turn} s a turn` : "–", "num"],
+        [rs.length && rs[0].timer_on ? "turned on" : "", ""], [stats, ""]];
     }));
   simpleTable($("pl-mons"), [["Pokémon", ""], ["Games", "num", DESCRIPTIONS.games_brought], ["Wins", "num", DESCRIPTIONS.wins_when_brought],
     ["Kills", "num", DESCRIPTIONS.kills], ["Deaths", "num", DESCRIPTIONS.deaths],
@@ -248,6 +261,8 @@ function headToHead(a, b) {
     ["Kills a game", (pl) => per(pl, "kills"), DESCRIPTIONS.kills],
     ["Pokémon lost a game", (pl) => per(pl, "deaths"), DESCRIPTIONS.deaths],
     ["Damage a game", (pl) => dealtPerGame(pl.rows, n(pl))],
+    ["Pace", (pl) => (paceOf(pl.rows) === null ? "–" : paceOf(pl.rows) + " s a turn"), PACE_TITLE],
+    ["Timer on", (pl) => String(sum(perGameRows(pl.rows), "timer_on")), TIMER_TITLE],
     ["Luck", (pl) => seasonLuckBadge(perGameRows(pl.rows), "player_luck", "player_luck_var")],
     ["Most used", mons],
     ["Top scorer", top],

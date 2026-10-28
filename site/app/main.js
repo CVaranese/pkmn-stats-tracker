@@ -130,7 +130,9 @@ function renderTeams() {
   const link = Object.assign(el("a", "", g.replay_id), { href: g.replay_url, target: "_blank", rel: "noopener" });
   // league games say their week; no dates anywhere (user 2026-10-28: the week is enough)
   const lib = library.find((x) => x.id === g.replay_id);
-  head.append(link, `${lib ? " · " + lib.week : ""} · ${g.turns} turns${gameTime(g)} · ended by ${g.end_reason}`);
+  const timer = rows.find((r) => r.timer_on);
+  head.append(link, `${lib ? " · " + lib.week : ""} · ${g.turns} turns${gameTime(g)}${timer ? ` · timer on by ${timer.player}` : ""}` +
+    ` · ended by ${g.end_reason}`);
   // winner first
   const players = [...new Set(rows.map((r) => r.player))].sort((a, b) =>
     rows.find((r) => r.player === b).won - rows.find((r) => r.player === a).won);

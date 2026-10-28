@@ -41,6 +41,7 @@
  *   info_revealed_pct (per player): of 7 facts per Pokemon (sent out, item, ability, 4 moves), the share shown.
  *
  * Time (game_seconds, seconds_per_turn): from the first to the last |t:| timestamp; blank without them.
+ *   timer_on: this player asked for the battle timer ("Battle timer is ON... (requested by X)"), the first time only.
  * Momentum (not exported): each side's Pokemon left and total HP (% of the whole team) after each turn.
  *
  *   Illusion while disguised, Zoroark is logged as the Pokemon it copies. When the disguise
@@ -164,6 +165,7 @@
     let turns = 0;                      // last |turn| number
     const hazardTurns = { p1: 0, p2: 0 }; // turns that ended with hazards on the opponent's side
     let firstT = null, lastT = null;    // first and last |t:| timestamps (seconds)
+    let timerBy = null;                 // name of who first turned the battle timer on
     const momentum = [];                // {turn, p1: {left, hp}, p2: {left, hp}} after each turn
 
     // A "stint" is one stay on the field: {key, side, species, direct, passive, deaths, hp}.
@@ -471,6 +473,8 @@
       if (cmd === "t:") {
         const t = Number(parts[1]);
         if (t > 0) { if (firstT === null) firstT = t; lastT = t; }
+      } else if (cmd === "inactive" && timerBy === null && /^Battle timer is ON\b.*\(requested by (.+)\)$/.test(parts[1] || "")) {
+        timerBy = /\(requested by (.+)\)$/.exec(parts[1])[1];
       } else if (cmd === "player" && parts[2]) {
         players[parts[1]] = parts[2];
       } else if (cmd === "teamsize") {
@@ -916,7 +920,7 @@
     const endReason = forfeited ? "forfeit" : timedOut ? "timer" : winner ? "normal" : tie ? "tie" : "unfinished";
     const gameSeconds = firstT !== null && lastT > firstT ? lastT - firstT : null;
     return {
-      gameSeconds, momentum,
+      gameSeconds, momentum, timerBy,
       // alive at the end: its latest stay on the field didn't end in a faint (Revival Blessing brings one back)
       alive: new Set([...latestByKey].filter(([, st]) => !st.deaths).map(([k]) => k)),
       players, preview, species, stats, seenSet, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark, illusion,
@@ -935,7 +939,7 @@
   const LUCK_FIELDS = ["luck", "luck_against"];
 
   const GAME_FIELDS = ["replay_id", "date", "format", "player", "opponent", "won", "end_reason", "turns", "game_seconds",
-    "seconds_per_turn", "pokemon", "nickname",
+    "seconds_per_turn", "timer_on", "pokemon", "nickname",
     "brought", "kills", "direct_kills", "passive_kills", "deaths", "self_kos", "damage_dealt_pct", "damage_taken_pct",
     "hazard_damage_pct", "hazard_kills", "hazards_set", "hazards_removed", "hazard_turns", "healing_pct",
     "healing_given_pct", "statuses_inflicted", "status_damage_pct", "switches", "pivots", "forced_out", "faint_switch_ins", "turns_on_field", "survived", "ko_before_moving", "mega", "mega_turn", "z_move", "z_turn",
@@ -964,6 +968,7 @@
           replay_id: rid, date, format: replay.format || "", player, opponent,
           won: b.winner === player ? 1 : 0, end_reason: b.endReason, turns: b.turns,
           game_seconds: b.gameSeconds ?? "", seconds_per_turn: b.gameSeconds && b.turns ? Math.round(b.gameSeconds / b.turns) : "",
+          timer_on: b.timerBy !== null && norm(b.timerBy) === norm(player) ? 1 : 0,
           pokemon: sp, nickname: key ? key.slice(4) : "", brought: key ? 1 : 0,
           kills: st.direct + st.passive, direct_kills: st.direct, passive_kills: st.passive,
           deaths: st.deaths, self_kos: st.selfKos, damage_dealt_pct: dm.dealt, damage_taken_pct: dm.taken,
