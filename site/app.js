@@ -343,6 +343,8 @@
     delete replay.zoroarks;
     leagueRows = null;
     fantasyRows = null;
+    players = null;  // Players and Pokémon count again on their next visit
+    mons = null;
     run(true);
   }
   const turnSpan = (s) => {
@@ -420,15 +422,11 @@
     return draftLoad || (draftLoad = fetch("games/draft.json", { cache: "no-cache" }).then((r) => r.json())
       .then((d) => { draft = d; }, () => { draft = null; }));
   }
-  /** A Mega is its own Pokémon, as in the draft (Latios is Zololab's, Latios-Mega weedinmyhonda's): a row takes the
-      Mega its player drafted, even in a game it didn't Mega Evolve, else the Mega it turned into that game. Runs after
-      sheets, max HP and luck, which go by the base name (sheets list "Latios @ Latiosite"). */
+  /** Megas as their own Pokémon (Bet.megaName; the draft's Mega only for league games). Runs last: sheets, max HP
+      and luck go by the base name (sheets list "Latios @ Latiosite"). */
   function megaNames(rs) {
-    for (const r of rs) {
-      const d = Bet.drafted(draft, r.player, r.pokemon);
-      const mega = d && /-Mega/.test(d.pokemon) && TS.toID(d.pokemon).startsWith(TS.toID(r.pokemon)) ? d.pokemon : r.mega_form;
-      if (mega) r.pokemon = mega;
-    }
+    const league = new Set(library.map((g) => g.id));
+    for (const r of rs) r.pokemon = Bet.megaName(draft, r, league.has(r.replay_id));
   }
 
   /** Every library game's rows, loaded once for Gambling and Players: saved sheets, else guessed max HP (same as
@@ -518,6 +516,14 @@
     const v = values.filter((x) => typeof x === "number");
     return v.length ? Math.round(v.reduce((t, x) => t + x, 0) * 100) / 100 : "";
   }
+  /** One spelling per player (Showdown names differ in case, spaces, draft aliases like DEJIME17): the draft's,
+      else the first one seen. */
+  const shownNames = new Map();
+  function shownName(p) {
+    const key = playerKey(p);
+    if (!shownNames.has(key)) shownNames.set(key, (draft && Object.keys(draft.players || {}).find((d) => TS.toID(d) === key)) || p);
+    return shownNames.get(key);
+  }
   let players = null;   // [{ key, name, games: [library games], rows }], best record first
   let playerPicked = "";
   async function renderPlayers() {
@@ -529,10 +535,7 @@
     const byKey = new Map();
     const get = (name) => {
       const key = playerKey(name);
-      if (!byKey.has(key)) {
-        const drafted = draft && Object.keys(draft.players || {}).find((p) => TS.toID(p) === key);
-        byKey.set(key, { key, name: drafted || name, games: [], rows: [], wins: 0, losses: 0 });
-      }
+      if (!byKey.has(key)) byKey.set(key, { key, name: shownName(name), games: [], rows: [], wins: 0, losses: 0 });
       return byKey.get(key);
     };
     for (const g of library) {
@@ -627,7 +630,7 @@
           const tk = "sort:" + table.id + i;
           if (TOUCH && th.title && tipKey !== tk) { showTip(th, th.title + " Tap again to sort.", tk); return; }
           hideTip();
-          state.dir = state.col === i ? -state.dir : typeof cols[i].key(items[0]) === "number" ? -1 : 1;
+          state.dir = state.col === i ? -state.dir : cols[i].cls === "num" ? -1 : 1;  // numbers biggest first
           state.col = i;
           draw();
         });
@@ -645,11 +648,10 @@
     const by = new Map();
     for (const r of rs) {
       for (const m of r.move_stats || []) {
-        if (!by.has(m.move)) by.set(m.move, { move: m.move, source: m.source, z: false, uses: 0, games: 0, dealt_pct: 0, kos: 0, dealt_hp: 0, dealt_hp_est: false });
+        if (!by.has(m.move)) by.set(m.move, { move: m.move, source: m.source, z: false, uses: 0, dealt_pct: 0, kos: 0, dealt_hp: 0, dealt_hp_est: false });
         const s = by.get(m.move);
         s.z = s.z || m.z;
         s.uses += m.uses;
-        s.games += m.uses ? 1 : 0;
         s.dealt_pct += m.dealt_pct;
         s.kos += m.kos;
         s.dealt_hp = s.dealt_hp === "" || typeof m.dealt_hp !== "number" ? "" : s.dealt_hp + m.dealt_hp;
@@ -659,8 +661,9 @@
     return [...by.values()].sort((a, b) => (a.move === "") - (b.move === "") || a.source - b.source ||
       b.dealt_pct - a.dealt_pct || b.kos - a.kos || b.uses - a.uses);
   }
-  /** Damage in HP when every row has it, else in % (for sorting: HP figures and % never meet in one sort in practice). */
-  const dealtKey = (rs) => (rs.every((r) => typeof r.damage_dealt_hp === "number") ? sum(rs, "damage_dealt_hp") : sum(rs, "damage_dealt_pct"));
+  /** Damage dealt in HP for sorting: a game with no HP figure counts its % at the league's average max HP, so a
+      Pokémon with one such game still sorts among the others (it shows in %). */
+  const dealtKey = (rs, avgHp) => rs.reduce((t, r) => t + (typeof r.damage_dealt_hp === "number" ? r.damage_dealt_hp : (r.damage_dealt_pct * avgHp) / 100), 0);
 
   let mons = null;  // [summary fields + { rows, players, moves, best }], most games first
   let monPicked = "";
@@ -670,13 +673,7 @@
     mons = [];  // marks the tab as rendering
     $("mon-status").textContent = "Loading games…";
     const all = (await loadLeague()).filter((r) => r.brought);
-    // one spelling per player, as on Players: the draft's, else the first seen
-    const names = new Map();
-    const nameOf = (p) => {
-      const key = playerKey(p);
-      if (!names.has(key)) names.set(key, (draft && Object.keys(draft.players || {}).find((d) => TS.toID(d) === key)) || p);
-      return names.get(key);
-    };
+    const nameOf = shownName;
     mons = RS.summarize(all, false).map((m) => {
       const rows = all.filter((r) => r.pokemon === m.pokemon);
       const moves = seasonMoves(rows);
@@ -686,6 +683,8 @@
     const counted = new Set(all.map((r) => r.replay_id)).size;
     $("mon-status").textContent = counted < library.length ? `Counted ${counted} of ${library.length} games (the rest didn't load).` : "";
     const num = (label, title, key) => ({ label, cls: "num", title, key });
+    const hps = all.map((r) => r.max_hp).filter((h) => typeof h === "number" && h > 0);
+    const avgHp = hps.length ? hps.reduce((t, h) => t + h, 0) / hps.length : 300;
     sortableTable($("mon-table"), [
       { label: "Pokémon", key: (m) => m.pokemon },
       { label: "Player", title: "Who brought it.", key: (m) => m.players.join(", ") },
@@ -694,7 +693,7 @@
       num("Win rate", "Games won when it was brought, out of the games it was brought to.", (m) => m.wins_when_brought / m.games_brought),
       num("Kills", DESCRIPTIONS.kills, (m) => m.kills),
       num("Deaths", DESCRIPTIONS.deaths, (m) => m.deaths),
-      num("Dealt", "Damage dealt in all its games: in HP (~ = a guessed max HP went in), or in % when a game has no HP figures.", (m) => dealtKey(m.rows)),
+      num("Dealt", "Damage dealt in all its games: in HP (~ = a guessed max HP went in), or in % when a game has no HP figures.", (m) => dealtKey(m.rows, avgHp)),
       num("Survived", "Games it was still standing at the end.", (m) => m.survived),
       num("MVPs", DESCRIPTIONS.mvps, (m) => m.mvps),
       { label: "Best move", title: "The move that did the most damage over the season (ties: more KOs).", key: (m) => (m.best ? m.best.move : "") },
@@ -926,10 +925,10 @@
         errors.push(`${replay.id}: could not read the battle log (${e.message || e})`);
       }
     }
+    await loadDraft();  // before the sheets: draft aliases (DEJIME17 -> DEJIME) for the player's other sheets
     await addMockSheets(ids);
     await applySheets(errors);
     await applyLuck(errors);
-    await loadDraft();
     megaNames(rows);
     const ok = results.filter(Boolean).length;
     $("status").textContent = `Loaded ${ok} replay${ok === 1 ? "" : "s"}` +
@@ -1047,7 +1046,10 @@
     const players = [...new Set(rows.map((r) => r.player))].sort((a, b) =>
       rows.find((r) => r.player === b).won - rows.find((r) => r.player === a).won);
     const cards = players.map((p) => teamCard(p, rows.filter((r) => r.player === p)));
-    box.replaceChildren(el("h2", "section-title", "This game"), head, videoButtons(g.replay_id), el("div", "team-grid"));
+    // a stream video's lines the screen reading got wrong (index.json known_errors), so numbers off by them are explained
+    const lib = library.find((x) => x.id === g.replay_id);
+    const errs = lib && lib.known_errors ? el("p", "hint", "Rebuilt from the stream video, with errors: " + lib.known_errors) : "";
+    box.replaceChildren(el("h2", "section-title", "This game"), head, errs, videoButtons(g.replay_id), el("div", "team-grid"));
     box.lastChild.append(...cards);
   }
 
@@ -1420,6 +1422,7 @@
   const mockSheets = [];  // [{ gameId, sets }]: the same sheets, per game (the Gambling tab matches them itself)
   async function loadMockPool() {
     if (mockPool) return mockPool;
+    await loadDraft();  // playerKey files each sheet under the draft name (DEJIME17 -> DEJIME)
     const pool = new Map();
     await Promise.all(Object.entries(MOCK_SHEETS).flatMap(([id, players]) => players.map(async (player) => {
       try {

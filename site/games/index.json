@@ -443,8 +443,10 @@
    "winner": "ElkG Big Large",
    "date": "2026-09-15",
    "turns": 36,
-   "note": "Stream video",
-   "video": "https://youtu.be/JJaCbPX4g2E"
+   "note": "Stream video, errors",
+   "video": "https://youtu.be/JJaCbPX4g2E",
+   "known_errors": "The video ends with Skeledirge still at 49%: the last KO (or a forfeit) is missing, so one KO and its death aren't counted.",
+   "note_detail": "Some lines of the stream were misread; Main viewer says which."
   },
   {
    "id": "video-4facablyaoc",
@@ -475,8 +477,10 @@
    "winner": "doxsego",
    "date": "2026-09-15",
    "turns": 19,
-   "note": "Stream video",
-   "video": "https://youtu.be/4fACABLYaoc"
+   "note": "Stream video, errors",
+   "video": "https://youtu.be/4fACABLYaoc",
+   "known_errors": "Five lines name no Pokémon (a Rocky Helmet hit, a hit, a Roost heal, an Aftermath hit), so a little damage and healing is missing.",
+   "note_detail": "Some lines of the stream were misread; Main viewer says which."
   },
   {
    "id": "video-oqam2awttbc",
@@ -603,8 +607,10 @@
    "winner": "potatoesareyum",
    "date": "2026-09-23",
    "turns": 19,
-   "note": "Stream video",
-   "video": "https://youtu.be/UFfx_QuquZw"
+   "note": "Stream video, errors",
+   "video": "https://youtu.be/UFfx_QuquZw",
+   "known_errors": "Turns 1-3 were misread: Bronzong's name, and Zapdos's Heat Wave damage is put on Zapdos's own side, so this game has no HP figures (damage in %) and Zapdos's damage is too low.",
+   "note_detail": "Some lines of the stream were misread; Main viewer says which."
   },
   {
    "id": "video-mqda-z2vz9e",
@@ -733,9 +739,10 @@
    "winner": "azpmCloudburst",
    "date": "2026-09-29",
    "turns": 33,
-   "note": "Stream video",
+   "note": "Stream video, errors",
    "video": "https://youtu.be/vxtlxLNR19c",
-   "note_detail": "Last KO from the players."
+   "note_detail": "Last KO from the players. Some lines of the stream were misread; Main viewer says which.",
+   "known_errors": "Turn 19: Ceruledge is shown at 0% after Sucker Punch but didn't faint (it comes back at 1%), so that hit is about 1% too high."
   },
   {
    "id": "video-yycxiiszqek",
@@ -766,9 +773,10 @@
    "winner": "ElkG Big Large",
    "date": "2026-09-29",
    "turns": 33,
-   "note": "Stream video",
+   "note": "Stream video, errors",
    "video": "https://youtu.be/yyCXiIsZQek",
-   "note_detail": "Last KO from the players."
+   "note_detail": "Last KO from the players. Some lines of the stream were misread; Main viewer says which.",
+   "known_errors": "Turn 10: Sableye is shown at 0% after Dark Pulse but didn't faint (it comes back at 1%). One Thunder Cage line names no Pokémon."
   },
   {
    "id": "gen9nationaldex-2676843288",
@@ -1050,8 +1058,10 @@
    "winner": "pee nation",
    "date": "2026-10-07",
    "turns": 17,
-   "note": "Stream video",
-   "video": "https://youtu.be/4n49BQ2LQsY"
+   "note": "Stream video, errors",
+   "video": "https://youtu.be/4n49BQ2LQsY",
+   "known_errors": "Turn 9: Landorus-Therian is shown at 0% after burn damage but didn't faint (it comes back at 48%), so its damage taken and the burn damage are too high.",
+   "note_detail": "Some lines of the stream were misread; Main viewer says which."
   },
   {
    "id": "video-xcoo3lljspm",
@@ -1082,8 +1092,10 @@
    "winner": "ElkG Big Large",
    "date": "2026-10-07",
    "turns": 28,
-   "note": "Stream video",
-   "video": "https://youtu.be/xcoo3llJSpM"
+   "note": "Stream video, errors",
+   "video": "https://youtu.be/xcoo3llJSpM",
+   "known_errors": "Turn 6: Overqwil is shown at 0% after a resisted Dark Pulse but didn't faint (it comes back at 55%), so that hit counts about 55% too much damage.",
+   "note_detail": "Some lines of the stream were misread; Main viewer says which."
   },
   {
    "id": "video--zrrn-yi98u",
@@ -1178,8 +1190,10 @@
    "winner": "potatoesareyum",
    "date": "2026-10-13",
    "turns": 34,
-   "note": "Stream video",
-   "video": "https://youtu.be/FiVtP9WAcTA"
+   "note": "Stream video, errors",
+   "video": "https://youtu.be/FiVtP9WAcTA",
+   "known_errors": "Three stat-change lines name no Pokémon; damage and KOs are unaffected.",
+   "note_detail": "Some lines of the stream were misread; Main viewer says which."
   },
   {
    "id": "video-ecis5-ls6i0",
@@ -1274,8 +1288,10 @@
    "winner": "peterpikmon",
    "date": "2026-10-21",
    "turns": 22,
-   "note": "Stream video",
-   "video": "https://youtu.be/ek4VkZvwnY0"
+   "note": "Stream video, errors",
+   "video": "https://youtu.be/ek4VkZvwnY0",
+   "known_errors": "Ursaluna's Flame Orb burn names no Pokémon, so its burn isn't counted (burn damage after it still is).",
+   "note_detail": "Some lines of the stream were misread; Main viewer says which."
   },
   {
    "id": "video-pq9jwax63pc",
@@ -1338,8 +1354,10 @@
    "winner": "DEJIME",
    "date": "2026-10-21",
    "turns": 18,
-   "note": "Stream video",
-   "video": "https://youtu.be/s2ZnFx4iR1M"
+   "note": "Stream video, errors",
+   "video": "https://youtu.be/s2ZnFx4iR1M",
+   "known_errors": "Turn 9: Zapdos is shown at 0% after Dragon Pulse but didn't faint (it comes back at 2%), so Raging Bolt's damage and Zapdos's damage taken are about 2% too high.",
+   "note_detail": "Some lines of the stream were misread; Main viewer says which."
   },
   {
    "id": "gen9nationaldex-2705438906",

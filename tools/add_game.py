@@ -109,7 +109,10 @@ def main():
     if old is None:
         games.append(entry)
     else:
-        if "illusion" in games[old]: entry["illusion"] = games[old]["illusion"]  # hidden-Zoroark picks stay on a relabel
+        # hidden-Zoroark picks, the misread lines of a stream video and the hover note stay on a relabel
+        for k in ("illusion", "known_errors", "note_detail"):
+            if k in games[old]: entry[k] = games[old][k]
+        if "known_errors" in entry and not args.note: entry["note"] = games[old]["note"]
         games[old] = entry
     INDEX.write_text(json.dumps(index, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     vs = " vs ".join(entry["players"])

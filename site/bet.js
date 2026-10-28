@@ -37,6 +37,15 @@
       (sameSpecies.length === 1 ? sameSpecies[0] : null);
   }
 
+  /** The name a row counts under: a Mega is its own Pokémon, as in the draft (Latios is Zololab's, Latios-Mega
+      weedinmyhonda's). In a league game, the Mega its player drafted, even in a game it didn't Mega Evolve; in any
+      other game (or a Pokémon not drafted as a Mega), the Mega it turned into (row.mega_form), else its own name. */
+  function megaName(draft, row, league) {
+    const d = league ? drafted(draft, row.player, row.pokemon) : null;
+    if (d && /-Mega/.test(d.pokemon) && toID(d.pokemon).startsWith(toID(row.pokemon))) return d.pokemon;
+    return row.mega_form || row.pokemon;
+  }
+
   const SCORING = { kill: 3, damagePer100: 1, survived: 1, won: 1 };
 
   /** Fantasy points per Pokémon per player, from RS.gameRows rows (brought Pokémon only), most points first.
@@ -69,7 +78,7 @@
     return [...by.values()].sort((a, b) => b.points - a.points || b.kills - a.kills || a.pokemon.localeCompare(b.pokemon));
   }
 
-  const Bet = { SCORING, records, drafted, fantasy };
+  const Bet = { SCORING, records, drafted, megaName, fantasy };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -1218,6 +1218,16 @@ ${switchIn}`).hiddenZoroark;
   check("bet: two forms of one species drafted, only the exact one matches",
     (Bet.drafted(forms, "Ann", "Arcanine-Hisui") || {}).tier === "RU" && Bet.drafted(forms, "Ann", "Arcanine-Paldea") === null);
   check("bet: a player's other Showdown name finds their pool through aliases", (Bet.drafted(forms, "ANN17", "Sinistcha") || {}).tier === "RU");
+  // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
+  const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],
+    Cy: [{ pokemon: "Gyarados" }, { pokemon: "Gyarados-Mega" }] } };
+  const mn = (player, pokemon, mega_form, league = true) => Bet.megaName(megas, { player, pokemon, mega_form }, league);
+  check("bet: megaName, the drafted Mega even when it didn't Mega Evolve; the base pick stays base",
+    mn("Ann", "Latios", "") === "Latios-Mega" && mn("Ann", "Charizard", "") === "Charizard-Mega-X" && mn("Bob", "Latios", "") === "Latios",
+    [mn("Ann", "Latios", ""), mn("Ann", "Charizard", ""), mn("Bob", "Latios", "")].join(", "));
+  check("bet: megaName, the Mega it turned into when the draft doesn't say (not drafted, both forms drafted, not a league game)",
+    mn("Dee", "Latios", "Latios-Mega") === "Latios-Mega" && mn("Cy", "Gyarados", "Gyarados-Mega") === "Gyarados-Mega" &&
+    mn("Cy", "Gyarados", "") === "Gyarados" && mn("Ann", "Latios", "", false) === "Latios" && mn("Ann", "Latios", "Latios-Mega", false) === "Latios-Mega");
   const fan = Bet.fantasy([
     { player: "Ann", pokemon: "Garchomp", brought: 1, kills: 2, damage_dealt_pct: 150, survived: 1, won: 1 },
     { player: "ann", pokemon: "Garchomp", brought: 1, kills: 0, damage_dealt_pct: 50, survived: 0, won: 0 },

@@ -188,3 +188,14 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
 - **Tested** (2026-10-27): the stream reader drops the team-preview list's last line when it wraps ("... / Pawmot /
   Sinistcha" on two lines, or the 6th name past the panel edge): four games had 5 of 6 (one 4 of 6). Fixed from the
   user's screenshots of the "X's team:" box. Seven other stream games had a preview under 6 (three with none): filled from the Pokémon sent out (Mega forms skipped, preview shows the base). The two left at 5 (DEJIME in Week 4 vs Zololab, Pikmon in Week 7 vs PotatoesAreYum) were completed from the user's screenshots of the team box. A switch-in with no nickname reads as the bare species ("Enamorus" for Enamorus-Therian): check forms against the team box.
+
+## Known misreads in saved games (checked 2026-10-28)
+- **Tested** (consistency pass over all 45 saved games): kills + self-KOs = deaths in every game, winners and turns match
+  the library. The errors are in damage, healing and status lines, listed per game in `site/games/index.json`
+  `known_errors` (shown in Main viewer). Not rebuilt (user, 2026-10-28: mark them, don't redo the videos).
+- **Tested**: a Pokémon at 1-2% (once at 55%) can come out as `0 fnt` with no faint: `video_convert.py` writes
+  `0 fnt` when its running HP estimate reaches 0 (a misread "lost N%"). Seen in 5 games; each comes back later
+  with HP. Check: a switch-in with HP > 0 after a `0 fnt` line and no Revival Blessing.
+- **Tested**: "The opposing" misread as "Thc opposing", "Tho oppoinq", "l he opposing" isn't stripped by the regex in
+  `video_convert.py` (`[tli1|]\s?he\s+o\S*` needs "he"), so the line names no Pokémon or the wrong side. 5 games.
+- Revival Blessing (Pawmot) makes a Pokémon faint twice: real, not a misread (DEJIME's games).
