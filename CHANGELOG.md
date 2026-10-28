@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Games: five more league games found as saved Showdown replays (Week 1 DEJIME vs Fingy, Dox vs Pikmon, Zololab vs Sneez; Week 2 Zololab vs PotatoesAreYum; Week 6 Zololab vs Dox); the three that were rebuilt from stream videos now use the real replay. Week 4: four games from stream videos, winners from the bracket, the last KO not credited (the stream cut away before it).
 - Games tab: row lines run the full width again, "vs" and both teams line up from row to row (long names are cut with …), and team sprites are Pokémon HOME renders, so a small Pokémon no longer looks tiny next to a big one (Showdown's gen5 sprites keep each Pokémon's true size; still used when a HOME render is missing, and in the local preview).
 - Games tab: league games that have no Showdown replay, rebuilt from their YouTube streams (`tools/video_to_replay.py`, added with `tools/add_game.py <youtube link> --file ... --date ...`). They're marked "From the stream video"; Watch plays the YouTube video, and the replay link column points at it. Kills, faints and winners were checked against the video; hazard, burn, Leftovers, Regenerator and drain amounts aren't shown on stream, so some HP / damage numbers are estimates. Dated by the stream's upload day.
 - Games tab: weeks and games are in date order, so a game added later sits in its own week.

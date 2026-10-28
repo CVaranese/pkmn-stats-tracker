@@ -125,3 +125,6 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   and the winner are missing. The box window now ends where the log restarts (top turn drops by more than 3) and
   runs up to 60 s past the last header otherwise. Pikmon vs Sneez read badly (56 unconverted lines: "hearth",
   "opposjnq"); its winner line was read ("PeterPikmon won").
+- **Tested** (2026-10-27): three games turned out to have Showdown replays after all; the video conversions match
+  the replays exactly on every Pokémon's kills, deaths and the winner (Week 1 DEJIME vs Fingy, Sneez vs Zololab
+  including the hand-filled Future Sight KO, Week 2 PotatoesAreYum vs Zololab). HP numbers weren't compared.

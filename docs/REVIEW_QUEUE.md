@@ -2,6 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Week 4 stream games (Zololab vs DEJIME, PotatoesAreYum vs Bad Bully, Dox vs Cloudburst, Big Large vs Fingy): winner from Challonge, last KO missing (each stream cut to a replay right at the end). Fill the last KO from the video if you know it. Week 4 Pikmon vs Sneez is not on the site (OCR too poor).
+
 - [ ] Games tab, live site: team sprites are now Pokémon HOME renders (3D style) instead of the pixel sprites used elsewhere. OK to mix styles? Rows: lines full width, "vs" lined up; a long name like "chicken parm karm" fits, a longer one is cut with …. Phone layout not rechecked.
 
 - [ ] Stream-video games (Games tab, "From the stream video"): on the live site, press Watch on one. Does the YouTube video play in the frame (and full screen)? In One game, "Watch the battle" should play it too, and the game's link goes to YouTube. Dates are the stream's upload day (Week 1 streams say 09-08; the Week 1 Showdown replay says 09-07): OK, or should they be the game day? The local preview has no sprites, so team rows there show initials.

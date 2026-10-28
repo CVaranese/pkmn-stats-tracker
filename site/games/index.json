@@ -218,38 +218,6 @@
    "note": ""
   },
   {
-   "id": "video-7rgyqzi7yni",
-   "league": "pinecord",
-   "week": "Week 1",
-   "players": [
-    "DEJIME17",
-    "FingerStripes"
-   ],
-   "teams": [
-    [
-     "Pelipper",
-     "Raging Bolt",
-     "Azumarill",
-     "Basculegion-F",
-     "Swampert",
-     "Overqwil"
-    ],
-    [
-     "Tapu Koko",
-     "Hydreigon",
-     "Suicune",
-     "Toedscool",
-     "Hawlucha",
-     "Iron Moth"
-    ]
-   ],
-   "winner": "DEJIME17",
-   "date": "2026-09-08",
-   "turns": 18,
-   "note": "From the stream video",
-   "video": "https://youtu.be/7RgyqzI7yNI"
-  },
-  {
    "id": "video-d5ivr2s_7de",
    "league": "pinecord",
    "week": "Week 1",
@@ -280,38 +248,6 @@
    "turns": 24,
    "note": "From the stream video",
    "video": "https://youtu.be/d5iVr2s_7dE"
-  },
-  {
-   "id": "video-xmltgmaqobg",
-   "league": "pinecord",
-   "week": "Week 1",
-   "players": [
-    "zololab",
-    "pee nation"
-   ],
-   "teams": [
-    [
-     "Scrafty",
-     "Latios",
-     "Pecharunt",
-     "Diancie",
-     "Incineroar",
-     "Iron Treads"
-    ],
-    [
-     "Slowking-Galar",
-     "Arctovish",
-     "Weavile",
-     "Ninetales-Alola",
-     "Gliscor",
-     "Charizard"
-    ]
-   ],
-   "winner": "pee nation",
-   "date": "2026-09-08",
-   "turns": 56,
-   "note": "From the stream video",
-   "video": "https://youtu.be/XmltgmaqObg"
   },
   {
    "id": "video-ff5wimd_i3k",
@@ -437,37 +373,6 @@
    "turns": 18,
    "note": "From the stream video",
    "video": "https://youtu.be/yytUZXI96hg"
-  },
-  {
-   "id": "video-dk3loza-mk4",
-   "league": "pinecord",
-   "week": "Week 2",
-   "players": [
-    "zololab",
-    "potatoesareyum"
-   ],
-   "teams": [
-    [
-     "Serperior",
-     "Diancie",
-     "Latios",
-     "Iron Treads",
-     "Vaporeon",
-     "Pecharunt"
-    ],
-    [
-     "Tyranitar",
-     "Lycanroc",
-     "Bronzong",
-     "Enamorus-Therian",
-     "Ursaluna"
-    ]
-   ],
-   "winner": "zololab",
-   "date": "2026-09-15",
-   "turns": 28,
-   "note": "From the stream video",
-   "video": "https://youtu.be/dk3Loza-MK4"
   },
   {
    "id": "video-yj0pgvbcbli",
@@ -708,6 +613,278 @@
    "turns": 43,
    "note": "From the stream video",
    "video": "https://youtu.be/mqDA-Z2vZ9E"
+  },
+  {
+   "id": "video-mebkxaukmlw",
+   "league": "pinecord",
+   "week": "Week 4",
+   "players": [
+    "Zololab",
+    "DEJIME17"
+   ],
+   "teams": [
+    [
+     "Diancie",
+     "Latios",
+     "Serperior",
+     "Iron Treads",
+     "Vaporeon"
+    ],
+    [
+     "Pelipper",
+     "Swampert",
+     "Overqwil",
+     "Sinistcha-Masterpiece"
+    ]
+   ],
+   "winner": "DEJIME17",
+   "date": "2026-09-29",
+   "turns": 15,
+   "note": "From the stream video; winner from Challonge, last KO missing",
+   "video": "https://youtu.be/mEbKXAuKmLw"
+  },
+  {
+   "id": "video-yvl4oae9bmc",
+   "league": "pinecord",
+   "week": "Week 4",
+   "players": [
+    "potatoesareyum",
+    "weedinmyhonda"
+   ],
+   "teams": [
+    [
+     "Great Tusk",
+     "Tyranitar",
+     "Houndstone",
+     "Enamorus-Therian"
+    ],
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian"
+    ]
+   ],
+   "winner": "weedinmyhonda",
+   "date": "2026-09-29",
+   "turns": 11,
+   "note": "From the stream video; winner from Challonge, last KO missing",
+   "video": "https://youtu.be/yvl4OaE9BMc"
+  },
+  {
+   "id": "video-vxtlxlnr19c",
+   "league": "pinecord",
+   "week": "Week 4",
+   "players": [
+    "azpmCloudburst",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Zapdos",
+     "Garchomp",
+     "Dondozo",
+     "Mawile",
+     "Gengar",
+     "Whimsicott"
+    ],
+    [
+     "Lopunny",
+     "Ceruledge",
+     "Flygon",
+     "Slowbro",
+     "Lilligant-Hisui",
+     "Enamorus"
+    ]
+   ],
+   "winner": "azpmCloudburst",
+   "date": "2026-09-29",
+   "turns": 33,
+   "note": "From the stream video; winner from Challonge, last KO missing",
+   "video": "https://youtu.be/vxtlxLNR19c"
+  },
+  {
+   "id": "video-yycxiiszqek",
+   "league": "pinecord",
+   "week": "Week 4",
+   "players": [
+    "FingerStripes",
+    "ElkG Big Large"
+   ],
+   "teams": [
+    [
+     "Iron Moth",
+     "Tapu Koko",
+     "Rotom-Wash",
+     "Hawlucha"
+    ],
+    [
+     "Zamazenta",
+     "Rotom-Heat",
+     "Slowking",
+     "Hoopa-Unbound"
+    ]
+   ],
+   "winner": "ElkG Big Large",
+   "date": "2026-09-29",
+   "turns": 33,
+   "note": "From the stream video; winner from Challonge, last KO missing",
+   "video": "https://youtu.be/yyCXiIsZQek"
+  },
+  {
+   "id": "gen9nationaldex-2676843288",
+   "league": "pinecord",
+   "week": "Week 1",
+   "players": [
+    "DEJIME17",
+    "FingerStripes"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Raging Bolt",
+     "Azumarill",
+     "Basculegion-F",
+     "Swampert",
+     "Overqwil"
+    ],
+    [
+     "Tapu Koko",
+     "Hydreigon",
+     "Suicune",
+     "Toedscool",
+     "Hawlucha",
+     "Iron Moth"
+    ]
+   ],
+   "winner": "DEJIME17",
+   "date": "2026-09-07",
+   "turns": 18,
+   "note": ""
+  },
+  {
+   "id": "gen9nationaldex-2676850166",
+   "league": "pinecord",
+   "week": "Week 1",
+   "players": [
+    "doxsego",
+    "PeterPikmon"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Lopunny",
+     "Enamorus",
+     "Ceruledge",
+     "Slowbro",
+     "Flygon"
+    ],
+    [
+     "Ogerpon-Wellspring",
+     "Tyranitar",
+     "Excadrill",
+     "Aegislash",
+     "Samurott-Hisui",
+     "Latias"
+    ]
+   ],
+   "winner": "PeterPikmon",
+   "date": "2026-09-07",
+   "turns": 26,
+   "note": ""
+  },
+  {
+   "id": "gen9nationaldex-2677236487",
+   "league": "pinecord",
+   "week": "Week 1",
+   "players": [
+    "zololab",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Scrafty",
+     "Latios",
+     "Pecharunt",
+     "Diancie",
+     "Incineroar",
+     "Iron Treads"
+    ],
+    [
+     "Slowking-Galar",
+     "Arctovish",
+     "Weavile",
+     "Ninetales-Alola",
+     "Gliscor",
+     "Charizard"
+    ]
+   ],
+   "winner": "pee nation",
+   "date": "2026-09-08",
+   "turns": 56,
+   "note": ""
+  },
+  {
+   "id": "gen9nationaldex-2680876325",
+   "league": "pinecord",
+   "week": "Week 2",
+   "players": [
+    "zololab",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Serperior",
+     "Diancie",
+     "Latios",
+     "Iron Treads",
+     "Vaporeon",
+     "Pecharunt"
+    ],
+    [
+     "Tyranitar",
+     "Lycanroc",
+     "Bronzong",
+     "Enamorus-Therian",
+     "Ursaluna",
+     "Goodra-Hisui"
+    ]
+   ],
+   "winner": "zololab",
+   "date": "2026-09-14",
+   "turns": 29,
+   "note": ""
+  },
+  {
+   "id": "gen9nationaldex-2696935281",
+   "league": "pinecord",
+   "week": "Week 6",
+   "players": [
+    "Zololab",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Diancie",
+     "Pecharunt",
+     "Lokix",
+     "Iron Treads",
+     "Latios",
+     "Thundurus"
+    ],
+    [
+     "Ceruledge",
+     "Lopunny",
+     "Slowbro",
+     "Lilligant-Hisui",
+     "Tinkaton",
+     "Ninetales"
+    ]
+   ],
+   "winner": "Zololab",
+   "date": "2026-10-12",
+   "turns": 27,
+   "note": ""
   }
  ]
 }
