@@ -327,14 +327,16 @@
      "Corviknight",
      "Tapu Fini",
      "Zeraora",
-     "Meowscarada"
+     "Meowscarada",
+     "Donphan"
     ],
     [
      "Slowking-Galar",
      "Ninetales-Alola",
      "Gliscor",
      "Charizard",
-     "Arctozolt"
+     "Arctozolt",
+     "Weavile"
     ]
    ],
    "winner": "pee nation",
@@ -357,7 +359,8 @@
      "Heatran",
      "Iron Moth",
      "Hydreigon",
-     "Hawlucha"
+     "Hawlucha",
+     "Sableye"
     ],
     [
      "Venusaur",
@@ -388,14 +391,16 @@
      "Kingambit",
      "Raging Bolt",
      "Swampert",
-     "Pawmot"
+     "Pawmot",
+     "Sinistcha"
     ],
     [
      "Araquanid",
-     "Greninja",
+     "Greninja-*",
      "Hydrapple",
      "Gholdengo",
-     "Glimmora"
+     "Glimmora",
+     "Nidoking"
     ]
    ],
    "winner": "chicken parm karm",
@@ -413,8 +418,22 @@
     "ElkG Big Large"
    ],
    "teams": [
-    [],
-    []
+    [
+     "Samurott-Hisui",
+     "Ogerpon-Wellspring",
+     "Latias",
+     "Altaria",
+     "Aegislash",
+     "Skeledirge"
+    ],
+    [
+     "Tangrowth",
+     "Zamazenta",
+     "Rotom-Heat",
+     "Keldeo-Resolute",
+     "Mamoswine",
+     "Scizor"
+    ]
    ],
    "winner": "ElkG Big Large",
    "date": "2026-09-15",
@@ -628,13 +647,15 @@
      "Latios",
      "Serperior",
      "Iron Treads",
-     "Vaporeon"
+     "Vaporeon",
+     "Scrafty"
     ],
     [
      "Pelipper",
      "Swampert",
      "Overqwil",
-     "Sinistcha-Masterpiece"
+     "Sinistcha-Masterpiece",
+     "Kingambit"
     ]
    ],
    "winner": "DEJIME17",
@@ -656,13 +677,17 @@
      "Great Tusk",
      "Tyranitar",
      "Houndstone",
-     "Enamorus-Therian"
+     "Enamorus-Therian",
+     "Bronzong",
+     "Goodra-Hisui"
     ],
     [
      "Ferrothorn",
      "Latios",
      "Mimikyu",
-     "Landorus-Therian"
+     "Landorus-Therian",
+     "Talonflame",
+     "Blissey"
     ]
    ],
    "winner": "weedinmyhonda",
@@ -716,13 +741,17 @@
      "Iron Moth",
      "Tapu Koko",
      "Rotom-Wash",
-     "Hawlucha"
+     "Hawlucha",
+     "Sableye",
+     "Heatran"
     ],
     [
      "Zamazenta",
      "Rotom-Heat",
      "Slowking",
-     "Hoopa-Unbound"
+     "Hoopa-Unbound",
+     "Mamoswine",
+     "Scizor"
     ]
    ],
    "winner": "ElkG Big Large",
@@ -895,8 +924,22 @@
     "PeterPikmon"
    ],
    "teams": [
-    [],
-    []
+    [
+     "Rotom-Wash",
+     "Iron Moth",
+     "Tapu Koko",
+     "Heatran",
+     "Hawlucha",
+     "Zygarde-10%"
+    ],
+    [
+     "Altaria",
+     "Fezandipiti",
+     "Samurott-Hisui",
+     "Excadrill",
+     "Skeledirge",
+     "Ogerpon-Wellspring"
+    ]
    ],
    "winner": "PeterPikmon",
    "date": "2026-10-07",
@@ -918,14 +961,16 @@
      "Lopunny",
      "Slowbro",
      "Nihilego",
-     "Enamorus"
+     "Enamorus",
+     "Brute Bonnet"
     ],
     [
      "Great Tusk",
      "Tyranitar",
      "Azelf",
      "Bronzong",
-     "Enamorus-Therian"
+     "Enamorus-Therian",
+     "Lycanroc"
     ]
    ],
    "winner": "doxsego",
@@ -1115,7 +1160,9 @@
      "Ursaluna",
      "Enamorus-Therian",
      "Bronzong",
-     "Azelf"
+     "Azelf",
+     "Tyranitar",
+     "Goodra-Hisui"
     ]
    ],
    "winner": "potatoesareyum",
@@ -1197,8 +1244,21 @@
     "potatoesareyum"
    ],
    "teams": [
-    [],
-    []
+    [
+     "Samurott-Hisui",
+     "Aegislash",
+     "Altaria",
+     "Ogerpon-Wellspring",
+     "Dracozolt"
+    ],
+    [
+     "Bronzong",
+     "Ursaluna",
+     "Iron Hands",
+     "Enamorus",
+     "Azelf",
+     "Great Tusk"
+    ]
    ],
    "winner": "peterpikmon",
    "date": "2026-10-21",
