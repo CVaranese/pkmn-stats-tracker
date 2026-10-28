@@ -2,6 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Games tab, live site: team sprites are now Pokémon HOME renders (3D style) instead of the pixel sprites used elsewhere. OK to mix styles? Rows: lines full width, "vs" lined up; a long name like "chicken parm karm" fits, a longer one is cut with …. Phone layout not rechecked.
+
 - [ ] Stream-video games (Games tab, "From the stream video"): on the live site, press Watch on one. Does the YouTube video play in the frame (and full screen)? In One game, "Watch the battle" should play it too, and the game's link goes to YouTube. Dates are the stream's upload day (Week 1 streams say 09-08; the Week 1 Showdown replay says 09-07): OK, or should they be the game day? The local preview has no sprites, so team rows there show initials.
 
 - [ ] Phone: a game's team row shows all six Pokémon on one line (it was 5 + 1). Checked in a 360px frame only, not on a real phone. Long nicknames ("InteriorKrookodile") run slightly past the MVP box at that width.

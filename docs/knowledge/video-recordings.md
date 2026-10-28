@@ -119,3 +119,9 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   (Sneez vs Fingy, turn 43) and the box window started after the last turn (Cloudburst vs PotatoesAreYum).
 - **Tested**: headless Edge launched from Git Bash returned empty `--dump-dom` output late in the session (even for
   a plain page) while the same command worked from PowerShell.
+- **Tested** (Week 4 playlist PLOM0N8ucrccY, 5 videos, not yet added): four streams cut to a playback from turn 1
+  within ~5 s of the last turn header (Zololab vs DEJIME 9:37, PotatoesAreYum vs Bad Bully 9:05, Dox vs Cloudburst
+  15:20, Big Large vs Fingy 19:40), and no "won the battle" was read in the log or the message box, so the last KO
+  and the winner are missing. The box window now ends where the log restarts (top turn drops by more than 3) and
+  runs up to 60 s past the last header otherwise. Pikmon vs Sneez read badly (56 unconverted lines: "hearth",
+  "opposjnq"); its winner line was read ("PeterPikmon won").

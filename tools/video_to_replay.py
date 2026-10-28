@@ -264,7 +264,16 @@ def main():
                 best, end = n, frame_time(f)
     # the last turn plays out after its header first shows; by the last frame the box may already show the win
     start = max(0, min(end - 40, first))
-    stop = min(end + 10, start + 200)
+    stop = min(end + 60, start + 240)   # a long last turn scrolls its header out of the log well before the win
+    # the streamer often plays the battle back from turn 1 right after: stop where the log restarts
+    top = {}
+    for f, obs in log_frames.items():
+        ns = [int(m.group(1).replace(" ", "")) for o in obs for m in [TURN.match(clean(o["text"]))] if m]
+        if ns:
+            top[frame_time(f)] = max(ns)
+    restart = min((t for t, n in top.items() if t > end and n < best - 3), default=None)
+    if restart is not None:
+        stop = min(stop, restart)
     scene_times = [t for t in (round(start + i * 0.5, 1) for i in range(int((stop - start) * 2) + 1)) if t <= args.length]
     grab(args.video, w("scene"), scene_times, args.scene_box, w("scene.jsonl"), args.filter)
     scene_frames = load_frames(w("scene.jsonl"))

@@ -205,14 +205,16 @@
   function libraryRow(g) {
     const results = showResults;
     const tr = document.createElement("tr");
-    const match = el("td", "lib-match");
+    const cell = el("td", "lib-match");   // a plain table cell (a flex <td> drops out of the row: lines broke)
+    const match = el("div", "lib-pair");
+    cell.append(match);
     g.players.forEach((p, i) => {
       if (i) match.append(el("span", "lib-vs", "vs"));
       const side = el("div", "lib-side");
       const name = el("div", "lib-name", p);
       if (results && p === g.winner) name.append(" ", el("span", "badge win", "Won"));
       const team = el("div", "lib-team");
-      team.append(...((g.teams || [])[i] || []).map((mon) => sprite(mon, ["gen5/"], "tiny")));
+      team.append(...((g.teams || [])[i] || []).map((mon) => sprite(mon, ["home-centered/", "gen5/"], "tiny")));
       side.append(name, team);
       match.append(side);
     });
@@ -224,7 +226,7 @@
     const actions = el("td", "lib-actions");
     actions.append(open("Watch", "Play the battle here, without the result", () => watchHere(g)),
       open("Stats", "Open in One game (shows the result)", () => openGame(g.id)));
-    tr.append(match, el("td", "num", results ? g.turns + " turns" : ""), el("td", "", g.date), el("td", "muted", g.note), actions);
+    tr.append(cell, el("td", "num", results ? g.turns + " turns" : ""), el("td", "", g.date), el("td", "muted", g.note), actions);
     // the whole row opens the game, like Stats (its own buttons keep their action)
     tr.className = "lib-row";
     tr.title = "Open in One game (shows the result)";
