@@ -1300,6 +1300,38 @@
    "date": "2026-10-28",
    "turns": 22,
    "note": ""
+  },
+  {
+   "id": "video-ktyq3nes_gm",
+   "league": "pinecord",
+   "week": "Week 4",
+   "players": [
+    "PeterPikmon",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Excadrill",
+     "Altaria",
+     "Ogerpon-Wellspring",
+     "Tyranitar",
+     "Golisopod",
+     "Samurott-Hisui"
+    ],
+    [
+     "Charizard",
+     "Gliscor",
+     "Ninetales-Alola",
+     "Arctovish",
+     "Slowking-Galar",
+     "Weavile"
+    ]
+   ],
+   "winner": "PeterPikmon",
+   "date": "2026-09-29",
+   "turns": 25,
+   "note": "From screenshots of the stream log; HP after hazards / weather / items estimated; pee nation forfeited turn 25",
+   "video": "https://youtu.be/ktYq3NES_GM"
   }
  ]
 }

@@ -67,7 +67,7 @@ Bracket pairings found with dates long before their round (practice): 2678643274
 
 Week 4 (playlist PLOM0N8ucrccY, stream 2026-09-29): Zololab vs DEJIME, PotatoesAreYum vs Bad Bully, Dox vs
 Cloudburst, Big Large vs Fingy are in site/games/ from their videos with the winner from Challonge round 4 and the
-last KO missing (the stream cut to a replay). Pikmon vs Sneez (ktYq3NES_GM) not added: OCR too poor. Karm vs Nezergy
+last KO missing (the stream cut to a replay). Pikmon vs Sneez (ktYq3NES_GM): OCR too poor; added 2026-10-27 from the user's 16 screenshots of the log (turns 1-24, then pee nation forfeited; Peter won round 4 on Challonge). Karm vs Nezergy
 has a replay (2689027321).
 
 Week 5 (playlist PLV29dBZQCWjY, uploaded 2026-10-07; added 2026-10-27): Pikmon vs Fingy (CKLxgWZL3HM), Dox vs

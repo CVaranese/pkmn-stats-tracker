@@ -172,3 +172,10 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   forfeit after Close Combat KO'd Weavile at 56%, Bad Bully vs Nezergy, Dox vs Fingy, DEJIME vs Cloudburst's Dual
   Wingbeat then Zapdos to Stealth Rock). Pikmon vs PotatoesAreYum's win line sits behind the Download replay buttons.
 - **Guess**: HP numbers in these eight are as rough as before; kills, deaths and winners were each checked.
+- **Tested** (2026-10-27, Week 4 Pikmon vs Sneez, https://youtu.be/ktYq3NES_GM): when OCR fails, the user pastes
+  screenshots of the battle log panel (16 images covered 24 turns) and Claude types the protocol log from them by eye
+  (script kept outside the repo, then `add_game.py --file`). The "lost N%" lines and faints are exact. HP after
+  Stealth Rock / sand / Poison Heal / Life Orb / Rocky Helmet isn't printed and was fitted to the next "lost N%" line
+  (guess, within a few %). Leads come from turn 1's "withdrew" lines. Hits printed with no "Pointed stones" line on
+  switch-in mean Heavy-Duty Boots (Golisopod here; not recorded as an item). Parser result matched the counts worked
+  out by hand before running it (kills 3/1/1 vs 3/1/1, 5 deaths each).

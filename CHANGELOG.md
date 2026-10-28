@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Games: Week 4 Pikmon vs Sneez, typed up from the user's screenshots of the stream's battle log (Windows OCR couldn't read this video). Sneez forfeited on turn 25; Peter's win matches the bracket.
 - One game: the MVP card's animated sprite is saved for the league's Pokémon (site/sprites/ani/, `tools/save_ani_sprites.py`), so it still moves when Showdown's sprite server is down and on the local copy. Showdown has no animated sprite for nine of them (Iron Crown, Iron Hands, Iron Moth, Iron Treads, Iron Valiant, Ogerpon-Wellspring, Pecharunt, Terapagos and its Terastal form); those keep the pixel sprite there. Games: Week 8 Big Large vs PotatoesAreYum, with both team sheets.
 - Team sheets: PotatoesAreYum's sheet for Week 7 vs Pikmon (all six Pokémon and every move used in the game match it).
 - Kills: a Pokémon that knocks itself out with recoil or Life Orb no longer gives the last opponent a kill; a new Self KOs column counts those faints plus Explosion, Memento and the like. Week 4: the last KO of Zololab vs DEJIME, PotatoesAreYum vs Bad Bully (its last two: Enamorus-Therian, then Great Tusk), Dox vs Cloudburst and Big Large vs Fingy, from the players. Week 7 Pikmon vs PotatoesAreYum: the four Altaria damage numbers the stream reader missed.
