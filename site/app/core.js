@@ -18,6 +18,7 @@ const MODE_KEY = "replay-kill-tracker.mode";
 const cache = new Map();   // replay id -> replay json (for this page visit)
 const pasteCache = new Map(); // pokepaste id -> export text
 let rows = [];             // game rows from the last run
+let moveInfo = null;       // Showdown's move data once loaded (luck), for type chips in move lists
 let view = "summary";
 let sort = { field: "kills", dir: -1 };
 const LABELS = {

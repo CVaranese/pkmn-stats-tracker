@@ -79,3 +79,6 @@ Things only a person can check. Remove an item once checked.
 - [ ] Trainer sprites (Draft tab): each player's sprite is the one above their column on the draft sheet (matched to players by each column's first picks). Check the buttons on a phone too.
 - [ ] Pokémon tab Weeks picker: pick Week 8, then All weeks; the table, the open Pokémon and its games change with it.
 - [ ] Key moments (Main viewer, e.g. Week 8 ElkGBigLarge vs potatoesareyum): only crits that KO'd, misses of 80%+ moves and every Hydro Pump miss (rules set 2026-10-28). Do the lines read well?
+- [ ] Move type chips: open any game, More detail; the colours read on dark and light, the P / S / – marks are clear, long Z-move names still fit on a phone (samples on tests/style.html).
+- [ ] "Not shown" rows: a game without a team sheet, More detail: a Pokémon that used 2 moves shows 2 greyed "Not shown" rows.
+- [ ] Momentum ▲ marks: Week 8 ElkGBigLarge vs potatoesareyum, turns 7 and 8; tapping a turn on a phone shows the moment in the readout.

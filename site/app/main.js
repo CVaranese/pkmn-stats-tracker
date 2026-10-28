@@ -173,6 +173,7 @@ function gameTime(g) {
  * chart says the numbers for the turn under the pointer (or picked with the arrow keys), the last turn by default.
  */
 function momentumChart(points, players, rs) {
+  const moments = (rs[0] && rs[0].key_moments) || [];
   const sideOf = Object.fromEntries(players.map((p) => [p, rs.find((r) => r.player === p).side]));
   const H = 200, L = 40, R = 12, T = 10, B = 26;
   let W = 600;                      // the chart's real width in pixels, so text stays 12px (redrawn on resize)
@@ -215,6 +216,12 @@ function momentumChart(points, players, rs) {
         }
       });
     });
+    // key moments: a small triangle on the floor of the chart at their turn, in the colour of whose roll it was
+    for (const m of moments) {
+      const i = players.findIndex((p) => sideOf[p] === m.actor.slice(0, 2));
+      const cx = x(m.turn), cy = H - B - 1;
+      svg.appendChild(svgEl("path", { d: `M${cx - 5},${cy}L${cx + 5},${cy}L${cx},${cy - 8}Z`, class: "moment-mark s" + Math.max(0, i) }));
+    }
   }
   const legend = el("p", "momentum-legend");
   players.forEach((p, i) => {
@@ -225,6 +232,7 @@ function momentumChart(points, players, rs) {
     legend.appendChild(key);
   });
   legend.appendChild(el("span", "momentum-key", "● lost a Pokémon"));
+  if (moments.length) legend.appendChild(el("span", "momentum-key", "▲ key moment"));
   const read = el("p", "hint momentum-read");
   let at = points.length - 1;
   const show = (j) => {
@@ -233,7 +241,8 @@ function momentumChart(points, players, rs) {
     cross.setAttribute("x1", x(pt.turn));
     cross.setAttribute("x2", x(pt.turn));
     read.textContent = (pt.turn ? `After turn ${pt.turn}: ` : "Start: ") + players.map((p) =>
-      `${p} ${pt[sideOf[p]].left} left, ${Math.round(pt[sideOf[p]].hp)}% HP`).join(" · ");
+      `${p} ${pt[sideOf[p]].left} left, ${Math.round(pt[sideOf[p]].hp)}% HP`).join(" · ") +
+      moments.filter((m) => m.turn === pt.turn).map((m) => `. ${m.form} ${m.text}`).join("");
   };
   const fromPointer = (ev) => {
     const box = svg.getBoundingClientRect();
@@ -429,7 +438,15 @@ function moveList(r, best) {
   box.appendChild(h);
   const line = (m, name, cls, title) => {
     const row = el("div", "move-row " + cls);
-    const who = el("span", "move-name", name);
+    const who = el("span", "move-name");
+    const info = cls !== "other" && moveInfo && moveInfo[key(name)];
+    if (info) {
+      // type chip: the name on its type's colour, with P / S / – for physical / special / status
+      const chip = el("span", "type-chip t-" + info.type.toLowerCase(), name);
+      chip.title = `${info.type}, ${info.category.toLowerCase()}`;
+      chip.append(el("span", "cat", { Physical: "P", Special: "S" }[info.category] || "–"));
+      who.append(chip);
+    } else who.append(name);
     if (m && m.z) who.append(" ", el("span", "mark z", "Z"));
     if (m && m.uses) who.append(" ", el("span", "move-uses", "×" + m.uses));
     if (title) who.title = title;
@@ -439,7 +456,7 @@ function moveList(r, best) {
     fill.style.width = share + "%";
     if (m && total) bar.title = `${Math.round(share)}% of its damage`;
     bar.appendChild(fill);
-    const dealt = el("span", "move-num", m && m.dealt_pct ? moveDealt(m) : m ? "–" : "not used");
+    const dealt = el("span", "move-num", m && m.dealt_pct ? moveDealt(m) : m ? "–" : cls.includes("hidden") ? "" : "not used");
     const kos = el("span", "move-num", m && m.kos ? `${m.kos} KO${m.kos > 1 ? "s" : ""}` : "");
     row.append(who, bar, dealt, kos);
     box.appendChild(row);
@@ -448,6 +465,9 @@ function moveList(r, best) {
   for (const m of sources) line(m, m.move, "other");
   if (other) line(other, "Other", "other", "Damage or a KO credited to it with no move or effect named in the log.");
   for (const n of unused) line(null, n, "unused"); // sheet moves it never used: last
+  // no sheet: one greyed row per move it never showed (a game's card; season lists have no count)
+  const hidden = !r.set && typeof r.moves_revealed === "number" ? Math.max(0, 4 - r.moves_revealed) : 0;
+  for (let i = 0; i < hidden; i++) line(null, "Not shown", "unused hidden", "A move this game never showed (of 4).");
   if (!ms.length && !unused.length && !sources.length && !other) box.appendChild(el("p", "move-none", "It didn't use a move."));
   return box;
 }
@@ -582,6 +602,7 @@ async function applyLuck(rows, errors) {
     try {
       const [moves, dex] = await Promise.all([LK.loadMoves(), TS.loadDex()]);
       data = { moves, dex };
+      moveInfo = moves;
     } catch (e) {
       errors.push(`Move data (for the luck score): ${e.message || e}`);
     }

@@ -40,6 +40,7 @@ function loadLeague() {
     }
     let moves = null;
     try { moves = await LK.loadMoves(); } catch (e) { /* luck stays blank */ }
+    if (moves) moveInfo = moves;
     LK.addLuck(all, moves && dex ? { moves, dex } : null);
     megaNames(all);
     return all;

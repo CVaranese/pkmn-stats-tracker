@@ -41,6 +41,8 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
   keyboard); the selected row has `aria-current`.
 - **Badge**: `.badge` (Lost) / `.badge.win` (Won): small, square-ish (3px radius), next to a name.
 - **Mega / Z tag**: `.mark.mega`, `.mark.z`, on the bottom edge of a sprite.
+- **Move type chip**: `.type-chip.t-<type>` in move lists, the move name on its type's colour (the games' usual
+  colours, dark text except Fighting / Poison / Ghost / Dragon / Dark) with P / S / – for physical / special / status.
 - **Sprites**: `sprite(name, folders, size)` in app/core.js; sizes `tiny` 40px (lists), `small` 52px (team strip),
   `big` 96px (MVP). Pixel art stays pixelated (`image-rendering: pixelated`); never stretch or blur it.
 - **Luck**: the die (1–5 pips) plus a word, never a number alone.

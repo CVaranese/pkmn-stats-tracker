@@ -301,6 +301,21 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .move-row.best .move-bar > span { background: var(--accent); }
 .move-row.unused, .move-row.other { color: var(--muted); }
 .move-row.unused .move-bar { visibility: hidden; }
+/* type chips: the move on its type's colour (the games' usual type colours), dark or light text for contrast;
+   P / S / – after it for physical / special / status, so the colour is never the only cue */
+.type-chip { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 1px 7px; border-radius: 3px;
+  background: var(--chip, var(--row-alt)); color: #1c1c1a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.move-name:has(.type-chip) { display: flex; align-items: center; gap: 4px; }
+.move-name .type-chip { flex: 0 1 auto; min-width: 0; }
+.move-name .type-chip ~ * { flex: 0 0 auto; }
+.type-chip .cat { font-size: 11px; font-weight: 700; opacity: 0.75; }
+.move-row.unused .type-chip { opacity: 0.55; }
+.t-normal { --chip: #a8a77a; } .t-fire { --chip: #ee8130; } .t-water { --chip: #6390f0; } .t-electric { --chip: #f7d02c; }
+.t-grass { --chip: #7ac74c; } .t-ice { --chip: #96d9d6; } .t-ground { --chip: #e2bf65; } .t-flying { --chip: #a98ff3; }
+.t-psychic { --chip: #f95587; } .t-bug { --chip: #a6b91a; } .t-rock { --chip: #b6a136; } .t-steel { --chip: #b7b7ce; }
+.t-fairy { --chip: #d685ad; } .t-stellar { --chip: #40b5a5; }
+.t-fighting { --chip: #c22e28; color: #fff; } .t-poison { --chip: #a33ea1; color: #fff; } .t-ghost { --chip: #735797; color: #fff; }
+.t-dragon { --chip: #6f35fc; color: #fff; } .t-dark { --chip: #705746; color: #fff; }
 .move-list h4 { cursor: help; }
 /* simple view: the detailed-only parts hidden; the switch sits under the stats */
 .team-card.simple .adv { display: none; }
@@ -331,6 +346,8 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .momentum .ko { stroke: var(--surface); stroke-width: 2; }
 .momentum .ko.s0 { fill: var(--accent); }
 .momentum .ko.s1 { fill: var(--text); }
+.momentum .moment-mark.s0 { fill: var(--accent); }
+.momentum .moment-mark.s1 { fill: var(--muted); }
 .momentum-read { margin: 4px 0 0; font-variant-numeric: tabular-nums; }
 
 .team-totals { margin: 16px -16px -14px; padding: 12px 16px 14px; border-top: 2px solid var(--outline);
