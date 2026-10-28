@@ -115,24 +115,25 @@
   $("run").addEventListener("click", run);
   // Main viewer (one game, the default) or Playoffs (several games); each has its own input, remembered separately
   let mode = "one";
-  try { mode = ["many", "games", "players", "bet"].includes(localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : "one"; } catch (e) { /* storage blocked */ }
+  try { mode = ["many", "games", "players", "mons", "bet"].includes(localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : "one"; } catch (e) { /* storage blocked */ }
   try { $("one-link").value = localStorage.getItem(ONE_KEY) || ""; } catch (e) { /* storage blocked */ }
   $("one-link").addEventListener("input", () => {
     try { localStorage.setItem(ONE_KEY, $("one-link").value); } catch (e) { /* storage blocked */ }
   });
   $("one-link").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
   const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
-  const activeIds = () => (mode === "bet" || mode === "games" || mode === "players" ? [] :
+  const activeIds = () => (mode === "bet" || mode === "games" || mode === "players" || mode === "mons" ? [] :
     RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
   function setMode(m, load = true) {
     mode = m;
     try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
     for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.setAttribute("aria-selected", String(tab.dataset.mode === m));
-    const noInputs = m === "bet" || m === "games" || m === "players";
+    const noInputs = m === "bet" || m === "games" || m === "players" || m === "mons";
     $("one-input").hidden = m !== "one";
     $("many-input").hidden = m !== "many";
     $("gambling").hidden = m !== "bet";
     $("players").hidden = m !== "players";
+    $("mons").hidden = m !== "mons";
     $("library").hidden = m !== "games";
     setCollapsed(false);  // the button lives with the results, which a mode change hides
     $("inputs").hidden = noInputs;
@@ -146,6 +147,7 @@
     if (load && activeIds().length) run();
     if (m === "bet") renderGambling();
     if (m === "players") renderPlayers();
+    if (m === "mons") renderMons();
   }
   for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.addEventListener("click", () => { setMode(tab.dataset.mode); pushNav(); });
 
@@ -592,6 +594,141 @@
       }));
   }
 
+  /** A table sorted by clicking a header (▲▼; numbers biggest first). cols: { label, cls, title, key(item) }.
+      On a phone the first tap on a header with a title explains it, a second sorts (like the results table). */
+  function sortableTable(table, cols, items, state, cells, after) {
+    const draw = () => {
+      const k = cols[state.col].key;
+      const order = (x, y) => (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y)));
+      const sorted = [...items].sort((a, b) => order(k(a), k(b)) * state.dir);  // stable: ties keep the items' order
+      simpleTable(table, cols.map((c) => [c.label, c.cls || "", c.title]), sorted.map(cells));
+      [...table.rows[0].cells].forEach((th, i) => {
+        th.scope = "col";
+        if (i === state.col) th.setAttribute("aria-sort", state.dir < 0 ? "descending" : "ascending");
+        th.addEventListener("click", () => {
+          const tk = "sort:" + table.id + i;
+          if (TOUCH && th.title && tipKey !== tk) { showTip(th, th.title + " Tap again to sort.", tk); return; }
+          hideTip();
+          state.dir = state.col === i ? -state.dir : typeof cols[i].key(items[0]) === "number" ? -1 : 1;
+          state.col = i;
+          draw();
+        });
+      });
+      if (after) after(sorted);
+    };
+    draw();
+  }
+
+  // ---------- Pokémon: each Pokémon's season, from every saved league game ----------
+
+  /** Its moves added up over some games, in the shape of a row's move_stats (for moveList): HP only when every
+      game with that move has it. */
+  function seasonMoves(rs) {
+    const by = new Map();
+    for (const r of rs) {
+      for (const m of r.move_stats || []) {
+        if (!by.has(m.move)) by.set(m.move, { move: m.move, source: m.source, z: false, uses: 0, games: 0, dealt_pct: 0, kos: 0, dealt_hp: 0, dealt_hp_est: false });
+        const s = by.get(m.move);
+        s.z = s.z || m.z;
+        s.uses += m.uses;
+        s.games += m.uses ? 1 : 0;
+        s.dealt_pct += m.dealt_pct;
+        s.kos += m.kos;
+        s.dealt_hp = s.dealt_hp === "" || typeof m.dealt_hp !== "number" ? "" : s.dealt_hp + m.dealt_hp;
+        s.dealt_hp_est = s.dealt_hp_est || !!m.dealt_hp_est;
+      }
+    }
+    return [...by.values()].sort((a, b) => (a.move === "") - (b.move === "") || a.source - b.source ||
+      b.dealt_pct - a.dealt_pct || b.kos - a.kos || b.uses - a.uses);
+  }
+  /** Damage in HP when every row has it, else in % (for sorting: HP figures and % never meet in one sort in practice). */
+  const dealtKey = (rs) => (rs.every((r) => typeof r.damage_dealt_hp === "number") ? sum(rs, "damage_dealt_hp") : sum(rs, "damage_dealt_pct"));
+
+  let mons = null;  // [summary fields + { rows, players, moves, best }], most games first
+  let monPicked = "";
+  const monSort = { col: 2, dir: -1 };
+  async function renderMons() {
+    if (mons) return;
+    mons = [];  // marks the tab as rendering
+    $("mon-status").textContent = "Loading games…";
+    const all = (await loadLeague()).filter((r) => r.brought);
+    // one spelling per player, as on Players: the draft's, else the first seen
+    const names = new Map();
+    const nameOf = (p) => {
+      const key = playerKey(p);
+      if (!names.has(key)) names.set(key, (draft && Object.keys(draft.players || {}).find((d) => TS.toID(d) === key)) || p);
+      return names.get(key);
+    };
+    mons = RS.summarize(all, false).map((m) => {
+      const rows = all.filter((r) => r.pokemon === m.pokemon);
+      const moves = seasonMoves(rows);
+      return { ...m, rows, players: [...new Set(rows.map((r) => nameOf(r.player)))], moves, nameOf,
+        best: bestMove({ move_stats: moves }) };
+    }).sort((a, b) => b.games_brought - a.games_brought || b.kills - a.kills || a.pokemon.localeCompare(b.pokemon));
+    const counted = new Set(all.map((r) => r.replay_id)).size;
+    $("mon-status").textContent = counted < library.length ? `Counted ${counted} of ${library.length} games (the rest didn't load).` : "";
+    const num = (label, title, key) => ({ label, cls: "num", title, key });
+    sortableTable($("mon-table"), [
+      { label: "Pokémon", key: (m) => m.pokemon },
+      { label: "Player", title: "Who brought it (a Pokémon drafted by two players lists both).", key: (m) => m.players.join(", ") },
+      num("Games", DESCRIPTIONS.games_brought, (m) => m.games_brought),
+      num("Won", DESCRIPTIONS.wins_when_brought, (m) => m.wins_when_brought),
+      num("Win rate", "Games won when it was brought, out of the games it was brought to.", (m) => m.wins_when_brought / m.games_brought),
+      num("Kills", DESCRIPTIONS.kills, (m) => m.kills),
+      num("Deaths", DESCRIPTIONS.deaths, (m) => m.deaths),
+      num("Dealt", "Damage dealt in all its games: in HP (~ = a guessed max HP went in), or in % when a game has no HP figures.", (m) => dealtKey(m.rows)),
+      num("Survived", "Games it was still standing at the end.", (m) => m.survived),
+      num("MVPs", DESCRIPTIONS.mvps, (m) => m.mvps),
+      { label: "Best move", title: "The move that did the most damage over the season (ties: more KOs).", key: (m) => (m.best ? m.best.move : "") },
+      { label: "Luck", title: "Its own luck, added up over its games.", key: (m) => { const l = totalLuck(m.rows.map((r) => r.luck)); return l === "" ? -Infinity : l; } },
+    ], mons, monSort, (m) => {
+      const mon = el("span", "bet-mon");
+      mon.append(sprite(m.pokemon, ["gen5/"], "tiny"), m.pokemon);
+      return [[mon, ""], [m.players.join(", "), ""], [String(m.games_brought), "num"], [String(m.wins_when_brought), "num"],
+        [Math.round((100 * m.wins_when_brought) / m.games_brought) + "%", "num"], [String(m.kills), "num"], [String(m.deaths), "num"],
+        [rowsDealt(m.rows), "num"], [String(m.survived), "num"], [String(m.mvps), "num"],
+        [m.best ? m.best.move : "–", ""],
+        [luckBadge(totalLuck(m.rows.map((r) => r.luck)), "pokemon"), ""]];
+    }, (sorted) => {
+      [...$("mon-table").rows].slice(1).forEach((tr, i) => {
+        tr.className = "pl-row";
+        tr.title = "Show its games and moves";
+        tr.dataset.mon = sorted[i].pokemon;
+        tr.setAttribute("aria-selected", String(sorted[i].pokemon === monPicked));
+        tr.addEventListener("click", () => { showMon(sorted[i].pokemon); $("mon-detail").scrollIntoView({ block: "start" }); });
+      });
+    });
+    showMon(monPicked || (mons[0] && mons[0].pokemon));
+  }
+
+  /** One Pokémon's season moves and its games (player, opponent, result, kills, damage), under the Pokémon table. */
+  function showMon(name) {
+    const m = mons.find((x) => x.pokemon === name);
+    $("mon-detail").hidden = !m;
+    if (!m) return;
+    monPicked = name;
+    [...$("mon-table").rows].slice(1).forEach((tr) => tr.setAttribute("aria-selected", String(tr.dataset.mon === name)));
+    const head = el("span", "bet-mon");
+    head.append(sprite(m.pokemon, ["gen5/"], "small"), m.pokemon);
+    $("mon-name").replaceChildren(head);
+    $("mon-moves").replaceChildren(moveList({ move_stats: m.moves }, m.best));
+    simpleTable($("mon-games"), [["Week", ""], ["Player", ""], ["Opponent", ""], ["Result", ""], ["Kills", "num", DESCRIPTIONS.kills],
+      ["Dealt", "num", DESCRIPTIONS.damage_dealt_hp], ["Taken", "num", DESCRIPTIONS.damage_taken_hp], ["Survived", "", "Still standing at the end."],
+      ["Best move", "", "The move that did the most damage that game (ties: more KOs)."], ["", ""]],
+      library.filter((g) => m.rows.some((r) => r.replay_id === g.id)).reverse().flatMap((g) => m.rows.filter((r) => r.replay_id === g.id).map((r) => {
+        const result = !g.winner ? "–" : el("span", r.won ? "badge win" : "badge", r.won ? "Won" : "Lost");
+        const best = bestMove(r);
+        const stats = Object.assign(el("button", "small", "Stats"), { type: "button", title: "Open in Main viewer" });
+        stats.addEventListener("click", () => openGame(g.id));
+        const hp = (f) => (typeof r[f + "_hp"] === "number" ? (r.hp_est && r.hp_est[f + "_hp"] ? "~" : "") + r[f + "_hp"] + " HP" : pct(r[f + "_pct"]));
+        const name = r.mvp ? el("span", "", m.nameOf(r.player) + " ") : m.nameOf(r.player);
+        if (r.mvp) name.append(Object.assign(el("span", "badge win", "MVP"), { title: DESCRIPTIONS.mvp }));
+        return [[g.week, ""], [name, ""], [m.nameOf(r.opponent), ""], [result, ""], [String(r.kills), "num"],
+          [hp("damage_dealt"), "num"], [hp("damage_taken"), "num"], [r.survived ? "Yes" : "No", ""],
+          [best ? best.move : "–", ""], [stats, ""]];
+      })));
+  }
+
   /** What goes in the link box: a Showdown link, or the bare id of a game rebuilt from its stream video. */
   const linkFor = (id) => (id.startsWith("video-") ? id : RS.REPLAY_HOST + id);
   /** The player for a game: Showdown's replay player, or the YouTube video for a game rebuilt from it. */
@@ -715,7 +852,7 @@
   if (shared.length) activeInput().dispatchEvent(new Event("input"));
   // ?tab=games (or many / bet) opens that tab, e.g. a link to the game list
   const tabParam = params.get("tab");
-  if (["one", "games", "players", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
+  if (["one", "games", "players", "mons", "many", "bet"].includes(tabParam) && !shared.length) mode = tabParam;
   setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
   try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }
 
@@ -1444,7 +1581,7 @@
   if (TOUCH) {
     document.addEventListener("click", (e) => {
       const t = e.target.closest("[title]");
-      if (t && t.matches("#table th")) return;  // its own handler decides: explain or sort
+      if (t && t.matches("#table th, .sortable th")) return;  // its own handler decides: explain or sort
       // a game row opens the game
       if (!t || !t.title || t.matches(".lib-row")) { hideTip(); return; }
       showTip(t, t.title);

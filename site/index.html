@@ -34,6 +34,7 @@
       <button role="tab" data-mode="one" aria-selected="true" type="button">Main viewer</button>
       <button role="tab" data-mode="games" aria-selected="false" type="button">Games</button>
       <button role="tab" data-mode="players" aria-selected="false" type="button">Players</button>
+      <button role="tab" data-mode="mons" aria-selected="false" type="button">Pokémon</button>
       <button role="tab" data-mode="many" aria-selected="false" type="button">Playoffs</button>
       <button role="tab" data-mode="bet" aria-selected="false" type="button">Gambling</button>
     </nav>
@@ -48,6 +49,19 @@
       <h2 class="section-title">Records</h2>
       <p class="hint" id="bet-records-note"></p>
       <div class="table-wrap bet-table"><table id="bet-ranks"></table></div>
+    </section>
+
+    <section id="mons" class="gambling" hidden>
+      <p class="hint">Every Pokémon brought in the league games saved here, added up over the season, so this tab gives results away. Click a column name to sort, a Pokémon in the list to show its moves and games here.</p>
+      <p class="muted" id="mon-status"></p>
+      <div id="mon-detail" hidden>
+        <h2 class="section-title" id="mon-name"></h2>
+        <div id="mon-moves"></div>
+        <h2 class="section-title">Its games</h2>
+        <div class="table-wrap"><table id="mon-games"></table></div>
+      </div>
+      <h2 class="section-title">Every Pokémon</h2>
+      <div class="table-wrap"><table id="mon-table" class="sortable"></table></div>
     </section>
 
     <section id="players" class="gambling" hidden>
