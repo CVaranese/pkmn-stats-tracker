@@ -5,7 +5,7 @@
 const RS = window.ReplayStats;
 const TS = window.TeamSheets;
 const LK = window.Luck;
-const { PCT_TO_HP, pct, sum, amount, moveDealt, totalLuck, luckGames, seasonMoves, dealtKey, bestMove, spriteId } = window.League;
+const { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, seasonMoves, dealtKey, bestMove, spriteId } = window.League;
 const $ = (id) => document.getElementById(id);
 // served from this computer: no requests to Showdown at all (replays only from site/games/, move / Pokedex data from
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
@@ -106,6 +106,13 @@ function setMode(m, load = true) {
   mode = m;
   try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
   for (const tab of document.querySelectorAll(".modes [data-mode]")) markCurrent(tab, tab.dataset.mode === m);
+  // phones scroll the tab row sideways: keep the selected tab in sight (e.g. a ?tab=bet link)
+  const current = document.querySelector('.modes [aria-current="true"]');
+  if (current) {
+    const nav = current.parentNode;
+    const right = current.getBoundingClientRect().right - nav.getBoundingClientRect().left + nav.scrollLeft;
+    nav.scrollLeft = Math.max(0, right - nav.clientWidth + 28);
+  }
   const noInputs = m === "bet" || m === "games" || m === "players" || m === "mons";
   $("one-input").hidden = m !== "one";
   $("many-input").hidden = m !== "many";
@@ -261,9 +268,12 @@ function stat(label, value, field) {
   if (field && DESCRIPTIONS[field]) d.title = DESCRIPTIONS[field];
   return d;
 }
-// luck in words: the score is the sum of (result - odds) over a game's rolls. Cut-offs from 34 Nat Dex games
-// (2026-10-26): player luck (own minus opponent's) has its middle half within +-0.9, a Pokémon's within +-0.15.
-const LUCK_STEPS = { player: [0.75, 2], pokemon: [0.25, 0.75] };
+// luck in words: the score is the sum of (result - odds) over a game's rolls. Cut-offs re-sampled 2026-10-28 from
+// 75 games (45 league + 30 Nat Dex ladder, tests/luck-sample.html): player luck (own minus opponent's) has sd 1.44,
+// its middle half within +-1.1, 1 game in 8 beyond +-2.25; a Pokémon's luck: 3 in 4 within +-0.21, 1 in 10 beyond 0.8.
+// season: the total over its expected spread (seasonLuck), a normal z: middle half +-0.67, 1 season in 10 beyond 1.64
+const LUCK_STEPS = { player: [1.1, 2.25], pokemon: [0.25, 0.75], season: [0.67, 1.64] };
+const LUCK_SD = { player: 1.44, pokemon: 0.43 };
 const LUCK_WORDS = ["Very unlucky", "Unlucky", "Fair", "Lucky", "Very lucky"];
 const PIPS = [[50, 50], [25, 25, 75, 75], [25, 25, 50, 50, 75, 75], [25, 25, 75, 25, 25, 75, 75, 75],
   [25, 25, 75, 25, 50, 50, 25, 75, 75, 75]];
@@ -288,13 +298,18 @@ function luckBadge(v, kind, top = []) {
     (top.length ? " Biggest: " + top.map((g) => `${g.label}${g.n > 1 ? " ×" + g.n : ""} (${g.v > 0 ? "+" : "−"}${Math.abs(g.v).toFixed(2)})`).join("; ") + "." : "");
   return box;
 }
-/** A player's season luck as a count of games: "3 lucky, 1 unlucky" (the rest fair), with the fair count in the tooltip. */
-function luckGamesText(values) {
-  const c = luckGames(values, LUCK_STEPS.player[0]);
-  const span = el("span", "", !c.games ? "–" : [c.lucky && c.lucky + " lucky", c.unlucky && c.unlucky + " unlucky"].filter(Boolean).join(", ") || "All fair");
-  span.title = c.games ? `Of ${c.games} games: ${c.lucky} lucky, ${c.fair} fair, ${c.unlucky} unlucky (luck score beyond ±${LUCK_STEPS.player[0]}).`
-    : "No luck score (move data didn't load).";
-  return span;
+/** Luck over a season (a player's games, or a Pokémon's): the die and word on the season scale, the total and
+    what reads Fair for that many games in the tooltip. */
+function seasonLuckBadge(values, kind) {
+  const s = seasonLuck(values, LUCK_SD[kind]);
+  if (!s) return luckBadge("", kind);
+  const box = luckBadge(s.z, "season");
+  const spread = LUCK_SD[kind] * Math.sqrt(s.games);
+  const sign = (x) => (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x).toFixed(1);
+  box.title = `${s.games} game${s.games === 1 ? "" : "s"}, luck added up ${sign(s.total)}. ` +
+    `Over ${s.games} games, a total within ±${(LUCK_STEPS.season[0] * spread).toFixed(1)} is Fair (half of all seasons), ` +
+    `beyond ±${(LUCK_STEPS.season[1] * spread).toFixed(1)} Very lucky / unlucky (1 in 10).`;
+  return box;
 }
 function flash(btn, text) {
   const old = btn.textContent;

@@ -3,6 +3,17 @@
 Sources: `smogon/pokemon-showdown` master, `data/conditions.ts` and `sim/battle-actions.ts`, read 2026-10-26
 (**researched**); log strings from the 30-game Nat Dex corpus + fixtures (**tested** = seen in real logs).
 
+## Cut-offs for the luck words (re-sampled 2026-10-28, tested: tests/luck-sample.html)
+- 75 games (45 league, team sheets not used; 30 Nat Dex ladder from tests/corpus/). Player luck (own minus
+  opponent's) per game: sd 1.40 league / 1.50 ladder, 1.44 both; |luck| median 1.17 / 1.00, 90th percentile 1.9 / 2.7.
+  The old ±0.75 Fair (from 34 games) made most games Lucky or Unlucky. Now Fair within ±1.1, Very beyond ±2.25.
+- A Pokémon's own luck per game: sd 0.43, |luck| median 0.08, 75th 0.21, 90th 0.8: heavy-tailed (one crit or miss
+  decides it). ±0.25 / ±0.75 kept.
+- Season (user 2026-10-28: a plain total mostly grew with games played; a count of lucky games didn't read well):
+  z = total / (sd per game × √games), games taken as independent. Words: Fair within ±0.67 (middle half of a normal),
+  Very beyond ±1.64 (1 in 10). League after Week 8: z from −1.07 (weedinmyhonda) to +0.90 (Karm). **Guess:** the
+  Pokémon z is rougher, its per-game luck being far from normal.
+
 ## Odds (gen 9)
 - **Researched:** full paralysis 1/4 per move attempt (`par.onBeforeMove`, priority 1).
 - **Researched:** sleep lasts `random(2, 5)` = 2, 3 or 4 "time", one used per move attempt; it wakes when time

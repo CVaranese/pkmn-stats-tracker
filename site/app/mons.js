@@ -36,7 +36,7 @@ async function renderMons() {
     num("Survived", "Games it was still standing at the end.", (m) => m.survived),
     num("MVPs", DESCRIPTIONS.mvps, (m) => m.mvps),
     { label: "Best move", title: "The move that did the most damage over the season (ties: more KOs).", key: (m) => (m.best ? m.best.move : "") },
-    { label: "Luck", title: "Its own luck, added up over its games.", key: (m) => { const l = totalLuck(m.rows.map((r) => r.luck)); return l === "" ? -Infinity : l; } },
+    { label: "Luck", title: "Its own rolls over its games, scaled to the number of games.", key: (m) => { const l = seasonLuck(m.rows.map((r) => r.luck), LUCK_SD.pokemon); return l ? l.z : -Infinity; } },
   ], mons, monSort, (m) => {
     const mon = el("span", "bet-mon");
     mon.append(sprite(m.pokemon, ["gen5/"], "tiny"), m.pokemon);
@@ -44,11 +44,10 @@ async function renderMons() {
       [Math.round((100 * m.wins_when_brought) / m.games_brought) + "%", "num"], [String(m.kills), "num"], [String(m.deaths), "num"],
       [rowsDealt(m.rows), "num"], [String(m.survived), "num"], [String(m.mvps), "num"],
       [m.best ? m.best.move : "–", ""],
-      [luckBadge(totalLuck(m.rows.map((r) => r.luck)), "pokemon"), ""]];
+      [seasonLuckBadge(m.rows.map((r) => r.luck), "pokemon"), ""]];
   }, (sorted) => {
     [...$("mon-table").rows].slice(1).forEach((tr, i) => {
       tr.className = "pl-row";
-      tr.title = "Show its games and moves";
       cellButton(tr.cells[0]);
       tr.dataset.mon = sorted[i].pokemon;
       markCurrent(tr, sorted[i].pokemon === monPicked);

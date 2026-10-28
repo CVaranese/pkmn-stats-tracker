@@ -68,7 +68,6 @@ function libraryRow(g) {
   tr.append(cell, el("td", "num", results ? g.turns + " turns" : ""), note, actions);
   // the whole row opens the game, like Stats (its own buttons keep their action)
   tr.className = "lib-row";
-  tr.title = "Open in Main viewer (shows the result)";
   tr.addEventListener("click", (e) => { if (!e.target.closest("button")) openGame(g.id); });
   return tr;
 }

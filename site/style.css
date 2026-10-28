@@ -300,11 +300,15 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
   header { grid-template-columns: 1fr; }
   /* iPhone Safari zooms into any input under 16px */
   input[type=text], textarea, select { font-size: 16px; }
-  /* the six main tabs as two rows of three (one row needs about 450px), each tab its own box */
-  .modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; border-bottom: 0; }
-  .modes button { padding: 8px 4px; font-size: 14px; white-space: nowrap; margin: 0;
-    border: 1px solid var(--border); border-radius: 6px; }
-  .modes button[aria-current="true"] { border: 2px solid var(--outline); }
+  /* the six main tabs as on a computer, in a row that scrolls sideways (it needs about 450px). Scrolling would clip
+     the selected tab's overlap of the bottom border, so the line is a background that scrolls with the tabs
+     (local), and the selected tab's own bottom border covers it. The fade on the right says there's more. */
+  .modes { gap: 0; overflow-x: auto; scrollbar-width: none; border-bottom: 0; padding-right: 28px;
+    background: linear-gradient(var(--outline), var(--outline)) left bottom / 100% 2px no-repeat local;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+  .modes::-webkit-scrollbar { display: none; }
+  .modes button { flex: 0 0 auto; padding: 8px 12px; font-size: 14px; white-space: nowrap; margin-bottom: 0; }
   /* Games list: each game stacked (players under each other, buttons below) instead of one wide row */
   .lib-table { display: block; }
   .lib-table .lib-week, .lib-table .lib-week th { display: block; }

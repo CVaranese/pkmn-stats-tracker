@@ -28,6 +28,8 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
   "Hide links and sheets" / "Show links and sheets"), with `aria-pressed`. No checkboxes, switches or sliders.
 - **Main tabs** (`.modes`): one row under the header, the selected tab outlined in `--outline` and joined to the
   panel. For whole views only (Main viewer, Games, Players, Pokémon, Playoffs, Gambling).
+  On phones the same tabs in a row that scrolls sideways, never re-styled as boxes (user 2026-10-28: a 3 × 2 grid of
+  boxed tabs looked "too standard and AI generated").
 - **Sub-tabs** (`.tabs`): small joined buttons, selected one filled with `--accent`. For switching a table's view.
 - **Select**: plain `select` inside `label.inline` ("Player [Everyone ▾]").
 - **Table**: inside `.table-wrap` (2px outline, 8px radius), striped rows, numbers right-aligned in tabular figures,

@@ -453,9 +453,9 @@
       JSON.stringify([LG.amount([a, b], ["damage_dealt_pct"]), LG.amount([a, c], ["damage_dealt_pct"])]));
     check("league: moveDealt", LG.moveDealt({ dealt_hp: 120, dealt_hp_est: true, dealt_pct: 40 }) === "~120 HP" &&
       LG.moveDealt({ dealt_hp: "", dealt_pct: 40.4 }) === "40%");
-    check("league: luckGames counts lucky / fair / unlucky games at the cut, skipping blanks",
-      JSON.stringify(LG.luckGames([0.75, 2.1, -0.75, 0.2, "", null, -0.74], 0.75)) === JSON.stringify({ lucky: 2, unlucky: 1, fair: 2, games: 5 }));
-    check("league: totalLuck adds the numbers, blank when none", LG.totalLuck([0.25, "", -0.125, null]) === 0.13 && LG.totalLuck(["", null]) === "");
+    // 4 games totalling 2.88 with sd 1.44 a game: spread 1.44 * 2 = 2.88, so z 1
+    check("league: seasonLuck scales the total by sd * sqrt(games), skipping blanks; blank when none",
+      JSON.stringify(LG.seasonLuck([1, 0.88, "", 2, -1, null], 1.44)) === JSON.stringify({ z: 1, total: 2.88, games: 4 }) && LG.seasonLuck(["", null], 1.44) === "");
     const g1 = { move_stats: [{ move: "Earthquake", source: 0, uses: 2, dealt_pct: 80, kos: 1, dealt_hp: 300 },
       { move: "Stealth Rock", source: 0, uses: 1, dealt_pct: 12, kos: 0, dealt_hp: 40 }] };
     const g2 = { move_stats: [{ move: "Earthquake", source: 0, uses: 1, dealt_pct: 50, kos: 1, dealt_hp: "" },
