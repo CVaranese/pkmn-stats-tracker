@@ -4895,8 +4895,7 @@
    ],
    "winner": "aargab11",
    "date": "2026-09-27",
-   "turns": 11,
-   "note": "Only game 3"
+   "turns": 11
   },
   {
    "id": "gen9championsvgc2026regmb-2695317022",
@@ -5114,6 +5113,119 @@
    "date": "2026-10-11",
    "turns": 12,
    "note": ""
+  },
+  {
+   "id": "gen9championsvgc2026regmbbo3-2658030120",
+   "league": "scl",
+   "week": "Week 5",
+   "players": [
+    "Liebynight01",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Tinkaton",
+     "Farigiraf",
+     "Golurk",
+     "Milotic",
+     "Scovillain",
+     "Hatterene"
+    ],
+    [
+     "Espathra",
+     "Sinistcha",
+     "Ceruledge",
+     "Incineroar",
+     "Kingambit",
+     "Sylveon"
+    ]
+   ],
+   "winner": "doxsego",
+   "date": "2026-07-26",
+   "turns": 7
+  }
+ ],
+ "missing": [
+  {
+   "week": "Week 3",
+   "players": [
+    "soupy36",
+    "kirbyhat5"
+   ],
+   "game": 1,
+   "winner": "kirbyhat5"
+  },
+  {
+   "week": "Week 5",
+   "players": [
+    "Liebynight01",
+    "doxsego"
+   ],
+   "game": 1,
+   "winner": "doxsego"
+  },
+  {
+   "week": "Week 9",
+   "players": [
+    "doxsego",
+    "Leafeon Main?"
+   ],
+   "game": null,
+   "winner": null
+  },
+  {
+   "week": "Week 10",
+   "players": [
+    "aargab11",
+    "doxsego"
+   ],
+   "game": 1,
+   "winner": "aargab11"
+  },
+  {
+   "week": "Week 10",
+   "players": [
+    "aargab11",
+    "doxsego"
+   ],
+   "game": 2,
+   "winner": "aargab11"
+  },
+  {
+   "week": "Week 11",
+   "players": [
+    "yungsmokey",
+    "soupy36"
+   ],
+   "game": 1,
+   "winner": "yungsmokey"
+  },
+  {
+   "week": "Week 11",
+   "players": [
+    "yungsmokey",
+    "soupy36"
+   ],
+   "game": 2,
+   "winner": "yungsmokey"
+  },
+  {
+   "week": "Playoffs R1",
+   "players": [
+    "aargab11",
+    "Philly Turtles"
+   ],
+   "game": 1,
+   "winner": null
+  },
+  {
+   "week": "Playoffs R1",
+   "players": [
+    "aargab11",
+    "Philly Turtles"
+   ],
+   "game": 2,
+   "winner": null
   }
  ]
 }

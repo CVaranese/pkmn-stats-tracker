@@ -52,6 +52,7 @@ const libraryReady = fetch(DIR + "games/index.json")
   .then((index) => {
     // by date (the order added when the same): games added late, e.g. rebuilt from stream videos, sit in their week
     library = (index.games || []).sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    missing = index.missing || [];
     RS.setLibrary(library.map((g) => g.id), DIR + "games/");
     // Showdown names ignore case and spaces ("Nezergy" = "nezergy"): one entry per name, as first spelled
     const players = new Map();
@@ -84,6 +85,7 @@ $("mon-find").addEventListener("keydown", (e) => {
 $("lib-player").addEventListener("change", renderLibrary);
 $("lib-week").addEventListener("change", renderLibrary);
 try { showResults = localStorage.getItem(SPOILERS_KEY) === "1"; } catch (e) { /* storage blocked */ }
+if (new URLSearchParams(location.search).has("results")) showResults = true;   // ?results: a link that opens with results shown
 setShowResults(showResults);
 $("lib-spoilers").addEventListener("click", () => {
   setShowResults(!showResults);
