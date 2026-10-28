@@ -65,7 +65,7 @@ function libraryRow(g) {
   // a short note keeps rows one height; the details (where the last KO came from...) go in its tooltip
   const note = el("td", "muted", g.note);
   if (g.note_detail) note.title = g.note_detail;
-  tr.append(cell, el("td", "num", results ? g.turns + " turns" : ""), el("td", "", g.date), note, actions);
+  tr.append(cell, el("td", "num", results ? g.turns + " turns" : ""), note, actions);
   // the whole row opens the game, like Stats (its own buttons keep their action)
   tr.className = "lib-row";
   tr.title = "Open in Main viewer (shows the result)";

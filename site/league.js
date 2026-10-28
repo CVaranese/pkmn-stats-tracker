@@ -28,6 +28,14 @@
     return v.length ? Math.round(v.reduce((t, x) => t + x, 0) * 100) / 100 : "";
   }
 
+  /** Season luck as games: how many were lucky (score at least `cut`), unlucky (at most -cut) and fair, so playing
+      more games doesn't inflate it the way a total does. Blank scores are left out. */
+  function luckGames(values, cut) {
+    const v = values.filter((x) => typeof x === "number");
+    const lucky = v.filter((x) => x >= cut).length, unlucky = v.filter((x) => x <= -cut).length;
+    return { lucky, unlucky, fair: v.length - lucky - unlucky, games: v.length };
+  }
+
   /** Its moves added up over some games, in the shape of a row's move_stats: HP only when every game with that
       move has it. Moves first (most damage), then damage sources, then unnamed damage. */
   function seasonMoves(rs) {
@@ -69,7 +77,7 @@
     return toID(base) + (parts.length ? "-" + toID(parts.join("")) : "");
   }
 
-  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, totalLuck, seasonMoves, dealtKey, bestMove, spriteId };
+  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, totalLuck, luckGames, seasonMoves, dealtKey, bestMove, spriteId };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

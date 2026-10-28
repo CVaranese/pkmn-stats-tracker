@@ -130,6 +130,11 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .gambling .section-title { margin-top: 22px; }
 .bet-table { max-width: 360px; }
 .bet-mon { display: inline-flex; align-items: center; gap: 8px; }
+/* Pokémon tab search: the box, then its matches as a row of buttons */
+input[type=text].mon-find { max-width: 360px; font-family: inherit; }
+.mon-matches { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.mon-matches:empty { display: none; }
+.mon-match { display: inline-flex; align-items: center; gap: 6px; }
 /* Main viewer: the league's games first, any pasted link second */
 .one-game { width: 100%; max-width: 520px; padding: 9px 10px; }
 .or-link { margin-top: 14px; font-weight: 500; color: var(--muted); }
@@ -295,9 +300,11 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
   header { grid-template-columns: 1fr; }
   /* iPhone Safari zooms into any input under 16px */
   input[type=text], textarea, select { font-size: 16px; }
-  /* the four main tabs on one line down to about 320px */
-  .modes { gap: 0; }
-  .modes button { padding: 8px 8px; font-size: 14px; white-space: nowrap; }
+  /* the six main tabs as two rows of three (one row needs about 450px), each tab its own box */
+  .modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; border-bottom: 0; }
+  .modes button { padding: 8px 4px; font-size: 14px; white-space: nowrap; margin: 0;
+    border: 1px solid var(--border); border-radius: 6px; }
+  .modes button[aria-current="true"] { border: 2px solid var(--outline); }
   /* Games list: each game stacked (players under each other, buttons below) instead of one wide row */
   .lib-table { display: block; }
   .lib-table .lib-week, .lib-table .lib-week th { display: block; }

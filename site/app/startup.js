@@ -56,6 +56,12 @@ $("one-game").addEventListener("change", () => {
   $("one-link").dispatchEvent(new Event("input"));
   run();
 });
+// Pokémon tab search: matches show as you type, Enter opens the first
+$("mon-find").addEventListener("input", () => { if (mons) filterMons(); });
+$("mon-find").addEventListener("keydown", (e) => {
+  const first = $("mon-matches").querySelector("button");
+  if (e.key === "Enter" && first) first.click();
+});
 $("lib-player").addEventListener("change", renderLibrary);
 $("lib-week").addEventListener("change", renderLibrary);
 try { showResults = localStorage.getItem(SPOILERS_KEY) === "1"; } catch (e) { /* storage blocked */ }
@@ -100,7 +106,7 @@ $("clear").addEventListener("click", () => {
 for (const tab of document.querySelectorAll(".tabs button")) {
   tab.addEventListener("click", () => {
     view = tab.dataset.view;
-    sort = view === "summary" ? { field: "kills", dir: -1 } : { field: "date", dir: -1 };
+    sort = view === "summary" ? { field: "kills", dir: -1 } : { field: "", dir: 1 };  // Per game: the games' own order
     render();
   });
 }

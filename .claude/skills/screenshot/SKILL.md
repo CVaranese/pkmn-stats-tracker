@@ -18,7 +18,8 @@ description: Screenshot the locally served site (headless Edge) and send it to t
    (e.g. dark + light) send them in one call.
 
 Limits:
-- No true phone width (headless Edge clamps narrow windows); say so if asked about mobile.
+- No true phone width (headless Edge clamps narrow windows). For a phone-width look, frame the site:
+  `-Page tests/phone.html -Query "w=360&tab=bet" -Width 600 -Height 1400` (w = frame width; other params go to the site).
 - No hover (tooltips), clicks, taps or clipboard. The Gambling tab can't be opened from the URL.
   For those, use Claude in Chrome on `http://127.0.0.1:8765/site/`.
 - Local mode only loads replays saved in `site/games/` (the league library).

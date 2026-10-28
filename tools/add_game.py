@@ -8,9 +8,13 @@ updates its labels instead of adding it twice.
     python tools/add_game.py gen9nationaldex-123 --week "Playoffs R1" --note "Game 2"
 
 A game rebuilt from its YouTube stream (tools/video_to_replay.py) has no Showdown replay: give the video link
-and the rebuilt JSON. It's stored as video-<youtube id, lowercase>, dated by --date (the stream's day).
+and the rebuilt JSON. It's stored as video-<youtube id, lowercase>, dated by --date: the day the game was played
+(league games are Sundays at 9pm Pacific, usually the Sunday before the video went up), not the upload day.
 
-    python tools/add_game.py https://youtu.be/d1nX5QVh-CA --file video-d1nX5QVh-CA.json --week "Week 2" --date 2026-09-14
+    python tools/add_game.py https://youtu.be/d1nX5QVh-CA --file video-d1nX5QVh-CA.json --week "Week 2" --date 2026-09-13
+
+A game's date is its week's Sunday (the Sunday on or before the day it was played, in Pacific time: a replay saved
+Sunday 9pm Pacific is Monday in UTC). The site shows only the week; the date orders games.
 """
 import argparse
 import json
@@ -19,7 +23,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 GAMES = Path(__file__).resolve().parent.parent / "site" / "games"
@@ -61,6 +65,24 @@ def fetch(rid):
         sys.exit(f"{rid}: Showdown didn't answer ({e}). Try again later, or pass --file with a saved copy.")
 
 
+def pacific_date(ts):
+    """YYYY-MM-DD of a Unix time in US Pacific time (league games are Sunday 9pm Pacific). DST from the second
+    Sunday of March to the first Sunday of November, both at 2am local (US rules since 2007); no tz database needed."""
+    utc = datetime.fromtimestamp(ts, timezone.utc)
+
+    def sunday(month, nth):  # the nth Sunday of that month
+        first = datetime(utc.year, month, 1, tzinfo=timezone.utc)
+        return first + timedelta(days=(6 - first.weekday()) % 7 + 7 * (nth - 1))
+    dst = sunday(3, 2) + timedelta(hours=10) <= utc < sunday(11, 1) + timedelta(hours=9)
+    return (utc - timedelta(hours=7 if dst else 8)).strftime("%Y-%m-%d")
+
+
+def week_sunday(day):
+    """The Sunday on or before a YYYY-MM-DD day: a game's date is its week's Sunday, never more exact (user 2026-10-28)."""
+    d = datetime.strptime(day, "%Y-%m-%d")
+    return (d - timedelta(days=(d.weekday() + 1) % 7)).strftime("%Y-%m-%d")
+
+
 def summary(replay):
     log = replay["log"]
     win = re.search(r"^\|win\|(.*)$", log, re.M)
@@ -71,7 +93,7 @@ def summary(replay):
         "players": replay["players"][:2],
         "teams": teams,
         "winner": win.group(1) if win else "",
-        "date": datetime.fromtimestamp(replay["uploadtime"], timezone.utc).strftime("%Y-%m-%d"),
+        "date": week_sunday(pacific_date(replay["uploadtime"])),
         "turns": int(turns[-1]) if turns else 0,
     }
 
@@ -83,7 +105,7 @@ def main():
     ap.add_argument("--league", default="pinecord")
     ap.add_argument("--note", default="")
     ap.add_argument("--file", help="a saved copy of the replay's .json, when Showdown is down; for a video, the rebuilt one")
-    ap.add_argument("--date", help="YYYY-MM-DD, for a game with no upload time (a video's stream day)")
+    ap.add_argument("--date", help="YYYY-MM-DD, for a game with no upload time (a video): the day it was played, not the upload day")
     args = ap.parse_args()
 
     rid = replay_id(args.replay)

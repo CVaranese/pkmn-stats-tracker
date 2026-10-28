@@ -40,7 +40,20 @@ class Summary(unittest.TestCase):
     def test_summary(self):
         s = add_game.summary({"log": self.LOG, "players": ["Ann", "Bob"], "uploadtime": 1791374400})
         self.assertEqual(s, {"players": ["Ann", "Bob"], "teams": [["Garchomp", "Zamazenta"], ["Toxapex"]],
-                             "winner": "Bob", "date": "2026-10-07", "turns": 12})
+                             "winner": "Bob", "date": "2026-10-04", "turns": 12})
+
+    def test_pacific_date(self):
+        # Sunday 2026-10-25 9pm PDT is Monday 04:00 UTC; Sunday 2026-11-08 9pm PST is Monday 05:00 UTC
+        self.assertEqual(add_game.pacific_date(1792987200), "2026-10-25")
+        self.assertEqual(add_game.pacific_date(1794200400), "2026-11-08")
+        # DST ends 2026-11-01 at 09:00 UTC: an hour before is still PDT (1:00), at it PST (1:00 again)
+        self.assertEqual(add_game.pacific_date(1793523600 - 3600), "2026-11-01")
+        self.assertEqual(add_game.pacific_date(1793523600), "2026-11-01")
+        # DST starts 2026-03-08 at 10:00 UTC; 06:00 UTC that day is still Saturday night PST
+        self.assertEqual(add_game.pacific_date(1772949600), "2026-03-07")
+
+    def test_week_sunday(self):
+        self.assertEqual([add_game.week_sunday(d) for d in ("2026-10-25", "2026-10-26", "2026-10-31")], ["2026-10-25"] * 3)
 
     def test_unfinished_game(self):
         s = add_game.summary({"log": "|player|p1|Ann|\n|turn|1", "players": ["Ann", "Bob"], "uploadtime": 0})

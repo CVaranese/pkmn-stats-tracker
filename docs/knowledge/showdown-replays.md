@@ -7,6 +7,10 @@
 - **Tested:** `search.json?format=<formatid>` lists recent replays (newest first); `&user=<name>` filters by player, `&before=<uploadtime>` pages back.
 - **Tested:** bo3 formats have their own IDs (`gen9championsvgc2026regmbbo3-...`); each game in a set is a separate replay. Game logs carry `|uhtml|bestof|...Game N...` and a `|uhtml|next|` link to the next game.
 
+## Game dates (user, 2026-10-28)
+- **From the user:** the site shows no dates, only the week ("too detailed, don't want things tracked too much"). `index.json` keeps one date per game, its week's Sunday (`week_sunday` in `tools/add_game.py`), only for ordering; never a more exact day or time.
+- **From the user:** league games are played on the game day, typically Sunday 9pm Pacific; dates on the site are that day, not the upload day. `uploadtime` is Unix seconds, so a Sunday-night replay is Monday in UTC: `tools/add_game.py` (`pacific_date`) and `site/parser.js` convert to US Pacific. Stream videos have no save time; they're dated the Sunday before the upload (`--date`).
+
 ## Log format (pipe-delimited, see SIM-PROTOCOL.md in smogon/pokemon-showdown)
 - **Tested:** identifiers are `p1a: Nickname`; Ally Switch (`|swap|`) changes the slot letter, so key Pokémon by side + nickname, not slot.
 - **Tested:** the KO line is `|-damage|<mon>|0 fnt` and `|faint|` can come several lines later (after Mummy, Spicy Spray, Rough Skin, Life Orb lines), so attribute on the damage line.

@@ -1,0 +1,23 @@
+<!doctype html>
+<!-- The site in a phone-width frame, for screenshots (headless Edge won't make a window narrower than ~500px).
+     ?w=360 sets the width, every other parameter goes to the site: tests/phone.html?w=360&tab=bet
+     ?type=<input id>:<text> types into that box once the page has loaded: &type=mon-find:zam -->
+<meta charset="utf-8">
+<title>Phone frame</title>
+<style>body { margin: 0; background: #888; } iframe { display: block; border: 0; height: 2000px; background: #fff; }</style>
+<iframe id="f"></iframe>
+<script>
+  const p = new URLSearchParams(location.search);
+  const f = document.getElementById("f");
+  f.style.width = (p.get("w") || "360") + "px";
+  const type = p.get("type");
+  p.delete("w"); p.delete("type");
+  // type into a box after the page's own loading (fixed wait; headless runs on virtual time)
+  if (type) f.addEventListener("load", () => setTimeout(() => {
+    const [id, text] = [type.slice(0, type.indexOf(":")), type.slice(type.indexOf(":") + 1)];
+    const box = f.contentDocument.getElementById(id);
+    box.value = text;
+    box.dispatchEvent(new Event("input"));
+  }, 4000));
+  f.src = "../site/" + (p.toString() ? "?" + p : "");
+</script>

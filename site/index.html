@@ -52,7 +52,12 @@
     </section>
 
     <section id="mons" class="gambling" hidden>
-      <p class="hint">Every Pokémon brought in the league games saved here, added up over the season, so this tab gives results away. Click a column name to sort, a Pokémon in the list to show its moves and games here.</p>
+      <p class="hint">Every Pokémon brought in the league games saved here, added up over the season, so this tab gives results away. Find one by name or player, or click a column name to sort and a Pokémon in the list to show its moves and games here.</p>
+      <label for="mon-find">Find a Pokémon</label>
+      <input type="text" id="mon-find" class="mon-find" autocomplete="off" spellcheck="false" enterkeyhint="go"
+        placeholder="Name or player: zama, karm…" aria-describedby="mon-find-count">
+      <div id="mon-matches" class="mon-matches"></div>
+      <p class="muted" id="mon-find-count" aria-live="polite"></p>
       <p class="muted" id="mon-status"></p>
       <div id="mon-detail" hidden>
         <h2 class="section-title" id="mon-name"></h2>

@@ -32,7 +32,7 @@ async function renderPlayers() {
     ["Won", "num", "Games won among the games saved here."], ["Lost", "num", "Games lost among the games saved here."],
     ["Kills", "num", DESCRIPTIONS.kills], ["Deaths", "num", DESCRIPTIONS.deaths],
     ["Dealt", "num", "Damage dealt in all their games: in HP (~ = a guessed max HP went in), or in % when a game has no HP figures."],
-    ["Luck", "", "Their luck against their opponent's, added up over their games."],
+    ["Luck", "", "How many of their games they were Lucky or Unlucky in (their rolls against the opponent's), the same words as each game's Luck; the rest were Fair."],
     ["Most used", "", "The Pokémon they brought most often."],
     ["Top MVP", "", "The Pokémon that was Team MVP most often."]],
     players.map((pl) => {
@@ -44,7 +44,7 @@ async function renderPlayers() {
       const perGame = [...new Map(pl.rows.map((r) => [r.replay_id, r.player_luck])).values()];
       return [[pl.name, ""], [String(pl.wins), "num"], [String(pl.losses), "num"],
         [String(sum(pl.rows, "kills")), "num"], [String(sum(pl.rows, "deaths")), "num"], [rowsDealt(pl.rows), "num"],
-        [luckBadge(totalLuck(perGame), "player"), ""], [used, ""],
+        [luckGamesText(perGame), ""], [used, ""],
         [mvp && mvp.mvps ? `${mvp.pokemon} ×${mvp.mvps}` : "–", ""]];
     }));
   [...$("pl-table").rows].slice(1).forEach((tr, i) => {

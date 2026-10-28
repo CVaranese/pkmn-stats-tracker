@@ -3,6 +3,8 @@
 
 let mons = null;  // [summary fields + { rows, players, moves, best }], most games first
 let monPicked = "";
+// search text: letters and digits only, no accents or case ("Iron-Valiant" and "ironval" match)
+const findKey = (s) => s.normalize("NFD").replace(/[^a-z0-9]/gi, "").toLowerCase();
 const monSort = { col: 2, dir: -1 };
 async function renderMons() {
   if (mons) return;
@@ -50,10 +52,30 @@ async function renderMons() {
       cellButton(tr.cells[0]);
       tr.dataset.mon = sorted[i].pokemon;
       markCurrent(tr, sorted[i].pokemon === monPicked);
-      tr.addEventListener("click", () => { showMon(sorted[i].pokemon); $("mon-detail").scrollIntoView({ block: "start" }); });
+      tr.dataset.find = findKey(sorted[i].pokemon + " " + sorted[i].players.join(" "));
+      tr.addEventListener("click", () => pickMon(sorted[i].pokemon));
     });
+    filterMons();
   });
   showMon(monPicked || (mons[0] && mons[0].pokemon));
+}
+/** The search box: up to 8 matches as buttons under it (name or player), the table cut to the matches. */
+function filterMons() {
+  const q = findKey($("mon-find").value);
+  const hits = q ? mons.filter((m) => findKey(m.pokemon + " " + m.players.join(" ")).includes(q)) : [];
+  [...$("mon-table").rows].slice(1).forEach((tr) => { tr.hidden = Boolean(q) && !tr.dataset.find.includes(q); });
+  $("mon-matches").replaceChildren(...hits.slice(0, 8).map((m) => {
+    const b = Object.assign(el("button", "small mon-match"), { type: "button" });
+    b.append(sprite(m.pokemon, ["gen5/"], "tiny"), el("span", "", m.pokemon), el("span", "muted", m.players.join(", ")));
+    b.addEventListener("click", () => pickMon(m.pokemon));
+    return b;
+  }));
+  $("mon-find-count").textContent = !q ? "" : !hits.length ? "No Pokémon matches." :
+    hits.length > 8 ? `${hits.length} match: the first 8 are above, all of them in the list below.` : "";
+}
+function pickMon(name) {
+  showMon(name);
+  $("mon-detail").scrollIntoView({ block: "start" });
 }
 /** One Pokémon's season moves and its games (player, opponent, result, kills, damage), under the Pokémon table. */
 function showMon(name) {

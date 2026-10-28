@@ -905,7 +905,8 @@
   function gameRows(replay) {
     const b = parseBattle(replay.log, { illusion: replay.illusion });
     const rid = replay.id;
-    const date = replay.uploadtime ? new Date(replay.uploadtime * 1000).toISOString().slice(0, 10) : "";
+    // the game day in Pacific time (league games are Sunday 9pm Pacific, already Monday in UTC); en-CA writes YYYY-MM-DD
+    const date = replay.uploadtime ? new Date(replay.uploadtime * 1000).toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" }) : "";
     const rows = [];
     for (const side of ["p1", "p2"]) {
       const player = b.players[side] || side;

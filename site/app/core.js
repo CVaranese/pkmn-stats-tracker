@@ -5,7 +5,7 @@
 const RS = window.ReplayStats;
 const TS = window.TeamSheets;
 const LK = window.Luck;
-const { PCT_TO_HP, pct, sum, amount, moveDealt, totalLuck, seasonMoves, dealtKey, bestMove, spriteId } = window.League;
+const { PCT_TO_HP, pct, sum, amount, moveDealt, totalLuck, luckGames, seasonMoves, dealtKey, bestMove, spriteId } = window.League;
 const $ = (id) => document.getElementById(id);
 // served from this computer: no requests to Showdown at all (replays only from site/games/, move / Pokedex data from
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
@@ -90,7 +90,8 @@ const DESCRIPTIONS = {
   mvp: "Best Performance on its team in that game.", mvps: "Times it was Team MVP.", mvp_score_per_game: "Average Performance per game brought.",
 };
 const YES_NO = new Set(["won", "brought", "hidden_zoroark", "mvp", "survived", "mega"]);
-const GAME_VIEW_FIELDS = RS.GAME_FIELDS.filter((f) => f !== "replay_id" && f !== "format");
+// no date column (user 2026-10-28: the week is enough), in the tables or the exports
+const GAME_VIEW_FIELDS = RS.GAME_FIELDS.filter((f) => f !== "replay_id" && f !== "format" && f !== "date");
 const ONE_GAME_HIDDEN = new Set(["date", "opponent", "won", "end_reason", "turns", "player_luck", "replay_url"]);
 const SHEET_FIELDS = ["max_hp", "max_hp_from", "item", "ability", "moves"]; // per game, once any max HP is known
 const HP_FROM = { player: "other sheet", smogon: "Smogon", stats: "base stats" }; // max_hp_from of a guess
@@ -286,6 +287,14 @@ function luckBadge(v, kind, top = []) {
     : "Its own rolls (hits, crits, status chances…): about 0 is fair.") +
     (top.length ? " Biggest: " + top.map((g) => `${g.label}${g.n > 1 ? " ×" + g.n : ""} (${g.v > 0 ? "+" : "−"}${Math.abs(g.v).toFixed(2)})`).join("; ") + "." : "");
   return box;
+}
+/** A player's season luck as a count of games: "3 lucky, 1 unlucky" (the rest fair), with the fair count in the tooltip. */
+function luckGamesText(values) {
+  const c = luckGames(values, LUCK_STEPS.player[0]);
+  const span = el("span", "", !c.games ? "–" : [c.lucky && c.lucky + " lucky", c.unlucky && c.unlucky + " unlucky"].filter(Boolean).join(", ") || "All fair");
+  span.title = c.games ? `Of ${c.games} games: ${c.lucky} lucky, ${c.fair} fair, ${c.unlucky} unlucky (luck score beyond ±${LUCK_STEPS.player[0]}).`
+    : "No luck score (move data didn't load).";
+  return span;
 }
 function flash(btn, text) {
   const old = btn.textContent;

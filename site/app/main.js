@@ -128,13 +128,14 @@ function renderTeams() {
   const g = rows[0];
   const head = el("p", "game-line");
   const link = Object.assign(el("a", "", g.replay_id), { href: g.replay_url, target: "_blank", rel: "noopener" });
-  head.append(link, ` · ${g.date} · ${g.turns} turns · ended by ${g.end_reason}`);
+  // league games say their week; no dates anywhere (user 2026-10-28: the week is enough)
+  const lib = library.find((x) => x.id === g.replay_id);
+  head.append(link, `${lib ? " · " + lib.week : ""} · ${g.turns} turns · ended by ${g.end_reason}`);
   // winner first
   const players = [...new Set(rows.map((r) => r.player))].sort((a, b) =>
     rows.find((r) => r.player === b).won - rows.find((r) => r.player === a).won);
   const cards = players.map((p) => teamCard(p, rows.filter((r) => r.player === p)));
   // a stream video's lines the screen reading got wrong (index.json known_errors), so numbers off by them are explained
-  const lib = library.find((x) => x.id === g.replay_id);
   const errs = lib && lib.known_errors ? el("p", "hint", "Rebuilt from the stream video, with errors: " + lib.known_errors) : "";
   box.replaceChildren(el("h2", "section-title", "This game"), head, errs, videoButtons(g.replay_id), el("div", "team-grid"));
   box.lastChild.append(...cards);
@@ -325,7 +326,7 @@ function currentTable() {
   const filtered = player ? rows.filter((r) => r.player === player) : rows;
   let fields, data;
   if (mode === "one") {
-    // the game itself (date, result, turns, link) is in the team summary above, so not repeated per row
+    // the game itself (week, result, turns, link) is in the team summary above, so not repeated per row
     data = filtered.slice();
     const base = GAME_VIEW_FIELDS.filter((f) => !ONE_GAME_HIDDEN.has(f));
     fields = rows.some((r) => r.max_hp) ? base.flatMap((f) => [f, ...(HP_AFTER[f] || [])]).concat(SHEET_FIELDS) : base;
