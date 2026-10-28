@@ -22,6 +22,11 @@ const RS = window.ReplayStats, TS = window.TeamSheets, Bet = window.Bet, IL = wi
   const dir = "../site/" + (new URLSearchParams(location.search).get("league") || "ppppp").replace(/[^a-z0-9-]/g, "") + "/games/";
   const lib = (await (await fetch(dir + "index.json")).json()).games;
   const draft = await (await fetch(dir + "draft.json")).json();
+  // Pokémon a coach dropped in a trade (draft.trades out, "A, B"): drafted before it, so a game with one passes
+  const dropped = { aliases: draft.aliases, players: {} };
+  for (const [p, ts] of Object.entries(draft.trades || {})) if (p !== "_note") {
+    dropped.players[p] = ts.flatMap((t) => String(t.out || "").split(",").map((s) => ({ pokemon: s.trim() })));
+  }
   const all = [];
   const learn = await IL.loadLearnsets("../site/data/learnsets.json");
   const dex = await (await fetch("../site/data/pokedex.json")).json();
@@ -84,7 +89,7 @@ const RS = window.ReplayStats, TS = window.TeamSheets, Bet = window.Bet, IL = wi
         for (const [t, pct] of r.hits_dealt || []) if (!rows.some((o) => o.mon_key === t)) note(tag, `${p} ${r.pokemon}: hit ${pct}% on ${t}, which has no row`);
         if (r.mega && !r.mega_form) note(tag, `${p} ${r.pokemon}: mega without mega_form`);
         // the drafted Pokemon
-        const d = Bet.drafted(draft, p, r.pokemon);
+        const d = Bet.drafted(draft, p, r.pokemon) || Bet.drafted(dropped, p, r.pokemon);
         if (!d) fail(tag, `${p} ${r.pokemon}: not in ${p}'s draft pool`);
       }
       // damage A dealt vs damage B took (B's taken includes self-inflicted)

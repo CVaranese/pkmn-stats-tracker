@@ -111,10 +111,10 @@ Checked 2026-10-28 (165 games, 69 sets): every game's two players are its pair; 
 Weeks 1-8 results match the sheet's Schedule scores except three. Week 3 Soop vs Kirbyhat: sheet 2-1, the one Kirbyhat
 win wasn't posted. Week 3 Leaf vs Fayz and Week 6 Lieby vs Aargab: the replays give Fayz 2-1 and Aargab 2-1, the sheet
 the reverse (sheet entered the wrong way round?). tests/audit.html?league=scl: kills, winners, turns, MVPs and team
-preview all hold; its only FAILs are Pokémon not on the coach's current roster (free-agent moves, not in draft.json):
-Leaf's Gengar, Ninetales-Alola (Weeks 1-6) and Skarmory (Weeks 1-4), Dox's Eelektross (Weeks 1-3), Soop's Dragalge,
-Oranguru, Skeledirge (Week 1). Aargab's Kommo-o (Week 1) and Corviknight (Weeks 1-2) were on team preview but never
-brought, so the audit (brought Pokémon only) doesn't flag them.
+preview all hold. Its FAILs were Pokémon off the coach's current roster: free-agent moves, now in draft.json `trades`
+from the user's paste of the Discord posts (Soop after Week 1, Aargab and Mattio after Week 2, Dox twice after Week 3,
+Leaf after Week 6, past the Week 5 deadline but on the sheet's roster). Every dropped Pokémon was last used before its
+week and every pickup first appears after it; the audit counts a trade's dropped Pokémon as drafted, and passes.
 
 Showdown names: AnimaSean0724 = Sean, Fayz Sharpie = Fayz, yungsmokey = Mattio, Leafeon Main? = Leaf, Philly Turtles
 = Saltyswede, Tijerben000 = benito, aargab11 = Aargab, Ryan Regirocks = RyanGab, Liebynight01 = Lieby, soupy36 = Soop,

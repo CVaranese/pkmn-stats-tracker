@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Super Champions League Draft: each coach's free-agent moves (what they dropped and picked up, and after which week), from the league's Discord.
 - Super Champions League: the rest of the playoffs (Playoffs R1, Semifinals, Third place, Finals; 165 games). Players and Draft now count each coach's Showdown name as them.
 - Super Champions League: 155 games in Games, the whole regular season (Weeks 1-11) and the first two playoff sets, from the league's replay channel; sprites for its Pokémon (four Champions Megas still show initials).
 - Team sheets: FingerStripes' sheets for Weeks 1-7 (raw HP, set details and move lists in those games). A set with no EVs line (Week 1's Suicune, pieced together from the game) gets a guessed max HP, marked ~, instead of counting as 0 HP EVs.

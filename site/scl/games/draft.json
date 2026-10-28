@@ -468,5 +468,5 @@
    }
   ]
  },
- "trades": {}
+ "trades": {"_note": "Free-agent moves posted in the league's Discord (from the user, 2026-10-28). Each line is one post: out = dropped, in = picked up; after = the last week played before it (posted on a Monday-Sunday week's day). players above is the roster now, so a dropped Pokemon isn't in it.", "Soop": [{"out": "Dragalge-Mega, Oranguru, Steelix-Mega, Malamar, Skeledirge", "in": "Blaziken-Mega, Gyarados-Mega, Sharpedo, Aerodactyl, Rotom-Fan", "after": "Week 1"}], "Aargab": [{"out": "Corviknight, Kommo-o, Golurk", "in": "Pyroar-Mega, Noivern, Krookodile", "after": "Week 2"}], "Mattioli": [{"out": "Tyranitar, Qwilfish", "in": "Tyranitar-Mega, Meowstic-F", "after": "Week 2"}], "Dox": [{"out": "Sylveon, Eelektross-Mega", "in": "Floette-Mega, Decidueye", "after": "Week 3"}, {"out": "Decidueye, Floette-Mega", "in": "Sylveon, Espathra", "after": "Week 3"}], "Leaf": [{"out": "Gengar-Mega, Ninetales-Alola, Skarmory", "in": "Swampert-Mega, Corviknight, Polteageist", "after": "Week 6"}]}
 }
