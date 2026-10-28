@@ -505,10 +505,12 @@
     const img = document.createElement("img");
     img.alt = species;
     img.loading = "lazy";
-    // the gen5 copies saved in site/sprites/ (league Pokémon): the only source locally, the fallback when Showdown is down.
+    // the copies saved in site/sprites/ (league Pokémon; animated ones where Showdown has them): the only source
+    // locally, the fallback when Showdown is down.
     // fill: the saved copy first, since only a same-site image can be cropped (Showdown's server sends no CORS header)
-    const list = LOCAL ? ["sprites/gen5/"] : fill ? ["sprites/gen5/", ...folders.map((f) => SPRITES + f)]
-      : [...folders.map((f) => SPRITES + f), "sprites/gen5/"];
+    const saved = folders.includes("ani/") ? ["sprites/ani/", "sprites/gen5/"] : ["sprites/gen5/"];
+    const list = LOCAL ? saved : fill ? ["sprites/gen5/", ...folders.map((f) => SPRITES + f)]
+      : [...folders.map((f) => SPRITES + f), ...saved];
     if (fill) img.addEventListener("load", () => fillBox(img, box), { once: true });
     let i = 0;
     const next = () => {
