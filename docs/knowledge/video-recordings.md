@@ -187,4 +187,4 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   Samurott-H 1, 2 deaths).
 - **Tested** (2026-10-27): the stream reader drops the team-preview list's last line when it wraps ("... / Pawmot /
   Sinistcha" on two lines, or the 6th name past the panel edge): four games had 5 of 6 (one 4 of 6). Fixed from the
-  user's screenshots of the "X's team:" box. Seven other stream games had a preview under 6 (three with none): filled from the Pokémon sent out (Mega forms skipped, preview shows the base). Still 5: DEJIME in Week 4 vs Zololab (video-mebkxaukmlw), Pikmon in Week 7 vs PotatoesAreYum (video-ek4vkzvwny0); only a screenshot of the team box can give the sixth.
+  user's screenshots of the "X's team:" box. Seven other stream games had a preview under 6 (three with none): filled from the Pokémon sent out (Mega forms skipped, preview shows the base). The two left at 5 (DEJIME in Week 4 vs Zololab, Pikmon in Week 7 vs PotatoesAreYum) were completed from the user's screenshots of the team box. A switch-in with no nickname reads as the bare species ("Enamorus" for Enamorus-Therian): check forms against the team box.
