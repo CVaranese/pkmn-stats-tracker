@@ -924,7 +924,7 @@
       gameSeconds, momentum, timerBy,
       // alive at the end: its latest stay on the field didn't end in a faint (Revival Blessing brings one back)
       alive: new Set([...latestByKey].filter(([, st]) => !st.deaths).map(([k]) => k)),
-      players, preview, species, stats, seenSet, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark, illusion,
+      players, preview, teamSize, species, stats, seenSet, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark, illusion,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
       hits: hits.map(([d, t, pct, hz, mv]) => [keyOf(d), keyOf(t), pct, hz, mv]),
       heals: heals.map(([h, t, pct]) => [keyOf(h), keyOf(t), pct]),
@@ -961,7 +961,11 @@
       const opponent = b.players[side === "p1" ? "p2" : "p1"] || "";
       const brought = [...b.species].filter(([k]) => sideOf(k) === side);
       const seen = new Set();
-      const row = (key, sp) => {
+      // brings its whole team preview (singles: 6 of 6): the ones that never came in still played. Bring 4 of 6 (VGC):
+      // only the ones that came in, since the log never says which of the rest were the other picks
+      const shownCount = (b.preview[side] || []).length;
+      const bringsAll = shownCount > 0 && (b.teamSize[side] ?? shownCount) >= shownCount;
+      const row = (key, sp, benched = false) => {
         const st = (key && b.stats.get(key)) || zeroCounts();
         const dm = (key && b.damage.get(key)) || NO_DAMAGE;
         const hl = (key && b.healing.get(key)) || NO_HEALING;
@@ -970,7 +974,7 @@
           won: b.winner === player ? 1 : 0, end_reason: b.endReason, turns: b.turns,
           game_seconds: b.gameSeconds ?? "", seconds_per_turn: b.gameSeconds && b.turns ? Math.round(b.gameSeconds / b.turns) : "",
           timer_on: b.timerBy !== null && norm(b.timerBy) === norm(player) ? 1 : 0,
-          pokemon: sp, nickname: key ? key.slice(4) : "", brought: key ? 1 : 0,
+          pokemon: sp, nickname: key ? key.slice(4) : "", brought: key || benched ? 1 : 0,
           kills: st.direct + st.passive, direct_kills: st.direct, passive_kills: st.passive,
           deaths: st.deaths, self_kos: st.selfKos, damage_dealt_pct: dm.dealt, damage_taken_pct: dm.taken,
           hazard_damage_pct: dm.hazard, hazard_kills: st.hazardKills, hazards_set: st.hazardsSet,
@@ -979,7 +983,7 @@
           status_damage_pct: round2(b.hits.reduce((t, [d, , pct, , mv]) => t + (d && d === key && / \(status\)$/.test(mv || "") ? pct : 0), 0)),
           switches: st.switches, pivots: st.pivots,
           forced_out: st.forcedOut, faint_switch_ins: st.faintSwitchIns,
-          turns_on_field: st.turnsOnField, survived: key && b.alive.has(key) ? 1 : 0, ko_before_moving: st.koBeforeMoving,
+          turns_on_field: st.turnsOnField, survived: (key && b.alive.has(key)) || benched ? 1 : 0, ko_before_moving: st.koBeforeMoving,
           mega: st.megaTurn !== undefined ? 1 : 0, mega_turn: st.megaTurn ?? "", mega_form: st.megaForm || "", z_move: st.zMove || "", z_turn: st.zTurn ?? "",
           crits: st.crits, crits_taken: st.critsTaken, misses: st.misses, dodges: st.dodges, full_paras: st.fullParas,
           sleep_turns: st.sleepTurns, flinched: st.flinched, confusion_hits: st.confusionHits, procs: st.procs,
@@ -1012,13 +1016,13 @@
         const hit = brought.find(([k, s]) => !seen.has(k) &&
           (s === sp || (base !== sp && (s === base || s.startsWith(base + "-")))));
         if (hit) seen.add(hit[0]);
-        rows.push(row(hit ? hit[0] : null, hit ? hit[1] : sp));
+        rows.push(row(hit ? hit[0] : null, hit ? hit[1] : sp, !hit && bringsAll));
       }
       // no team preview (Random Battles) or no match: every Pokemon that appeared
       for (const [k, s] of brought) if (!seen.has(k)) rows.push(row(k, s));
       // 7 facts per Pokemon: sent out, item, ability, 4 moves
       const team = rows.filter((r) => r.player === player);
-      const shown = team.reduce((t, r) => t + r.brought + r.item_revealed + r.ability_revealed + r.moves_revealed, 0);
+      const shown = team.reduce((t, r) => t + (r.mon_key ? 1 : 0) + r.item_revealed + r.ability_revealed + r.moves_revealed, 0);
       for (const r of team) r.info_revealed_pct = team.length ? Math.round((shown / (7 * team.length)) * 1000) / 10 : "";
     }
     return addMvp(rows);
@@ -1076,7 +1080,9 @@
       const ownEst = own && r.max_hp_from !== "sheet" && !!r.max_hp_from;
       const hits = r.hits_dealt || [];
       est = ownEst && r.damage_taken_pct > 0;
-      mark("damage_taken_hp", own ? Math.round((r.damage_taken_pct * r.max_hp) / 100) : "");
+      // brought but never came in (singles): it took and healed nothing, max HP known or not
+      const benched = r.brought && !r.mon_key ? 0 : "";
+      mark("damage_taken_hp", own ? Math.round((r.damage_taken_pct * r.max_hp) / 100) : benched);
       // a Pokemon that dealt nothing still needs the opposing side's sheet to show 0
       const oppKnown = rows.some((o) => o.replay_id === r.replay_id && o.player === r.opponent && o.max_hp);
       const dealt = oppKnown ? hpSum(hits) : "";
@@ -1089,8 +1095,8 @@
       }
       // healing stays within the team, so its own sheet covers both
       est = ownEst && r.healing_pct > 0;
-      mark("healing_hp", own ? Math.round((r.healing_pct * r.max_hp) / 100) : "");
-      mark("healing_given_hp", own ? hpSum(r.heals_given || []) : "");
+      mark("healing_hp", own ? Math.round((r.healing_pct * r.max_hp) / 100) : benched);
+      mark("healing_given_hp", own ? hpSum(r.heals_given || []) : benched);
     }
     return rows;
   }

@@ -63,14 +63,14 @@
     const rows = RS.gameRows(replay);
     check(`${id}: row count`, rows.length === exp.rows, `got ${rows.length}, expected ${exp.rows}`);
     const got = {};
-    for (const r of rows) if (r.brought) got[`${r.player}|${r.pokemon}`] = [r.direct_kills, r.passive_kills, r.deaths];
+    for (const r of rows) if (r.mon_key) got[`${r.player}|${r.pokemon}`] = [r.direct_kills, r.passive_kills, r.deaths];
     check(`${id}: kills/deaths per Pokémon`, same(got, exp.mons),
       `expected ${JSON.stringify(exp.mons)}\ngot      ${JSON.stringify(got)}`);
     const winners = [...new Set(rows.filter((r) => r.won).map((r) => r.player))];
     check(`${id}: winner`, same(winners, [exp.winner]), `got ${winners}`);
   }
 
-  // ---- damage in % of max HP, hand-counted from the logs: [dealt, taken] per brought Pokemon ----
+  // ---- damage in % of max HP, hand-counted from the logs: [dealt, taken] per Pokemon that came in ----
   const DAMAGE = {
     // Population Bomb 7 hits: only the HP left counts (Ninetales 100, Venusaur 91); Venusaur's
     // Life Orb 9% is taken with no dealer
@@ -89,7 +89,7 @@
   for (const [id, exp] of Object.entries(DAMAGE)) {
     const rows = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
     const got = {};
-    for (const r of rows) if (r.brought) got[`${r.player}|${r.pokemon}`] = [r.damage_dealt_pct, r.damage_taken_pct];
+    for (const r of rows) if (r.mon_key) got[`${r.player}|${r.pokemon}`] = [r.damage_dealt_pct, r.damage_taken_pct];
     check(`${id}: damage dealt/taken %`, same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
   }
 
@@ -454,8 +454,9 @@
     const replay = await (await fetch("../site/ppppp/games/gen9nationaldex-2693018008.json")).json();
     const rows = RS.gameRows({ ...replay, illusion: g.illusion });
     const r = (sp) => rows.find((x) => x.player === "nezergy" && x.pokemon === sp) || {};
-    check("2693018008: admin pick, Zoroark-Hisui KOs Cresselia, Iron Valiant not brought", same(g.illusion, { p2: [5] }) &&
-      same([r("Zoroark-Hisui").kills, r("Zoroark-Hisui").deaths, r("Zoroark-Hisui").brought, r("Iron Valiant").brought], [1, 0, 1, 0]),
+    check("2693018008: admin pick, Zoroark-Hisui KOs Cresselia, Iron Valiant never came in (still brought: 6 of 6)", same(g.illusion, { p2: [5] }) &&
+      same([r("Zoroark-Hisui").kills, r("Zoroark-Hisui").deaths, r("Zoroark-Hisui").brought, r("Iron Valiant").brought,
+        !!r("Iron Valiant").mon_key], [1, 0, 1, 1, false]),
       JSON.stringify(rows.filter((x) => x.player === "nezergy").map((x) => [x.pokemon, x.kills, x.deaths, x.brought])));
     // Illusion.picks: the admin's pick beats the proven stays; with no pick, the proven ones (none here)
     const b = RS.parseBattle(replay.log);
@@ -1313,6 +1314,14 @@ ${switchIn}`).hiddenZoroark;
     const exp = { Pelipper: [1, 6, 1, 1, 1, 28.6], Blissey: [0, 0, 0, 0, 0, 28.6],
       Garchomp: [0, 0, 1, 0, 0, 35.7], Dragonite: [1, 6, 1, 1, 0, 35.7] };
     check("status inflicted and info shown", same(got, exp), `expected ${JSON.stringify(exp)}\ngot      ${JSON.stringify(got)}`);
+    // Blissey never came in, but 2 of 2 were brought: it played (a game, survived, nothing else)
+    const bl = rows.find((r) => r.pokemon === "Blissey");
+    check("bring all: a Pokémon that never came in still played", same([bl.brought, bl.survived, bl.turns_on_field, bl.mon_key],
+      [1, 1, 0, null]), JSON.stringify([bl.brought, bl.survived, bl.turns_on_field, bl.mon_key]));
+    // VGC, bring 4 of 6: only the 4 that came in count (singles 2705121899: all 12 shown count, 6 of 6)
+    const count = async (id) => RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json()).filter((r) => r.brought).length;
+    const broughtGot = [await count("gen9championsvgc2026regmb-2688661099"), await count("gen9nationaldex-2705121899")];
+    check("brought: VGC 4 of 6 per side, singles all 6", same(broughtGot, [8, 12]), JSON.stringify(broughtGot));
     check("game length from timestamps", same([rows[0].game_seconds, rows[0].seconds_per_turn], [150, 50]),
       JSON.stringify([rows[0].game_seconds, rows[0].seconds_per_turn]));
     const mom = rows[0].momentum.map((p) => [p.turn, p.p1.left, p.p1.hp, p.p2.left, p.p2.hp]);

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Played (singles): every Pokémon on a singles team now counts as played, including ones that never came in (a game for it, survived, nothing else), in Games, Wins, Pokémon, Players, Draft and Fantasy. VGC (bring 4 of 6): the 4 that came in, as before; a pick that stayed in the back and never came in can't be told from the log. Info shown still counts only the ones that came in.
 - More detail / Less detail (one game): when the two team cards sit side by side (computer), the button opens or closes both so their rows line up; stacked (phone) it still switches only the card you tapped.
 - Sets (best of three, playoff series): games labelled with the same set (`add_game.py --set`) count as one; in the Super Champions League, which plays a best of three every week, a week's unlabelled games between the same two players are grouped by themselves, and a group that can't be one set (more than three games, or a game after the set was won) is marked "May be two sets". Games shows a set's games together under a line with the players, the number of games, the set score (with Show results) and Set stats, which opens all of them in Playoffs with their stats added up; each game says Game 1, 2, 3. Main viewer says "game 2 of 3 in the set (Fayz won 2–1)" with a Set stats link. Players gets a Sets column (won–lost) when the league has sets of two or more games.
 - Games tab (Pinecord): the Bracket box now has the playoffs bracket (opens first) and the Swiss rounds, as two small tabs. A league with no bracket has no Bracket box.

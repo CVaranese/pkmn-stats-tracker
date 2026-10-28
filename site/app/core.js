@@ -63,7 +63,7 @@ const DESCRIPTIONS = {
   moves_revealed: "Different moves it used, of 4 (Z-moves not counted).",
   item_revealed: "The game showed its item (a Mega Stone or Z-crystal counts).", ability_revealed: "The game showed its ability.",
   info_revealed_pct: "How much of their team the player gave away: of 7 facts per Pokémon (sent out, item, ability, 4 moves), the share the game showed.", pokemon: "Species (form included).", nickname: "Nickname used in the game.",
-  brought: "Whether it was brought to the battle (not just shown at team preview).",
+  brought: "Whether it played: in singles every Pokémon on the team counts, even one that never came in; in VGC (4 of 6) the ones that came in.",
   kills: "Opponents it KO'd: direct + passive.", direct_kills: "KOs from its own attacks (spread KOs count each; Destiny Bond counts).",
   passive_kills: "KOs from indirect damage it caused: burn, poison, hazards, weather, Leech Seed, Rocky Helmet…",
   deaths: "Times it fainted (still standing at a forfeit doesn't count).",

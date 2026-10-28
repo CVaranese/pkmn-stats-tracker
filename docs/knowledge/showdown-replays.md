@@ -61,6 +61,7 @@ Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond 
 
 ## Hidden Zoroark (2026-10-26)
 - **Tested:** `|teamsize|p1|4` gives how many Pokémon a side brought (4 in VGC, 6 in Nat Dex).
+- Decision (user, 2026-10-28): a side whose `|teamsize|` is at least its team preview (singles, 6 of 6) brought every one of them: a Pokémon that never came in still counts as played (a game, survived, 0 everything else). Bring 4 of 6 (VGC): only the ones that came in count, because the log never names the picks that stayed in the back (tested on the VGC fixtures: `|teamsize|p1|4` follows `|teampreview|4`, no list of picks).
 - Decision (not asked): a side is flagged when Zoroark is at team preview, Zoroark never appears as itself, and fewer species were seen than brought. A Zoroark revealed once may still have hidden in another stint; that isn't flagged.
 
 ## Which stays were the hidden Zoroark (2026-10-28, site/illusion.js)
