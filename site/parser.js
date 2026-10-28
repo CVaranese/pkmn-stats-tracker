@@ -34,7 +34,8 @@
  *   accurate to about +-1% of max HP.
  *   Illusion while disguised, Zoroark is logged as the Pokemon it copies. When the disguise
  *            breaks (|replace|), everything from that time on the field moves to Zoroark. A
- *            disguise that never breaks can't be detected, so it stays with the copied Pokemon.
+ *            disguise that never breaks stays with the copied Pokemon, unless opts.illusion names
+ *            the stint (illusion.js finds the ones that must have been Zoroark; the user picks).
  */
 (function (root) {
   "use strict";
@@ -136,7 +137,12 @@
   // a 'cant' reason checked before flinching (sleep, freeze, recharge, Truant): the flinch roll stays unseen
   const BEFORE_FLINCH = new Set(["slp", "frz", "recharge", "ability: Truant"]);
 
-  function parseBattle(log) {
+  /**
+   * opts.illusion {p1: [n, ...]}: that side's nth stays on the field (1 = its lead, counting each
+   * |switch| / |drag|) were its Zoroark in disguise, as if the disguise broke the moment it came in
+   * (picked by the user or proven by illusion.js).
+   */
+  function parseBattle(log, opts = {}) {
     const players = {};                 // 'p1' -> name
     const preview = { p1: [], p2: [] }; // species at team preview
     const teamSize = {};                // 'p1' -> how many it brought (|teamsize|)
@@ -153,6 +159,42 @@
     const stints = [];
     const slots = {};                   // 'p1a' -> stint currently in that position
     const latestByKey = new Map();      // mon key -> its most recent stint
+    const switchCount = { p1: 0, p2: 0 }; // stints per side so far (stint.n)
+    const cures = [];                   // [side, line number] of each Heal Bell / Aromatherapy (|-cureteam|)
+    const revived = new Set();          // sides that used Revival Blessing
+    // Zoroark's own key when the log shows it (a reveal or a plain switch-in), for stints assumed to be it
+    const zoroKeys = {};
+    for (const m of String(log).matchAll(/^\|(?:switch|drag|replace)\|(p\d)[a-z]: ([^|]*)\|(Zoroark[^,|]*)/gm)) {
+      if (!zoroKeys[m[1]]) zoroKeys[m[1]] = [m[1] + ": " + m[2], m[3]];
+    }
+    let lineNo = 0;
+    // Stints the caller says were Zoroark (opts.illusion): their lines are read as if they named Zoroark.
+    const disguised = {};               // 'p1a' -> [nickname shown, Zoroark's nickname] while it's on the field
+    let assumedShown = null;            // species shown by the switch-in being read as Zoroark
+    function assume(parts) {
+      const slot = slotOf(parts[1] || "");
+      if (!slot) return;
+      delete disguised[slot];
+      const side = slot.slice(0, 2);
+      if (!(opts.illusion?.[side] || []).includes(switchCount[side] + 1) || /^Zoroark/.test(parts[2] || "")) return;
+      const zoro = (preview[side] || []).find((sp) => sp.startsWith("Zoroark")) || "Zoroark";
+      const [key, details] = zoroKeys[side] || [side + ": " + zoro, zoro];
+      disguised[slot] = [parts[1].slice(5), key.slice(4)];
+      assumedShown = baseSpecies(parts[2]);
+      parts[2] = details;
+    }
+    function undisguise(parts) {
+      for (let i = 1; i < parts.length; i++) {
+        const m = /^(\[of\] )?(p\d)([a-z]?): (.*)$/.exec(parts[i]);
+        if (!m) continue;
+        for (const [slot, [shown, zoro]] of Object.entries(disguised)) {
+          if (m[2] === slot.slice(0, 2) && (!m[3] || m[3] === slot[2]) && m[4] === shown) {
+            parts[i] = (m[1] || "") + m[2] + m[3] + ": " + zoro;
+            break;
+          }
+        }
+      }
+    }
 
     let mover = null;                   // stint whose move is resolving
     let moveName = null;                // that move, as the log names it (per-move damage / KOs)
@@ -278,6 +320,36 @@
       if (map.has(from)) { map.set(to, map.get(from)); map.delete(from); }
     }
 
+    /** Illusion broke: stint s was really the Pokemon newKey (Zoroark) all along. */
+    function reveal(s, newKey, details) {
+      const oldKey = s.key;
+      const entry = s.entryState || targetState(oldKey);
+      // per-target state gathered while disguised belongs to Zoroark
+      moveKey(statusSrc, oldKey, newKey);
+      moveKey(lastOppHit, oldKey, newKey);
+      moveKey(pendingKo, oldKey, newKey);
+      for (const [k] of [...effectSrc]) {
+        if (k.startsWith(oldKey + "|")) moveKey(effectSrc, k, newKey + k.slice(oldKey.length));
+      }
+      // ...and the copied Pokemon gets back what it had before this stint
+      if (entry.hasStatus) statusSrc.set(oldKey, entry.status);
+      if (entry.lastOpp) lastOppHit.set(oldKey, entry.lastOpp);
+      for (const [k, v] of entry.effects) effectSrc.set(k, v);
+      if (latestByKey.get(oldKey) === s) {
+        if (s.prev) latestByKey.set(oldKey, s.prev); else latestByKey.delete(oldKey);
+      }
+      s.key = newKey;
+      s.species = baseSpecies(details);
+      s.prev = latestByKey.get(newKey);
+      latestByKey.set(newKey, s);
+    }
+
+    /** A stint leaves the field (switched out or fainted): what it left with, for illusion.js. */
+    function leave(s) {
+      if (!s || s.lineOut !== undefined) return;
+      [s.lineOut, s.turnOut, s.hpOut, s.statusOut] = [lineNo, turns, s.deaths ? 0 : s.hp, statusOf.get(s.key) || ""];
+    }
+
     /** What luck.js needs about both sides of a roll, as things stand right now. */
     function snap(actor, target) {
       return { actor, target, move: ctx.move, aForm: actor.form, tForm: target.form, aTypes: actor.types, tTypes: target.types,
@@ -299,6 +371,8 @@
       if (!ctx || t.side === ctx.actor.side) return;
       aimed(t).hit = true;
       aimed(t).hits += 1;
+      if (!sub) t.attacked = true; // a disguised Zoroark hit by a move shows itself
+
       const crit = ctx.crits.delete(t);
       const r = { kind: "hit", ...snap(ctx.actor, t), crit, sub, statusBefore: statusOf.get(t.key) || "",
         fainted: !sub && hpOf(hpText) === 0, status: "", flinch: null, critBoost: ctx.actor.critBoost,
@@ -355,9 +429,12 @@
     }
 
     for (const line of String(log).split(/\r?\n/)) {
+      lineNo += 1;
       if (!line.startsWith("|")) continue;
       const parts = line.split("|").slice(1);
       const cmd = parts[0];
+      if (cmd === "switch" || cmd === "drag") assume(parts);
+      if (Object.keys(disguised).length) undisguise(parts);
       const tags = tagsOf(parts);
 
       if (cmd === "player" && parts[2]) {
@@ -371,11 +448,14 @@
         const out = slots[slotOf(parts[1])];
         const passed = ctx && ctx.actor === out && ctx.move === "batonpass";
         endMove();
+        leave(out);
         const s = newStint(monKey(parts[1]), baseSpecies(parts[2]));
         s.form = parts[2].split(",")[0].trim();
         s.hp = hpOf(parts[3]) ?? 100;
         const st = /\s(par|slp|frz|brn|psn|tox)$/.exec(parts[3] || "");
         if (st) statusOf.set(s.key, st[1]); else statusOf.delete(s.key);
+        s.n = ++switchCount[s.side];
+        [s.shown, s.lineIn, s.turnIn, s.hpIn, s.statusIn] = [s.species, lineNo, turns, s.hp, st ? st[1] : ""];
         if (passed) { s.boosts = { ...out.boosts }; s.critBoost = out.critBoost; }
         s.entryState = targetState(s.key);
         // how the Pokemon in this slot left (nothing there for a lead)
@@ -388,31 +468,14 @@
         slots[slotOf(parts[1])] = s;
         mover = null;
         ejected = null;
+        if (assumedShown) [s.assumed, s.shown, assumedShown] = [true, assumedShown, null];
       } else if (cmd === "replace") {
         // Illusion broke: this stint was really the Pokemon named here (Zoroark)
         const s = slots[slotOf(parts[1])];
         const newKey = monKey(parts[1]);
         if (s && s.key !== newKey) {
-          const oldKey = s.key;
-          const entry = s.entryState || targetState(oldKey);
-          // per-target state gathered while disguised belongs to Zoroark
-          moveKey(statusSrc, oldKey, newKey);
-          moveKey(lastOppHit, oldKey, newKey);
-          moveKey(pendingKo, oldKey, newKey);
-          for (const [k] of [...effectSrc]) {
-            if (k.startsWith(oldKey + "|")) moveKey(effectSrc, k, newKey + k.slice(oldKey.length));
-          }
-          // ...and the copied Pokemon gets back what it had before this stint
-          if (entry.hasStatus) statusSrc.set(oldKey, entry.status);
-          if (entry.lastOpp) lastOppHit.set(oldKey, entry.lastOpp);
-          for (const [k, v] of entry.effects) effectSrc.set(k, v);
-          if (latestByKey.get(oldKey) === s) {
-            if (s.prev) latestByKey.set(oldKey, s.prev); else latestByKey.delete(oldKey);
-          }
-          s.key = newKey;
-          s.species = baseSpecies(parts[2]);
-          s.prev = latestByKey.get(newKey);
-          latestByKey.set(newKey, s);
+          reveal(s, newKey, parts[2]);
+          s.revealed = true;
         }
       } else if (cmd === "swap") {
         // Ally Switch: the Pokemon in this slot moves to position N; the other one takes its place
@@ -444,6 +507,9 @@
         mover.moves.set(moveName, used);
         zPending = null;
         const move = norm(parts[2]);
+        // moves it chose (not called by Sleep Talk, Metronome...), for illusion.js's learnset check
+        if (!tags.from || norm(tags.from) === "lockedmove") (mover.chosen = mover.chosen || new Set()).add(parts[2]);
+        if (move === "revivalblessing") revived.add(mover.side);
         mover.semiInv = false; // its Fly / Dig turn is over
         // a move it chose itself went through the checks before moving: paralysis passed if it has it
         if (!tags.from || norm(tags.from) === "lockedmove") {
@@ -497,6 +563,7 @@
         }
         sleepOf.delete(key);
       } else if (cmd === "-cureteam") {
+        cures.push([sideOf(monKey(parts[1])), lineNo]);
         for (const k of [...statusOf.keys()]) if (sideOf(k) === sideOf(monKey(parts[1]))) statusOf.delete(k);
       } else if (cmd === "cant") {
         endMove();
@@ -694,6 +761,7 @@
         if (killer && byHazard) killer.hazardKills += 1;
         hit(victim, kind === "direct" || kind === "passive" ? killer : null, 0, false, move); // HP left at a faint with no 0 HP hit
         kills.push([killer, kind, victim, move]);
+        leave(victim);
       } else if (cmd === "-message" && (parts[1] || "").includes("forfeited")) {
         forfeited = true;
       } else if (cmd === "-message" && / lost due to inactivity\.$/.test(parts[1] || "")) {
@@ -780,9 +848,22 @@
     // (else it stayed home, e.g. bring 4 of 6): its disguised stints may sit on other Pokemon
     const hiddenZoroark = {};
     for (const side of ["p1", "p2"]) {
-      const seen = new Set(stints.filter((s) => s.side === side && s.species).map((s) => s.species));
+      const seen = new Set(stints.filter((s) => s.side === side && s.species).map((s) => (s.assumed ? s.shown : s.species)));
       hiddenZoroark[side] = (preview[side] || []).some((sp) => sp.startsWith("Zoroark")) &&
         ![...seen].some((sp) => sp.startsWith("Zoroark")) && seen.size < (teamSize[side] || preview[side].length);
+    }
+
+    // each stay on the field of a side with Zoroark at team preview, for illusion.js
+    const illusion = {};
+    for (const side of ["p1", "p2"]) {
+      if (!(preview[side] || []).some((sp) => sp.startsWith("Zoroark"))) continue;
+      illusion[side] = { zoroark: preview[side].find((sp) => sp.startsWith("Zoroark")), revived: revived.has(side),
+        cures: cures.filter(([sd]) => sd === side).map(([, l]) => l),
+        stints: stints.filter((s) => s.side === side && s.n).map((s) => ({ n: s.n, key: s.key, shown: s.shown,
+          species: s.species, zoroark: s.species.startsWith("Zoroark") && !s.assumed, assumed: !!s.assumed,
+          lineIn: s.lineIn, turnIn: s.turnIn, hpIn: s.hpIn, statusIn: s.statusIn, lineOut: s.lineOut ?? null,
+          turnOut: s.turnOut ?? turns, hpOut: s.hpOut ?? null, statusOut: s.statusOut ?? null, attacked: !!s.attacked,
+          fainted: !!s.deaths, moves: [...(s.chosen || [])] })) };
     }
 
     const keyOf = (s) => (s ? s.key : null);
@@ -790,7 +871,7 @@
     return {
       // alive at the end: its latest stay on the field didn't end in a faint (Revival Blessing brings one back)
       alive: new Set([...latestByKey].filter(([, st]) => !st.deaths).map(([k]) => k)),
-      players, preview, species, stats, seenSet, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark,
+      players, preview, species, stats, seenSet, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark, illusion,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
       hits: hits.map(([d, t, pct, hz, mv]) => [keyOf(d), keyOf(t), pct, hz, mv]),
       heals: heals.map(([h, t, pct]) => [keyOf(h), keyOf(t), pct]),
@@ -814,7 +895,7 @@
 
   /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
   function gameRows(replay) {
-    const b = parseBattle(replay.log);
+    const b = parseBattle(replay.log, { illusion: replay.illusion });
     const rid = replay.id;
     const date = replay.uploadtime ? new Date(replay.uploadtime * 1000).toISOString().slice(0, 10) : "";
     const rows = [];

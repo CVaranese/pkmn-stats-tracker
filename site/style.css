@@ -105,6 +105,12 @@ button.small { padding: 4px 10px; font-size: 13px; }
   overflow-wrap: anywhere;
 }
 
+/* hidden Zoroark: the stays it could have been, each with a Move to / Move back button */
+.zoro-pick { margin-top: 6px; }
+.zoro-pick summary { cursor: pointer; font-weight: 600; }
+.zoro-pick ul { margin: 6px 0; padding-left: 18px; }
+.zoro-pick li { margin: 6px 0; }
+
 .sheets { margin-top: 16px; }
 .sheets summary { cursor: pointer; font-weight: 600; }
 .muted, .hint { color: var(--muted); font-weight: 400; }

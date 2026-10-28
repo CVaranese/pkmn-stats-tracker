@@ -109,6 +109,7 @@ def main():
     if old is None:
         games.append(entry)
     else:
+        if "illusion" in games[old]: entry["illusion"] = games[old]["illusion"]  # hidden-Zoroark picks stay on a relabel
         games[old] = entry
     INDEX.write_text(json.dumps(index, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     vs = " vs ".join(entry["players"])

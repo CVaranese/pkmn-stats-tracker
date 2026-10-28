@@ -772,6 +772,89 @@ ${switchIn}`).hiddenZoroark;
     check("hidden Zoroark: not flagged when as many were seen as brought",
       same(zoro("|teamsize|p1|1").p1, false) && same(zoro("|teamsize|p1|2").p1, true));
   }
+  // ---- hidden Zoroark: stints read as Zoroark (opts.illusion) and illusion.js's checks ----
+  {
+    // Zoroark (shown as Gardevoir, stint 1) burns Garchomp (10%) and KOs Foe2 with Night Daze; the real Gardevoir
+    // (stint 3) comes in at 100% after "Gardevoir" left at 60%, then KOs Garchomp with Moonblast
+    const log = `|player|p1|Alice|
+|player|p2|Bob|
+|poke|p1|Zoroark, L50|
+|poke|p1|Gardevoir, L50|
+|poke|p1|Blissey, L50|
+|poke|p2|Garchomp, L50|
+|poke|p2|Ferrothorn, L50|
+|teamsize|p1|3
+|switch|p1a: Gardy|Gardevoir, L50|100/100
+|switch|p2a: Foe|Garchomp, L50|100/100
+|turn|1
+|move|p1a: Gardy|Will-O-Wisp|p2a: Foe
+|-status|p2a: Foe|brn
+|move|p2a: Foe|Stealth Rock|p1a: Gardy
+|-damage|p2a: Foe|90/100 brn|[from] brn
+|turn|2
+|switch|p2a: Foe2|Ferrothorn, L50|100/100
+|move|p1a: Gardy|Night Daze|p2a: Foe2
+|-damage|p2a: Foe2|0 fnt
+|faint|p2a: Foe2
+|-damage|p1a: Gardy|60/100|[from] Life Orb
+|switch|p2a: Foe|Garchomp, L50|90/100 brn
+|turn|3
+|switch|p1a: Blob|Blissey, L50|100/100
+|-damage|p1a: Blob|88/100|[from] Stealth Rock
+|move|p2a: Foe|Earthquake|p1a: Blob
+|-damage|p1a: Blob|50/100
+|turn|4
+|switch|p1a: Gardy|Gardevoir, L50|100/100
+|-damage|p1a: Gardy|88/100|[from] Stealth Rock
+|move|p1a: Gardy|Moonblast|p2a: Foe
+|-damage|p2a: Foe|0 fnt
+|faint|p2a: Foe
+|win|Alice`;
+    const plain = RS.parseBattle(log), moved = RS.parseBattle(log, { illusion: { p1: [1] } });
+    const k = (b, key) => { const s = b.stats.get(key) || {}; return [s.direct || 0, s.passive || 0, s.deaths || 0]; };
+    check("illusion pick: disguised kill moves to Zoroark", same(k(plain, "p1: Gardy"), [2, 0, 0]) &&
+      same(k(moved, "p1: Zoroark"), [1, 0, 0]) && same(k(moved, "p1: Gardy"), [1, 0, 0]),
+      JSON.stringify([...moved.stats].map(([key, s]) => [key, s.direct, s.passive, s.deaths])));
+    check("illusion pick: burn, Life Orb and moves go with it", same(moved.damage.get("p1: Zoroark"), { dealt: 110, taken: 40, hazard: 0 }) &&
+      [...moved.moves.get("p1: Zoroark").keys()].join() === "Will-O-Wisp,Night Daze,Burn (status)" &&
+      [...moved.moves.get("p1: Gardy").keys()].join() === "Moonblast",
+      JSON.stringify([moved.damage.get("p1: Zoroark"), [...moved.moves.get("p1: Zoroark").keys()]]));
+    check("illusion pick: still flagged as hidden", moved.hiddenZoroark.p1 === true && moved.species.get("p1: Zoroark") === "Zoroark");
+
+    const learn = Illusion.parseLearnsets({ zoroark: "willowisp nightdaze uturn", gardevoir: "willowisp moonblast",
+      blissey: "softboiled", garchomp: "earthquake stealthrock", ferrothorn: "leechseed" });
+    const a = Illusion.analyze(plain.illusion.p1, learn, null);
+    const v = Object.fromEntries(a.stints.map((s) => [s.n, s.verdict]));
+    // stint 1: Gardevoir can't learn Night Daze; 2 (Blissey): hit by Earthquake; 3: Zoroark can't learn Moonblast
+    check("illusion check: proof, hit, move", same(v, { 1: "zoroark", 2: "not", 3: "not" }) && same(a.proven, [1]),
+      JSON.stringify(a.stints.map((s) => [s.n, s.verdict, s.why])));
+    // without Night Daze: stint 1 left at 60%, stint 3 came in at 100% (no Regenerator), so one of them was Zoroark;
+    // stint 3 used Moonblast, so it's stint 1
+    const hp = Illusion.analyze(RS.parseBattle(log.replace("Night Daze", "Will-O-Wisp")).illusion.p1, learn, null);
+    check("illusion check: HP that doesn't carry over", same(hp.proven, [1]) && /left on turn 3 at 60%/.test(hp.stints[0].why),
+      JSON.stringify(hp.stints.map((s) => [s.n, s.verdict, s.why])));
+    // with nothing to go on, every stint that wasn't hit stays a maybe and nothing is moved
+    const none = Illusion.analyze(RS.parseBattle(log.replace("Night Daze", "Will-O-Wisp").replace("60/100|[from] Life Orb", "100/100|[from] Life Orb")).illusion.p1, learn, null);
+    check("illusion check: no proof, no pick", same(none.proven, []) && none.stints[0].verdict === "maybe",
+      JSON.stringify(none.stints.map((s) => [s.n, s.verdict, s.why])));
+  }
+  {
+    // gen9nationaldex-2696941700: nezergy's Zoroark-Hisui never revealed; "Donphan" used Shadow Ball (stint 1,
+    // turns 1-3) and U-turn (stint 8, turn 10), which Donphan can't learn. Hand-counted: Zoroark-Hisui KOs
+    // Rotom-Heat (turn 2, Shadow Ball); Donphan KOs Slowking (turn 28) and faints (turn 29).
+    const replay = await (await fetch("fixtures/gen9nationaldex-2696941700.json")).json();
+    const learn = await Illusion.loadLearnsets("../site/data/learnsets.json");
+    const dex = await (await fetch("../site/data/pokedex.json")).json();
+    const b = RS.parseBattle(replay.log);
+    const a = Illusion.analyze(b.illusion.p1, learn, dex);
+    check("2696941700: stints 1 and 8 proven Zoroark", same(a.proven, [1, 8]),
+      JSON.stringify(a.stints.filter((s) => s.verdict !== "not").map((s) => [s.n, s.shown, s.verdict, s.why])));
+    const rows = RS.gameRows({ ...replay, illusion: { p1: a.proven } });
+    const r = (sp) => rows.find((x) => x.player === "nezergy" && x.pokemon === sp) || {};
+    check("2696941700: Zoroark-Hisui 1 kill, Donphan 1 kill 1 death",
+      same([r("Zoroark-Hisui").kills, r("Zoroark-Hisui").deaths, r("Zoroark-Hisui").brought, r("Donphan").kills, r("Donphan").deaths], [1, 0, 1, 1, 1]),
+      JSON.stringify(rows.filter((x) => x.player === "nezergy").map((x) => [x.pokemon, x.kills, x.deaths, x.brought])));
+  }
   {
     const b = RS.parseBattle(HEAD + `|move|p2a: Victim|Earthquake|p1a: Burner
 |-damage|p1a: Burner|40/100

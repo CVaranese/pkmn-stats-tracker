@@ -301,6 +301,109 @@
     };
     table.replaceChildren(tr(head, "th"), ...body.map((cells) => tr(cells, "td")));
   }
+  // ---------- hidden Zoroark (illusion.js) ----------
+
+  // which stays on the field were Zoroark: the viewer's own picks (this browser), else the game library's
+  // (index.json "illusion"), else the ones illusion.js proves
+  const PICKS_KEY = "rs-illusion";
+  function savedPicks() {
+    try { return JSON.parse(localStorage.getItem(PICKS_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function savePicks(id, side, ns) {
+    const all = savedPicks();
+    if (ns === null) { if (all[id]) delete all[id][side]; } else all[id] = { ...(all[id] || {}), [side]: ns };
+    try { localStorage.setItem(PICKS_KEY, JSON.stringify(all)); } catch (e) { /* private window: this page view only */ }
+  }
+  /** Sets replay.illusion (what gameRows counts as Zoroark) and replay.zoroarks (for the notice). */
+  async function prepareIllusion(replay) {
+    if (!replay || replay.zoroarks) return;
+    const b = RS.parseBattle(replay.log);
+    const sides = Object.keys(b.illusion).filter((sd) => b.hiddenZoroark[sd]);
+    replay.zoroarks = {};
+    if (!sides.length) return;
+    let learn = null, dex = null;
+    try { [learn, dex] = await Promise.all([Illusion.loadLearnsets(), TS.loadDex()]); } catch (e) { /* fewer checks */ }
+    const lib = (library.find((g) => g.id === replay.id) || {}).illusion || {};
+    const mine = savedPicks()[replay.id] || {};
+    replay.illusion = {};
+    for (const side of sides) {
+      const a = Illusion.analyze(b.illusion[side], learn, dex);
+      const from = mine[side] ? "you" : lib[side] ? "library" : "proven";
+      replay.zoroarks[side] = { ...a, player: b.players[side] || side, from };
+      replay.illusion[side] = mine[side] || lib[side] || a.proven;
+    }
+  }
+  /** Change one side's picks and count the game again. */
+  function pickZoroark(replay, side, ns) {
+    savePicks(replay.id, side, ns);
+    delete replay.zoroarks;
+    leagueRows = null;
+    fantasyRows = null;
+    run(true);
+  }
+  const turnSpan = (s) => {
+    const a = Math.max(1, s.turnIn), b = Math.max(1, s.turnOut);
+    return a === b ? `Turn ${a}` : `Turns ${a}–${b}`;
+  };
+  /** The notice under the links: one item per side whose Zoroark never showed itself. */
+  function renderZoroarks(replays) {
+    const items = [];
+    for (const replay of replays) {
+      for (const [side, z] of Object.entries((replay && replay.zoroarks) || {})) {
+        const picked = new Set(replay.illusion[side] || []);
+        const li = el("li");
+        const moved = z.stints.filter((s) => picked.has(s.n));
+        li.append(el("span", "", `${replay.id}: ${z.player} had a ${z.zoroark} that never dropped its disguise. ` + (moved.length
+          ? `Counted as ${z.zoroark}: ${moved.map((s) => `${turnSpan(s).toLowerCase()} (shown as ${s.shown})`).join(", ")}.`
+          : `Nothing shows it came in, so whatever it did is counted on the Pokémon it copied.`)));
+        if (z.from === "you") li.append(el("span", "", " Your pick, kept in this browser only."));
+        else if (z.from === "library") li.append(el("span", "", " Picked in the game library."));
+        const open = z.stints.filter((s) => s.verdict === "zoroark" || s.verdict === "maybe" || picked.has(s.n));
+        const not = z.stints.filter((s) => s.verdict === "not" && !picked.has(s.n));
+        const box = el("details", "zoro-pick");
+        box.open = replays.filter(Boolean).length === 1; // open for one game, closed in a list of many
+        box.append(el("summary", "", `Stays that could have been ${z.zoroark} (${open.length})`));
+        const list = el("ul");
+        for (const s of open) {
+          const row = el("li");
+          const on = picked.has(s.n);
+          const btn = el("button", "small", on ? `Move back to ${s.shown}` : `Move to ${z.zoroark}`);
+          btn.type = "button";
+          btn.setAttribute("aria-pressed", on ? "true" : "false");
+          btn.addEventListener("click", () => {
+            const next = new Set(picked);
+            if (on) next.delete(s.n); else next.add(s.n);
+            pickZoroark(replay, side, [...next].sort((x, y) => x - y));
+          });
+          const what = `${turnSpan(s)}, shown as ${s.shown}` + (s.moves.length ? ` (${s.moves.join(", ")})` : "") +
+            (s.verdict === "zoroark" ? `: must be ${z.zoroark}, ${s.why}.` : s.verdict === "not" ? `: ${s.why}.` : "");
+          row.append(el("span", "", what + " "), btn);
+          list.append(row);
+        }
+        if (!open.length) list.append(el("li", "", "None: every stay rules it out."));
+        box.append(list);
+        if (not.length) {
+          const why = el("details", "zoro-pick");
+          why.append(el("summary", "", `Ruled out (${not.length})`));
+          const ul = el("ul");
+          ul.append(...not.map((s) => el("li", "", `${turnSpan(s)}, shown as ${s.shown}: ${s.why}.`)));
+          why.append(ul);
+          box.append(why);
+        }
+        if (z.from === "you") {
+          const reset = el("button", "small", "Back to the automatic pick");
+          reset.type = "button";
+          reset.addEventListener("click", () => pickZoroark(replay, side, null));
+          box.append(reset);
+        }
+        li.append(box);
+        items.push(li);
+      }
+    }
+    $("warnings").hidden = !items.length;
+    $("warnings").replaceChildren(...items);
+  }
+
   /** Every library game's rows, loaded once for Gambling and Players: saved sheets, else guessed max HP (same as
       Main viewer; stays in % if the Pokédex won't load), luck when the move data loads. Also loads the draft. */
   let leagueRows = null;
@@ -312,6 +415,7 @@
       const loaded = await Promise.all(library.map(async (g) => {
         try {
           if (!cache.has(g.id)) cache.set(g.id, await RS.fetchReplay(g.id));
+          await prepareIllusion(cache.get(g.id));
           return RS.gameRows(cache.get(g.id));
         } catch (e) { return []; }  // a game that won't load just isn't counted
       }));
@@ -607,9 +711,9 @@
   setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
   try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }
 
-  async function run() {
+  async function run(again) {
     await libraryReady;  // stored games load from site/games/, not Showdown
-    if (mode === "one") pushNav(); // a new game typed or pasted in: its own history entry
+    if (mode === "one" && again !== true) pushNav(); // again: the same games counted again (a Zoroark pick) // a new game typed or pasted in: its own history entry
     const ids = activeIds();
     const errors = [];
     if (!ids.length) {
@@ -650,6 +754,7 @@
     }
 
     rows = [];
+    await Promise.all(results.map((r) => prepareIllusion(r).catch(() => {})));
     for (const replay of results) {
       if (!replay) continue;
       try {
@@ -666,10 +771,7 @@
       (ids.length > ok ? `, ${ids.length - ok} failed.` : ".");
     $("errors").hidden = !errors.length;
     $("errors").replaceChildren(...errors.map((t) => Object.assign(document.createElement("li"), { textContent: t })));
-    const zoroarks = [...new Set(rows.filter((r) => r.hidden_zoroark).map((r) => `${r.replay_id}: ${r.player}`))];
-    $("warnings").hidden = !zoroarks.length;
-    $("warnings").replaceChildren(...zoroarks.map((t) => Object.assign(document.createElement("li"), {
-      textContent: `${t} had a Zoroark that never dropped its disguise. Whatever it did is counted on the Pokémon it copied.` })));
+    renderZoroarks(results);
     $("run").disabled = false;
 
     const players = [...new Set(rows.map((r) => r.player))].sort((a, b) => a.localeCompare(b));

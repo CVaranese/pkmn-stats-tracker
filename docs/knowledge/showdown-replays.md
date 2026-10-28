@@ -59,6 +59,12 @@ Direct = attacker that landed the KO hit (spread moves can earn 2; Destiny Bond 
 - **Tested:** `|teamsize|p1|4` gives how many Pokémon a side brought (4 in VGC, 6 in Nat Dex).
 - Decision (not asked): a side is flagged when Zoroark is at team preview, Zoroark never appears as itself, and fewer species were seen than brought. A Zoroark revealed once may still have hidden in another stint; that isn't flagged.
 
+## Which stays were the hidden Zoroark (2026-10-28, site/illusion.js)
+- **Tested:** `site/data/learnsets.json` comes from `dist/data/learnsets.js` + `pokedex.js` of the `pokemon-showdown` npm package 0.11.11 (jsdelivr), via `tools/learnsets.py`: every generation and source, plus pre-evolutions' moves, forms without a list use the base species', Smeargle is any move. 1500 species, 1.1 MB (119 KB gzipped). Spot checks: Donphan can't learn Shadow Ball or U-turn, Zoroark-Hisui can't learn Hidden Power, Stealth Rock or Earthquake but can learn Shadow Ball and U-turn; Zeraora learns Hidden Power.
+- **Tested** (gen9nationaldex-2696941700, nezergy): a disguised Zoroark-Hisui came in as "Donphan" at 100%, got burned, left at 89% brn, and came back as "Donphan" at 89% brn: the switch line shows Zoroark's own HP and status. The real Donphan's first switch-in showed 100%.
+- **Researched** (`dist/data/abilities.js` 0.11.11, `illusion`): `onDamagingHit` ends Illusion with `|replace|` + `|-end|...|Illusion`, so a stay hit by a move with no `|replace|` wasn't Zoroark (a hit on a Substitute isn't a damaging hit: guess from how Substitute works, not checked). `onFaint` just clears the disguise, no `|replace|`: a disguised Zoroark that faints to burn or hazards stays hidden in the log, so a faint doesn't rule a stay out. `onBeforeSwitchIn` copies the last Pokémon after Zoroark in the party that hasn't fainted; party order isn't in the log, so illusion.js doesn't use it.
+- Decision (not asked): stays proven to be Zoroark (the only reading where HP, status and moves add up) are moved to it without asking; the user can move them back. Stays that are only possible are left alone until the user picks them.
+
 ## Sprites (team summary, 2026-10-26)
 - **Tested:** `https://play.pokemonshowdown.com/sprites/gen5/<id>.png` and `ani/<id>.gif` loaded for all 12
   Pokémon of gen9nationaldex-2705117998 (Iron Crown, Tapu Koko, Zamazenta, Kingambit… included).

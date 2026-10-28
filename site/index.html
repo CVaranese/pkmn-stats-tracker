@@ -150,7 +150,7 @@
           <li><b>Mega / Z-move:</b> Mega and Mega turn when it Mega Evolved; Z-move and Z turn when it used one (status Z-moves show as "Z-Hypnosis" and so on). The leaderboard counts games with a Mega / Z-move and the wins among them.</li>
           <li><b>Performance and Team MVP:</b> roughly how many KOs' worth a Pokémon did: +1 per 100% damage dealt, +1 per kill (direct or passive), +0.5 per 100% damage taken, +0.05 per turn on the field, +0.5 for not fainting. Uses %, so it works without team sheets; luck, switches and healing don't count. Team MVP (per game) is the best Performance on each team among the Pokémon brought; ties go to more kills, then more damage. The leaderboard shows MVPs (times Team MVP) and Performance / game.</li>
           <li><b>Luck in words:</b> the team summary turns luck scores into Very unlucky / Unlucky / Fair / Lucky / Very lucky (a die with 1 to 5 pips). For a player (their luck minus the opponent's): Fair within ±0.75, Very beyond ±2. For a Pokémon: Fair within ±0.25, Very beyond ±0.75. Hover (or tap) the word for the score.</li>
-          <li><b>Hidden Zoroark:</b> while disguised, Zoroark shows up as the Pokémon it copies. If its disguise never breaks, the replay can't tell them apart, so its kills and damage go to that Pokémon. Games where a team had a Zoroark that never showed itself are listed above the table and marked in Per game.</li>
+          <li><b>Hidden Zoroark:</b> while disguised, Zoroark shows up as the Pokémon it copies. If its disguise never breaks, the site checks each stay on the field: a move it used that the Pokémon shown can't learn, or HP and status that don't carry over between switches, proves it was Zoroark, and that stay counts for Zoroark. A stay a move hit can't be Zoroark (the hit would break the disguise). The notice above the table lists the stays that could have been Zoroark, with a button to move each one; anything not moved stays on the Pokémon it copied. Those games are marked in Per game.</li>
         </ul>
       </details>
       <div class="toolbar">
@@ -181,6 +181,7 @@
   <script src="parser.js"></script>
   <script src="teams.js"></script>
   <script src="luck.js"></script>
+  <script src="illusion.js"></script>
   <script src="bet.js"></script>
   <script src="app.js"></script>
 </body>
