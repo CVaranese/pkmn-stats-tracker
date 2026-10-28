@@ -1,0 +1,58 @@
+Keldeo-Resolute @ Assault Vest  
+Ability: Justified  
+EVs: 252 SpA / 60 SpD / 196 Spe  
+Modest Nature  
+- Surf  
+- Secret Sword  
+- Vacuum Wave  
+- Flip Turn  
+
+Mamoswine @ Life Orb  
+Ability: Thick Fat  
+EVs: 72 HP / 252 Atk / 184 Spe  
+Jolly Nature  
+- Ice Shard  
+- Icicle Crash  
+- Earthquake  
+- Knock Off  
+
+Slowking @ Eject Button  
+Ability: Regenerator  
+EVs: 252 HP / 252 Def / 4 SpA  
+Relaxed Nature  
+IVs: 0 Atk / 0 Spe  
+- Slack Off  
+- Chilly Reception  
+- Yawn  
+- Surf  
+
+Tangrowth @ Rocky Helmet  
+Ability: Regenerator  
+Level: 99  
+Tera Type: Grass  
+EVs: 252 HP / 4 Atk / 252 Def  
+Relaxed Nature  
+IVs: 0 Spe  
+- Power Whip  
+- Earthquake  
+- Knock Off  
+- Leech Seed  
+
+Hoopa-Unbound @ Expert Belt  
+Ability: Magician  
+EVs: 252 Atk / 72 SpA / 184 Spe  
+Naive Nature  
+- Knock Off  
+- Drain Punch  
+- Thunderbolt  
+- Psychic  
+
+Zamazenta @ Normalium Z  
+Ability: Dauntless Shield  
+EVs: 56 HP / 252 Atk / 200 Spe  
+Adamant Nature  
+- Close Combat  
+- Heavy Slam  
+- Crunch  
+- Work Up  
+

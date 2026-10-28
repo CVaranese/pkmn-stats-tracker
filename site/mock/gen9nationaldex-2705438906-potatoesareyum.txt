@@ -1,0 +1,27 @@
+Enamorus-Therian (F) @ Assault Vest
+Ability: Overcoat
+EVs: 252 HP / 252 SpA
+Modest Nature
+IVs: 0 Atk
+- Moonblast
+- Mystical Fire
+- Grass Knot
+- Draining Kiss
+
+Tyranitar-Mega @ Tyranitarite
+Ability: Sand Stream
+EVs: 252 HP / 252 Atk / 4 Def
+Brave Nature
+- Low Kick
+- Thunder Wave
+- Knock Off
+- Stealth Rock
+
+Great Tusk @ Booster Energy
+Ability: Protosynthesis
+EVs: 56 HP / 252 Def / 200 Spe
+Jolly Nature
+- Body Press
+- Play Rough
+- Temper Flare
+- Rapid Spin

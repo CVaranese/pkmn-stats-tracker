@@ -1269,6 +1269,37 @@
    "turns": 18,
    "note": "From the stream video",
    "video": "https://youtu.be/s2ZnFx4iR1M"
+  },
+  {
+   "id": "gen9nationaldex-2705438906",
+   "league": "pinecord",
+   "week": "Week 8",
+   "players": [
+    "ElkGBigLarge",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Keldeo-Resolute",
+     "Mamoswine",
+     "Slowking",
+     "Tangrowth",
+     "Hoopa-Unbound",
+     "Zamazenta"
+    ],
+    [
+     "Enamorus-Therian",
+     "Tyranitar",
+     "Great Tusk",
+     "Azelf",
+     "Iron Hands",
+     "Goodra-Hisui"
+    ]
+   ],
+   "winner": "potatoesareyum",
+   "date": "2026-10-28",
+   "turns": 22,
+   "note": ""
   }
  ]
 }
