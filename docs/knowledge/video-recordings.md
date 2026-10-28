@@ -157,8 +157,8 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   Karm (dark, log at x 590-1070 next to a damage calc) gave 190 unconverted lines over 47 turns and is left out, like
   Week 4's Pikmon vs Sneez.
 - **Tested**: a video can hold two games. Cloudburst vs Bad Bully: a forfeit at team preview (1:15, another team),
-  a played-back game weedinmyhonda won (3:20-11:30), then the live game azpmCloudburst won (21:50-28:40). Challonge
-  gives Cloudburst the win, so only the live game was converted: `video_to_replay.py --start 1300 --length 1719`
+  a played-back game weedinmyhonda won (3:20-11:30), then the live game azpmCloudburst won (21:50-28:40). The first
+  game was illegal and the set was replayed (user, 2026-10-27), so only the live game was converted: `video_to_replay.py --start 1300 --length 1719`
   (new `--start`; `--length` doubles as where to stop).
 - **Tested**: frame grabs while a conversion runs need their own Edge profile and port: `TEMP=<other dir>` and
   `video_frames.py --port 8781` (both use `%TEMP%\edge-headless-frames`; sharing it gave 0 PNGs).
