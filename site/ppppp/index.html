@@ -57,6 +57,15 @@
         <p>Something is being set up for the playoffs. Bring a hunch about the bracket. Maybe a feeling about crits.</p>
         <p class="muted">Fantasy points and draft costs moved to the Fantasy tab.</p>
       </div>
+      <!-- preview and local only (app/bets.js): the live site shows just the box above -->
+      <div id="bet-draw" hidden>
+        <h2 class="section-title">This week's bets</h2>
+        <p class="hint">Six bets drawn for each week, the same for everyone. Over / under lines come from the weeks before. Shown, not yet bettable.</p>
+        <div class="pl-bar">
+          <label class="inline">Week <select id="bet-week"></select></label>
+        </div>
+        <div class="award-grid" id="bet-list"></div>
+      </div>
     </section>
 
     <section id="fantasy" class="tab-page" hidden>
@@ -286,6 +295,7 @@
   <script src="app/players.js"></script>
   <script src="app/mons.js"></script>
   <script src="app/awards.js"></script>
+  <script src="app/bets.js"></script>
   <script src="app/draft.js"></script>
   <script src="app/sheets.js"></script>
   <script src="app/main.js"></script>

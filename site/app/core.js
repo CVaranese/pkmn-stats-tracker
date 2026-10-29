@@ -161,6 +161,7 @@ function setMode(m, load = true) {
   if (m === "players") renderPlayers();
   if (m === "mons") renderMons();
   if (m === "awards") renderAwards();
+  if (m === "gamble") renderBets();
   if (m === "draft") renderDraft();
 }
 // Back / Forward: each tab, game and Watch panel is a history entry ({ mode, r, watch, pick }), so Back returns to

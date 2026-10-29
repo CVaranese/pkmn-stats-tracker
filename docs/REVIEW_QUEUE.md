@@ -2,6 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Weekly bets (branch `bet-draw`, preview only): on `/next/` Gambling, under the Under construction box, six bets for the picked week. On the live site the block must stay hidden (it shows only when the address has `/next/` or on 127.0.0.1): check once after a release. Do the lines look fair (Week 8: KOs 50.5, came in at 50)? Player names in the results are Showdown names, not draft names. `docs/BETTING_PROPS.md`: the pool with the new kinds (season predictions, bracket, featured game, running totals); which next?
+
 - [ ] Awards tab (branch `awards`): checked dark, light and 360px (Pinecord Week 8, Super Champions Week 11). All 29 awards kept (user 2026-10-29). Are the names right ("Wall" for most damage taken by one still standing)? Pinecord Week 8: potatoesareyum's Azelf takes three awards, real but repetitive; should one Pokémon be limited to one award?
 
 - [ ] Turn by turn (branch `turn-strip`): Main viewer, More detail, under a Pokémon's moves. Checked dark, light and 360px (wraps to a second line from about 17 turns on a phone). On a phone, does tapping a square show its turn and move (the squares are 16px, small for a finger)? Is the faint square (✕ only, the move it used that turn only in the tip) clear enough?

@@ -570,6 +570,34 @@
       .map(LG.spriteId).join(" ") === "hooh urshifu-rapidstrike zamazenta tapukoko charizard-megax ironvaliant kommoo",
       ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"].map(LG.spriteId).join(" "));
   }
+  // ---- weekly bets (Bet.weeklyBets): seeded draw, lines from earlier weeks, settled from rows ----
+  {
+    const B = window.Bet;
+    const g = (crits, extra = {}) => [{ player: "A", opponent: "B", crits, won: 1, end_reason: "normal", brought: 1, mon_key: "p1: X",
+      pokemon: "X", kills: 0, deaths: 0, turns: 20, momentum: [], ...extra }];
+    // Week 1: 2 games, 3 and 5 crits; Week 2: 1 game, 9 crits and a 4-KO Pokémon; Week 3: no games yet
+    const weeks = { "Week 1": [g(3), g(5)], "Week 2": [g(9, { kills: 4, pokemon: "Garchomp" })], "Week 3": [] };
+    const one = (id, week) => {
+      const keep = B.PROPS;
+      const p = keep.find((x) => x.id === id);
+      // force the draw to this prop: a one-prop pool through the same code
+      const saved = keep.splice(0, keep.length, p);
+      try { return B.weeklyBets("t", week, weeks, 1)[0]; } finally { keep.splice(0, keep.length, ...saved); }
+    };
+    const w2 = one("crits", "Week 2"), w1 = one("crits", "Week 1"), w3 = one("crits", "Week 3");
+    check("bets: over / under line from earlier weeks per game (Week 2: 4 a game x 1 = 4.5), settled Over at 9",
+      w2.line === 4.5 && w2.result.outcome === "Over" && w2.result.value === 9, JSON.stringify(w2));
+    check("bets: week 1 has no earlier week, so the line comes from the other weeks (9 a game x 2 = 18.5), Under at 8",
+      w1.line === 18.5 && w1.result.outcome === "Under" && w1.result.value === 8, JSON.stringify(w1));
+    check("bets: a week with no games has a line but no result yet", w3.result === null && typeof w3.line === "number", JSON.stringify(w3));
+    const y2 = one("fourko", "Week 2"), y1 = one("fourko", "Week 1");
+    check("bets: yes / no settles Yes with what did it, else No",
+      y2.result.outcome === "Yes" && y2.result.detail === "Garchomp (A), 4 KOs" && y1.result.outcome === "No", JSON.stringify([y2, y1]));
+    const d1 = B.weeklyBets("ppppp", "Week 8", weeks), d2 = B.weeklyBets("ppppp", "Week 8", weeks), d3 = B.weeklyBets("ppppp", "Week 7", weeks);
+    check("bets: the same draw every time for a league and week, 6 different bets, another week another draw",
+      same(d1.map((b) => b.id), d2.map((b) => b.id)) && new Set(d1.map((b) => b.id)).size === 6 &&
+      !same(d1.map((b) => b.id), d3.map((b) => b.id)), JSON.stringify([d1.map((b) => b.id), d3.map((b) => b.id)]));
+  }
   // ---- weekly awards (League.awards) ----
   {
     const LG = window.League;
