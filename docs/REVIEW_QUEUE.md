@@ -2,7 +2,7 @@
 
 Things only a person can check. Remove an item once checked.
 
-- [ ] Names that open a season (team card player name, Draft names) now look like plain text; on a computer they turn accent and underline on hover. On a phone nothing shows they're tappable: OK?
+- [ ] Names that open a season (team card player name, Draft names): a faint underline in the border colour, accent on hover. Visible enough on a phone, dark and light?
 - [ ] Replay player, a Super Champions game: click "a best-of-3" in "Game 1 of a best-of-3". It should open that set's stats (Set stats view) in the same tab. Checked: the link is written right and ?set=<one game> opens the whole set; the click itself not tried.
 - [ ] Super Champions Games tab, every set has 3 game rows: with results hidden a game that wasn't played (2–0) or has no replay looks like a played one (team, Watch, Stats; clicking says what happened) and the set line says "best of 3"; with Show results (or `?results` in the address) it reads "Not played" / "No replay", muted. Check Week 9 Dox vs Leaf (no replays at all), Week 3 Soop vs Kirbyhat (game 1 no replay), Playoffs R1 Aargab vs Saltyswede (games 1-2 no replay, score "1–0 · 2 with no replay"), on a phone too.
 - [ ] Sets, once the first Super Champions games are in: Games (a band-coloured Set line above the set's games, Game 1/2/3, score only with Show results, Set stats), Main viewer's game line ("game 2 of 3 in the set", Set stats link), Players' Sets column. Checked only with three Pinecord games relabelled as a fake set (removed). Sets come from `--set` labels, or (Super Champions only, best_of 3) the week + the two players, with a "May be two sets" mark when that guess can't be right. Is the mark's wording clear? Phone not checked.
