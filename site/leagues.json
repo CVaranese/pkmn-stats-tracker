@@ -1,5 +1,5 @@
 {
-  "_note": "One entry per league. Its files are in site/<id>/ (games/, mock/, img/, theme.css). theme_css: the league's own colours over style.css's default theme (leave it out for the default); theme: the browser bar colour. After any change run python -I tools/build_pages.py: it writes site/<id>/index.html and the landing page site/index.html. palette: the default theme's starting palette (blastoise, charizard, venusaur), for a league without theme_css. brackets: the league's Challonge tournaments (name, slug), newest first, shown under Games. best_of: games in a set when the league plays sets every week (3 = best of three; unlabelled games of a week between the same two players are then grouped as one set). Without it, only games labelled with a set (index.json set, add_game.py --set) are grouped.",
+  "_note": "One entry per league. Its files are in site/<id>/ (games/, mock/, img/, theme.css). theme_css: the league's own colours over style.css's default theme (leave it out for the default); theme: the browser bar colour. banner.egg: a hidden link over that box of the banner (% of the image) to the preview of the next version, site_url + next/<id>/. After any change run python -I tools/build_pages.py: it writes site/<id>/index.html and the landing page site/index.html. palette: the default theme's starting palette (blastoise, charizard, venusaur), for a league without theme_css. brackets: the league's Challonge tournaments (name, slug), newest first, shown under Games. best_of: games in a set when the league plays sets every week (3 = best of three; unlabelled games of a week between the same two players are then grouped as one set). Without it, only games labelled with a set (index.json set, add_game.py --set) are grouped.",
   "site_url": "https://cvaranese.github.io/pkmn-stats-tracker/",
   "leagues": [
     {
@@ -16,7 +16,8 @@
         "src": "img/banner.webp",
         "width": 1920,
         "height": 1080,
-        "alt": "Peter Pikmon's Pinecord Pokémon Pissfest: a Pineco in a urinal on a mint tiled wall"
+        "alt": "Peter Pikmon's Pinecord Pokémon Pissfest: a Pineco in a urinal on a mint tiled wall",
+        "egg": {"left": 20, "top": 60, "width": 7, "height": 16, "title": "Something's growing in here. A look at the next version."}
       },
       "preview": {
         "src": "img/preview.png",

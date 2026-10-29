@@ -55,6 +55,14 @@ def league_page(template, cfg, lg):
         b = lg["banner"]
         banner = (f'      <img class="banner" src="{e(lg["id"])}/{e(b["src"])}" width="{b["width"]}" height="{b["height"]}"\n'
                   f'        alt="{e(b["alt"])}">\n')
+        # egg: an unmarked link over one spot of the banner (box in % of the image) to the preview of the next
+        # version (site/next/, from the next branch); for visitors who look closely, so nothing points at it
+        if b.get("egg"):
+            g = b["egg"]
+            box = f'left:{g["left"]}%;top:{g["top"]}%;width:{g["width"]}%;height:{g["height"]}%'
+            banner = (f'      <div class="banner-box">\n  {banner}'
+                      f'        <a class="egg" href="{e(cfg["site_url"] + "next/" + lg["id"] + "/")}" style="{box}" '
+                      f'title="{e(g["title"])}" aria-label="{e(g["title"])}"></a>\n      </div>\n')
     if lg.get("preview"):
         p = lg["preview"]
         og_image = (f'  <meta property="og:image" content="{e(url + p["src"])}">\n'

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Something is hiding in Pinecord's banner for anyone looking closely (a link to the preview of the next version, published from the `next` branch under `next/`).
 - Draft tab: every player's trade after Week 4 (one each, from the league), under their table: e.g. "Traded: Falinks for Shuckle, after Week 4."
 - Team sheets: Zololab's sheets for Weeks 1-8 (raw HP, set details and move lists in those games). Week 1's pasted team has Vaporeon where the game has Scrafty, so its Scrafty is pieced together from the game (Leftovers, Intimidate, Bulk Up, Drain Punch; guessed max HP, marked ~).
 - Cloudburst vs DEJIME (Week 7) loses its "errors" note: the Zapdos turn it described is fixed.

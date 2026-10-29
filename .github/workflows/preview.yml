@@ -1,0 +1,17 @@
+# A push to the next branch: this does nothing itself; finishing it starts "Deploy site to GitHub Pages" (pages.yml),
+# which runs from main and publishes next's site/ under next/.
+name: Preview pushed
+
+on:
+  push:
+    branches: [next]
+    paths: ["site/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  pushed:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "next pushed at ${GITHUB_SHA}; pages.yml deploys it"
