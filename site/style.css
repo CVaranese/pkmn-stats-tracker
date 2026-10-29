@@ -398,7 +398,7 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
   border-radius: 8px; cursor: pointer; }
 .sprite-link .sprite.big { display: flex; }
 @media (hover: hover) { .sprite-link:hover { border-color: var(--accent); } }
-.mon-detail .stats, .mon-luck, .move-list { grid-column: 1 / -1; }
+.mon-detail .stats, .mon-luck, .move-list, .turn-strip { grid-column: 1 / -1; }
 /* its moves: one line each, name | ×uses | damage share bar | damage | KOs; the best move's bar in the accent. One
    grid for the list (each row display: contents), so every name shows in full and the columns line up; the bar
    gets what's left, up to 16em (user 2026-10-28: the bars took the room the names needed) */
@@ -551,3 +551,18 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
   summary { padding: 10px 0; }
   th { padding-top: 12px; padding-bottom: 12px; }
 }
+
+/* turn strip (Main viewer, detailed card): a square per turn, the turn number under 1 and every 5th */
+.turn-strip { margin-top: 10px; min-width: 0; }
+.turn-strip h4 { margin: 0 0 6px; font-size: 12px; font-weight: 400; color: var(--muted); }
+.ts-cells { display: flex; flex-wrap: wrap; gap: 4px 3px; }
+.ts-col { display: inline-flex; flex-direction: column; align-items: center; width: 16px; font-size: 10px; line-height: 12px; color: var(--muted); }
+.turn-strip i { width: 16px; height: 16px; border-radius: 3px; box-sizing: border-box; display: inline-grid; place-items: center;
+  font: 700 11px/1 system-ui, sans-serif; font-style: normal; }
+.turn-strip .ts-move { background: var(--accent); }
+.turn-strip .ts-on { border: 1.5px solid var(--accent); }
+.turn-strip .ts-cant { background: repeating-linear-gradient(45deg, var(--accent) 0 2px, transparent 2px 5px); border: 1px solid var(--accent); }
+.turn-strip .ts-faint { background: var(--surface); border: 1.5px solid var(--text); color: var(--text); }
+.turn-strip .ts-off { background: var(--border); opacity: .45; }
+.ts-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+.ts-legend span { display: inline-flex; gap: 5px; align-items: center; }

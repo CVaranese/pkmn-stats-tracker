@@ -172,6 +172,7 @@
     // Credit goes to stints, so an Illusion reveal can re-assign one stint without touching
     // the copied Pokemon's other stints. Stats are summed per key at the end.
     const stints = [];
+    const timeline = [];                // [stint, turn, 'in' | 'out' | 'move' | 'cant' | 'faint', move or reason]: each one's game turn by turn
     const slots = {};                   // 'p1a' -> stint currently in that position
     const latestByKey = new Map();      // mon key -> its most recent stint
     const switchCount = { p1: 0, p2: 0 }; // stints per side so far (stint.n)
@@ -492,6 +493,7 @@
         const passed = ctx && ctx.actor === out && ctx.move === "batonpass";
         endMove();
         leave(out);
+        if (out && !out.deaths) timeline.push([out, turns, "out"]);
         const s = newStint(monKey(parts[1]), baseSpecies(parts[2]));
         s.form = parts[2].split(",")[0].trim();
         s.hp = hpOf(parts[3]) ?? 100;
@@ -500,6 +502,7 @@
         s.n = ++switchCount[s.side];
         [s.shown, s.lineIn, s.turnIn, s.hpIn, s.statusIn] = [s.species, lineNo, turns, s.hp, st ? st[1] : ""];
         if (passed) { s.boosts = { ...out.boosts }; s.critBoost = out.critBoost; }
+        timeline.push([s, turns, "in"]);
         s.entryState = targetState(s.key);
         // how the Pokemon in this slot left (nothing there for a lead)
         if (out) {
@@ -550,6 +553,7 @@
         if (zPending === mover) used.z = true;
         mover.moves.set(moveName, used);
         zPending = null;
+        timeline.push([mover, turns, "move", moveName]);
         const move = norm(parts[2]);
         // moves it chose (not called by Sleep Talk, Metronome...), for illusion.js's learnset check
         if (!tags.from || norm(tags.from) === "lockedmove") (mover.chosen = mover.chosen || new Set()).add(parts[2]);
@@ -616,6 +620,7 @@
         turnPlayed();
         const s = stintOf(parts[1]), reason = parts[2] || "";
         acted(s, reason);
+        timeline.push([s, turns, "cant", reason]);
         if (reason === "par") { rolls.push({ kind: "par", ...self(s), fullPara: true }); s.fullParas += 1; }
         else if (reason === "frz") rolls.push({ kind: "frz", ...self(s), thawed: false });
         else if (reason === "flinch") s.flinched += 1;
@@ -792,6 +797,7 @@
       } else if (cmd === "faint") {
         const victim = stintOf(parts[1]);
         victim.deaths += 1;
+        timeline.push([victim, turns, "faint"]);
         if (!victim.acted) victim.koBeforeMoving += 1;
         statusOf.delete(victim.key);
         let killer, kind, byHazard = false, move = null;
@@ -934,6 +940,7 @@
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
       hits: hits.map(([d, t, ...rest]) => [keyOf(d), keyOf(t), ...rest]),
       heals: heals.map(([h, t, ...rest]) => [keyOf(h), keyOf(t), ...rest]),
+      timeline: timeline.map(([s, ...rest]) => [keyOf(s), ...rest]),
       rolls: rolls.map((r) => ({ ...r, actor: keyOf(r.actor), ...(r.target ? { target: keyOf(r.target) } : {}) })),
     };
   }
@@ -1015,6 +1022,8 @@
           rolls: b.rolls, // the whole game's, shared by its rows
           momentum: b.momentum, // the whole game's
           side, // p1 / p2: which line of momentum is this player's
+          // its game turn by turn ([turn, kind, move or reason], kind in / out / move / cant / faint) for the turn strip
+          timeline: key ? b.timeline.filter(([k]) => k === key).map(([, ...e]) => e) : [],
           heals_given: b.heals.filter(([h, t]) => h && h === key && t !== key).map(([, t, pct]) => [t, pct]),
           // the mon keys of the Pokemon it KO'd (direct or passive, as counted in kills): who KO'd whom
           kos_dealt: b.kills.filter(([k, kind, v]) => k && k === key && v && (kind === "direct" || kind === "passive")).map(([, , v]) => v),

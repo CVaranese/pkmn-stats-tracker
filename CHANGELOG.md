@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Main viewer, a Pokémon's card in the detailed view ("More detail"): "Turn by turn", a square per turn of the game: moved, on the field without acting (e.g. the turn it came in), couldn't move (paralysis, sleep, flinch...), fainted (✕), on the bench. Hover or tap a square for the turn and the move ("Turn 14: Moonblast, then fainted").
 - Pokémon tab, "Its sets": a Copy set button on each set copies it as Showdown's teambuilder imports it (Import from text).
 - Main viewer: the "Copy YouTube title" and "Copy thumbnail info" buttons are gone.
 - Super Champions standings by set points: 3 for a 2–0 win, 2 for 2–1, 1 for a 1–2 loss, 0 for 0–2 (`set_points` in `site/leagues.json`). Players has a Points column and ranks by it first, then sets won and the tie-breaks as before.
