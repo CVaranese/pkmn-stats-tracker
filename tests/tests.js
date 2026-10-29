@@ -143,6 +143,48 @@
       JSON.stringify([guessed.map((s) => s.unclear), labelled.map((s) => s.wins)]));
   }
   {
+    // set slots: saved games fill the numbers the missing games (no replay) leave free; their winners count
+    const g = (id, winner) => ({ id, winner });
+    const slots = (s) => window.League.setSlots(s, 3);
+    const a = slots({ players: ["Fayz", "Kirbyhat"], games: [g("x", "kirbyhat")], missing: [{ game: 1, winner: "Fayz" }, { game: 3, winner: "FAYZ" }] });
+    check("setSlots: missing games at their number, saved ones in the gaps, all winners in the score",
+      a.slots.map((sl) => (sl.game ? sl.game.id : sl.kind)).join() === "missing,x,missing" && same(a.score.wins, [2, 1]) &&
+      a.score.winner === "Fayz" && a.unknown === 0 && a.played === 3 && !a.unknownSet, JSON.stringify(a));
+    const b = slots({ players: ["Fayz", "Leaf"], games: [g("x", "Leaf"), g("y", "Leaf")] });
+    check("setSlots: a 2–0 has a third slot, not played", b.slots.map((sl) => sl.kind || "game").join() === "game,game,unplayed" &&
+      b.score.winner === "Leaf" && b.played === 2, JSON.stringify(b.slots));
+    const c = slots({ players: ["Dox", "Leaf"], games: [], missing: [{ game: null, winner: null }] });
+    check("setSlots: a set with no replay and no game number: every slot missing, winners not known",
+      c.unknownSet && c.slots.length === 3 && c.slots.every((sl) => sl.kind === "missing") && c.unknown === 3 && c.score.winner === "",
+      JSON.stringify(c));
+  }
+  {
+    // standings (playoff seeding builds on them): a league that plays sets, then one that counts games
+    const rows = (kills, deaths) => [{ kills, deaths }];
+    const pl = (name, setWins, setLosses, wins, losses, kd = [0, 0]) =>
+      ({ key: name.toLowerCase(), name, setWins, setLosses, wins, losses, rows: rows(...kd) });
+    const set = (p1, p2, winner) => ({ players: [p1, p2], winner });
+    const order = (list, sets, bestOf = 3) => window.League.standings(list, sets, undefined, bestOf).map((p) => p.name).join();
+    check("standings: sets won, then fewer sets lost, then game difference, then games won",
+      order([pl("Dee", 2, 1, 5, 3), pl("Ann", 2, 0, 4, 1), pl("Bo", 2, 1, 4, 2), pl("Cy", 2, 1, 5, 4), pl("Eve", 3, 1, 6, 4)], []) ===
+      "Eve,Ann,Dee,Bo,Cy");
+    // Ann and Bo level on everything above: Bo beat Ann. Cy and Dee level, no set between them: KOs minus Pokémon lost.
+    check("standings: head to head among the tied, then KOs minus Pokémon lost, then name",
+      order([pl("Ann", 2, 1, 5, 3, [9, 9]), pl("Bo", 2, 1, 5, 3), pl("Cy", 1, 2, 3, 5, [5, 6]), pl("Dee", 1, 2, 3, 5, [7, 6]),
+        pl("Fay", 0, 3, 1, 6), pl("Eli", 0, 3, 1, 6)],
+        [set("Ann", "bo", "BO"), set("Cy", "Ann", "Ann"), set("Fay", "Eli", "")]) === "Bo,Ann,Dee,Cy,Eli,Fay");
+    // three level players who beat each other once round: head to head can't split them, so KOs minus lost does
+    check("standings: a head-to-head circle falls through to KOs minus Pokémon lost",
+      order([pl("Ann", 2, 1, 4, 3, [8, 8]), pl("Bo", 2, 1, 4, 3, [8, 6]), pl("Cy", 2, 1, 4, 3, [8, 7]), pl("Dee", 2, 1, 5, 2)],
+        [set("Ann", "Bo", "Ann"), set("Bo", "Cy", "Bo"), set("Cy", "Ann", "Cy"), set("Dee", "Ann", "Ann")]) === "Dee,Bo,Cy,Ann");
+    // head to head counts only sets between the tied players: Ann's win over Dee (not tied) doesn't lift her over Bo
+    check("standings: head to head counts only sets among the tied players",
+      order([pl("Ann", 2, 1, 4, 3, [0, 1]), pl("Bo", 2, 1, 4, 3), pl("Dee", 0, 3, 1, 6)], [set("Ann", "Dee", "Ann")]) === "Bo,Ann,Dee");
+    check("standings (no sets): games won, then fewer lost, then KOs, then name",
+      order([pl("Ann", 0, 0, 3, 2, [10, 0]), pl("Bo", 0, 0, 4, 3), pl("Cy", 0, 0, 3, 1), pl("Dee", 0, 0, 3, 2, [12, 0]), pl("Al", 0, 0, 3, 2, [10, 0])],
+        [], 0) === "Bo,Cy,Dee,Al,Ann");
+  }
+  {
     const b = RS.parseBattle(`|player|p1|Alice|
 |player|p2|Bob|
 |switch|p1a: Burner|Sableye, L50|100/100
@@ -1521,6 +1563,43 @@ ${switchIn}`).hiddenZoroark;
     JSON.stringify(aliasFan));
   check("bet: playerKey, the draft name's ID for an alias, else the name's own",
     Bet.playerKey(forms, "ANN17") === "ann" && Bet.playerKey(forms, "Bob B") === "bobb" && Bet.playerKey(null, "Ann 17") === "ann17");
+  {
+    // trades (Draft tab): Ann's sheet still lists Aron (traded away) but no longer Copperajah; Bob's free-agent move
+    // names several Pokémon; Cy's Xatu came in and later went out
+    const td = { costs: { UU: 10, PU: 3, ZU: 1 }, aliases: { ANN17: "Ann" },
+      players: { Ann: [{ pokemon: "Swampert-Mega", tier: "UU" }, { pokemon: "Glimmet", tier: "PU" }, { pokemon: "Aron", tier: "ZU" }],
+        Bob: [{ pokemon: "Toxapex", cost: 4 }, { pokemon: "Mimikyu", cost: 5 }], Cy: [{ pokemon: "Zapdos", tier: "UU" }], Dee: [] },
+      trades: { _note: "after Week 4", ann: [{ out: "Copperajah", in: "Glimmet", after: "Week 4" }, { out: "Aron", in: "", after: "Week 5" }],
+        Bob: [{ out: "Ferrothorn, Skarmory", in: "Toxapex, Mimikyu", after: "Week 1" }],
+        Cy: [{ out: "Natu", in: "Xatu", after: "Week 1" }, { out: "Xatu", in: "Zapdos", after: "Week 2" }] } };
+    const view = (player) => {
+      const dp = Bet.draftPool(td, player);
+      return dp && { name: dp.name, spent: dp.spent, pool: dp.pool.map((p) => [p.entry.pokemon, p.trade ? p.trade.label : "", p.trade ? p.trade.title : ""]) };
+    };
+    const ann = view("ANN17");
+    check("draftPool: the sheet's Pokémon, then a traded-away one it no longer lists, each with its trade (alias, trades keyed in any case)",
+      same(ann, { name: "Ann", spent: 13, pool: [["Swampert-Mega", "", ""], ["Glimmet", "Traded in", "Came in for Copperajah after Week 4"],
+        ["Aron", "Traded away", "Traded for (not known yet) after Week 5"], ["Copperajah", "Traded away", "Traded for Glimmet after Week 4"]] }),
+      JSON.stringify(ann));
+    const bob = view("Bob");
+    check("draftPool: a trade naming several Pokémon gives each its own row; points spent only on the ones still held",
+      same(bob, { name: "Bob", spent: 9, pool: [["Toxapex", "Traded in", "Came in for Ferrothorn, Skarmory after Week 1"],
+        ["Mimikyu", "Traded in", "Came in for Ferrothorn, Skarmory after Week 1"],
+        ["Ferrothorn", "Traded away", "Traded for Toxapex, Mimikyu after Week 1"], ["Skarmory", "Traded away", "Traded for Toxapex, Mimikyu after Week 1"]] }),
+      JSON.stringify(bob));
+    const cy = view("Cy");
+    check("draftPool: traded in, then away: the last trade wins", cy.pool.map((p) => p[0] + ":" + p[1]).join() ===
+      "Zapdos:Traded in,Natu:Traded away,Xatu:Traded away" && cy.spent === 10, JSON.stringify(cy));
+    check("draftPool: no trades, no badges; no pool, null", same(view("Dee"), { name: "Dee", spent: 0, pool: [] }) &&
+      Bet.draftPool(td, "Nobody") === null && Bet.trades(td, "Dee").length === 0);
+    // a traded-away Pokémon's games before the trade count for its row (the same entry draftPool lists), not as "not on the sheet"
+    const cop = Bet.draftPool(td, "Ann").pool.find((p) => p.entry.pokemon === "Copperajah").entry;
+    check("drafted: a traded-away Pokémon the sheet no longer lists is still theirs, as draftPool's entry",
+      Bet.drafted(td, "Ann", "Copperajah") === cop && Bet.drafted(td, "Bob", "Skarmory").pokemon === "Skarmory" &&
+      Bet.drafted(td, "Bob", "Copperajah") === null);
+    const tf = Bet.fantasy([{ player: "Ann", pokemon: "Copperajah", brought: 1, kills: 1, damage_dealt_pct: 50, survived: 0, won: 1 }], td);
+    check("fantasy: a traded-away Pokémon has no tier or cost", tf[0].tier === "" && tf[0].cost === null && tf[0].perCost === null, JSON.stringify(tf));
+  }
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
   const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],
     Cy: [{ pokemon: "Gyarados" }, { pokemon: "Gyarados-Mega" }] } };

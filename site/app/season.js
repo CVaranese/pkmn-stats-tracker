@@ -46,13 +46,15 @@ function loadLeague() {
     return all;
   })());
 }
-/** Forget everything counted from the league games (a Zoroark pick changed one), so Fantasy, Players and
-    Pokémon count again on their next visit. Every cache built from loadLeague goes here. */
+/** The resets of every cache built from loadLeague: each tab's file registers its own (onLeagueChange) next to
+    its state, so a new tab can't be left out. */
+const leagueCaches = [];
+const onLeagueChange = (reset) => leagueCaches.push(reset);
+/** Forget everything counted from the league games (a Zoroark pick changed one), so the tabs built on them count
+    again on their next visit. */
 function invalidateLeague() {
   leagueRows = null;
-  fantasyRows = null;
-  players = null;
-  mons = null;
+  for (const reset of leagueCaches) reset();
 }
 /** Damage dealt for some rows: in HP when every row has it (~ when a guessed max HP went in), else in %. */
 const rowsDealt = (rs) => amount(rs, ["damage_dealt_pct"]).text;

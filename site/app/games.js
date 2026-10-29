@@ -83,30 +83,8 @@ function setsWithMissing(games, lost) {
   }
   return sets;
 }
-/** A set's game slots in a league that plays sets (best_of): its saved games, its missing ones at their game number,
-    and "not played" up to best_of, so a 2–0 shows as many rows as a 2–1 until "Show results". Each slot: {n, game}
-    (a saved game) or {n, kind: "missing" | "unplayed", winner}. Also the set score with the missing games' winners
-    and how many missing games have no known winner. */
-function setSlots(s) {
-  const bestOf = LEAGUE.best_of || 0;
-  const lost = s.missing || [];
-  const total = Math.max(bestOf, s.games.length + lost.length);
-  const slots = [];
-  for (const m of lost) if (m.game) slots[m.game - 1] = { n: m.game, kind: "missing", winner: m.winner };
-  const unknownSet = lost.some((m) => !m.game);   // a set with no replay at all: how many games isn't known
-  let next = 0;
-  for (const g of s.games) {
-    while (slots[next]) next++;
-    slots[next] = { n: next + 1, game: g };
-  }
-  for (let i = 0; i < total; i++) if (!slots[i]) slots[i] = { n: i + 1, kind: unknownSet ? "missing" : "unplayed", winner: null };
-  const wins = s.players.map((p) => slots.filter((sl) => (sl.game ? sl.game.winner : sl.winner) &&
-    playerKey(sl.game ? sl.game.winner : sl.winner) === playerKey(p)).length);
-  const w = wins.findIndex((n) => n > bestOf / 2);
-  const unknown = slots.filter((sl) => sl.kind === "missing" && !sl.winner).length;
-  return { slots, score: { ...s, wins, winner: w >= 0 ? s.players[w] : "" }, unknown, unknownSet,
-    played: slots.filter((sl) => sl.game || sl.kind === "missing").length };
-}
+/** A set's game slots and score with its missing games (League.setSlots), for this league's best_of. */
+const setSlots = (s) => window.League.setSlots(s, LEAGUE.best_of || 0, playerKey);
 /** Games grouped by week, the latest week first (weeks in the order they were added); a set of two or more games
     under its own line (score with "Show results", Set stats), its games in the order played. */
 function renderLibrary() {

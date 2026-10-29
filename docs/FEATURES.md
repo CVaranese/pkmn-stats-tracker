@@ -39,8 +39,9 @@ merged into `next` when it works alone; one session per step. Handoff: `docs/aud
 - [x] 2. Team sheets per Pokémon (R2, T5) and the Pokémon tab's season sets (the sets each Pokémon was used with).
       (2026-10-29, branch `sheets-per-mon`: all 35 saved sheets cover every Pokémon of their side; hand-made sets in
       `mock/<game>-<player>.fix.txt`.)
-- [ ] 3. Standings / tie-breaks and the trade pool into `league.js` / `bet.js` with tests (R3, T3, T4); one list of
-      the league caches (R5). After step 2 (both edit `tests/tests.js`).
+- [x] 3. Standings / tie-breaks and the trade pool into `league.js` / `bet.js` with tests (R3, T3, T4); one list of
+      the league caches (R5). (2026-10-29, branch `standings-trades`: Players tables unchanged in both leagues;
+      fixed on the way: traded-away Pokémon's games, Super Champions' several-Pokémon trades.)
 - [ ] 4. Small open findings (#4, #7, #8, #9, #10, #13) and the remaining tests (T6 preview script + banner egg,
       T7 `set_illusion.py`, T8 share links + stage picker).
 - [ ] Later, only if needed: splitting `parseBattle` into one handler per log command (R4), after step 1's

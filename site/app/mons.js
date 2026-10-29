@@ -2,6 +2,7 @@
 "use strict";
 
 let mons = null;  // [summary fields + { rows, players, moves, best }], most games first
+onLeagueChange(() => { mons = null; });
 let monPicked = "";
 let monKos = [];  // koPairs over the season: who KO'd whom
 let monWeek = "";  // "" = every week, else only that week's games ("Week 3")
