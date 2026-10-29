@@ -266,7 +266,7 @@
       best(brought.filter((r) => r.survived && r.damage_taken_pct > 0), (r) => r.damage_taken_pct)
         .map((r) => mon(r, amount([r], ["damage_taken_pct"]).text + " taken")));
     // (Luckiest / Unluckiest player were here: a player's luck is theirs minus their opponent's, so the two were
-    // always the two sides of one game; user 2026-10-29. Luckiest / Unluckiest Pokémon are among awardIdeas.)
+    // always the two sides of one game; user 2026-10-29. Luckiest / Unluckiest Pokémon are in moreAwards.)
     // comeback: per game, the winner's lowest HP share minus the loser's at a turn's end
     const games = new Map();
     for (const r of rows) if (r.won && !games.has(r.replay_id)) games.set(r.replay_id, r);
@@ -288,10 +288,10 @@
     return out;
   }
 
-  /** Award ideas on trial (user 2026-10-29: picks the good ones from the page), numbered n as brainstormed; the same
-      shape as awards(). Pokémon ones are the best single game; player ones a player's whole team in one game; game
-      ones the game. Ties all listed; an idea no game qualifies for is left out. */
-  function awardIdeas(rows, keyOf = toID) {
+  /** More awards (brainstormed and all kept, user 2026-10-29), after awards(): Pokémon ones are the best single game,
+      player ones a player's whole team in one game, game ones the game. The same shape as awards(), ties all listed,
+      but every award is returned: one no game qualifies for has winners [] (the page names those). */
+  function moreAwards(rows, keyOf = toID) {
     const brought = rows.filter((r) => r.brought);
     const out = [];
     const best = (list, score) => {
@@ -300,7 +300,7 @@
       const top = Math.max(...vals);
       return list.filter((x) => score(x) === top);
     };
-    const add = (n, id, title, how, winners) => { if (winners.length) out.push({ n, id, title, how, winners }); };
+    const add = (n, id, title, how, winners) => out.push({ id, title, how, winners });  // n: the order brainstormed
     const plural = (k, one, many = one + "s") => `${k} ${k === 1 ? one : many}`;
     // a Pokémon idea: the most of score (above 0) in one game
     const mons = (n, id, title, how, score, text) => add(n, id, title, how,
@@ -418,7 +418,7 @@
   }
 
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    setSlots, setPoints, standings, spreadText, setText, monSets, awards, awardIdeas, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
+    setSlots, setPoints, standings, spreadText, setText, monSets, awards, moreAwards, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

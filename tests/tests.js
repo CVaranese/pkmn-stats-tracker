@@ -600,15 +600,15 @@
     check("awards: each award's winners, ties, who qualifies", same(got, want), JSON.stringify(got));
     check("awards: none left out when nothing qualifies, in a fixed order",
       LG.awards([]).length === 0 && LG.awards(rows).map((a) => a.id).join() === "top,kos,damage,wall,comeback,quick");
-    // award ideas on trial: over the real fixtures, numbered in order, every value readable
+    // the more awards: every one returned (empty ones too, for the page to name), over the real fixtures every value readable
     const real = [];
     for (const id of Object.keys(REAL)) real.push(...RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json()));
-    const ideas = LG.awardIdeas(real);
-    const ns = ideas.map((a) => a.n);
-    const odd = ideas.flatMap((a) => a.winners.filter((w) => /NaN|undefined|null/.test(w.value)).map((w) => `#${a.n} ${w.value}`));
-    check("award ideas: numbered in order, values readable, Marathon and Iron man found", ns.join() === [...ns].sort((a, b) => a - b).join() &&
-      new Set(ns).size === ns.length && !odd.length && ideas.some((a) => a.id === "marathon") && ideas.some((a) => a.id === "ironman"),
-      odd.join("\n") || ns.join());
+    const more = LG.moreAwards(real);
+    const odd = more.flatMap((a) => a.winners.filter((w) => /NaN|undefined|null/.test(w.value)).map((w) => `${a.title}: ${w.value}`));
+    check("more awards: all 23, each once, values readable, Marathon and Iron man found; none won with no games",
+      more.length === 23 && new Set(more.map((a) => a.id)).size === 23 && !odd.length &&
+      more.find((a) => a.id === "marathon").winners.length > 0 && more.find((a) => a.id === "ironman").winners.length > 0 &&
+      LG.moreAwards([]).every((a) => !a.winners.length), odd.join("\n") || more.map((a) => a.id).join());
   }
   // ---- turn strip (League.turnCells over a row's timeline) ----
   {
