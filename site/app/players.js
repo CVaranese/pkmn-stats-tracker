@@ -40,28 +40,33 @@ async function renderPlayers() {
     if (!byKey.has(key)) byKey.set(key, { key, name: shownName(name), games: [], rows: [], wins: 0, losses: 0, setWins: 0, setLosses: 0 });
     return byKey.get(key);
   };
+  // a league that plays sets: its records (sets, games) come from the sets below, and with All weeks only from the
+  // regular season ("Week n"; user 2026-10-28: standings without the playoffs); kills and the rest count every game
+  const bestOf = LEAGUE.best_of || 0;
   for (const g of games) {
     for (const p of g.players) {
       const pl = get(p);
       pl.games.push(g);
-      if (g.winner) TS.toID(g.winner) === TS.toID(p) ? pl.wins++ : pl.losses++;
+      if (g.winner && !bestOf) TS.toID(g.winner) === TS.toID(p) ? pl.wins++ : pl.losses++;
     }
   }
   // sets (a week's games between the same two players): a set record when the league plays them (Bo3)
-  const bestOf = LEAGUE.best_of || 0;
-  const leagueSets = bestOf ? setsWithMissing(games, missing.filter((m) => !plWeek || m.week === plWeek)) : librarySets(games);
+  const inRecord = (w) => (plWeek ? w === plWeek : /^Week [0-9]/.test(w));
+  const leagueSets = bestOf ? setsWithMissing(games.filter((g) => inRecord(g.week)), missing.filter((m) => inRecord(m.week))) :
+    librarySets(games);
   const hasSets = bestOf > 0 || leagueSets.some((s) => s.games.length > 1);
   if (bestOf) $("pl-intro").textContent = "Every league game added up per player, so this tab gives results away. " +
-    "Standings: sets won, then game difference, then games won, then the sets between the tied players. Games " +
-    "played without a saved replay count in the records when the winner is known.";
+    "Standings: sets won, then game difference, then games won, then the sets between the tied players" +
+    (plWeek ? "" : "; Sets, Games and Diff count the regular season only (no playoffs), the other columns every game") +
+    ". Games played without a saved replay count in the records when the winner is known.";
   for (const s of leagueSets) {
-    // a league that plays sets: the sheet's games with no replay count too (their winner from index.json missing)
+    // a league that plays sets: every game slot, the sheet's games with no replay too (winner from index.json missing)
     if (bestOf) {
       const info = setSlots(s);
       Object.assign(s, info.score);
       for (const sl of info.slots) {
-        if (sl.game || !sl.winner) continue;
-        for (const p of s.players) playerKey(p) === playerKey(sl.winner) ? get(p).wins++ : get(p).losses++;
+        const winner = sl.game ? sl.game.winner : sl.winner;
+        if (winner) for (const p of s.players) playerKey(p) === playerKey(winner) ? get(p).wins++ : get(p).losses++;
       }
     }
     if (s.winner) for (const p of s.players) playerKey(p) === playerKey(s.winner) ? get(p).setWins++ : get(p).setLosses++;
@@ -79,7 +84,7 @@ async function renderPlayers() {
   const setCols = bestOf ? [
     num("Sets", `Sets won – lost (best of ${bestOf}). Standings: sets won, then game difference, then games won, then ` +
       "the sets between the tied players, then KOs minus Pokémon lost.", (pl) => -pl.place),
-    num("Games", "Games won – lost, games with no saved replay included when the winner is known.", (pl) => pl.wins),
+    num("Games", "Games won – lost (regular season with All weeks), games with no saved replay included when the winner is known.", (pl) => pl.wins),
     num("Diff", "Games won minus games lost.", (pl) => pl.wins - pl.losses),
   ] : [
     num("Won", "Games won among the games saved here.", (pl) => pl.wins),
