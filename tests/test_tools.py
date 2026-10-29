@@ -1,5 +1,8 @@
-"""Tests for the pure parts of tools/add_game.py, and that tools/build_pages.py's pages are up to date. Run: python -I tests/test_tools.py"""
+"""Tests for the pure parts of tools/add_game.py, that tools/build_pages.py's pages are up to date, and that releases are recorded (CHANGELOG, releases.json, tags). Run: python -I tests/test_tools.py"""
 import importlib.util
+import json
+import re
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -68,6 +71,38 @@ class Pages(unittest.TestCase):
         build_pages = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(build_pages)
         self.assertEqual(build_pages.main(["--check"]), 0, "run python -I tools/build_pages.py")
+
+
+class Releases(unittest.TestCase):
+    """The release steps in CLAUDE.md: each version is a CHANGELOG.md heading, a site/releases.json entry and a git tag."""
+    ROOT = Path(__file__).resolve().parent.parent
+
+    def versions(self):
+        log = (self.ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        heads = re.findall(r"^## (.+)$", log, re.M)
+        rel = json.loads((self.ROOT / "site" / "releases.json").read_text(encoding="utf-8"))["releases"]
+        return heads, [r["version"] for r in rel]
+
+    def test_changelog_matches_releases(self):
+        """CHANGELOG.md: Unreleased first, then one '## X.Y (date)' per release, newest first, the same as releases.json."""
+        heads, rel = self.versions()
+        self.assertEqual(heads[0], "Unreleased", "CHANGELOG.md starts with ## Unreleased")
+        cut = [re.match(r"(\d+\.\d+(?:\.\d+)?) \(\d{4}-\d\d-\d\d\)$", h) for h in heads[1:]]
+        self.assertTrue(all(cut), f"version headings look like '## 1.0 (2026-10-29)': {heads[1:]}")
+        self.assertEqual([m.group(1) for m in cut], rel, "each release in site/releases.json has its CHANGELOG.md section")
+
+    def test_releases_tagged(self):
+        """Each release has its tag (v1.0); the newest one may not be tagged yet while it's being cut."""
+        try:
+            tags = subprocess.run(["git", "tag", "-l", "v*"], cwd=self.ROOT, capture_output=True, text=True, check=True).stdout.split()
+        except (OSError, subprocess.CalledProcessError):
+            self.skipTest("no git here")
+        _, rel = self.versions()
+        missing = [v for v in rel if "v" + v not in tags]
+        self.assertEqual([v for v in rel[1:] if v in missing], [], "tag the old releases")
+        if missing:
+            self.skipTest(f"v{rel[0]} isn't tagged yet: git tag -a v{rel[0]} -m \"{rel[0]}\" on the release commit, then push it")
+
 
 if __name__ == "__main__":
     unittest.main()
