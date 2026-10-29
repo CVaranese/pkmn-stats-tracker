@@ -5,7 +5,7 @@
 - **Tested:** missing or unsaved replays return HTTP 404 with an empty body (e.g. `gen9championsvgc2026regmb-2691890619`).
 - **Tested (2026-10-26):** the replay server sends `Access-Control-Allow-Origin` echoing the request origin (checked with `Origin: https://example.github.io`) for both `<id>.json` and `search.json`, so a GitHub Pages site can fetch replays from the browser with no backend. Confirmed end to end: `site/` served from `http://127.0.0.1:8765` in headless Edge fetched 3 live replays and got the 404 for the missing one.
 - **Tested:** `search.json?format=<formatid>` lists recent replays (newest first); `&user=<name>` filters by player, `&before=<uploadtime>` pages back.
-- **Tested:** bo3 formats have their own IDs (`gen9championsvgc2026regmbbo3-...`); each game in a set is a separate replay. Game logs carry `|uhtml|bestof|...Game N...` and a `|uhtml|next|` link to the next game.
+- **Tested:** bo3 formats have their own IDs (`gen9championsvgc2026regmbbo3-...`); each game in a set is a separate replay. Game logs carry `|uhtml|bestof|...Game N...` and a `|uhtml|next|` link to the next game. The bestof line links "a best-of-3" to `/game-bestof3-<format>-<id>` (relative: in our replay player it pointed at our own site, a 404); `https://replay.pokemonshowdown.com/game-bestof3-...` is "Replay Not Found" too (tested 2026-10-28), so site/watch.html drops that link and keeps the words.
 
 ## Game dates (user, 2026-10-28)
 - **From the user:** the site shows no dates, only the week ("too detailed, don't want things tracked too much"). `index.json` keeps one date per game, its week's Sunday (`week_sunday` in `tools/add_game.py`), only for ordering; never a more exact day or time.

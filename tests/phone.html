@@ -12,7 +12,9 @@
   f.style.width = (p.get("w") || "360") + "px";
   if (p.get("h")) f.style.height = p.get("h") + "px"; // taller frame for long pages
   const type = p.get("type");
-  p.delete("w"); p.delete("h"); p.delete("type");
+  // league: which league page (site/<league>/); without it the league list
+  const league = /^[a-z0-9-]+$/.test(p.get("league") || "") ? p.get("league") + "/" : "";
+  p.delete("w"); p.delete("h"); p.delete("type"); p.delete("league");
   // type into a box after the page's own loading (fixed wait; headless runs on virtual time)
   if (type) f.addEventListener("load", () => setTimeout(() => {
     const [id, text] = [type.slice(0, type.indexOf(":")), type.slice(type.indexOf(":") + 1)];
@@ -20,5 +22,5 @@
     box.value = text;
     box.dispatchEvent(new Event("input"));
   }, 4000));
-  f.src = "../site/" + (p.toString() ? "?" + p : "");
+  f.src = "../site/" + league + (p.toString() ? "?" + p : "");
 </script>

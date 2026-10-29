@@ -40,7 +40,9 @@
           const data = document.createElement("script");
           data.type = "text/plain";
           data.className = "battle-log-data";
-          data.textContent = r.log;
+          // "Game 1 of <a href="/game-bestof3-...">a best-of-3</a>": a link to Showdown's series room, which pointed
+          // at this site (a 404) and is gone on Showdown's replay site too; keep the words only
+          data.textContent = r.log.replace(/<a href="\/game-bestof\d+-[^"]*">([^<]*)<\/a>/g, "$1");
           document.body.appendChild(data);
           if (!window.Replays || !window.Battle) throw new Error("Pokémon Showdown's player didn't load");
           window.Replays.init();

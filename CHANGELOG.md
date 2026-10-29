@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Players: a Forfeits column (games the player forfeited, from the replay's "X forfeited." line).
+- Replay player: "Game 1 of a best-of-3" is plain text now; its link went to a page on this site that doesn't exist (Showdown's series room, gone on Showdown too).
+- Moves and damage sources (Pokémon tab, team cards): every move name shows in full and the ×casts sit in their own lined-up column; the bars are shorter. On phones the name and casts share a line, the bar, damage and KOs go under it.
 - Regular season / Playoffs / Both buttons next to the week picker on Games, Players and Pokémon (one choice for all three, remembered; Regular season to start). Shown only in a league with playoff games (Super Champions).
 - The Playoffs tab is gone (Set stats still adds a set's games up, and a link with several replays still opens them added up). Players: the Head-to-head and KO matrix sub-tabs are gone.
 - Main viewer: a league Pokémon's sprite, in a button-like box, opens its season on the Pokémon tab (replaces the "<Pokémon>'s season" text link).

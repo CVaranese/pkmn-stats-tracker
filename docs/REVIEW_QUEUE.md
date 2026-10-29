@@ -2,6 +2,10 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Players Forfeits column: Pinecord shows pee nation 3, DEJIME 1, ElkG Big Large 1; Super Champions Sean 1 (counted from the logs). Should timer losses (lost on inactivity) count too?
+- [ ] Moves list (Pokémon tab, and a team card's More detail): full names, ×casts lined up, shorter bars. Readable dark and light? On a phone (checked in a 360px frame) the bar, damage and KOs sit under the name.
+- [ ] Replay player on a best of 3 game: "Game 1 of a best-of-3" is no longer a link. Fine, or should it open the set (Set stats)?
+
 - [ ] Main viewer, a Super Champions game: each team card's big sprite now sits in a box (surface, thin border, accent border on hover) and opens the Pokémon tab; the "<Pokémon>'s season" link is gone. Does the box read as clickable, dark and light? Try it on a phone (not checked there).
 - [ ] Set stats (Games tab, or "Set stats" on a game's line): it now shows "Set stats: A vs B", the week, the score and Game 1 / 2 / 3 links above the totals table, with the Games tab marked instead of Playoffs. Is that where you expected to land? The link box is folded away ("Show links and sheets" still opens it).
 - [ ] Players tab, Super Champions: standings by sets won, game difference, games won, head to head (Sets / Games / Diff columns). Regular season / Playoffs / Both buttons (Games, Players, Pokémon; one choice for all three, Regular season to start): is Regular season the right start, and is one shared choice right? 65 regular-season sets are counted, a full round robin is 66: Leaf has 10, so one set seems to have neither a replay nor a `missing` entry.

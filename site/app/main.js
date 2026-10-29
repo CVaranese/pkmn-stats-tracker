@@ -467,8 +467,8 @@ function moveList(r, best) {
       who.append(chip, el("span", "move-label", name), cat);
     } else who.append(name);
     if (m && m.z) who.append(" ", el("span", "mark z", "Z"));
-    if (m && m.uses) who.append(" ", el("span", "move-uses", "×" + m.uses));
     if (title) who.title = title;
+    const uses = el("span", "move-uses", m && m.uses ? "×" + m.uses : "");
     const bar = el("span", "move-bar");
     const fill = el("span", "");
     const share = m && total ? (100 * m.dealt_pct) / total : 0;
@@ -477,7 +477,7 @@ function moveList(r, best) {
     bar.appendChild(fill);
     const dealt = el("span", "move-num", m && m.dealt_pct ? moveDealt(m) : m ? "–" : cls.includes("hidden") ? "" : "not used");
     const kos = el("span", "move-num", m && m.kos ? `${m.kos} KO${m.kos > 1 ? "s" : ""}` : "");
-    row.append(who, bar, dealt, kos);
+    row.append(who, uses, bar, dealt, kos);
     box.appendChild(row);
   };
   for (const m of ms) line(m, m.move, m === best ? "best" : "");

@@ -391,13 +391,15 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .sprite-link .sprite.big { display: flex; }
 @media (hover: hover) { .sprite-link:hover { border-color: var(--accent); } }
 .mon-detail .stats, .mon-luck, .move-list { grid-column: 1 / -1; }
-/* its moves: one line each, name ×uses | damage share bar | damage | KOs; the best move's bar in the accent */
-.move-list { margin-top: 6px; }
-.move-list h4 { margin: 0 0 4px; font-size: 12px; font-weight: 400; color: var(--muted); }
-.move-row { display: grid; grid-template-columns: minmax(0, 11em) minmax(40px, 1fr) 5.5em 3.5em; gap: 10px;
-  align-items: center; padding: 3px 0; font-size: 14px; }
-.move-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.move-uses { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+/* its moves: one line each, name | ×uses | damage share bar | damage | KOs; the best move's bar in the accent. One
+   grid for the list (each row display: contents), so every name shows in full and the columns line up; the bar
+   gets what's left, up to 16em (user 2026-10-28: the bars took the room the names needed) */
+.move-list { margin-top: 6px; display: grid; grid-template-columns: max-content auto minmax(40px, 16em) auto auto;
+  justify-content: start; gap: 6px 10px; align-items: center; font-size: 14px; }
+.move-list h4 { margin: 0 0 -2px; font-size: 12px; font-weight: 400; color: var(--muted); grid-column: 1 / -1; }
+.move-row { display: contents; }
+.move-name { white-space: nowrap; }
+.move-uses { color: var(--muted); font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
 .move-bar { height: 8px; border-radius: 3px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); overflow: hidden; }
 .move-bar > span { display: block; height: 100%; background: var(--muted); }
 .move-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -408,7 +410,7 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 /* type tags: the type's first three letters on its colour (the games' usual type colours), dark or light text for
    contrast, a fixed width so names line up; P / S / – after the name for physical / special / status */
 .move-name:has(.type-chip) { display: flex; align-items: center; gap: 6px; }
-.move-name .move-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.move-name .move-label { min-width: 0; }
 .move-name .type-chip ~ :not(.move-label) { flex: 0 0 auto; }
 .type-chip { flex: 0 0 auto; display: inline-block; width: 3.4em; padding: 1px 0; border-radius: 3px; text-align: center;
   font-size: 11px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.5; background: var(--chip, var(--row-alt)); color: #1c1c1a; }
@@ -425,7 +427,7 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .team-card.simple .adv { display: none; }
 .detail-toggle { grid-column: 1 / -1; justify-self: start; }
 .move-row .mark { padding: 0 4px; border-radius: 3px; font-size: 11px; font-weight: 700; }
-.move-none { margin: 0; font-size: 14px; color: var(--muted); }
+.move-none { margin: 0; font-size: 14px; color: var(--muted); grid-column: 1 / -1; }
 .mon-luck, .team-luck { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
 
 /* momentum (one game): team HP after each turn; the winner's line in the accent colour, the other dashed */
@@ -517,10 +519,17 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
   .lib-table .lib-vs { align-self: center; }
   .lib-table td.lib-actions { margin-left: auto; }
   .lib-table .lib-actions button { margin: 0 0 0 6px; }
-  /* team card moves: the damage bar on its own line, so the move name keeps the width */
-  .move-row { grid-template-columns: minmax(0, 1fr) auto auto; row-gap: 3px; }
-  .move-row .move-bar { grid-column: 1 / -1; grid-row: 2; }
+  /* moves: a grid per row again: the name and ×uses on one line, the bar, damage and KOs under it, so names fit */
+  .move-list { display: block; }
+  .move-row { display: grid; grid-template-columns: minmax(0, 1fr) 5.5em 3.5em; gap: 3px 10px; align-items: center;
+    padding: 3px 0; }
+  .move-row .move-name { grid-column: 1 / 3; grid-row: 1; overflow: hidden; text-overflow: ellipsis; }
+  .move-name .move-label { overflow: hidden; text-overflow: ellipsis; }
+  .move-row .move-uses { grid-column: 3; grid-row: 1; }
+  .move-row .move-bar { grid-column: 1; grid-row: 2; }
   .move-row.unused .move-bar { display: none; }
+  .move-row > .move-num:nth-child(4) { grid-column: 2; grid-row: 2; }
+  .move-row > .move-num:nth-child(5) { grid-column: 3; grid-row: 2; }
 }
 
 /* touch screens: tap targets near the 44-48px guidelines (WCAG minimum 24px) */

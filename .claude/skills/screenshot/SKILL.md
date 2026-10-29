@@ -19,7 +19,7 @@ description: Screenshot the locally served site (headless Edge) and send it to t
 
 Limits:
 - No true phone width (headless Edge clamps narrow windows). For a phone-width look, frame the site:
-  `-Page tests/phone.html -Query "w=360&tab=bet" -Width 600 -Height 1400` (w = frame width; other params go to the site).
+  `-Page tests/phone.html -Query "w=360&league=ppppp&tab=fantasy" -Width 600 -Height 1400` (w = frame width, league = which league page; other params go to the site).
 - No hover (tooltips), clicks, taps or clipboard. Every tab opens from the URL (`-Query tab=fantasy`, `tab=gamble`, `tab=mons&mon=Garchomp`, `tab=players&player=<key>`).
   For those, use Claude in Chrome on `http://127.0.0.1:8765/site/ppppp/`.
 - Local mode only loads replays saved in `site/<league>/games/` (the league libraries).

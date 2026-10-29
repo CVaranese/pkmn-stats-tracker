@@ -21,6 +21,9 @@ function paceOf(rs) {
 }
 const PACE_TITLE = "Seconds a turn in their games (both players' thinking time together; games rebuilt from video have no times).";
 const TIMER_TITLE = "Games where they turned on the battle timer (the replay says who asked for it; video games don't show it).";
+const FORFEIT_TITLE = "Games they forfeited (the log says who; games with no saved replay can't show it).";
+/** Games a player forfeited: lost, ended by forfeit. */
+const forfeits = (pl) => perGameRows(pl.rows).filter((r) => r.end_reason === "forfeit" && !r.won).length;
 async function renderPlayers() {
   if (players) return;
   players = [];  // marks the tab as rendering
@@ -97,6 +100,7 @@ async function renderPlayers() {
       key: (pl) => (pl.luck ? pl.luck.z : -Infinity) },
     num("Pace", PACE_TITLE, (pl) => paceOf(pl.rows) ?? Infinity),
     num("Timer on", TIMER_TITLE, (pl) => sum(perGameRows(pl.rows), "timer_on")),
+    num("Forfeits", FORFEIT_TITLE, forfeits),
     { label: "Most used", title: "The Pokémon they brought most often.", key: (pl) => (pl.used[0] ? pl.used[0].pokemon : "") },
     { label: "Top MVP", title: "The Pokémon that was Team MVP most often.", key: (pl) => (pl.mvp && pl.mvp.mvps ? pl.mvp.pokemon : "") },
   ], players, plSort, (pl) => {
@@ -108,7 +112,7 @@ async function renderPlayers() {
       [[String(pl.wins), "num"], [String(pl.losses), "num"], ...(hasSets ? [[`${pl.setWins}–${pl.setLosses}`, "num"]] : [])]),
       [String(sum(pl.rows, "kills")), "num"], [String(sum(pl.rows, "deaths")), "num"], [rowsDealt(pl.rows), "num"],
       [seasonLuckBadge(perGameRows(pl.rows), "player_luck", "player_luck_var"), ""],
-      [paceOf(pl.rows) === null ? "–" : paceOf(pl.rows) + " s", "num"], [String(sum(perGameRows(pl.rows), "timer_on")), "num"], [used, ""],
+      [paceOf(pl.rows) === null ? "–" : paceOf(pl.rows) + " s", "num"], [String(sum(perGameRows(pl.rows), "timer_on")), "num"], [String(forfeits(pl)), "num"], [used, ""],
       [pl.mvp && pl.mvp.mvps ? `${pl.mvp.pokemon} ×${pl.mvp.mvps}` : "–", ""]];
   }, (sorted) => {
     [...$("pl-table").rows].slice(1).forEach((tr, i) => {
