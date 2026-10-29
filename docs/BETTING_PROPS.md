@@ -175,6 +175,16 @@ More stats only make variants of the props above (the same count with another li
   (spread a share of the weekly total's spread), seeded by league + week, rounded to x.5.
 - **Close enough, checked:** run the lines over the league's past weeks; a bet whose Over / Yes rate is outside about
   35-65% is fixed or dropped from the draw. A test, so it stays checked as games come in.
+- **Making a fixed stake feel like it matters** (user picked, 2026-10-29):
+  - **Long shots pay more:** every bet costs the same, but a rare outcome pays more ("Yes pays 3"), the payout
+    printed on the bet, from how often it happens (the same simulated weeks as the lines).
+  - **One lock a week:** mark one pick as the lock; it counts double, won or lost.
+  - **Parlay box (optional):** drag three of the week's bets into it; all three hit = a bonus, one misses = nothing for
+    those three. Separate from the plain picks, so betting stays simple for anyone who ignores it.
+  - **Leaderboard:** weekly winner and season standing (titles next to names are a maybe).
+  - **The reveal:** each person's slip turns green / red bet by bet as the week's games come in; the house's running
+    total shows ("The house is up 12 this week").
+  - Something real at stake (a Discord role, naming a bet...): the user's to arrange, outside the site.
 - **The house keeps a record** of what it won or lost per bet, to fix or drop a line that keeps losing.
 - Open: the stake and allowance, bet on the six drawn only or more, where points are kept (a login, not decided).
 - Before the playoffs: adapt the new kinds with smaller numbers (rest-of-season picks, a featured game each week,

@@ -1,12 +1,11 @@
 {
-  "_note": "One entry per league. Its files are in site/<id>/ (games/, mock/, img/, theme.css). theme_css: the league's own colours over style.css's default theme (leave it out for the default); theme: the browser bar colour. banner.egg: a hidden link over that box of the banner (% of the image) to the preview of the next version, site_url + next/<id>/. After any change run python -I tools/build_pages.py: it writes site/<id>/index.html and the landing page site/index.html. palette: the default theme's starting palette (blastoise, charizard, venusaur), for a league without theme_css. brackets: the league's Challonge tournaments (name, slug), newest first, shown under Games. best_of: games in a set when the league plays sets every week (3 = best of three; unlabelled games of a week between the same two players are then grouped as one set). Without it, only games labelled with a set (index.json set, add_game.py --set) are grouped. set_points (with best_of): standings points for a set, [won without dropping a game, won, lost taking a game, lost without one]; the standings rank by them first. bets: true shows the weekly bets on Gambling (preview only for now); off for VGC leagues until their lines are worked out (user 2026-10-29).",
+  "_note": "One entry per league. Its files are in site/<id>/ (games/, mock/, img/, theme.css). theme_css: the league's own colours over style.css's default theme (leave it out for the default); theme: the browser bar colour. banner.egg: a hidden link over that box of the banner (% of the image) to the preview of the next version, site_url + next/<id>/. After any change run python -I tools/build_pages.py: it writes site/<id>/index.html and the landing page site/index.html. palette: the default theme's starting palette (blastoise, charizard, venusaur), for a league without theme_css. brackets: the league's Challonge tournaments (name, slug), newest first, shown under Games. best_of: games in a set when the league plays sets every week (3 = best of three; unlabelled games of a week between the same two players are then grouped as one set). Without it, only games labelled with a set (index.json set, add_game.py --set) are grouped. set_points (with best_of): standings points for a set, [won without dropping a game, won, lost taking a game, lost without one]; the standings rank by them first. format: the Showdown format id of the league's games (a best-of-three replay's id adds bo3); every league has one (tests/test_tools.py checks it against the saved replays); the weekly bets show only for formats whose lines are worked out (Bet.BET_FORMATS: Nat Dex; no VGC for now, user 2026-10-29).",
   "site_url": "https://cvaranese.github.io/pkmn-stats-tracker/",
   "leagues": [
     {
       "id": "ppppp",
       "name": "Pinecord Pokémon Pissfest",
       "short": "Pinecord",
-      "bets": true,
       "tag": "PPPPP",
       "format": "gen9nationaldex",
       "format_name": "Nat Dex singles",
@@ -44,7 +43,7 @@
       "name": "Super Champions League",
       "short": "Super Champions",
       "tag": "SCL",
-      "format": "",
+      "format": "gen9championsvgc2026regmb",
       "format_name": "Pokémon Champions VGC doubles",
       "title": "Super Champions League",
       "description": "Kills, damage, MVPs and luck from Pokémon Showdown replays for the Super Champions League.",

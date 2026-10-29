@@ -4,8 +4,8 @@
 
 // the next branch's preview (/next/ in the address) or this computer: where the bets show
 const PREVIEW = ADMIN || location.pathname.includes("/next/");
-// leagues.json bets: on for Pinecord; off for VGC leagues until their lines are worked out (user 2026-10-29)
-const BETS_ON = PREVIEW && !!LEAGUE.bets;
+// only formats whose lines are worked out (Bet.BET_FORMATS): Nat Dex; no VGC for now (user 2026-10-29)
+const BETS_ON = PREVIEW && Bet.BET_FORMATS.includes(LEAGUE.format);
 let betsShown = false;
 onLeagueChange(() => { betsShown = false; });
 let betWeek = null;  // null: not picked yet (opens on the latest week)

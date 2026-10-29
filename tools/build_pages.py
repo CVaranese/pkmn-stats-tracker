@@ -74,7 +74,6 @@ def league_page(template, cfg, lg):
     page_info["brackets"] = lg.get("brackets", [])
     page_info["best_of"] = lg.get("best_of", 0)
     page_info["set_points"] = lg.get("set_points")
-    page_info["bets"] = bool(lg.get("bets"))
     page_info["palette"] = "" if lg.get("theme_css") else lg.get("palette", PALETTES[0])
     league_json = json.dumps(page_info, ensure_ascii=False).replace("</", "<\\/")
     # the league's own theme (its tokens over style.css's default theme), when it has one
