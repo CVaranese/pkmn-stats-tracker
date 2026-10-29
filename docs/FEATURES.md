@@ -14,13 +14,15 @@ Status: `todo` · `in progress` · `done` · `later` (the user set it aside). So
 
 ## v1.0 release (target set 2026-10-28)
 User 2026-10-28: data later (the user posts the links first); v1.0 = feature complete for now, with the missing playoffs features; the new
-league addresses (site root = league list, `/ppppp/`, `/scl/`) went live 2026-10-28. Checklist (proposed, not yet
-agreed with the user):
-- [ ] Pinecord data: the 72 checks in `docs/VIDEO_GAMES_AUDIT.md` fixed or marked fine (needs the videos).
-- [ ] Pinecord data: saved games match the bracket (Karm 6-1 saved vs 7-1 on Challonge): find the missing games in
-      `docs/LEAGUE_REPLAYS.md` and add them.
+league addresses (site root = league list, `/ppppp/`, `/scl/`) went live 2026-10-28. User 2026-10-29: 1.0 = the regular-season viewer; team sheets and the trades list can come
+after it. `main` stays the live site (every push to it deploys), so playoffs work happens on feature branches until
+it's ready. Checklist:
+- [x] Pinecord data: the checks in `docs/VIDEO_GAMES_AUDIT.md` fixed or marked fine (the audit finds nothing, 2026-10-29).
+- [x] Pinecord data: saved games match the bracket: all 48 Swiss games saved and checked against Challonge (2026-10-28).
+- [ ] Team sheets: the 60 Pinecord game sides with none (the user is collecting them; they come after 1.0).
+- [ ] Draft trades: the full list (only Dox's Falinks out so far, in `draft.json` `trades`; the user is getting it).
 - [ ] Super Champions League: games added (user, from 2026-10-28), coaches' Showdown names as draft aliases, format id.
-- [ ] Playoffs: playoff games labelled in Games and the Weeks picker.
+- [x] Playoffs: playoff games labelled in Games and the Weeks picker (Regular season / Playoffs / Both buttons, 2026-10-28; seen only on Super Champions so far).
 - [x] Sets / playoff series (2026-10-28): `League.sets` (index.json `set` labels from `add_game.py --set`; else, for a league with `best_of`, week + pair of players, flagged `unclear` when it can't be one set; user 2026-10-28: label manually, flag when unclear), Games set line + Set stats (Playoffs tab, stats summed), Main viewer set line, Players Sets column.
 - [ ] Review queue (`docs/REVIEW_QUEUE.md`) gone through by the user, phone width above all.
 - [x] Release notes for visitors: `site/releases.json` (What's new on the league list, version in each league page's footer), 2026-10-28.
