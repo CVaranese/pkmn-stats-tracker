@@ -1408,10 +1408,8 @@
    "winner": "DEJIME",
    "date": "2026-10-18",
    "turns": 18,
-   "note": "Stream video, errors",
-   "video": "https://youtu.be/s2ZnFx4iR1M",
-   "known_errors": "Turn 9: Zapdos is shown at 0% after Dragon Pulse but didn't faint (it comes back at 2%), so Raging Bolt's damage and Zapdos's damage taken are about 2% too high.",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which."
+   "note": "Stream video",
+   "video": "https://youtu.be/s2ZnFx4iR1M"
   },
   {
    "id": "gen9nationaldex-2705438906",

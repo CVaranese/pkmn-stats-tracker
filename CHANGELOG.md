@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Cloudburst vs DEJIME (Week 7) loses its "errors" note: the Zapdos turn it described is fixed.
 - Stream-video games, last review answers: confusion damage on Garchomp and Tinkaton, four drain heals with the real amounts, Scrafty and Hawlucha HP; every item on the review page is now settled and the misread audit finds nothing.
 - Stream-video games, from the stream text: Rough Skin / Iron Barbs hits (1/8 HP) in Cloudburst vs Weed and Nezergy vs Weed, Zapdos at 2% and Archaludon's Steel Beam in Cloudburst vs DEJIME, Population Bomb's 4 hits, Future Sight on Garganacl; 7 drain heals now exact, worked back from the stream's last hit before a faint.
 - DEJIME17 is shown as DEJIME everywhere (Games list, game viewer, saved games); the draft alias stays for replays fetched from Showdown.

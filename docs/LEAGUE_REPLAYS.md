@@ -12,10 +12,10 @@ Add them with `python -I tools/add_game.py <link> --week "<week>"` (the `add-gam
 | https://replay.pokemonshowdown.com/gen9nationaldex-2705148353 | Week 8 | yes |
 | https://replay.pokemonshowdown.com/gen9nationaldex-2705157049 | Week 8 | yes |
 | https://replay.pokemonshowdown.com/gen9nationaldex-2705438906 | Week 8 (2026-10-27, PotatoesAreYum won vs Big Large; week from date and replay ID next to the other Week 8 games) | yes, 2026-10-27 (both sheets full) |
-| https://replay.pokemonshowdown.com/gen9nationaldex-2677227914 | Week 1 (2026-09-07, Nezergy won; matches round 1 of the bracket) | yes, 2026-10-27 (sprites for Aron, Bronzong, Lycanroc, Enamorus-Therian, Houndstone still to save: Showdown down) |
+| https://replay.pokemonshowdown.com/gen9nationaldex-2677227914 | Week 1 (2026-09-07, Nezergy won; matches round 1 of the bracket) | yes, 2026-10-27 |
 
 Weeks confirmed 2026-10-27 from each replay's date and winner against the bracket (Week N = Swiss round N).
-No replay given for weeks 1, 2 or 7.
+All 48 Swiss games (weeks 1-8) are saved: 13 Showdown replays, 35 rebuilt from stream videos; checked against Challonge 2026-10-29 (every winner matches).
 
 ## Stream videos (no replay; rebuilt with tools/video_to_replay.py)
 
@@ -82,7 +82,7 @@ matching Challonge round 6 and every KO checked against the video. The Cloudburs
 games with the same teams: a played-back one weedinmyhonda won (3:20-11:30) and the live one azpmCloudburst won
 (21:50-28:40); only the second is in: the first was illegal and the set was replayed (user, 2026-10-27). Pikmon vs Karm (efjkWhTidmM): OCR too
 poor (dark theme, small text, 190 unconverted lines over 47 turns); added 2026-10-27 from the user's screenshots of
-the log (turns 1-46, turn 47 told in words), PeterPikmon won; not yet checked against Challonge round 6. Big Large vs Nezergy and Dox vs
+the log (turns 1-46, turn 47 told in words), PeterPikmon won, matching Challonge round 6. Big Large vs Nezergy and Dox vs
 Zololab have replays.
 
 Week 7 (playlist PLZdfOlhvaGgA, uploaded 2026-10-21; added 2026-10-27): Bad Bully vs Nezergy (eCis5-Ls6i0), Big Large
