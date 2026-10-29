@@ -29,6 +29,22 @@ it's ready. Checklist:
 - [x] Release: CHANGELOG's Unreleased cut as 1.0, a git tag `v1.0` (2026-10-29; the deployment as it was that day). Next: 1.1 = playoffs.
 - [x] Playoffs bracket: `peepeepeepeepisspiss` on Challonge (user, 2026-10-28), shown under Games next to the Swiss rounds (`brackets` in site/leagues.json). Playoff records / results on the site itself (beyond the Challonge frame): not done.
 
+## Work order after 1.0 (user 2026-10-29)
+From the review in `docs/audits/2026-10-29-review.md` (its R / T numbers). Each step on its own feature branch,
+merged into `next` when it works alone; one session per step. Handoff: `docs/audits/HANDOFF-2026-10-29.md`.
+- [x] 0. Tests before every deploy (T1), the old Python CLI deleted, the video tools archived in `tools/video/`
+      (2026-10-29, on `main`).
+- [ ] 1. Parser: a snapshot of every saved league game's per-Pokémon stats (T2), then each hit and heal with its turn
+      (R1). The snapshot must pass unchanged after R1.
+- [ ] 2. Team sheets per Pokémon (R2, T5) and the Pokémon tab's season sets (the sets each Pokémon was used with).
+- [ ] 3. Standings / tie-breaks and the trade pool into `league.js` / `bet.js` with tests (R3, T3, T4); one list of
+      the league caches (R5). After step 2 (both edit `tests/tests.js`).
+- [ ] 4. Small open findings (#4, #7, #8, #9, #10, #13) and the remaining tests (T6 preview script + banner egg,
+      T7 `set_illusion.py`, T8 share links + stage picker).
+- [ ] Later, only if needed: splitting `parseBattle` into one handler per log command (R4), after step 1's
+      snapshot exists. Fewer requests per tab (one combined file per league): not needed now (2026-10-29).
+- Then the playoffs features (1.1), on top of steps 1-3.
+
 ## Bugs / correctness first
 | Status | Item | Notes |
 |---|---|---|
