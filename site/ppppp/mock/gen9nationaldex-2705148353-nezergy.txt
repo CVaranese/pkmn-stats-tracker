@@ -1,0 +1,57 @@
+John Valiant (Iron Valiant) @ Booster Energy  
+Ability: Quark Drive  
+EVs: 4 HP / 252 SpA / 48 SpD / 204 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Encore  
+- Moonblast  
+- Vacuum Wave  
+- Calm Mind  
+
+Mr. Phan (Donphan) @ Custap Berry  
+Ability: Sturdy  
+EVs: 224 HP / 32 Atk / 252 Def  
+Impish Nature  
+- Earthquake  
+- Stealth Rock  
+- Endeavor  
+- Ice Shard  
+
+;) (Zeraora) @ Shuca Berry  
+Ability: Volt Absorb  
+EVs: 184 Def / 252 SpA / 72 Spe  
+Rash Nature  
+IVs: 0 Atk  
+- Volt Switch  
+- Grass Knot  
+- Hidden Power [Ice]  
+- Calm Mind  
+
+:3 (Meowscarada) @ Choice Scarf  
+Ability: Protean  
+EVs: 4 HP / 252 Atk / 252 Spe  
+Jolly Nature  
+- Play Rough  
+- U-turn  
+- Flower Trick  
+- Thunder Punch  
+
+feesh (Tapu Fini) @ Weakness Policy  
+Ability: Misty Surge  
+EVs: 232 HP / 152 SpA / 116 SpD / 8 Spe  
+Modest Nature  
+IVs: 0 Atk  
+- Draining Kiss  
+- Surf  
+- Shadow Ball  
+- Moonblast  
+
+circel (Volcanion) @ Air Balloon  
+Ability: Water Absorb  
+EVs: 248 HP / 252 SpA / 8 SpD  
+Modest Nature  
+IVs: 0 Atk  
+- Steam Eruption  
+- Flamethrower  
+- Hidden Power [Electric]  
+- Earth Power

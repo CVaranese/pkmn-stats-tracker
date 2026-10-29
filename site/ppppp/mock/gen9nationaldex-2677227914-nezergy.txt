@@ -1,0 +1,63 @@
+watt (Iron Valiant) @ Life Orb  
+Ability: Quark Drive  
+Tera Type: Fairy  
+EVs: 32 Def / 252 SpA / 224 Spe  
+Naive Nature  
+- Moonblast  
+- Vacuum Wave  
+- Knock Off  
+- Close Combat  
+
+parakarry (Corviknight) @ Rocky Helmet  
+Ability: Mirror Armor  
+Tera Type: Flying  
+EVs: 248 HP / 252 Def / 8 SpD  
+Impish Nature  
+- U-turn  
+- Roost  
+- Body Press  
+- Iron Defense  
+
+bombette (Aron) @ Heavy-Duty Boots  
+Ability: Sturdy  
+Level: 1  
+Shiny: Yes  
+Tera Type: Steel  
+EVs: 36 Spe  
+Bashful Nature  
+IVs: 0 Atk  
+- Endeavor  
+- Roar  
+- Toxic  
+- Metal Burst  
+
+kooper (Donphan) @ Custap Berry  
+Ability: Sturdy  
+Tera Type: Ghost  
+EVs: 248 HP / 12 Atk / 244 Def / 4 Spe  
+Impish Nature  
+- Stealth Rock  
+- Earthquake  
+- Roar  
+- Endeavor  
+
+lakilester (Tapu Fini) @ Leftovers  
+Ability: Misty Surge  
+Tera Type: Water  
+EVs: 220 HP / 152 Def / 120 SpD / 16 Spe  
+Bold Nature  
+IVs: 0 Atk  
+- Calm Mind  
+- Surf  
+- Moonblast  
+- Draining Kiss  
+
+goombario (Meowscarada) @ Choice Band  
+Ability: Protean  
+Tera Type: Grass  
+EVs: 252 Atk / 88 SpD / 168 Spe  
+Jolly Nature  
+- Low Kick  
+- Knock Off  
+- U-turn  
+- Triple Axel

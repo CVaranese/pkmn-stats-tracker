@@ -1,0 +1,59 @@
+Avian (Corviknight) @ Shed Shell  
+Ability: Mirror Armor  
+EVs: 224 HP / 204 Def / 44 SpD / 36 Spe  
+Impish Nature  
+- Brave Bird  
+- U-turn  
+- Body Press  
+- Roost  
+
+Neos (Iron Valiant) @ Fightinium Z  
+Ability: Quark Drive  
+Tera Type: Fairy  
+EVs: 108 Atk / 148 SpA / 252 Spe  
+Naive Nature  
+- Moonblast  
+- Close Combat  
+- Knock Off  
+- Encore  
+
+Burstinatrix (Slither Wing) @ Booster Energy  
+Ability: Protosynthesis  
+Tera Type: Fire  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Jolly Nature  
+- Leech Life  
+- Earthquake  
+- Flame Charge  
+- Bulk Up  
+
+Bubbleman (Tapu Fini) @ Leftovers  
+Ability: Misty Surge  
+Shiny: Yes  
+Tera Type: Water  
+EVs: 252 HP / 64 Def / 192 Spe  
+Bold Nature  
+IVs: 0 Atk  
+- Calm Mind  
+- Surf  
+- Draining Kiss  
+- Taunt  
+
+Clayman (Donphan) @ Rocky Helmet  
+Ability: Sturdy  
+Tera Type: Ghost  
+EVs: 248 HP / 16 Atk / 244 Def  
+Impish Nature  
+- Stealth Rock  
+- Earthquake  
+- Knock Off  
+- Rapid Spin  
+
+Zeraora @ Heavy-Duty Boots  
+Ability: Volt Absorb  
+EVs: 252 Atk / 84 Def / 24 SpA / 28 SpD / 120 Spe  
+Hasty Nature  
+- Plasma Fists  
+- Hidden Power [Ice]  
+- Volt Switch  
+- Close Combat

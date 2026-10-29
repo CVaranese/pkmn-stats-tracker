@@ -29,7 +29,10 @@
    "winner": "Nezergy",
    "date": "2026-09-06",
    "turns": 15,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "nezergy"
+   ]
   },
   {
    "id": "gen9nationaldex-2684999355",
@@ -60,7 +63,10 @@
    "winner": "Nezergy",
    "date": "2026-09-20",
    "turns": 22,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "nezergy"
+   ]
   },
   {
    "id": "gen9nationaldex-2689027321",
@@ -91,7 +97,10 @@
    "winner": "chicken parm karm",
    "date": "2026-09-27",
    "turns": 20,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "nezergy"
+   ]
   },
   {
    "id": "gen9nationaldex-2693018008",
@@ -127,7 +136,10 @@
     "p2": [
      5
     ]
-   }
+   },
+   "sheets": [
+    "nezergy"
+   ]
   },
   {
    "id": "gen9nationaldex-2696941700",
@@ -158,7 +170,10 @@
    "winner": "nezergy",
    "date": "2026-10-11",
    "turns": 30,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "nezergy"
+   ]
   },
   {
    "id": "gen9nationaldex-2705148353",
@@ -189,7 +204,10 @@
    "winner": "Nezergy",
    "date": "2026-10-25",
    "turns": 23,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "nezergy"
+   ]
   },
   {
    "id": "gen9nationaldex-2705157049",
@@ -352,7 +370,10 @@
    "date": "2026-09-13",
    "turns": 45,
    "note": "Stream video",
-   "video": "https://youtu.be/d1nX5QVh-CA"
+   "video": "https://youtu.be/d1nX5QVh-CA",
+   "sheets": [
+    "nezergy"
+   ]
   },
   {
    "id": "video-yytuzxi96hg",
@@ -1263,7 +1284,10 @@
    "date": "2026-10-18",
    "turns": 26,
    "note": "Stream video",
-   "video": "https://youtu.be/eCis5-Ls6i0"
+   "video": "https://youtu.be/eCis5-Ls6i0",
+   "sheets": [
+    "nezergy"
+   ]
   },
   {
    "id": "video-iysf4aqc3jq",

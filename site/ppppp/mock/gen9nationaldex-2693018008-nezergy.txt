@@ -1,0 +1,57 @@
+EXA (Zeraora) @ Life Orb  
+Ability: Volt Absorb  
+EVs: 140 Def / 252 SpA / 116 Spe  
+Modest Nature  
+IVs: 0 Atk  
+- Volt Switch  
+- Hidden Power [Ice]  
+- Thunderbolt  
+- Electric Terrain  
+
+[A] (Tentacruel) @ Assault Vest  
+Ability: Liquid Ooze  
+EVs: 252 HP / 148 Def / 108 SpD  
+Calm Nature  
+- Scald  
+- Mirror Coat  
+- Knock Off  
+- Ice Beam  
+
+にニニコ (Donphan) @ Leftovers  
+Ability: Sturdy  
+Tera Type: Ghost  
+EVs: 248 HP / 16 Atk / 244 Def  
+Impish Nature  
+- Stealth Rock  
+- Earthquake  
+- Knock Off  
+- Ice Spinner  
+
+NEO (Latias-Mega) (F) @ Latiasite  
+Ability: Levitate  
+EVs: 68 HP / 252 SpA / 188 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Draco Meteor  
+- Mystical Fire  
+- Mist Ball  
+- Grass Knot  
+
+LFFN (Zoroark-Hisui) @ Choice Specs  
+Ability: Illusion  
+EVs: 4 HP / 252 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Shadow Ball  
+- Grass Knot  
+- Flamethrower  
+- Trick  
+
+20XX (Iron Valiant) @ Booster Energy  
+Ability: Quark Drive  
+EVs: 252 Atk / 4 Def / 12 SpD / 240 Spe  
+Jolly Nature  
+- Close Combat  
+- Spirit Break  
+- Swords Dance  
+- Encore

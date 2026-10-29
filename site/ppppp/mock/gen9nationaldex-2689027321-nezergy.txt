@@ -1,0 +1,55 @@
+Averill (Tentacruel) @ Assault Vest  
+Ability: Clear Body  
+EVs: 252 HP / 240 SpD / 16 Spe  
+Careful Nature  
+- Flip Turn  
+- Rapid Spin  
+- Knock Off  
+- Hydro Pump  
+
+Anderson (Zeraora) @ Expert Belt  
+Ability: Volt Absorb  
+EVs: 8 HP / 28 Def / 208 SpA / 76 SpD / 188 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Thunderbolt  
+- Volt Switch  
+- Taunt  
+- Hidden Power [Ice]  
+
+Briggs (Meowscarada) @ Choice Scarf  
+Ability: Protean  
+EVs: 4 HP / 252 Atk / 252 Spe  
+Jolly Nature  
+- Flower Trick  
+- Knock Off  
+- Triple Axel  
+- U-turn  
+
+Christenson (Corviknight) @ Light Clay  
+Ability: Pressure  
+EVs: 248 HP / 12 Def / 248 SpD  
+Careful Nature  
+- Reflect  
+- U-turn  
+- Light Screen  
+- Roost  
+
+DeFalco (Iron Valiant) @ Booster Energy  
+Ability: Quark Drive  
+EVs: 4 HP / 252 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Moonblast  
+- Thunderbolt  
+- Shadow Ball  
+- Destiny Bond  
+
+Champlin (Donphan) @ Leftovers  
+Ability: Sturdy  
+EVs: 248 HP / 252 Atk / 8 SpD  
+Adamant Nature  
+- Stealth Rock  
+- Earthquake  
+- Ice Spinner  
+- Rapid Spin

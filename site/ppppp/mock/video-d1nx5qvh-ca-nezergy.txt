@@ -1,0 +1,56 @@
+Iron Valiant @ Expert Belt  
+Ability: Quark Drive  
+Tera Type: Fairy  
+EVs: 56 Atk / 252 SpA / 200 Spe  
+Naive Nature  
+- Moonblast  
+- Knock Off  
+- Vacuum Wave  
+- Ice Punch  
+
+Corviknight @ Rocky Helmet  
+Ability: Pressure  
+EVs: 248 HP / 204 Def / 56 SpD  
+Impish Nature  
+- Brave Bird  
+- U-turn  
+- Defog  
+- Roost  
+
+Tapu Fini @ Icium Z  
+Ability: Misty Surge  
+EVs: 252 HP / 192 Def / 64 SpD  
+Bold Nature  
+IVs: 0 Atk  
+- Haze  
+- Moonblast  
+- Defog  
+- Protect  
+
+Zeraora @ Shuca Berry  
+Ability: Volt Absorb  
+EVs: 252 Atk / 8 SpA / 248 Spe  
+Naughty Nature  
+- Plasma Fists  
+- Brick Break  
+- Volt Switch  
+- Hidden Power [Ice]  
+
+Meowscarada @ Heavy-Duty Boots  
+Ability: Protean  
+EVs: 252 Atk / 112 Def / 144 Spe  
+Jolly Nature  
+- Brick Break  
+- Knock Off  
+- U-turn  
+- Triple Axel  
+
+Donphan @ Custap Berry  
+Ability: Sturdy  
+Tera Type: Ghost  
+EVs: 248 HP / 252 Atk / 8 SpD  
+Adamant Nature  
+- Stealth Rock  
+- Earthquake  
+- Endeavor  
+- Smart Strike

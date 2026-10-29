@@ -1,0 +1,59 @@
+apologyman (Meowscarada) @ Choice Scarf  
+Ability: Protean  
+EVs: 40 HP / 252 Atk / 16 SpD / 200 Spe  
+Jolly Nature  
+- Flower Trick  
+- Knock Off  
+- Triple Axel  
+- U-turn  
+
+hookganggod (Donphan) @ Leftovers  
+Ability: Sturdy  
+Tera Type: Ghost  
+EVs: 248 HP / 16 Atk / 244 Def  
+Impish Nature  
+- Stealth Rock  
+- Earthquake  
+- Knock Off  
+- Rapid Spin  
+
+arslan ash (Slither Wing) @ Heavy-Duty Boots  
+Ability: Protosynthesis  
+Tera Type: Steel  
+EVs: 252 HP / 28 Atk / 220 Def / 8 Spe  
+Impish Nature  
+- First Impression  
+- U-turn  
+- Morning Sun  
+- Earthquake  
+
+leffen (Zoroark-Hisui) @ Choice Specs  
+Ability: Illusion  
+Tera Type: Normal  
+EVs: 4 HP / 252 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Shadow Ball  
+- Focus Blast  
+- Trick  
+- Sludge Bomb  
+
+sonicfox (Iron Valiant) @ Booster Energy  
+Ability: Quark Drive  
+Tera Type: Fairy  
+EVs: 108 Atk / 148 SpA / 252 Spe  
+Naive Nature  
+- Moonblast  
+- Shadow Ball  
+- Close Combat  
+- Vacuum Wave  
+
+jwong (Latias-Mega) (F) @ Latiasite  
+Ability: Levitate  
+EVs: 4 HP / 252 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Shadow Ball  
+- Draco Meteor  
+- Aura Sphere  
+- Surf
