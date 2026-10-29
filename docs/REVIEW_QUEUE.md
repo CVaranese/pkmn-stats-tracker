@@ -2,17 +2,8 @@
 
 Things only a person can check. Remove an item once checked.
 
-- [ ] Pokémon tab: the big animated sprite on the right (outlined box, 260px; above the moves on a phone). Enough to fill the space, or would you want something more there (types, base stats, its best game)?
 - [ ] Names that open a season (team card player name, Draft names) now look like plain text; on a computer they turn accent and underline on hover. On a phone nothing shows they're tappable: OK?
-
-- [ ] Players Forfeits column: Pinecord shows pee nation 3, DEJIME 1, ElkG Big Large 1; Super Champions Sean 1 (counted from the logs). Should timer losses (lost on inactivity) count too?
-- [ ] Moves list (Pokémon tab, and a team card's More detail): full names, ×casts lined up, shorter bars. Readable dark and light? On a phone (checked in a 360px frame) the bar, damage and KOs sit under the name.
-- [ ] Replay player on a best of 3 game: "Game 1 of a best-of-3" is no longer a link. Fine, or should it open the set (Set stats)?
-
-- [ ] Main viewer, a Super Champions game: each team card's big sprite now sits in a box (surface, thin border, accent border on hover) and opens the Pokémon tab; the "<Pokémon>'s season" link is gone. Does the box read as clickable, dark and light? Try it on a phone (not checked there).
-- [ ] Set stats (Games tab, or "Set stats" on a game's line): it now shows "Set stats: A vs B", the week, the score and Game 1 / 2 / 3 links above the totals table, with the Games tab marked instead of Playoffs. Is that where you expected to land? The link box is folded away ("Show links and sheets" still opens it).
-- [ ] Players tab, Super Champions: standings by sets won, game difference, games won, head to head (Sets / Games / Diff columns). Regular season / Playoffs / Both buttons (Games, Players, Pokémon; one choice for all three, Regular season to start): is Regular season the right start, and is one shared choice right? 65 regular-season sets are counted, a full round robin is 66: Leaf has 10, so one set seems to have neither a replay nor a `missing` entry.
-
+- [ ] Replay player, a Super Champions game: click "a best-of-3" in "Game 1 of a best-of-3". It should open that set's stats (Set stats view) in the same tab. Checked: the link is written right and ?set=<one game> opens the whole set; the click itself not tried.
 - [ ] Super Champions Games tab, every set has 3 game rows: with results hidden a game that wasn't played (2–0) or has no replay looks like a played one (team, Watch, Stats; clicking says what happened) and the set line says "best of 3"; with Show results (or `?results` in the address) it reads "Not played" / "No replay", muted. Check Week 9 Dox vs Leaf (no replays at all), Week 3 Soop vs Kirbyhat (game 1 no replay), Playoffs R1 Aargab vs Saltyswede (games 1-2 no replay, score "1–0 · 2 with no replay"), on a phone too.
 - [ ] Sets, once the first Super Champions games are in: Games (a band-coloured Set line above the set's games, Game 1/2/3, score only with Show results, Set stats), Main viewer's game line ("game 2 of 3 in the set", Set stats link), Players' Sets column. Checked only with three Pinecord games relabelled as a fake set (removed). Sets come from `--set` labels, or (Super Champions only, best_of 3) the week + the two players, with a "May be two sets" mark when that guess can't be right. Is the mark's wording clear? Phone not checked.
 - [ ] Games tab on Pinecord, live site: open Bracket. Playoffs should show first, and Swiss rounds should switch to the old bracket (the Challonge link under the tabs follows). Not checked with the box open (Challonge's frame never loaded in a headless check).
@@ -37,9 +28,6 @@ Things only a person can check. Remove an item once checked.
 - [ ] New tabs: Fantasy (the old Gambling) and Gambling, "The back room": a short under-construction tease ("Bring a hunch about the bracket. Maybe a feeling about crits."), no features named, no "no real money" line (user 2026-10-28). Tone right? Seven tabs on a phone scroll sideways (not checked).
 - [ ] Main viewer: the tab name, and the "League game" list above "Or paste any replay link". Picking a game loads it at once. Phone width not checked.
 
-
-
-
 - [ ] Games tab, live site: team sprites are the pixel sprites cropped and scaled to fill the box (HOME renders tried and dropped). Any Pokémon still small? Those have no saved copy in site/sprites/gen5/. Rows: lines full width, "vs" lined up; a long name like "chicken parm karm" fits, a longer one is cut with …. Phone layout not rechecked.
 
 - [ ] Stream-video games (Games tab, "From the stream video"): on the live site, press Watch on one. Does the YouTube video play in the frame (and full screen)? In One game, "Watch the battle" should play it too, and the game's link goes to YouTube. The local preview has no sprites, so team rows there show initials.
@@ -54,7 +42,6 @@ Things only a person can check. Remove an item once checked.
 
 - [ ] Phone, after the 2026-10-27 fixes: the tab row fits without the Hide button; tapping a game row in Games opens it; "Hide links and sheets" (now after Download CSV) hides and shows the links; "How each column is counted" under "Every Pokémon" is easy to find. The table area wasn't in any screenshot (headless Edge cut off above it).
 - [ ] Header text: "Kills, damage, MVPs and luck from Pinecord's Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets." Right wording? (Title renamed to "The Draftboard", user 2026-10-28.)
-
 
 - [ ] Pokémon tab: "Find a Pokémon" box at the top. Type "zam" or a player ("karm"): matches show as buttons (Enter opens the first), the list below shrinks. Checked in a 360px frame (dark); not on a real phone keyboard.
 - [ ] Phone: the main tabs are the computer ones in a row that slides sideways (fade on the right; it jumps to Gambling when that tab is open). Checked in a 360px frame (`tests/phone.html?w=360&tab=bet`), not on a real phone: does swiping it feel right? Tapping a player opens their games without a tip box first.

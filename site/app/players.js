@@ -24,6 +24,9 @@ const TIMER_TITLE = "Games where they turned on the battle timer (the replay say
 const FORFEIT_TITLE = "Games they forfeited (the log says who; games with no saved replay can't show it).";
 /** Games a player forfeited: lost, ended by forfeit. */
 const forfeits = (pl) => perGameRows(pl.rows).filter((r) => r.end_reason === "forfeit" && !r.won).length;
+// a loss on the timer ("X lost due to inactivity."): its own column (user 2026-10-28), shown once any game ended that way
+const TIMEOUT_TITLE = "Games they lost on the battle timer (ran out of time).";
+const timeouts = (pl) => perGameRows(pl.rows).filter((r) => r.end_reason === "timer" && !r.won).length;
 async function renderPlayers() {
   if (players) return;
   players = [];  // marks the tab as rendering
@@ -77,6 +80,7 @@ async function renderPlayers() {
   const counted = new Set(all.map((r) => r.replay_id)).size;
   $("pl-status").textContent = counted < games.length ? `Counted ${counted} of ${games.length} games (the rest didn't load).` : "";
   const num = (label, title, key) => ({ label, cls: "num", title, key });
+  const anyTimeout = players.some((pl) => timeouts(pl) > 0);
   // a league that plays sets: the set record first (sorting by it gives the standings), then games won – lost
   const setCols = bestOf ? [
     num("Sets", `Sets won – lost (best of ${bestOf}). Standings: sets won, then game difference, then games won, then ` +
@@ -101,6 +105,7 @@ async function renderPlayers() {
     num("Pace", PACE_TITLE, (pl) => paceOf(pl.rows) ?? Infinity),
     num("Timer on", TIMER_TITLE, (pl) => sum(perGameRows(pl.rows), "timer_on")),
     num("Forfeits", FORFEIT_TITLE, forfeits),
+    ...(anyTimeout ? [num("Timed out", TIMEOUT_TITLE, timeouts)] : []),
     { label: "Most used", title: "The Pokémon they brought most often.", key: (pl) => (pl.used[0] ? pl.used[0].pokemon : "") },
     { label: "Top MVP", title: "The Pokémon that was Team MVP most often.", key: (pl) => (pl.mvp && pl.mvp.mvps ? pl.mvp.pokemon : "") },
   ], players, plSort, (pl) => {
@@ -112,7 +117,8 @@ async function renderPlayers() {
       [[String(pl.wins), "num"], [String(pl.losses), "num"], ...(hasSets ? [[`${pl.setWins}–${pl.setLosses}`, "num"]] : [])]),
       [String(sum(pl.rows, "kills")), "num"], [String(sum(pl.rows, "deaths")), "num"], [rowsDealt(pl.rows), "num"],
       [seasonLuckBadge(perGameRows(pl.rows), "player_luck", "player_luck_var"), ""],
-      [paceOf(pl.rows) === null ? "–" : paceOf(pl.rows) + " s", "num"], [String(sum(perGameRows(pl.rows), "timer_on")), "num"], [String(forfeits(pl)), "num"], [used, ""],
+      [paceOf(pl.rows) === null ? "–" : paceOf(pl.rows) + " s", "num"], [String(sum(perGameRows(pl.rows), "timer_on")), "num"], [String(forfeits(pl)), "num"],
+      ...(anyTimeout ? [[String(timeouts(pl)), "num"]] : []), [used, ""],
       [pl.mvp && pl.mvp.mvps ? `${pl.mvp.pokemon} ×${pl.mvp.mvps}` : "–", ""]];
   }, (sorted) => {
     [...$("pl-table").rows].slice(1).forEach((tr, i) => {

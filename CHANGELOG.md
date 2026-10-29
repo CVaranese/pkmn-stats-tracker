@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Replay player: "a best-of-3" (in "Game 1 of a best-of-3") opens that set's stats on the league page.
+- Players: a Timed out column (games lost on the battle timer), shown once any saved game ended that way.
 - Moves list: P / S / – (physical / special / status) in its own lined-up column.
 - Pokémon tab: the picked Pokémon's big animated sprite in a box beside its moves and KOs (above them on phones).
 - Player and Pokémon names that open their season look like plain text now (accent and underline only on hover), not blue underlined links.

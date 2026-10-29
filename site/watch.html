@@ -34,6 +34,14 @@
       const replay = !ok ? Promise.reject(new Error("no replay id")) :
         get(league + "games/" + id + ".json")
           .catch(() => get("https://replay.pokemonshowdown.com/" + id + ".json"));
+      // Showdown's player gives every log link target="_blank": the set link opens the set in this tab (the league page
+      // around this frame) instead of a new one
+      document.addEventListener("click", (e) => {
+        const a = e.target.closest && e.target.closest('a[href*="?set="]');
+        if (!a || e.button || e.ctrlKey || e.metaKey || e.shiftKey) return;
+        e.preventDefault();
+        window.top.location.href = a.href;
+      }, true);
       // replaces the embed's own onload: start once the page's scripts and the log are both here
       window.onload = function () {
         replay.then((r) => {
@@ -41,8 +49,10 @@
           data.type = "text/plain";
           data.className = "battle-log-data";
           // "Game 1 of <a href="/game-bestof3-...">a best-of-3</a>": a link to Showdown's series room, which pointed
-          // at this site (a 404) and is gone on Showdown's replay site too; keep the words only
-          data.textContent = r.log.replace(/<a href="\/game-bestof\d+-[^"]*">([^<]*)<\/a>/g, "$1");
+          // at this site (a 404) and is gone on Showdown's replay site too. A league game's opens its set's stats on
+          // the league page (?set=<this game>: the page finds the rest of the set); anywhere else just the words
+          const setLink = league ? "<a href=\"" + league + "?set=" + id + "\" target=\"_top\">$1</a>" : "$1";
+          data.textContent = r.log.replace(/<a href="\/game-bestof\d+-[^"]*">([^<]*)<\/a>/g, setLink);
           document.body.appendChild(data);
           if (!window.Replays || !window.Battle) throw new Error("Pokémon Showdown's player didn't load");
           window.Replays.init();

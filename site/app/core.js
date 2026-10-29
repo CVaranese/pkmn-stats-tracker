@@ -239,10 +239,12 @@ function openGame(id) {
 // the Games tab marked, the link box folded away
 let openedSet = null;
 /** Open a set's games together (from Games or a game's line in Main viewer): their stats added up under the set's
-    name. push: false when Back / Forward or a ?set= link brings it back. */
+    name. push: false when Back / Forward or a ?set= link brings it back. One game's id is enough: ?set=<id> opens
+    that game's whole set. */
 function openSet(ids, push = true) {
   const first = library.find((g) => g.id === ids[0]);
   const s = first && setOf(first);
+  if (s) ids = s.games.map((g) => g.id);  // any one game's id opens its whole set (the replay player's "a best-of-3")
   $("links").value = ids.map(linkFor).join("\n");
   $("links").dispatchEvent(new Event("input"));
   setMode("many");
