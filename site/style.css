@@ -602,3 +602,4 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .award-who > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .award-who .muted { font-size: var(--fs-sm); }
 .award-value { font-size: var(--fs-md); text-align: right; white-space: nowrap; }
+.award-more { margin: 6px 0 0; font-size: var(--fs-sm); cursor: help; }
