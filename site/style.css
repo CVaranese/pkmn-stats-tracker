@@ -1,3 +1,27 @@
+/* Sizes, the same in every theme: change one here to retune the whole site. Font sizes from small labels up to
+   headings (body text is --fs-body); --fs-input stays 16px or more (iOS zooms the page on a smaller input). */
+:root {
+  --fs-3xs: 10px;  /* turn numbers under the turn strip */
+  --fs-2xs: 11px;  /* type chips, Mega / Z marks, tiny sprite initials */
+  --fs-xs: 12px;   /* badges, stat labels, small headings in a card */
+  --fs-sm: 13px;   /* small buttons, inputs, move counts */
+  --fs-md: 14px;   /* tables, hints, tabs, most card text */
+  --fs-body: 15px; /* body text */
+  --fs-lg: 16px;   /* stat values, card headings */
+  --fs-xl: 17px;   /* Momentum and Team headings */
+  --fs-2xl: 18px;  /* section titles, team names */
+  --fs-3xl: 20px;  /* a Pokémon's name on its card */
+  --fs-4xl: 24px;  /* initials in a big sprite box (when the sprite doesn't load) */
+  --fs-5xl: 32px;  /* initials in the Pokémon tab's picture */
+  --fs-input: 16px;
+  --radius-xs: 3px;  /* chips, turn squares */
+  --radius-sm: 4px;  /* league thumbnails */
+  --radius: 6px;     /* buttons, inputs (docs/STYLE.md) */
+  --radius-md: 8px;  /* cards, tables, boxes */
+  --radius-lg: 12px; /* the page panel */
+  --mark-ink: #1c1c1a;   /* Mega badge, Z badge text */
+  --mark-paper: #ffffff; /* Mega badge text */
+}
 /* The default theme, for a league without its own (site/<league>/theme.css redefines these tokens). Three palettes
    after starter Pokémon, picked in the page header (html data-palette): Blastoise (the default: blue shell, cream
    belly), Charizard (orange, flame yellow), Venusaur (green, flower pink). */
@@ -117,19 +141,19 @@ body {
   margin: 0;
   background: var(--wall);
   color: var(--text);
-  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: var(--fs-body)/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 main { max-width: 1100px; margin: 24px auto; padding: 24px 24px 48px; background: var(--bg);
-  border: 3px solid var(--outline); border-radius: 12px; }
+  border: 3px solid var(--outline); border-radius: var(--radius-lg); }
 header { display: grid; grid-template-columns: minmax(0, 420px) 1fr; gap: 20px; align-items: center;
   padding-bottom: 20px; margin-bottom: 20px; position: relative; }
 /* a line under the header (Pinecord: the banner's striped floor) */
-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; border-radius: 3px;
+header::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; border-radius: var(--radius-xs);
   background: var(--stripe); }
 /* the banner's hidden link to the next version's preview (banner.egg in leagues.json): no look of its own, the cursor gives it away */
 .banner-box { position: relative; }
 .egg { position: absolute; display: block; border-radius: 50%; }
-.banner { display: block; width: 100%; height: auto; border: 3px solid var(--outline); border-radius: 8px; }
+.banner { display: block; width: 100%; height: auto; border: 3px solid var(--outline); border-radius: var(--radius-md); }
 h1 { font-size: 1.6rem; margin: 0 0 4px; }
 .lede { color: var(--muted); margin: 0; max-width: 70ch; }
 header:not(:has(.banner)) { grid-template-columns: 1fr; }
@@ -148,15 +172,15 @@ header:has(.palette-pick) > div:not(.banner-box) { padding-right: 170px; }
 /* landing page: one row per league, its banner as a thumbnail */
 .league-list { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 12px; max-width: 720px; }
 .league-list a { display: flex; align-items: center; gap: 16px; padding: 12px; color: var(--text); text-decoration: none;
-  background: var(--surface); border: 2px solid var(--outline); border-radius: 8px; }
-.league-list img { width: 160px; height: auto; border-radius: 4px; flex: none; }
-.league-list strong { display: block; font-size: 18px; }
+  background: var(--surface); border: 2px solid var(--outline); border-radius: var(--radius-md); }
+.league-list img { width: 160px; height: auto; border-radius: var(--radius-sm); flex: none; }
+.league-list strong { display: block; font-size: var(--fs-2xl); }
 @media (hover: hover) { .league-list a:hover { border-color: var(--accent); } }
 /* What's new on the league list (site/releases.json), and the version line at the bottom of each league page */
 .news { max-width: 720px; }
-.news h3 { font-size: 16px; margin: 14px 0 4px; }
+.news h3 { font-size: var(--fs-lg); margin: 14px 0 4px; }
 .news ul { margin: 0; padding-left: 20px; }
-.site-foot { margin-top: 32px; padding-top: 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; }
+.site-foot { margin-top: 32px; padding-top: 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: var(--fs-md); }
 .site-foot a { color: var(--accent); }
 @media (max-width: 600px) { .league-list a { flex-direction: column; align-items: flex-start; } .league-list img { width: 100%; } }
 
@@ -168,14 +192,14 @@ textarea, input[type=text], select, button {
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
 }
-input[type=text] { width: 100%; padding: 9px 10px; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+input[type=text] { width: 100%; padding: 9px 10px; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: var(--fs-sm); }
 textarea {
   width: 100%;
   padding: 10px;
   font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  font-size: 13px;
+  font-size: var(--fs-sm);
   resize: vertical;
 }
 select { padding: 5px 8px; }
@@ -184,7 +208,7 @@ button { padding: 7px 14px; cursor: pointer; }
 button:disabled { opacity: 0.5; cursor: default; }
 button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
 /* secondary actions inside toolbars and table rows */
-button.small { padding: 4px 10px; font-size: 13px; }
+button.small { padding: 4px 10px; font-size: var(--fs-sm); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .row, .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; }
@@ -196,8 +220,8 @@ button.small { padding: 4px 10px; font-size: 13px; }
   padding: 10px 14px 10px 30px;
   background: var(--error-bg);
   color: var(--error);
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--radius);
+  font-size: var(--fs-md);
   overflow-wrap: anywhere;
 }
 
@@ -206,8 +230,8 @@ button.small { padding: 4px 10px; font-size: 13px; }
   padding: 10px 14px 10px 30px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--radius);
+  font-size: var(--fs-md);
   overflow-wrap: anywhere;
 }
 
@@ -220,17 +244,17 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .sheets { margin-top: 16px; }
 .sheets summary { cursor: pointer; font-weight: 600; }
 .muted, .hint { color: var(--muted); font-weight: 400; }
-.hint { margin: 8px 0; max-width: 80ch; font-size: 14px; }
+.hint { margin: 8px 0; max-width: 80ch; font-size: var(--fs-md); }
 .sheet { margin-top: 10px; }
 .sheet .row { margin-top: 4px; }
-.sheet .status { font-size: 14px; overflow-wrap: anywhere; }
+.sheet .status { font-size: var(--fs-md); overflow-wrap: anywhere; }
 .sheet .status.bad { color: var(--error); }
 
 .results { margin-top: 24px; }
 
 /* main tabs: Main viewer, Games, Players, Pokémon, Draft, Fantasy, Gambling */
 .modes { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--outline); }
-.modes button { border: 2px solid transparent; border-bottom: 0; border-radius: 6px 6px 0 0; margin-bottom: -2px;
+.modes button { border: 2px solid transparent; border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0; margin-bottom: -2px;
   background: transparent; padding: 8px 16px; font-weight: 600; color: var(--muted); }
 .tab-page { padding: 8px 0 24px; }
 /* Players, Pokémon: Regular season / Playoffs / Both and the Weeks picker on one line */
@@ -239,22 +263,22 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .mon-kos { margin-top: 10px; }
 /* Pokémon tab: its moves and KOs on the left, its picture on the right (big animated sprite, pixels kept sharp) */
 .mon-top { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; align-items: start; }
-.mon-art { margin: 0; padding: 12px; border: 2px solid var(--outline); border-radius: 8px; background: var(--row-alt); }
-.sprite.art { width: 100%; height: auto; aspect-ratio: 1; font-size: 32px; }
+.mon-art { margin: 0; padding: 12px; border: 2px solid var(--outline); border-radius: var(--radius-md); background: var(--row-alt); }
+.sprite.art { width: 100%; height: auto; aspect-ratio: 1; font-size: var(--fs-5xl); }
 .sprite.art img { image-rendering: pixelated; }
 .ko-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 6px; }
 /* the label on its own line, then small buttons: inline with the label they wrapped raggedly on phones */
-.ko-line > .stat-label { flex-basis: 100%; font-size: 13px; }
-.ko-line .mon-match { gap: 4px; padding: 2px 10px 2px 2px; font-size: 14px; }
+.ko-line > .stat-label { flex-basis: 100%; font-size: var(--fs-sm); }
+.ko-line .mon-match { gap: 4px; padding: 2px 10px 2px 2px; font-size: var(--fs-md); }
 .ko-line .mon-match .sprite.tiny { width: 30px; height: 30px; }
 .tab-page .section-title { margin-top: 22px; }
 /* Gambling, not built yet: one box with a stripe along its top (--stripe-box) */
-.soon { max-width: 640px; margin-top: 8px; padding: 0 18px 14px; border: 2px solid var(--outline); border-radius: 8px;
+.soon { max-width: 640px; margin-top: 8px; padding: 0 18px 14px; border: 2px solid var(--outline); border-radius: var(--radius-md);
   background: var(--surface); overflow: hidden; }
 .soon::before { content: ""; display: block; height: 10px; margin: 0 -18px 14px;
   background: var(--stripe-box); }
 .soon .section-title { margin-top: 4px; }
-.soon-tag { display: inline-block; margin: 0; padding: 2px 8px; border-radius: 3px; font-size: 13px; font-weight: 600;
+.soon-tag { display: inline-block; margin: 0; padding: 2px 8px; border-radius: var(--radius-xs); font-size: var(--fs-sm); font-weight: 600;
   background: var(--accent); color: var(--accent-text); }
 .bet-table { max-width: 360px; }
 .bet-mon { display: inline-flex; align-items: center; gap: 8px; }
@@ -272,7 +296,7 @@ input[type=text].mon-find { max-width: 360px; font-family: inherit; }
 .pl-row[aria-current="true"] td { background: var(--band); font-weight: 600; }
 .pl-mons { display: inline-flex; gap: 2px; }
 .library { padding: 4px 0 24px; }
-.lib-table .lib-week th { position: static; cursor: default; font-size: 15px; padding-top: 16px; background: var(--bg); }
+.lib-table .lib-week th { position: static; cursor: default; font-size: var(--fs-body); padding-top: 16px; background: var(--bg); }
 .lib-table .lib-week:first-child th { padding-top: 8px; }
 .lib-table td:first-child { width: 100%; }
 .lib-row { cursor: pointer; }
@@ -290,22 +314,22 @@ input[type=text].mon-find { max-width: 360px; font-family: inherit; }
 .lib-side { width: 240px; flex: none; }
 .lib-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lib-name { font-weight: 600; margin-bottom: 2px; }
-.lib-vs { color: var(--muted); font-size: 13px; }
+.lib-vs { color: var(--muted); font-size: var(--fs-sm); }
 .lib-team { display: flex; }
-.sprite.tiny { width: 40px; height: 40px; font-size: 11px; }
+.sprite.tiny { width: 40px; height: 40px; font-size: var(--fs-2xs); }
 .sprite.tiny img { image-rendering: pixelated; }
 /* a sprite cropped to the Pokémon (fillBox): drawn at its own pixel size, scaled up to the box */
 .sprite .sprite-fill { width: 88%; height: 88%; image-rendering: pixelated; }
 .lib-watch { margin: 8px 0 20px; }
-.lib-watch h3 { font-size: 16px; margin: 0; }
+.lib-watch h3 { font-size: var(--fs-lg); margin: 0; }
 .lib-watch iframe, .watch iframe { display: block; width: 100%; height: 640px; margin-top: 10px;
-  border: 2px solid var(--outline); border-radius: 6px; background: var(--surface); }
+  border: 2px solid var(--outline); border-radius: var(--radius); background: var(--surface); }
 .watch { margin: 0 0 24px; }
 .watch summary { cursor: pointer; font-weight: 600; }
 .watch .tabs { margin: 10px 0 4px; }
 .modes button[aria-current="true"] { background: var(--bg); color: var(--text); border-color: var(--outline);
   border-bottom: 2px solid var(--bg); }
-.tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.tabs { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 .tabs button { border: 0; border-radius: 0; }
 .tabs button[aria-current="true"] { background: var(--accent); color: var(--accent-text); }
 /* Draft: a button per player (12), apart rather than joined; they wrap here and scroll sideways on phones */
@@ -324,9 +348,9 @@ img.trainer.big { width: 80px; height: 80px; }
   overflow-x: auto;
   background: var(--surface);
   border: 2px solid var(--outline);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+table { border-collapse: collapse; width: 100%; font-size: var(--fs-md); }
 th, td { padding: 7px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
 th { position: sticky; top: 0; background: var(--surface); cursor: pointer; user-select: none; }
 /* a header's or a row's first cell as a button (keyboard access): looks like the text around it */
@@ -344,23 +368,23 @@ th[title] { text-decoration: underline dotted var(--muted); text-underline-offse
 /* team summary (one game): its own band, set apart from the table below */
 .teams { margin: 0 -24px 28px; padding: 18px 24px 22px; background: var(--band);
   border-top: 2px solid var(--outline); border-bottom: 2px solid var(--outline); }
-.section-title { font-size: 18px; margin: 0 0 6px; }
-.game-line { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+.section-title { font-size: var(--fs-2xl); margin: 0 0 6px; }
+.game-line { margin: 0 0 12px; color: var(--muted); font-size: var(--fs-md); }
 .game-line a { color: var(--accent); }
 .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 14px; }
-.team-card { background: var(--surface); border: 2px solid var(--outline); border-radius: 8px; padding: 14px 16px; min-width: 0;
+.team-card { background: var(--surface); border: 2px solid var(--outline); border-radius: var(--radius-md); padding: 14px 16px; min-width: 0;
   display: flex; flex-direction: column; }
 /* the Pokémon box takes the spare height, so the Team band sits at the bottom of both cards */
 .team-card .mon-detail { flex: 1; align-content: start; }
-.team-name { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: 18px; overflow-wrap: anywhere; }
-.badge { font-size: 12px; font-weight: 600; padding: 1px 7px; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); }
+.team-name { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: var(--fs-2xl); overflow-wrap: anywhere; }
+.badge { font-size: var(--fs-xs); font-weight: 600; padding: 1px 7px; border-radius: var(--radius-xs); border: 1px solid var(--border); color: var(--muted); }
 .badge.win { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 
 /* one row of six that shrinks on narrow cards (it wrapped 5 + 1 on phones) */
 .team-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 56px)); gap: 6px; margin-bottom: 12px; }
 .team-strip .slot { min-width: 0; }
 .team-strip .sprite.small { width: 100%; height: auto; aspect-ratio: 1; }
-.slot { position: relative; display: inline-flex; padding: 0; border: 2px solid transparent; border-radius: 8px;
+.slot { position: relative; display: inline-flex; padding: 0; border: 2px solid transparent; border-radius: var(--radius-md);
   background: var(--row-alt); }
 button.slot { cursor: pointer; }
 @media (hover: hover) { button.slot:hover { border-color: var(--muted); } }
@@ -368,47 +392,49 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .slot.fainted img { filter: grayscale(1); opacity: 0.55; }
 .slot.not-brought { opacity: 0.35; }
 .slot .mark { position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); padding: 0 4px;
-  font-size: 11px; font-weight: 700; line-height: 14px; border-radius: 3px;
+  font-size: var(--fs-2xs); font-weight: 700; line-height: 14px; border-radius: var(--radius-xs);
   white-space: nowrap; }
 /* Mega: black; Z: the urinal's porcelain */
-.mark.mega { background: #1c1c1a; color: #ffffff; box-shadow: inset 0 0 0 1px var(--porcelain); }
-.mark.z { background: var(--porcelain); color: #1c1c1a; box-shadow: inset 0 0 0 1px #1c1c1a; }
+.mark.mega { background: var(--mark-ink); color: var(--mark-paper); box-shadow: inset 0 0 0 1px var(--porcelain); }
+.mark.z { background: var(--porcelain); color: var(--mark-ink); box-shadow: inset 0 0 0 1px var(--mark-ink); }
 .sprite { display: inline-flex; align-items: center; justify-content: center; flex: none; color: var(--muted);
-  font-weight: 600; border-radius: 6px; }
+  font-weight: 600; border-radius: var(--radius); }
 .sprite img { width: 100%; height: 100%; object-fit: contain; }
-.sprite.small { width: 52px; height: 52px; font-size: 13px; }
+.sprite.small { width: 52px; height: 52px; font-size: var(--fs-sm); }
 .sprite.small img, .sprite.big img[src$=".png"] { image-rendering: pixelated; }
-.sprite.big { width: 96px; height: 96px; font-size: 24px; background: var(--row-alt); }
+.sprite.big { width: 96px; height: 96px; font-size: var(--fs-4xl); background: var(--row-alt); }
 
 .mon-detail { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center;
-  padding: 12px; border-radius: 8px; background: var(--row-alt); }
+  padding: 12px; border-radius: var(--radius-md); background: var(--row-alt); }
 .mon-who { display: flex; flex-direction: column; min-width: 0; }
-.mvp-tag { font-size: 14px; font-weight: 600; color: var(--accent); }
-.mon-name { font-size: 20px; font-weight: 700; }
-.mon-nick, .mon-perf { color: var(--muted); font-size: 14px; }
+.mvp-tag { font-size: var(--fs-md); font-weight: 600; color: var(--accent); }
+.mon-name { font-size: var(--fs-3xl); font-weight: 700; }
+.mon-nick, .mon-perf { color: var(--muted); font-size: var(--fs-md); }
 .mon-perf { cursor: help; }
-.mon-mark { grid-column: 1 / -1; margin: 0; height: 22px; line-height: 22px; }
-.mon-mark .mark { padding: 2px 8px; border-radius: 3px; font-size: 13px; font-weight: 600;
+.mon-mark { margin: 0; height: 22px; line-height: 22px; }
+.mon-mark .mark { padding: 2px 8px; border-radius: var(--radius-xs); font-size: var(--fs-sm); font-weight: 600;
 }
-.mon-best { font-size: 14px; }
+.mon-best { font-size: var(--fs-md); }
 /* links to the Players / Pokémon tab (league games only): the team name, and the Pokémon's sprite in a button-like box */
 .season-link { color: inherit; text-decoration: underline 1px var(--border); text-underline-offset: 4px; }
 @media (hover: hover) { .season-link:hover { color: var(--accent); text-decoration-color: var(--accent); } }
 .sprite-link { display: inline-flex; padding: 3px; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px; cursor: pointer; }
+  border-radius: var(--radius-md); cursor: pointer; }
 .sprite-link .sprite.big { display: flex; }
 @media (hover: hover) { .sprite-link:hover { border-color: var(--accent); } }
-.mon-detail .stats, .mon-luck, .move-list, .turn-strip { grid-column: 1 / -1; }
+/* everything on the card spans both columns but the sprite and the name block beside it: a new part needs no rule */
+.mon-detail > * { grid-column: 1 / -1; }
+.mon-detail > .sprite, .mon-detail > .sprite-link, .mon-detail > .mon-who { grid-column: auto; }
 /* its moves: one line each, name | ×uses | damage share bar | damage | KOs; the best move's bar in the accent. One
    grid for the list (each row display: contents), so every name shows in full and the columns line up; the bar
    gets what's left, up to 16em (user 2026-10-28: the bars took the room the names needed) */
 .move-list { margin-top: 6px; display: grid; grid-template-columns: max-content auto auto minmax(40px, 16em) auto auto;
-  justify-content: start; gap: 6px 10px; align-items: center; font-size: 14px; }
-.move-list h4 { margin: 0 0 -2px; font-size: 12px; font-weight: 400; color: var(--muted); grid-column: 1 / -1; }
+  justify-content: start; gap: 6px 10px; align-items: center; font-size: var(--fs-md); }
+.move-list h4 { margin: 0 0 -2px; font-size: var(--fs-xs); font-weight: 400; color: var(--muted); grid-column: 1 / -1; }
 .move-row { display: contents; }
 .move-name { white-space: nowrap; }
-.move-uses { color: var(--muted); font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
-.move-bar { height: 8px; border-radius: 3px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); overflow: hidden; }
+.move-uses { color: var(--muted); font-size: var(--fs-sm); text-align: right; font-variant-numeric: tabular-nums; }
+.move-bar { height: 8px; border-radius: var(--radius-xs); background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); overflow: hidden; }
 .move-bar > span { display: block; height: 100%; background: var(--muted); }
 .move-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .move-row.best .move-name { font-weight: 700; }
@@ -419,9 +445,9 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
    contrast, a fixed width so names line up; P / S / – after the name for physical / special / status */
 .move-name:has(.type-chip) { display: flex; align-items: center; gap: 6px; }
 .move-name .move-label { min-width: 0; }
-.type-chip { flex: 0 0 auto; display: inline-block; width: 3.4em; padding: 1px 0; border-radius: 3px; text-align: center;
-  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.5; background: var(--chip, var(--row-alt)); color: #1c1c1a; }
-.move-cat { font-size: 11px; color: var(--muted); }
+.type-chip { flex: 0 0 auto; display: inline-block; width: 3.4em; padding: 1px 0; border-radius: var(--radius-xs); text-align: center;
+  font-size: var(--fs-2xs); font-weight: 700; letter-spacing: 0.04em; line-height: 1.5; background: var(--chip, var(--row-alt)); color: #1c1c1a; }
+.move-cat { font-size: var(--fs-2xs); color: var(--muted); }
 .move-row.unused .type-chip { opacity: 0.5; }
 .t-normal { --chip: #a8a77a; } .t-fire { --chip: #ee8130; } .t-water { --chip: #6390f0; } .t-electric { --chip: #f7d02c; }
 .t-grass { --chip: #7ac74c; } .t-ice { --chip: #96d9d6; } .t-ground { --chip: #e2bf65; } .t-flying { --chip: #a98ff3; }
@@ -432,26 +458,26 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .move-list h4 { cursor: help; }
 /* simple view: the detailed-only parts hidden; the switch sits under the stats */
 .team-card.simple .adv { display: none; }
-.detail-toggle { grid-column: 1 / -1; justify-self: start; }
-.move-row .mark { padding: 0 4px; border-radius: 3px; font-size: 11px; font-weight: 700; }
-.move-none { margin: 0; font-size: 14px; color: var(--muted); grid-column: 1 / -1; }
+.detail-toggle { justify-self: start; }
+.move-row .mark { padding: 0 4px; border-radius: var(--radius-xs); font-size: var(--fs-2xs); font-weight: 700; }
+.move-none { margin: 0; font-size: var(--fs-md); color: var(--muted); grid-column: 1 / -1; }
 .mon-luck, .team-luck { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
 
 /* momentum (one game): team HP after each turn; the winner's line in the accent colour, the other dashed */
-.momentum { margin-top: 14px; background: var(--surface); border: 2px solid var(--outline); border-radius: 8px; padding: 12px 16px; }
-.momentum h3 { margin: 0 0 4px; font-size: 17px; }
-.moments { margin: 6px 0 0; padding: 0; list-style: none; font-size: 15px; }
+.momentum { margin-top: 14px; background: var(--surface); border: 2px solid var(--outline); border-radius: var(--radius-md); padding: 12px 16px; }
+.momentum h3 { margin: 0 0 4px; font-size: var(--fs-xl); }
+.moments { margin: 6px 0 0; padding: 0; list-style: none; font-size: var(--fs-body); }
 .moments li { padding: 5px 0 5px 10px; border-left: 3px solid var(--border); margin: 0 0 4px; }
 .moments li.lucky { border-left-color: var(--accent); }
 .moment-turn { display: inline-block; min-width: 4.5em; color: var(--muted); font-variant-numeric: tabular-nums; }
 .moment-who { font-weight: 600; }
-.momentum-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 6px; font-size: 14px; }
+.momentum-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 6px; font-size: var(--fs-md); }
 .momentum-key { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
 .momentum-key .swatch { width: 24px; height: 8px; overflow: visible; }
 .momentum-chart { display: block; width: 100%; height: 200px; touch-action: pan-y; }
 .momentum-chart:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .momentum .grid { stroke: var(--border); stroke-width: 1; }
-.momentum .axis { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.momentum .axis { fill: var(--muted); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
 .momentum .cross { stroke: var(--muted); stroke-width: 1; }
 .momentum .series { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .momentum .series.s0 { stroke: var(--accent); }
@@ -464,12 +490,12 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .momentum-read { margin: 4px 0 0; font-variant-numeric: tabular-nums; }
 
 .team-totals { margin: 16px -16px -14px; padding: 12px 16px 14px; border-top: 2px solid var(--outline);
-  background: var(--band); border-radius: 0 0 6px 6px; }
-.team-totals h4 { margin: 0 0 10px; font-size: 17px; }
+  background: var(--band); border-radius: 0 0 var(--radius) var(--radius); }
+.team-totals h4 { margin: 0 0 10px; font-size: var(--fs-xl); }
 .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
 .stat { display: flex; flex-direction: column; min-width: 0; }
-.stat-value { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.stat-label { font-size: 12px; color: var(--muted); }
+.stat-value { font-size: var(--fs-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.stat-label { font-size: var(--fs-xs); color: var(--muted); }
 
 .luck { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; cursor: help; }
 .die { width: 22px; height: 22px; }
@@ -483,8 +509,8 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .rules li { margin: 4px 0; }
 /* phones: a tap on anything with a hover title shows the title here (app.js) */
 .tap-tip { position: absolute; z-index: 10; max-width: min(320px, calc(100vw - 16px)); padding: 8px 10px;
-  background: var(--surface); color: var(--text); border: 2px solid var(--outline); border-radius: 6px;
-  font-size: 14px; white-space: normal; }
+  background: var(--surface); color: var(--text); border: 2px solid var(--outline); border-radius: var(--radius);
+  font-size: var(--fs-md); white-space: normal; }
 
 @media (max-width: 600px) {
   .toolbar .spacer { display: none; }
@@ -492,7 +518,7 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
   .teams { margin: 0 -16px 24px; padding: 16px; }
   header { grid-template-columns: 1fr; }
   /* iPhone Safari zooms into any input under 16px */
-  input[type=text], textarea, select { font-size: 16px; }
+  input[type=text], textarea, select { font-size: var(--fs-input); }
   /* the six main tabs as on a computer, in a row that scrolls sideways (it needs about 450px). Scrolling would clip
      the selected tab's overlap of the bottom border, so the line is a background that scrolls with the tabs
      (local), and the selected tab's own bottom border covers it. The fade on the right says there's more. */
@@ -506,8 +532,8 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
     -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
     mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
   .draft-tabs::-webkit-scrollbar { display: none; }
-  .draft-tabs button { flex: 0 0 auto; font-size: 14px; padding: 6px 12px; }
-  .modes button { flex: 0 0 auto; padding: 8px 12px; font-size: 14px; white-space: nowrap; margin-bottom: 0; }
+  .draft-tabs button { flex: 0 0 auto; font-size: var(--fs-md); padding: 6px 12px; }
+  .modes button { flex: 0 0 auto; padding: 8px 12px; font-size: var(--fs-md); white-space: nowrap; margin-bottom: 0; }
   /* Games list: each game stacked (players under each other, buttons below) instead of one wide row */
   .lib-table { display: block; }
   .lib-table .lib-week, .lib-table .lib-week th { display: block; }
@@ -554,15 +580,15 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 
 /* turn strip (Main viewer, detailed card): a square per turn, the turn number under 1 and every 5th */
 .turn-strip { margin-top: 10px; min-width: 0; }
-.turn-strip h4 { margin: 0 0 6px; font-size: 12px; font-weight: 400; color: var(--muted); }
+.turn-strip h4 { margin: 0 0 6px; font-size: var(--fs-xs); font-weight: 400; color: var(--muted); }
 .ts-cells { display: flex; flex-wrap: wrap; gap: 4px 3px; }
-.ts-col { display: inline-flex; flex-direction: column; align-items: center; width: 16px; font-size: 10px; line-height: 12px; color: var(--muted); }
-.turn-strip i { width: 16px; height: 16px; border-radius: 3px; box-sizing: border-box; display: inline-grid; place-items: center;
-  font: 700 11px/1 system-ui, sans-serif; font-style: normal; }
+.ts-col { display: inline-flex; flex-direction: column; align-items: center; width: 16px; font-size: var(--fs-3xs); line-height: 12px; color: var(--muted); }
+.turn-strip i { width: 16px; height: 16px; border-radius: var(--radius-xs); box-sizing: border-box; display: inline-grid; place-items: center;
+  font: 700 var(--fs-2xs)/1 system-ui, sans-serif; font-style: normal; }
 .turn-strip .ts-move { background: var(--accent); }
 .turn-strip .ts-on { border: 1.5px solid var(--accent); }
 .turn-strip .ts-cant { background: repeating-linear-gradient(45deg, var(--accent) 0 2px, transparent 2px 5px); border: 1px solid var(--accent); }
 .turn-strip .ts-faint { background: var(--surface); border: 1.5px solid var(--text); color: var(--text); }
 .turn-strip .ts-off { background: var(--border); opacity: .45; }
-.ts-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+.ts-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0 0; font-size: var(--fs-xs); color: var(--muted); }
 .ts-legend span { display: inline-flex; gap: 5px; align-items: center; }

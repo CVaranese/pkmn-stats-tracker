@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Under the hood: every font size and corner radius in `style.css` is a named variable at the top of the file (docs/STYLE.md, Sizes), so the look can be retuned in one place; the Pokémon card's parts span its width by default. No visible change (15 views compared pixel by pixel).
 - Main viewer, a Pokémon's card in the detailed view ("More detail"): "Turn by turn", a square per turn of the game: moved, on the field without acting (e.g. the turn it came in), couldn't move (paralysis, sleep, flinch...), fainted (✕), on the bench. Hover or tap a square for the turn and the move ("Turn 14: Moonblast, then fainted").
 - Pokémon tab, "Its sets": a Copy set button on each set copies it as Showdown's teambuilder imports it (Import from text).
 - Main viewer: the "Copy YouTube title" and "Copy thumbnail info" buttons are gone.
