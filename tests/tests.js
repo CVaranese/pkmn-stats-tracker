@@ -1406,8 +1406,23 @@ ${switchIn}`).hiddenZoroark;
     check("mvp: exactly one brought MVP per team in every real replay", !bad.length, bad.join("\n"));
   }
 
-  // ---- Revival Blessing: a fainted Pokemon brought back on the bench (Showdown: |-heal|p1: <name>|..|[from] move:
-  // Revival Blessing; no saved game has one, so synthetic) is alive at the end and counts in momentum again ----
+  // ---- Revival Blessing: a fainted Pokemon brought back on the bench (|-heal|<it>|..|[from] move: Revival Blessing)
+  // is alive at the end and counts in momentum again. Real: DEJIME's Pawmot (Pinkachu) in two stream-video games, where
+  // each revived one came back in and fainted again; synthetic: one that stays on the bench to the end ----
+  for (const [id, before, after, revived] of [["video-yj0pgvbcbli", 19, 20, 1], ["video-xcoo3lljspm", 12, 14, 2]]) {
+    const replay = await (await fetch(`../site/ppppp/games/${id}.json`)).json();
+    const m = RS.parseBattle(replay.log).momentum;
+    const left = (t) => (m.find((p) => p.turn === t) || {}).p1;
+    check(`Revival Blessing, ${id}: Pokemon left goes up by ${revived} when revived`,
+      left(before) && left(after) && left(after).left === left(before).left + revived,
+      JSON.stringify([left(before), left(after)]));
+  }
+  {
+    const rows = RS.gameRows(await (await fetch("../site/ppppp/games/video-yj0pgvbcbli.json")).json());
+    const gambit = rows.find((r) => r.pokemon === "Kingambit");
+    check("Revival Blessing, video-yj0pgvbcbli: Kingambit fainted twice, not alive at the end",
+      gambit && gambit.deaths === 2 && gambit.survived === 0, JSON.stringify(gambit && [gambit.deaths, gambit.survived]));
+  }
   {
     const log = "|poke|p1|Pelipper|\n|poke|p1|Pawmot|\n|poke|p2|Garchomp|\n" + lhead() +
       "|move|p2a: B|Earthquake|p1a: A\n|-damage|p1a: A|0 fnt\n|faint|p1a: A\n|switch|p1a: C|Pawmot, L50|100/100\n|turn|2\n" +

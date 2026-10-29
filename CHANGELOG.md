@@ -2,7 +2,7 @@
 
 ## Unreleased
 - Main viewer: a game that ended in a tie or never finished says "Tie" / "Unfinished" on both team cards instead of "Lost" on both.
-- A Pokémon brought back by Revival Blessing that stays on the bench counts as alive at the end (survived, fantasy points, the momentum chart); its faint still counts.
+- Revival Blessing: the momentum chart counts a revived Pokémon again from the moment it's revived, not only once it switches back in (DEJIME's Pawmot: Kingambit in Week 2 vs chicken parm karm, Pelipper and Basculegion-F in Week 5 vs ElkG Big Large). One that stays on the bench to the end counts as alive (survived, fantasy points); its faint still counts.
 - Watch plays replays whose format has hyphens too (Smogon Tours: `smogtours-gen9ou-...`), as the rest of the site already read them.
 - A newly added game shows on the next page load instead of after up to 10 minutes of browser cache (the game list is fetched like the draft and records).
 - Games tab: the Won badge matches the winner's name ignoring case and spaces, as the rest of the site does (no badge was wrong before).
