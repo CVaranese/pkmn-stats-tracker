@@ -42,8 +42,9 @@ merged into `next` when it works alone; one session per step. Handoff: `docs/aud
 - [x] 3. Standings / tie-breaks and the trade pool into `league.js` / `bet.js` with tests (R3, T3, T4); one list of
       the league caches (R5). (2026-10-29, branch `standings-trades`: Players tables unchanged in both leagues;
       fixed on the way: traded-away Pokémon's games, Super Champions' several-Pokémon trades.)
-- [ ] 4. Small open findings (#4, #7, #8, #9, #10, #13) and the remaining tests (T6 preview script + banner egg,
-      T7 `set_illusion.py`, T8 share links + stage picker).
+- [x] 4. Small open findings (#4, #7, #8, #9, #10, #13) and the remaining tests (T6 preview script + banner egg,
+      T7 `set_illusion.py`, T8 share links + stage picker). (2026-10-29, branch `small-fixes`: share links and the
+      playoff-week check moved into `league.js` to be testable, `set_illusion.py`'s pick logic into `set_pick`.)
 - [ ] Later, only if needed: splitting `parseBattle` into one handler per log command (R4), after step 1's
       snapshot exists. Fewer requests per tab (one combined file per league): not needed now (2026-10-29).
 - Then the playoffs features (1.1), on top of steps 1-3.

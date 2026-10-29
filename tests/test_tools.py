@@ -1,8 +1,13 @@
-"""Tests for the pure parts of tools/add_game.py, that tools/build_pages.py's pages are up to date, and that releases are recorded (CHANGELOG, releases.json, tags). Run: python -I tests/test_tools.py"""
+"""Tests for the pure parts of tools/add_game.py and tools/set_illusion.py, that tools/build_pages.py's pages are up to
+date (and the banner egg), .github/workflows/mark_preview.py, and that releases are recorded (CHANGELOG, releases.json, tags). Run: python -I tests/test_tools.py"""
+import contextlib
 import importlib.util
+import io
 import json
+import os
 import re
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -71,6 +76,92 @@ class Pages(unittest.TestCase):
         build_pages = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(build_pages)
         self.assertEqual(build_pages.main(["--check"]), 0, "run python -I tools/build_pages.py")
+
+
+def load(path):
+    """A tool loaded from its path (python -I keeps tools/ off the import path)."""
+    spec = importlib.util.spec_from_file_location(Path(path).stem, Path(__file__).resolve().parent.parent / path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+class BannerEgg(unittest.TestCase):
+    """tools/build_pages.py: the hidden link to the preview sits only on a league whose banner has an egg."""
+    def test_egg_links_to_that_leagues_preview(self):
+        bp = load("tools/build_pages.py")
+        cfg = bp.load_leagues()
+        pages = bp.pages()
+        for lg in cfg["leagues"]:
+            page = pages[os.path.join(bp.SITE, lg["id"], "index.html")]
+            eggs = re.findall(r'<a class="egg" href="([^"]+)" style="([^"]+)"', page)
+            g = (lg.get("banner") or {}).get("egg")
+            if not g:
+                self.assertEqual(eggs, [], f"{lg['id']} has no egg")
+                continue
+            self.assertEqual(eggs, [(cfg["site_url"] + "next/" + lg["id"] + "/",
+                                     f'left:{g["left"]}%;top:{g["top"]}%;width:{g["width"]}%;height:{g["height"]}%')])
+        self.assertTrue(any((lg.get("banner") or {}).get("egg") for lg in cfg["leagues"]), "one league keeps the way in")
+        self.assertNotIn('class="egg"', pages[os.path.join(bp.SITE, "index.html")], "the league list has no egg")
+
+
+class MarkPreview(unittest.TestCase):
+    """.github/workflows/mark_preview.py: index.html pages get noindex, a "Preview · " title and the strip; nothing else."""
+    def test_marks_index_pages_only(self):
+        mp = load(".github/workflows/mark_preview.py")
+        page = "<!doctype html>\n<html>\n<head>\n  <title>Pinecord</title>\n</head>\n<body class=\"x\">\n  <p>hi</p>\n</body>\n</html>\n"
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            for rel in ["index.html", "ppppp/index.html", "watch.html", "app/league.html"]:
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_text(page, encoding="utf-8")
+            with contextlib.redirect_stdout(io.StringIO()):
+                mp.main(["mark_preview.py", d])
+            for rel in ["index.html", "ppppp/index.html"]:
+                t = (root / rel).read_text(encoding="utf-8")
+                self.assertEqual(t.count('<meta name="robots" content="noindex">'), 1, rel)
+                self.assertLess(t.index("noindex"), t.index("</head>"), rel)
+                self.assertIn("<title>Preview · Pinecord</title>", t, rel)
+                self.assertTrue(t.split('<body class="x">\n', 1)[1].startswith(mp.STRIP), rel + ": strip right after <body>")
+                self.assertIn('href="/pkmn-stats-tracker/"', t, rel + ": back to the live site")
+            for rel in ["watch.html", "app/league.html"]:
+                self.assertEqual((root / rel).read_text(encoding="utf-8"), page, rel + " untouched")
+
+    def test_real_league_page(self):
+        """The written Pinecord page, marked: still one title, one body, the egg kept."""
+        mp, bp = load(".github/workflows/mark_preview.py"), load("tools/build_pages.py")
+        text = bp.pages()[os.path.join(bp.SITE, "ppppp", "index.html")]
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "index.html").write_text(text, encoding="utf-8")
+            mp.mark(Path(d) / "index.html")
+            t = (Path(d) / "index.html").read_text(encoding="utf-8")
+        self.assertEqual(len(re.findall(r"<title>Preview · ", t)), 1)
+        self.assertEqual(t.count(mp.STRIP), 1)
+        self.assertIn('class="egg"', t)
+
+
+class SetIllusion(unittest.TestCase):
+    """tools/set_illusion.py's set_pick: the hidden-Zoroark picks it writes into a game's index.json entry."""
+    def setUp(self):
+        self.si = load("tools/set_illusion.py")
+
+    def test_picks(self):
+        g = {"id": "x"}
+        self.assertEqual(self.si.set_pick(g, "p1", "8,1,8"), {"p1": [1, 8]})
+        self.assertEqual(g["illusion"], {"p1": [1, 8]}, "sorted, once each")
+        self.si.set_pick(g, "p2", "none")
+        self.assertEqual(g["illusion"], {"p1": [1, 8], "p2": []}, "none: nothing was Zoroark, kept as []")
+        self.si.set_pick(g, "p1", "auto")
+        self.assertEqual(g["illusion"], {"p2": []})
+        self.si.set_pick(g, "p2", "auto")
+        self.assertNotIn("illusion", g, "no picks left: the field goes")
+
+    def test_bad_picks_leave_the_game(self):
+        for pick in ["0", "1,x", "", "-2"]:
+            g = {"id": "x", "illusion": {"p1": [3]}}
+            with self.assertRaises(SystemExit, msg=pick):
+                self.si.set_pick(g, "p1", pick)
+            self.assertEqual(g["illusion"], {"p1": [3]}, pick)
 
 
 class Releases(unittest.TestCase):

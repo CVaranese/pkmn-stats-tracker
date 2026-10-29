@@ -557,6 +557,36 @@
       .map(LG.spriteId).join(" ") === "hooh urshifu-rapidstrike zamazenta tapukoko charizard-megax ironvaliant kommoo",
       ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"].map(LG.spriteId).join(" "));
   }
+  // ---- share links (League.navQuery / readNav) and the stage picker: links posted on Discord keep opening the same view ----
+  {
+    const LG = window.League;
+    const q = (st, search = "") => LG.navQuery(search, st);
+    const links = [
+      [{ mode: "one", r: "", pick: "", set: "" }, ""],
+      [{ mode: "games", r: "", pick: "", set: "" }, "?tab=games"],
+      [{ mode: "one", r: "gen9nationaldex-123", pick: "", set: "" }, "?r=gen9nationaldex-123"],
+      [{ mode: "one", r: "x-1", pick: "", set: "gen9nationaldex-1,gen9nationaldex-2" }, "?set=gen9nationaldex-1,gen9nationaldex-2"],
+      [{ mode: "players", r: "", pick: "nezergy", set: "" }, "?tab=players&player=nezergy"],
+      [{ mode: "mons", r: "", pick: "Iron Valiant", set: "" }, "?tab=mons&mon=Iron+Valiant"],
+      [{ mode: "draft", r: "", pick: "zolo", set: "" }, "?tab=draft&player=zolo"],
+      [{ mode: "games", r: "", pick: "nezergy", set: "" }, "?tab=games"],  // no pick on a tab without one
+    ];
+    const bad = links.filter(([st, want]) => q(st) !== want).map(([st, want]) => `${JSON.stringify(st)}: ${q(st)} (want ${want})`);
+    check("share links: each view's address", !bad.length, bad.join("\n"));
+    check("share links: other params stay, the old view's go", q({ mode: "mons", r: "", pick: "Kingambit" },
+      "?online&results&tab=players&player=zolo&r=a-1&set=a-1,a-2") === "?online=&results=&tab=mons&mon=Kingambit",
+      q({ mode: "mons", r: "", pick: "Kingambit" }, "?online&results&tab=players&player=zolo&r=a-1&set=a-1,a-2"));
+    const back = (st) => LG.readNav(q(st));
+    check("share links: read back the same", same(back(links[4][0]), { r: "", set: "", tab: "players", player: "nezergy", mon: "" }) &&
+      back(links[5][0]).mon === "Iron Valiant" && back(links[3][0]).set === "gen9nationaldex-1,gen9nationaldex-2" &&
+      back(links[2][0]).r === "gen9nationaldex-123" && back(links[6][0]).player === "zolo",
+      JSON.stringify(links.map(([st]) => back(st))));
+    check("share links: ?tab=bet (old name) opens Fantasy; nothing asked: all blank",
+      LG.readNav("?tab=bet").tab === "fantasy" && same(LG.readNav(""), { r: "", set: "", tab: "", player: "", mon: "" }));
+    check("stage picker: Week <n> is the regular season, any other label playoffs",
+      !LG.isPlayoffWeek("Week 1") && !LG.isPlayoffWeek("Week 10") && LG.isPlayoffWeek("Quarterfinals") &&
+      LG.isPlayoffWeek("Finals") && LG.isPlayoffWeek("Playoffs Round 1"));
+  }
   // ---- team sheets ----
   const TS = window.TeamSheets;
   const EXPORT = `=== [gen9nationaldex] League ===
@@ -1374,6 +1404,37 @@ ${switchIn}`).hiddenZoroark;
       }
     }
     check("mvp: exactly one brought MVP per team in every real replay", !bad.length, bad.join("\n"));
+  }
+
+  // ---- Revival Blessing: a fainted Pokemon brought back on the bench (Showdown: |-heal|p1: <name>|..|[from] move:
+  // Revival Blessing; no saved game has one, so synthetic) is alive at the end and counts in momentum again ----
+  {
+    const log = "|poke|p1|Pelipper|\n|poke|p1|Pawmot|\n|poke|p2|Garchomp|\n" + lhead() +
+      "|move|p2a: B|Earthquake|p1a: A\n|-damage|p1a: A|0 fnt\n|faint|p1a: A\n|switch|p1a: C|Pawmot, L50|100/100\n|turn|2\n" +
+      "|move|p1a: C|Revival Blessing|p1a: C\n|-heal|p1: A|50/100|[from] move: Revival Blessing\n|turn|3\n|win|Bob";
+    const got = Object.fromEntries(RS.gameRows({ id: "test-revive", log }).map((r) => [r.pokemon, [r.deaths, r.survived]]));
+    check("Revival Blessing: revived on the bench is alive at the end, its faint still counted",
+      same(got, { Pelipper: [1, 1], Pawmot: [0, 1], Garchomp: [0, 1] }), JSON.stringify(got));
+    const m = RS.parseBattle(log).momentum;
+    const last = m[m.length - 1].p1;
+    check("Revival Blessing: momentum has both Pokemon left, the revived one at its HP", last.left === 2 && last.hp === 75,
+      JSON.stringify(m));
+  }
+
+  // ---- gameRows takes the caller's plain parse (prepareIllusion) once, and only with no Zoroark picks ----
+  {
+    const log = "|poke|p1|Pelipper|\n|poke|p2|Garchomp|\n" + lhead() + "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|60/100\n|win|Alice";
+    const replay = { id: "test-parsed", log };
+    const plain = RS.parseBattle(log);
+    plain.turns = 99;  // marked: rows from this parse say 99 turns
+    Object.defineProperty(replay, "parsed", { value: plain, configurable: true, writable: true });
+    const turnsOf = (rs) => rs[0].turns;
+    const first = RS.gameRows(replay), second = RS.gameRows(replay);
+    check("gameRows: uses replay.parsed once, then reads the log", "parsed" in replay === false &&
+      turnsOf(first) === 99 && turnsOf(second) === 1, `${turnsOf(first)} ${turnsOf(second)}`);
+    const picked = { id: "test-parsed", log, illusion: { p1: [1] } };
+    Object.defineProperty(picked, "parsed", { value: plain, configurable: true, writable: true });
+    check("gameRows: with Zoroark picks the log is read again", turnsOf(RS.gameRows(picked)) !== 99);
   }
 
   // ---- survival, Mega Evolution, Z-moves ----

@@ -18,6 +18,8 @@ function savePicks(id, side, ns) {
 async function prepareIllusion(replay) {
   if (!replay || replay.zoroarks) return;
   const b = RS.parseBattle(replay.log);
+  // gameRows takes this parse instead of reading the log again (not enumerable: not saved with the replay)
+  Object.defineProperty(replay, "parsed", { value: b, configurable: true, writable: true });
   replay.zoroarks = {};
   delete replay.illusionNote;
   if (!Illusion.hiddenSides(b).length) return;

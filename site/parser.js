@@ -250,6 +250,9 @@
     let turnStarters = null;            // stints on the field when the current turn began, until it gets played
     let zPending = null;                // stint whose |-zpower| line came just before its Z-move
 
+    // fainted now: its latest stay ended in a faint and Revival Blessing hasn't brought it back since
+    const isDown = (st) => st.deaths > 0 && !st.revived;
+
     function newStint(key, sp) {
       const s = { key, side: sideOf(key), species: sp, hp: 100, ...zeroCounts(), prev: latestByKey.get(key), moves: new Map(),
         form: sp, types: null, boosts: { accuracy: 0, evasion: 0 }, critBoost: 0, laser: false, semiInv: false };
@@ -312,8 +315,8 @@
         // a misread name in a rebuilt video log ("The opposing") makes a Pokemon that never switched in (no
         // species) and never faints: left out, or the line stays high. Still capped, in case one did switch in.
         const mine = [...latestByKey].filter(([k, st]) => sideOf(k) === side && st.species);
-        const fainted = mine.filter(([, st]) => st.deaths).length;
-        const hp = mine.reduce((t, [, st]) => t + (st.deaths ? 0 : st.hp), 0) + 100 * Math.max(0, size - mine.length);
+        const fainted = mine.filter(([, st]) => isDown(st)).length;
+        const hp = mine.reduce((t, [, st]) => t + (isDown(st) ? 0 : st.hp), 0) + 100 * Math.max(0, size - mine.length);
         point[side] = { left: Math.max(0, size - fainted), hp: Math.round(Math.min(100, hp / size) * 10) / 10 };
       }
       if (momentum.length && momentum[momentum.length - 1].turn === turn) momentum.pop();
@@ -746,6 +749,8 @@
             : frm || "silent" in tags ? target  // items, abilities (Water Absorb), drain, terrain, Rest, Leech Seed
             : mover;                            // a move: Recover, or Heal Pulse on an ally
           heal(target, healer, hp);
+          // back from a faint on the bench: alive again though its last stay on the field ended in one
+          if (frm === "revivalblessing") target.revived = true;
         }
       } else if (cmd === "-sethp") {
         // Pain Split: HP going down is damage by the move's user
@@ -923,8 +928,8 @@
     const gameSeconds = firstT !== null && lastT > firstT ? lastT - firstT : null;
     return {
       gameSeconds, momentum, timerBy,
-      // alive at the end: its latest stay on the field didn't end in a faint (Revival Blessing brings one back)
-      alive: new Set([...latestByKey].filter(([, st]) => !st.deaths).map(([k]) => k)),
+      // alive at the end: its latest stay on the field didn't end in a faint, or Revival Blessing brought it back
+      alive: new Set([...latestByKey].filter(([, st]) => !isDown(st)).map(([k]) => k)),
       players, preview, teamSize, species, stats, seenSet, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark, illusion,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
       hits: hits.map(([d, t, ...rest]) => [keyOf(d), keyOf(t), ...rest]),
@@ -952,7 +957,11 @@
 
   /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
   function gameRows(replay) {
-    const b = parseBattle(replay.log, { illusion: replay.illusion });
+    // replay.parsed: the caller's own parse of this log with no Zoroark picks (prepareIllusion), taken once so two
+    // calls never share one battle's arrays; with picks the log is read again with them
+    const picked = Object.values(replay.illusion || {}).some((ns) => ns && ns.length);
+    const b = (!picked && replay.parsed) || parseBattle(replay.log, { illusion: replay.illusion });
+    delete replay.parsed;
     const rid = replay.id;
     // the game day in Pacific time (league games are Sunday 9pm Pacific, already Monday in UTC); en-CA writes YYYY-MM-DD
     const date = replay.uploadtime ? new Date(replay.uploadtime * 1000).toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" }) : "";
