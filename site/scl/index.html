@@ -16,7 +16,7 @@
   <meta property="og:url" content="https://cvaranese.github.io/pkmn-stats-tracker/scl/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#2f5d9e">
-  <script>window.LEAGUE = {"id": "scl", "name": "Super Champions League", "short": "Super Champions", "tag": "SCL", "format": "", "format_name": "Pokémon Champions VGC doubles", "brackets": [], "best_of": 3, "set_points": [3, 2, 1, 0], "palette": "blastoise"};</script>
+  <script>window.LEAGUE = {"id": "scl", "name": "Super Champions League", "short": "Super Champions", "tag": "SCL", "format": "", "format_name": "Pokémon Champions VGC doubles", "brackets": [], "best_of": 3, "set_points": [3, 2, 1, 0], "bets": false, "palette": "blastoise"};</script>
   <script>try { const p = new URLSearchParams(location.search).get("palette") || localStorage.getItem("replay-kill-tracker.scl.palette") || window.LEAGUE.palette; if (p) document.documentElement.dataset.palette = p; } catch (e) { document.documentElement.dataset.palette = window.LEAGUE.palette; }</script>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -56,6 +56,7 @@
         <div class="pl-bar">
           <label class="inline">Week <select id="bet-week"></select></label>
         </div>
+        <p class="hint" id="bet-status"></p>
         <div class="award-grid" id="bet-list"></div>
       </div>
     </section>
