@@ -143,7 +143,112 @@
     return [...by.values()].sort((a, b) => b.points - a.points || b.kills - a.kills || a.pokemon.localeCompare(b.pokemon));
   }
 
-  const Bet = { SCORING, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy };
+  // ---------- weekly bets (shown, not yet bettable; the pool and its plans: docs/BETTING_PROPS.md) ----------
+
+  // the bets the site can settle by itself from game rows (gameRows, one game's rows each). An over / under ("ou")
+  // adds up a number per game (count) and gets a line from other weeks; a yes / no ("yn") looks for one row or game
+  // that makes it Yes (find: [the row or game it found, what it says] or null)
+  const team = (rs, r) => rs.filter((x) => x.player === r.player);
+  const anyRow = (test, say) => (games) => {
+    for (const rs of games) for (const r of rs) if (test(r, rs)) return say(r, rs);
+    return null;
+  };
+  const mon = (r) => `${r.pokemon} (${r.player})`;
+  const winners = (rs) => rs.filter((r) => r.won);
+  const PROPS = [
+    { id: "crits", kind: "ou", text: "Critical hits", count: (rs) => sumOf(rs, "crits") },
+    { id: "misses", kind: "ou", text: "Moves that missed", count: (rs) => sumOf(rs, "misses") },
+    { id: "sleep", kind: "ou", text: "Turns spent asleep", count: (rs) => sumOf(rs, "sleep_turns") },
+    { id: "procs", kind: "ou", text: "Secondary effects landed (burns, stat drops, flinches...)", count: (rs) => sumOf(rs, "procs") },
+    { id: "kos", kind: "ou", text: "KOs", count: (rs) => sumOf(rs, "kills") },
+    { id: "kobm", kind: "ou", text: "Pokémon KO'd before they moved", count: (rs) => sumOf(rs, "ko_before_moving") },
+    { id: "hazards", kind: "ou", text: "Hazards set", count: (rs) => sumOf(rs, "hazards_set") },
+    { id: "cleared", kind: "ou", text: "Hazards cleared", count: (rs) => sumOf(rs, "hazards_removed") },
+    { id: "statuses", kind: "ou", text: "Statuses inflicted", count: (rs) => sumOf(rs, "statuses_inflicted") },
+    { id: "switches", kind: "ou", text: "Switches", count: (rs) => sumOf(rs, "switches") },
+    { id: "pivots", kind: "ou", text: "Pivots (U-turn, Volt Switch, Flip Turn...)", count: (rs) => sumOf(rs, "pivots") },
+    { id: "megas", kind: "ou", text: "Mega Evolutions", count: (rs) => sumOf(rs, "mega") },
+    { id: "turns", kind: "ou", text: "Turns played (all games added up)", count: (rs) => (rs[0] ? rs[0].turns : 0) },
+    { id: "fourko", kind: "yn", text: "A Pokémon gets 4 or more KOs in one game",
+      find: anyRow((r) => r.kills >= 4, (r) => `${mon(r)}, ${r.kills} KOs`) },
+    { id: "kobm1", kind: "yn", text: "A Pokémon is KO'd before it ever moves",
+      find: anyRow((r) => r.ko_before_moving > 0, (r) => mon(r)) },
+    { id: "passive", kind: "yn", text: "A KO from burn, poison, hazards or weather",
+      find: anyRow((r) => r.passive_kills > 0, (r) => mon(r)) },
+    { id: "hazardko", kind: "yn", text: "A KO from hazards", find: anyRow((r) => r.hazard_kills > 0, (r) => mon(r)) },
+    { id: "selfko", kind: "yn", text: "A Pokémon KOs itself (Explosion, Memento, recoil...)", find: anyRow((r) => r.self_kos > 0, (r) => mon(r)) },
+    { id: "tank", kind: "yn", text: "A Pokémon takes over 300% damage and is still standing",
+      find: anyRow((r) => r.survived && r.damage_taken_pct > 300, (r) => `${mon(r)}, ${Math.round(r.damage_taken_pct)}%`) },
+    { id: "forced", kind: "yn", text: "A Pokémon is forced out (Roar, Whirlwind, Dragon Tail, Red Card)",
+      find: anyRow((r) => r.forced_out > 0, (r) => mon(r)) },
+    { id: "confused", kind: "yn", text: "A Pokémon hurts itself in its confusion", find: anyRow((r) => r.confusion_hits > 0, (r) => mon(r)) },
+    { id: "parax2", kind: "yn", text: "A Pokémon is fully paralyzed twice in one game", find: anyRow((r) => r.full_paras >= 2, (r) => mon(r)) },
+    { id: "zmove", kind: "yn", text: "A Z-move is used", find: anyRow((r) => !!r.z_move, (r) => `${r.z_move}, ${mon(r)}`) },
+    { id: "benched", kind: "yn", text: "A Pokémon is brought and never comes in",
+      find: anyRow((r) => r.brought && !r.mon_key, (r) => mon(r)) },
+    { id: "forfeit", kind: "yn", text: "A game ends in a forfeit",
+      find: anyRow((r) => r.end_reason === "forfeit" && r.won, (r) => `${r.opponent} forfeited to ${r.player}`) },
+    { id: "timer", kind: "yn", text: "Someone turns the battle timer on", find: anyRow((r) => r.timer_on, (r) => r.player) },
+    { id: "sixzero", kind: "yn", text: "A 6–0: the winner loses no Pokémon",
+      find: anyRow((r, rs) => r.won && r.end_reason === "normal" && sumOf(team(rs, r), "deaths") === 0, (r) => `${r.player} over ${r.opponent}`) },
+    { id: "lastmon", kind: "yn", text: "A win with only one Pokémon left",
+      find: anyRow((r, rs) => r.won && r.end_reason === "normal" &&
+        team(rs, r).filter((x) => x.brought).length - sumOf(team(rs, r), "deaths") === 1, (r) => `${r.player} over ${r.opponent}`) },
+    { id: "comeback", kind: "yn", text: "A comeback from 30% or more behind on team HP",
+      find: anyRow((r) => r.won && comebackGap(r) >= 30, (r) => `${r.player}, from ${Math.round(comebackGap(r))}% behind`) },
+  ];
+  function sumOf(rs, f) { return rs.reduce((t, r) => t + (typeof r[f] === "number" ? r[f] : 0), 0); }
+  /** How far behind on team HP share the winner was at its worst turn end (0 if never behind). */
+  function comebackGap(r) {
+    const o = r.side === "p1" ? "p2" : "p1";
+    return Math.max(0, ...(r.momentum || []).map((pt) => pt[o].hp - pt[r.side].hp));
+  }
+  /** A number from text (FNV-1a), then a small seeded random (mulberry32): the same draw for everyone. */
+  function seeded(text) {
+    let h = 2166136261;
+    for (const c of String(text)) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); }
+    let a = h >>> 0;
+    return () => {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  /** The week's bets: n drawn from PROPS by seed (league id + week), in the order drawn. weeks: { week: [game rows of
+      each game] } for the whole league; lines from the earlier weeks (any other week when there are none: week 1),
+      per game, times this week's games, rounded to the half below (x.5: no push). Each: { id, kind, text, line,
+      result: { value, outcome: "Over" | "Under" | "Yes" | "No", detail } (null until the week has games) }. */
+  function weeklyBets(seed, week, weeks, n = 6) {
+    const rand = seeded(seed + "|" + week);
+    const pool = PROPS.slice();
+    const picked = [];
+    while (picked.length < n && pool.length) picked.push(pool.splice(Math.floor(rand() * pool.length), 1)[0]);
+    const names = Object.keys(weeks);
+    const at = names.indexOf(week);
+    const earlier = names.slice(0, Math.max(0, at)).filter((w) => weeks[w].length);
+    const base = earlier.length ? earlier : names.filter((w) => w !== week && weeks[w].length);
+    const games = weeks[week] || [];
+    return picked.map((p) => {
+      const bet = { id: p.id, kind: p.kind, text: p.text, line: null, result: null };
+      if (p.kind === "ou") {
+        const past = base.flatMap((w) => weeks[w]);
+        const perGame = past.length ? past.reduce((t, rs) => t + p.count(rs), 0) / past.length : 0;
+        bet.line = Math.floor(perGame * Math.max(1, games.length)) + 0.5;
+        if (games.length) {
+          const value = games.reduce((t, rs) => t + p.count(rs), 0);
+          bet.result = { value, outcome: value > bet.line ? "Over" : "Under", detail: String(value) };
+        }
+      } else if (games.length) {
+        const hit = p.find(games);
+        bet.result = { value: hit ? 1 : 0, outcome: hit ? "Yes" : "No", detail: hit || "" };
+      }
+      return bet;
+    });
+  }
+
+  const Bet = { SCORING, PROPS, weeklyBets, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);
