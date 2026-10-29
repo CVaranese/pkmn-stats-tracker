@@ -41,11 +41,12 @@ async function renderPlayers() {
   const byKey = new Map();
   const get = (name) => {
     const key = playerKey(name);
-    if (!byKey.has(key)) byKey.set(key, { key, name: shownName(name), games: [], rows: [], wins: 0, losses: 0, setWins: 0, setLosses: 0 });
+    if (!byKey.has(key)) byKey.set(key, { key, name: shownName(name), games: [], rows: [], wins: 0, losses: 0, setWins: 0, setLosses: 0, points: 0 });
     return byKey.get(key);
   };
   // a league that plays sets: its records (sets, games) come from the sets below, missing games included
   const bestOf = LEAGUE.best_of || 0;
+  const scale = bestOf && LEAGUE.set_points;  // set points (Super Champions: 2–0 = 3, 2–1 = 2, 1–2 = 1, 0–2 = 0)
   for (const g of games) {
     for (const p of g.players) {
       const pl = get(p);
@@ -58,7 +59,8 @@ async function renderPlayers() {
     librarySets(games);
   const hasSets = bestOf > 0 || leagueSets.some((s) => s.games.length > 1);
   if (bestOf) $("pl-intro").textContent = "Every league game added up per player, so this tab gives results away. " +
-    "Standings: sets won, then game difference, then games won, then the sets between the tied players. Games " +
+    (scale ? `Standings: points (${scale[0]} for a 2–0 win, ${scale[1]} for 2–1, ${scale[2]} for a 1–2 loss, ${scale[3]} for 0–2), then sets won, ` : "Standings: sets won, ") +
+    "then game difference, then games won, then the sets between the tied players. Games " +
     "played without a saved replay count in the records when the winner is known.";
   for (const s of leagueSets) {
     // a league that plays sets: every game slot, the sheet's games with no replay too (winner from index.json missing)
@@ -71,10 +73,11 @@ async function renderPlayers() {
       }
     }
     if (s.winner) for (const p of s.players) playerKey(p) === playerKey(s.winner) ? get(p).setWins++ : get(p).setLosses++;
+    if (scale) window.League.setPoints(s, scale).forEach((n, i) => { get(s.players[i]).points += n; });
   }
   // one spelling on the rows too, so RS.summarize keeps one line per Pokémon
   for (const r of all) { const pl = get(r.player); pl.rows.push({ ...r, player: pl.name }); }
-  players = window.League.standings([...byKey.values()], leagueSets, playerKey, bestOf);
+  players = window.League.standings([...byKey.values()], leagueSets, playerKey, bestOf, !!scale);
   players.forEach((pl, i) => { pl.place = i + 1; });
   for (const pl of players) Object.assign(pl, playerMons(pl), { luck: seasonLuck(perGameRows(pl.rows), "player_luck", "player_luck_var") });
   const counted = new Set(all.map((r) => r.replay_id)).size;
@@ -83,8 +86,11 @@ async function renderPlayers() {
   const anyTimeout = players.some((pl) => timeouts(pl) > 0);
   // a league that plays sets: the set record first (sorting by it gives the standings), then games won – lost
   const setCols = bestOf ? [
-    num("Sets", `Sets won – lost (best of ${bestOf}). Standings: sets won, then game difference, then games won, then ` +
-      "the sets between the tied players, then KOs minus Pokémon lost.", (pl) => -pl.place),
+    ...(scale ? [num("Points", `Set points: ${scale[0]} for a 2–0 win, ${scale[1]} for 2–1, ${scale[2]} for a 1–2 loss, ` +
+      `${scale[3]} for 0–2. Standings: points, then sets won, ` +
+      "then game difference, then games won, then the sets between the tied players, then KOs minus Pokémon lost.", (pl) => -pl.place)] : []),
+    num("Sets", `Sets won – lost (best of ${bestOf}). Standings: ${scale ? "points, then " : ""}sets won, then game difference, ` +
+      "then games won, then the sets between the tied players, then KOs minus Pokémon lost.", (pl) => (scale ? pl.setWins - pl.setLosses : -pl.place)),
     num("Games", "Games won – lost, games with no saved replay included when the winner is known.", (pl) => pl.wins),
     num("Diff", "Games won minus games lost.", (pl) => pl.wins - pl.losses),
   ] : [
@@ -112,7 +118,7 @@ async function renderPlayers() {
     const used = el("span", "pl-mons");
     used.append(...pl.used.map((m) => Object.assign(sprite(m.pokemon, ["gen5/"], "tiny"), { title: `${m.pokemon}: ${m.games_brought} games` })));
     const diff = pl.wins - pl.losses;
-    return [[pl.name, ""], ...(bestOf ? [[`${pl.setWins}–${pl.setLosses}`, "num"], [`${pl.wins}–${pl.losses}`, "num"],
+    return [[pl.name, ""], ...(bestOf ? [...(scale ? [[String(pl.points), "num"]] : []), [`${pl.setWins}–${pl.setLosses}`, "num"], [`${pl.wins}–${pl.losses}`, "num"],
       [diff > 0 ? `+${diff}` : diff < 0 ? `−${-diff}` : "0", "num"]] :
       [[String(pl.wins), "num"], [String(pl.losses), "num"], ...(hasSets ? [[`${pl.setWins}–${pl.setLosses}`, "num"]] : [])]),
       [String(sum(pl.rows, "kills")), "num"], [String(sum(pl.rows, "deaths")), "num"], [rowsDealt(pl.rows), "num"],

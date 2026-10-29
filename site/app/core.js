@@ -125,6 +125,7 @@ const activeIds = () => (NO_INPUT_TABS.includes(mode) ? [] :
 function setMode(m, load = true) {
   mode = m;
   openedSet = null;
+  shownSet = null;
   $("set-head").hidden = true;
   try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
   for (const tab of document.querySelectorAll(".modes [data-mode]")) markCurrent(tab, tab.dataset.mode === m);
@@ -252,21 +253,51 @@ function openSet(ids, push = true) {
 function setHead(s) {
   const lost = missing.filter((m) => m.week === s.week && pairKey(m.players) === pairKey(s.players));
   const score = LEAGUE.best_of ? setSlots({ ...s, missing: lost }).score : s;
-  const line = el("p", "game-line", `${s.week} · ${setScore(score)} · `);
-  s.games.forEach((g, i) => {
-    const a = Object.assign(el("a", "", `Game ${i + 1}`), { href: navUrl({ mode: "one", r: g.id }) });
-    a.addEventListener("click", (e) => {
-      if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
-      e.preventDefault();
-      openGame(g.id);
-    });
-    line.append(...(i ? [" · ", a] : [a]));
-  });
+  // each game opens alone from the game-by-game table (setGames), numbered as played
+  const line = el("p", "game-line", `${s.week} · ${setScore(score)}`);
   const note = lost.length ? el("p", "hint", `${lost.length} game${lost.length > 1 ? "s" : ""} of this set had no ` +
     `replay saved, so ${lost.length > 1 ? "they aren't" : "it isn't"} in these numbers.`) : "";
-  $("set-head").replaceChildren(el("h2", "section-title", `Set stats: ${s.players.join(" vs ")}`), line, note,
-    el("p", "hint", "Every saved game of the set, added up."));
+  const games = el("div", "table-wrap");
+  games.id = "set-games";
+  $("set-head").replaceChildren(el("h2", "section-title", `Set stats: ${s.players.join(" vs ")}`), line, note, games,
+    el("p", "hint", "Every saved game of the set, added up below."));
   $("set-head").hidden = false;
+  shownSet = { ...s, missing: lost };
+  if (rows.length) setGames(rows);
+}
+let shownSet = null;  // the set setHead shows (with its missing games), for setGames once the rows are in
+/** The opened set game by game, above its totals: winner, turns, each side's MVP and KOs, Stats / Watch; a game
+    played with no replay or never played (the set already won) says so. rs: the loaded rows (the set's games). */
+function setGames(rs) {
+  const box = $("set-games");
+  if (!box || !shownSet) return;
+  const s = shownSet;
+  const slots = LEAGUE.best_of ? setSlots(s).slots : s.games.map((g, i) => ({ n: i + 1, game: g }));
+  const side = (g, p) => rs.filter((r) => r.replay_id === g.id && playerKey(r.player) === playerKey(p));
+  const mvp = (g, p) => (side(g, p).find((r) => r.mvp) || {}).pokemon || "–";
+  const table = el("table");
+  // Stats / Watch next to the game number: on a phone the table scrolls sideways, and they stay in view
+  simpleTable(table, [["Game", ""], ["", ""], ["Winner", ""], ["Turns", "num"], ...s.players.map((p) => [`${p}'s MVP`, ""]),
+    ["KOs", "num", `KOs: ${s.players.join(" – ")}`]],
+    slots.map((sl) => {
+      const g = sl.game;
+      if (!g) {
+        const what = sl.kind === "unplayed" ? "Not played" : "No replay";
+        return [[`Game ${sl.n}`, ""], [el("span", "muted", what), ""], [sl.winner || "–", ""], ["–", "num"],
+          ...s.players.map(() => ["", ""]), ["", "num"]];
+      }
+      const loaded = rs.some((r) => r.replay_id === g.id);
+      const kos = s.players.map((p) => sum(side(g, p), "kills")).join("–");
+      const stats = Object.assign(el("button", "small", "Stats"), { type: "button", title: "This game on its own (Main viewer)" });
+      stats.addEventListener("click", () => openGame(g.id));
+      const watch = Object.assign(el("button", "small", "Watch"), { type: "button", title: "Play the replay" });
+      watch.addEventListener("click", () => watchHere(g));
+      const acts = el("span", "row");
+      acts.append(stats, watch);
+      return [[`Game ${sl.n}`, ""], [acts, ""], [g.winner || "–", ""], [String(g.turns ?? "–"), "num"],
+        ...s.players.map((p) => [loaded ? mvp(g, p) : "–", ""]), [loaded ? kos : "–", "num"]];
+    }));
+  box.replaceChildren(table);
 }
 /** Open a player's season (tab "players", their name or key) or a Pokémon's ("mons", its name as the Pokémon tab
     shows it), picked and scrolled into view; Back returns here. */

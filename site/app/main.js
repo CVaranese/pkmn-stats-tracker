@@ -108,6 +108,7 @@ async function run(again) {
 
     $("results").hidden = !rows.length;
     renderTeams();
+    if (openedSet) setGames(rows);
     updateWatch();
     render();
   } finally {
