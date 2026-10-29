@@ -38,6 +38,7 @@ for (const tab of document.querySelectorAll(".modes [data-mode]")) tab.addEventL
 window.addEventListener("popstate", (e) => {
   const st = e.state;
   if (!st || !st.mode) return;
+  if (st.set) { openSet(st.set.split(","), false); return; }
   if (st.r) { $("one-link").value = linkFor(st.r); $("one-link").dispatchEvent(new Event("input")); }
   if (st.mode !== mode || st.r) setMode(st.mode);
   if (st.pick && st.mode === "players") wantPlayer(st.pick);
@@ -184,3 +185,6 @@ if (mode === "mons" && params.get("mon")) wantMon(params.get("mon"));
 // ?tab=draft&player=<key>: that player's draft
 if (mode === "draft" && params.get("player")) { draftPicked = params.get("player"); showDraft(); }
 try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }
+// ?set=id1,id2: a set opened with Set stats (naming it needs the league's games)
+const setParam = RS.replayIdsFromText(params.get("set") || "");
+if (setParam.length && !shared.length) libraryReady.then(() => { openSet(setParam, false); replaceNav(); });

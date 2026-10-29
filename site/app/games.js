@@ -30,6 +30,17 @@ function setScore(s) {
   return `${s.winner} won ${s.wins[w]}–${s.wins[1 - w]}`;
 }
 const pairKey = (players) => players.map(playerKey).sort().join("|");
+/** librarySets with the games played without a replay (index.json missing) in their set, as s.missing; a set with
+    none saved goes first. */
+function setsWithMissing(games, lost) {
+  const sets = librarySets(games);
+  for (const m of lost) {
+    let s = sets.find((x) => x.week === m.week && pairKey(x.players) === pairKey(m.players));
+    if (!s) sets.unshift(s = { week: m.week, players: m.players, games: [], wins: [0, 0], winner: "" });
+    (s.missing = s.missing || []).push(m);
+  }
+  return sets;
+}
 /** A set's game slots in a league that plays sets (best_of): its saved games, its missing ones at their game number,
     and "not played" up to best_of, so a 2–0 shows as many rows as a 2–1 until "Show results". Each slot: {n, game}
     (a saved game) or {n, kind: "missing" | "unplayed", winner}. Also the set score with the missing games' winners
@@ -74,13 +85,8 @@ function renderLibrary() {
     head.className = "lib-week";
     head.append(Object.assign(document.createElement("th"), { colSpan: 5, scope: "colgroup", textContent: w }));
     table.append(head);
-    const sets = librarySets(shown.filter((g) => g.week === w));
     // missing games join their set; a set with none saved goes first, so it ends up last (latest set on top)
-    for (const m of lostShown.filter((x) => x.week === w)) {
-      let s = sets.find((x) => pairKey(x.players) === pairKey(m.players));
-      if (!s) sets.unshift(s = { week: w, players: m.players, games: [], wins: [0, 0], winner: "" });
-      (s.missing = s.missing || []).push(m);
-    }
+    const sets = setsWithMissing(shown.filter((g) => g.week === w), lostShown.filter((x) => x.week === w));
     for (const s of sets.reverse()) {
       if (bestOf) {
         const info = setSlots(s);
@@ -117,7 +123,7 @@ function setRow(s, info = null) {
   }
   const actions = el("td", "lib-actions");
   if (s.games.length) {
-    const stats = Object.assign(el("button", "small", "Set stats"), { type: "button", title: "All the set's games in Playoffs, added up (shows the results)" });
+    const stats = Object.assign(el("button", "small", "Set stats"), { type: "button", title: "The set's games added up (shows the results)" });
     stats.addEventListener("click", () => openSet(s.games.map((g) => g.id)));
     actions.append(stats);
   }

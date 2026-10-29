@@ -48,25 +48,48 @@ async function renderPlayers() {
     }
   }
   // sets (a week's games between the same two players): a set record when the league plays them (Bo3)
-  const leagueSets = librarySets(games);
-  const hasSets = leagueSets.some((s) => s.games.length > 1);
+  const bestOf = LEAGUE.best_of || 0;
+  const leagueSets = bestOf ? setsWithMissing(games, missing.filter((m) => !plWeek || m.week === plWeek)) : librarySets(games);
+  const hasSets = bestOf > 0 || leagueSets.some((s) => s.games.length > 1);
+  if (bestOf) $("pl-intro").textContent = "Every league game added up per player, so this tab gives results away. " +
+    "Standings: sets won, then game difference, then games won, then the sets between the tied players. Games " +
+    "played without a saved replay count in the records when the winner is known.";
   for (const s of leagueSets) {
+    // a league that plays sets: the sheet's games with no replay count too (their winner from index.json missing)
+    if (bestOf) {
+      const info = setSlots(s);
+      Object.assign(s, info.score);
+      for (const sl of info.slots) {
+        if (sl.game || !sl.winner) continue;
+        for (const p of s.players) playerKey(p) === playerKey(sl.winner) ? get(p).wins++ : get(p).losses++;
+      }
+    }
     if (s.winner) for (const p of s.players) playerKey(p) === playerKey(s.winner) ? get(p).setWins++ : get(p).setLosses++;
   }
   // one spelling on the rows too, so RS.summarize keeps one line per Pokémon
   for (const r of all) { const pl = get(r.player); pl.rows.push({ ...r, player: pl.name }); }
-  players = [...byKey.values()].sort((a, b) => b.wins - a.wins || a.losses - b.losses ||
-    sum(b.rows, "kills") - sum(a.rows, "kills") || a.name.localeCompare(b.name));
+  players = bestOf ? setStandings([...byKey.values()], leagueSets) : [...byKey.values()].sort((a, b) =>
+    b.wins - a.wins || a.losses - b.losses || sum(b.rows, "kills") - sum(a.rows, "kills") || a.name.localeCompare(b.name));
+  players.forEach((pl, i) => { pl.place = i + 1; });
   for (const pl of players) Object.assign(pl, playerMons(pl), { luck: seasonLuck(perGameRows(pl.rows), "player_luck", "player_luck_var") });
   const counted = new Set(all.map((r) => r.replay_id)).size;
   $("pl-status").textContent = counted < games.length ? `Counted ${counted} of ${games.length} games (the rest didn't load).` : "";
   const num = (label, title, key) => ({ label, cls: "num", title, key });
-  sortableTable($("pl-table"), [
-    { label: "Player", key: (pl) => pl.name.toLowerCase() },
+  // a league that plays sets: the set record first (sorting by it gives the standings), then games won – lost
+  const setCols = bestOf ? [
+    num("Sets", `Sets won – lost (best of ${bestOf}). Standings: sets won, then game difference, then games won, then ` +
+      "the sets between the tied players, then KOs minus Pokémon lost.", (pl) => -pl.place),
+    num("Games", "Games won – lost, games with no saved replay included when the winner is known.", (pl) => pl.wins),
+    num("Diff", "Games won minus games lost.", (pl) => pl.wins - pl.losses),
+  ] : [
     num("Won", "Games won among the games saved here.", (pl) => pl.wins),
     num("Lost", "Games lost among the games saved here.", (pl) => pl.losses),
     ...(hasSets ? [num("Sets", "Sets won – lost: a set is a week's games between the same two players (a best of three); a level set isn't counted.",
       (pl) => pl.setWins - pl.setLosses)] : []),
+  ];
+  sortableTable($("pl-table"), [
+    { label: "Player", key: (pl) => pl.name.toLowerCase() },
+    ...setCols,
     num("Kills", DESCRIPTIONS.kills, (pl) => sum(pl.rows, "kills")),
     num("Deaths", DESCRIPTIONS.deaths, (pl) => sum(pl.rows, "deaths")),
     num("Dealt", "Damage dealt in all their games: in HP (~ = a guessed max HP went in), or in % when a game has no HP figures.",
@@ -80,8 +103,10 @@ async function renderPlayers() {
   ], players, plSort, (pl) => {
     const used = el("span", "pl-mons");
     used.append(...pl.used.map((m) => Object.assign(sprite(m.pokemon, ["gen5/"], "tiny"), { title: `${m.pokemon}: ${m.games_brought} games` })));
-    return [[pl.name, ""], [String(pl.wins), "num"], [String(pl.losses), "num"],
-      ...(hasSets ? [[`${pl.setWins}–${pl.setLosses}`, "num"]] : []),
+    const diff = pl.wins - pl.losses;
+    return [[pl.name, ""], ...(bestOf ? [[`${pl.setWins}–${pl.setLosses}`, "num"], [`${pl.wins}–${pl.losses}`, "num"],
+      [diff > 0 ? `+${diff}` : diff < 0 ? `−${-diff}` : "0", "num"]] :
+      [[String(pl.wins), "num"], [String(pl.losses), "num"], ...(hasSets ? [[`${pl.setWins}–${pl.setLosses}`, "num"]] : [])]),
       [String(sum(pl.rows, "kills")), "num"], [String(sum(pl.rows, "deaths")), "num"], [rowsDealt(pl.rows), "num"],
       [seasonLuckBadge(perGameRows(pl.rows), "player_luck", "player_luck_var"), ""],
       [paceOf(pl.rows) === null ? "–" : paceOf(pl.rows) + " s", "num"], [String(sum(perGameRows(pl.rows), "timer_on")), "num"], [used, ""],
@@ -98,6 +123,27 @@ async function renderPlayers() {
   });
   renderKoMatrix(league.filter((r) => ids.has(r.replay_id)));
   if (!(playerWanted && showWantedPlayer())) showPlayer(players.some((p) => p.key === playerPicked) ? playerPicked : players[0] && players[0].key);
+}
+/** Round-robin standings for a league that plays sets: sets won, then game difference, then games won, then head to
+    head (sets won among the players still tied), then KOs minus Pokémon lost, then name. sets: with winners. */
+function setStandings(list, sets) {
+  const kd = (pl) => sum(pl.rows, "kills") - sum(pl.rows, "deaths");
+  const base = (a, b) => b.setWins - a.setWins || a.setLosses - b.setLosses || (b.wins - b.losses) - (a.wins - a.losses) ||
+    b.wins - a.wins;
+  const sorted = [...list].sort(base);
+  const out = [];
+  for (let i = 0; i < sorted.length;) {
+    let j = i + 1;
+    while (j < sorted.length && !base(sorted[i], sorted[j])) j++;
+    const tied = sorted.slice(i, j), keys = new Set(tied.map((pl) => pl.key));
+    const h2h = new Map(tied.map((pl) => [pl.key, 0]));
+    for (const s of sets) {
+      if (s.winner && s.players.every((p) => keys.has(playerKey(p)))) h2h.set(playerKey(s.winner), h2h.get(playerKey(s.winner)) + 1);
+    }
+    out.push(...tied.sort((a, b) => h2h.get(b.key) - h2h.get(a.key) || kd(b) - kd(a) || a.name.localeCompare(b.name)));
+    i = j;
+  }
+  return out;
 }
 /** A week picker (Players, Pokémon): every week in the library, once; picked(week or "") on a change. */
 function fillWeeks(id, picked) {

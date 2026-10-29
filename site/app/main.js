@@ -386,7 +386,6 @@ function monDetail(r) {
   const best = bestMove(r);
   who.appendChild(el("span", "mon-best", best ? `Best move: ${best.move}` +
     (best.kos ? `, ${best.kos} KO${best.kos > 1 ? "s" : ""}` : "") : " "));
-  if (inLeague(r.replay_id)) who.appendChild(seasonLink(`${r.pokemon}'s season`, "mons", r.pokemon, "season-link mon-season"));
   const grid = el("div", "stats");
   // .adv: only in the detailed view (see toggleDetail)
   const adv = (node) => { node.classList.add("adv"); return node; };
@@ -407,7 +406,16 @@ function monDetail(r) {
   if (mz) mark.appendChild(el("span", "mark " + (r.mega ? "mega" : "z"), mz)); else mark.textContent = "\u00a0";
   const more = Object.assign(el("button", "small detail-toggle"), { type: "button" });
   more.addEventListener("click", () => toggleDetail(more.closest(".team-card")));
-  return [sprite(r.pokemon, ["ani/", "dex/", "gen5/"], "big"), who, mark, grid, adv(moveList(r, best)), luck, more];
+  // league games: the sprite, in a button-like box, opens the Pokémon's season (Pokémon tab)
+  let pic = sprite(r.pokemon, ["ani/", "dex/", "gen5/"], "big");
+  if (inLeague(r.replay_id)) {
+    const box = seasonLink("", "mons", r.pokemon, "sprite-link");
+    box.title = `${r.pokemon}'s season`;
+    box.setAttribute("aria-label", `${r.pokemon}'s season on the Pokémon tab`);
+    box.appendChild(pic);
+    pic = box;
+  }
+  return [pic, who, mark, grid, adv(moveList(r, best)), luck, more];
 }
 // simple view (name, best move, kills, damage, survived) or detailed (+ turns, healing, damage sources, luck);
 // cards side by side (wide screen) switch together so their rows line up; stacked (phone) only the tapped card

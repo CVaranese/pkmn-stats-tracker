@@ -93,7 +93,7 @@
     </section>
 
     <section id="players" class="tab-page" hidden>
-      <p class="hint">Every league game saved here, added up per player, so this tab gives results away. Won / Lost count the saved games only; the bracket under Games has every result.</p>
+      <p class="hint" id="pl-intro">Every league game saved here, added up per player, so this tab gives results away. Won / Lost count the saved games only; the bracket under Games has every result.</p>
       <div class="pl-bar">
         <div class="tabs" id="pl-views">
           <button data-plview="standings" aria-current="true" type="button">Standings</button>
@@ -155,6 +155,8 @@
       <p id="lib-empty" class="hint" hidden></p>
       <div id="lib-list"></div>
     </section>
+
+    <section id="set-head" class="set-head" hidden></section>
 
     <section class="input" id="inputs">
       <div id="one-input">

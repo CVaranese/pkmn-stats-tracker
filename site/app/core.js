@@ -124,6 +124,8 @@ const activeIds = () => (NO_INPUT_TABS.includes(mode) ? [] :
   RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
 function setMode(m, load = true) {
   mode = m;
+  openedSet = null;
+  $("set-head").hidden = true;
   try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
   for (const tab of document.querySelectorAll(".modes [data-mode]")) markCurrent(tab, tab.dataset.mode === m);
   // phones scroll the tab row sideways: keep the selected tab in sight (e.g. a ?tab=fantasy link)
@@ -164,12 +166,13 @@ function setMode(m, load = true) {
 const navPick = () => (mode === "players" ? (playerWanted && playerKey(playerWanted)) || playerPicked :
   mode === "mons" ? monWanted || monPicked : mode === "draft" ? draftPicked && playerKey(draftPicked) : "");
 const navState = () => ({ mode, r: mode === "one" ? activeIds()[0] || "" : "", watch: $("lib-watch").hidden ? "" : watching,
-  pick: navPick() });
+  pick: navPick(), set: openedSet ? openedSet.join(",") : "" });
 const PICK_PARAM = { players: "player", mons: "mon", draft: "player" };
 function navUrl(st) {
   const q = new URLSearchParams(location.search);
-  q.delete("r"); q.delete("tab"); q.delete("player"); q.delete("mon");
-  if (st.r) q.set("r", st.r);
+  q.delete("r"); q.delete("tab"); q.delete("player"); q.delete("mon"); q.delete("set");
+  if (st.set) q.set("set", st.set);
+  else if (st.r) q.set("r", st.r);
   else if (st.mode !== "one") q.set("tab", st.mode);
   if (!st.r && st.pick && PICK_PARAM[st.mode]) q.set(PICK_PARAM[st.mode], st.pick);
   const s = q.toString().replace(/%2C/g, ",");
@@ -232,14 +235,46 @@ function openGame(id) {
   $("sheets-wrap").open = false;
   window.scrollTo(0, 0);
 }
-/** Open a set's games together in Playoffs, their stats added up. */
-function openSet(ids) {
+// a set opened with Set stats (its game ids), or null: the several-games totals under a heading naming the set,
+// the Games tab marked (not Playoffs), the link box folded away
+let openedSet = null;
+/** Open a set's games together (from Games or a game's line in Main viewer): their stats added up under the set's
+    name. push: false when Back / Forward or a ?set= link brings it back. */
+function openSet(ids, push = true) {
+  const first = library.find((g) => g.id === ids[0]);
+  const s = first && setOf(first);
   $("links").value = ids.map(linkFor).join("\n");
   $("links").dispatchEvent(new Event("input"));
   setMode("many");
-  pushNav();
+  if (s) {
+    openedSet = ids;
+    for (const tab of document.querySelectorAll(".modes [data-mode]")) markCurrent(tab, tab.dataset.mode === "games");
+    setCollapsed(true);
+    setHead(s);
+  }
+  if (push) pushNav();
   $("sheets-wrap").open = false;
   window.scrollTo(0, 0);
+}
+/** The opened set's heading: who, the week, the score (missing games' winners counted), each game to open alone. */
+function setHead(s) {
+  const lost = missing.filter((m) => m.week === s.week && pairKey(m.players) === pairKey(s.players));
+  const score = LEAGUE.best_of ? setSlots({ ...s, missing: lost }).score : s;
+  const line = el("p", "game-line", `${s.week} · ${setScore(score)} · `);
+  s.games.forEach((g, i) => {
+    const a = Object.assign(el("a", "", `Game ${i + 1}`), { href: navUrl({ mode: "one", r: g.id }) });
+    a.addEventListener("click", (e) => {
+      if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      openGame(g.id);
+    });
+    line.append(...(i ? [" · ", a] : [a]));
+  });
+  const note = lost.length ? el("p", "hint", `${lost.length} game${lost.length > 1 ? "s" : ""} of this set had no ` +
+    `replay saved, so ${lost.length > 1 ? "they aren't" : "it isn't"} in these numbers.`) : "";
+  $("set-head").replaceChildren(el("h2", "section-title", `Set stats: ${s.players.join(" vs ")}`), line, note,
+    el("p", "hint", "Every saved game of the set, added up."));
+  $("set-head").hidden = false;
 }
 /** Open a player's season (tab "players", their name or key) or a Pokémon's ("mons", its name as the Pokémon tab
     shows it), picked and scrolled into view; Back returns here. */
