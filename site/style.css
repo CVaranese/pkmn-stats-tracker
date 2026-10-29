@@ -234,6 +234,11 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .pl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 4px 0 8px; }
 /* Pokémon tab: who it knocked out, and who knocked it out, as buttons */
 .mon-kos { margin-top: 10px; }
+/* Pokémon tab: its moves and KOs on the left, its picture on the right (big animated sprite, pixels kept sharp) */
+.mon-top { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; align-items: start; }
+.mon-art { margin: 0; padding: 12px; border: 2px solid var(--outline); border-radius: 8px; background: var(--row-alt); }
+.sprite.art { width: 100%; height: auto; aspect-ratio: 1; font-size: 32px; }
+.sprite.art img { image-rendering: pixelated; }
 .ko-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 6px; }
 /* the label on its own line, then small buttons: inline with the label they wrapped raggedly on phones */
 .ko-line > .stat-label { flex-basis: 100%; font-size: 13px; }
@@ -385,7 +390,8 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 }
 .mon-best { font-size: 14px; }
 /* links to the Players / Pokémon tab (league games only): the team name, and the Pokémon's sprite in a button-like box */
-.season-link { color: var(--accent); text-underline-offset: 3px; }
+.season-link { color: inherit; text-decoration: none; }
+@media (hover: hover) { .season-link:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; } }
 .sprite-link { display: inline-flex; padding: 3px; background: var(--surface); border: 1px solid var(--border);
   border-radius: 8px; cursor: pointer; }
 .sprite-link .sprite.big { display: flex; }
@@ -394,7 +400,7 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 /* its moves: one line each, name | ×uses | damage share bar | damage | KOs; the best move's bar in the accent. One
    grid for the list (each row display: contents), so every name shows in full and the columns line up; the bar
    gets what's left, up to 16em (user 2026-10-28: the bars took the room the names needed) */
-.move-list { margin-top: 6px; display: grid; grid-template-columns: max-content auto minmax(40px, 16em) auto auto;
+.move-list { margin-top: 6px; display: grid; grid-template-columns: max-content auto auto minmax(40px, 16em) auto auto;
   justify-content: start; gap: 6px 10px; align-items: center; font-size: 14px; }
 .move-list h4 { margin: 0 0 -2px; font-size: 12px; font-weight: 400; color: var(--muted); grid-column: 1 / -1; }
 .move-row { display: contents; }
@@ -411,7 +417,6 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
    contrast, a fixed width so names line up; P / S / – after the name for physical / special / status */
 .move-name:has(.type-chip) { display: flex; align-items: center; gap: 6px; }
 .move-name .move-label { min-width: 0; }
-.move-name .type-chip ~ :not(.move-label) { flex: 0 0 auto; }
 .type-chip { flex: 0 0 auto; display: inline-block; width: 3.4em; padding: 1px 0; border-radius: 3px; text-align: center;
   font-size: 11px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.5; background: var(--chip, var(--row-alt)); color: #1c1c1a; }
 .move-cat { font-size: 11px; color: var(--muted); }
@@ -521,15 +526,19 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
   .lib-table .lib-actions button { margin: 0 0 0 6px; }
   /* moves: a grid per row again: the name and ×uses on one line, the bar, damage and KOs under it, so names fit */
   .move-list { display: block; }
-  .move-row { display: grid; grid-template-columns: minmax(0, 1fr) 5.5em 3.5em; gap: 3px 10px; align-items: center;
+  .move-row { display: grid; grid-template-columns: minmax(0, 1fr) 1em 5.5em 3.5em; gap: 3px 10px; align-items: center;
     padding: 3px 0; }
-  .move-row .move-name { grid-column: 1 / 3; grid-row: 1; overflow: hidden; text-overflow: ellipsis; }
+  .move-row .move-name { grid-column: 1; grid-row: 1; overflow: hidden; text-overflow: ellipsis; }
   .move-name .move-label { overflow: hidden; text-overflow: ellipsis; }
-  .move-row .move-uses { grid-column: 3; grid-row: 1; }
-  .move-row .move-bar { grid-column: 1; grid-row: 2; }
+  .move-row .move-cat { grid-column: 2; grid-row: 1; }
+  .move-row .move-uses { grid-column: 4; grid-row: 1; }
+  .move-row .move-bar { grid-column: 1 / 3; grid-row: 2; }
   .move-row.unused .move-bar { display: none; }
-  .move-row > .move-num:nth-child(4) { grid-column: 2; grid-row: 2; }
   .move-row > .move-num:nth-child(5) { grid-column: 3; grid-row: 2; }
+  .move-row > .move-num:nth-child(6) { grid-column: 4; grid-row: 2; }
+  /* Pokémon tab: the art above the moves, smaller */
+  .mon-top { grid-template-columns: minmax(0, 1fr); }
+  .mon-art { order: -1; width: 160px; }
 }
 
 /* touch screens: tap targets near the 44-48px guidelines (WCAG minimum 24px) */

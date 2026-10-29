@@ -127,6 +127,7 @@ function showMon(name) {
   head.append(sprite(m.pokemon, ["gen5/"], "small"), m.pokemon);
   $("mon-name").replaceChildren(head);
   $("mon-moves").replaceChildren(moveList({ move_stats: m.moves }, m.best));
+  $("mon-art").replaceChildren(sprite(m.pokemon, ["ani/", "dex/", "gen5/"], "art"));
   $("mon-kos").replaceChildren(koLine("Knocked out", monKos.filter((k) => k.killer.pokemon === name).map((k) => k.victim), m),
     koLine("Knocked out by", monKos.filter((k) => k.victim.pokemon === name).map((k) => k.killer), m));
   simpleTable($("mon-games"), [["Week", ""], ["Player", ""], ["Opponent", ""], ["Result", ""], ["Kills", "num", DESCRIPTIONS.kills],

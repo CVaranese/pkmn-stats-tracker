@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Moves list: P / S / – (physical / special / status) in its own lined-up column.
+- Pokémon tab: the picked Pokémon's big animated sprite in a box beside its moves and KOs (above them on phones).
+- Player and Pokémon names that open their season look like plain text now (accent and underline only on hover), not blue underlined links.
 - Players: a Forfeits column (games the player forfeited, from the replay's "X forfeited." line).
 - Replay player: "Game 1 of a best-of-3" is plain text now; its link went to a page on this site that doesn't exist (Showdown's series room, gone on Showdown too).
 - Moves and damage sources (Pokémon tab, team cards): every move name shows in full and the ×casts sit in their own lined-up column; the bars are shorter. On phones the name and casts share a line, the bar, damage and KOs go under it.

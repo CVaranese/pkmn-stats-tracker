@@ -457,14 +457,15 @@ function moveList(r, best) {
   const line = (m, name, cls, title) => {
     const row = el("div", "move-row " + cls);
     const who = el("span", "move-name");
+    const cat = el("span", "move-cat", "");
     const info = cls !== "other" && moveInfo && moveInfo[key(name)];
     if (info) {
       // a small type tag (FIR, WAT...) on its type's colour, then the name, then P / S / – (physical / special / status)
       const chip = el("span", "type-chip t-" + info.type.toLowerCase(), info.type.slice(0, 3).toUpperCase());
       chip.title = info.type;
-      const cat = el("span", "move-cat", { Physical: "P", Special: "S" }[info.category] || "–");
+      cat.textContent = { Physical: "P", Special: "S" }[info.category] || "–";
       cat.title = info.category;
-      who.append(chip, el("span", "move-label", name), cat);
+      who.append(chip, el("span", "move-label", name));
     } else who.append(name);
     if (m && m.z) who.append(" ", el("span", "mark z", "Z"));
     if (title) who.title = title;
@@ -477,7 +478,7 @@ function moveList(r, best) {
     bar.appendChild(fill);
     const dealt = el("span", "move-num", m && m.dealt_pct ? moveDealt(m) : m ? "–" : cls.includes("hidden") ? "" : "not used");
     const kos = el("span", "move-num", m && m.kos ? `${m.kos} KO${m.kos > 1 ? "s" : ""}` : "");
-    row.append(who, uses, bar, dealt, kos);
+    row.append(who, cat, uses, bar, dealt, kos);
     box.appendChild(row);
   };
   for (const m of ms) line(m, m.move, m === best ? "best" : "");

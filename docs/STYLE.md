@@ -61,6 +61,9 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
 - **Line chart** (`.momentum`, Main viewer): a card like the team cards, a legend above (line samples + names), the
   chart drawn at its real pixel width (text stays 12px), the winner's line `--accent`, the other `--text` dashed (so
   colour is never the only difference), a readout line under it for the turn under the pointer (no hover-only info).
+- **Name links** (`.season-link`): a player or Pokémon name that opens its season looks like the text around it, the
+  accent and underline only on hover (user 2026-10-28: no blue underlined links for names). Real links (a replay,
+  Challonge) stay link-styled.
 - **Sections**: `h2.section-title` (18px). Collapsible extras are `details` with a bold `summary`.
 - **Notes**: `.hint` for help text (muted, 14px, max 80 characters wide); `.errors` / `.warnings` lists.
 

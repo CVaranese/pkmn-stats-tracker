@@ -2,6 +2,9 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Pokémon tab: the big animated sprite on the right (outlined box, 260px; above the moves on a phone). Enough to fill the space, or would you want something more there (types, base stats, its best game)?
+- [ ] Names that open a season (team card player name, Draft names) now look like plain text; on a computer they turn accent and underline on hover. On a phone nothing shows they're tappable: OK?
+
 - [ ] Players Forfeits column: Pinecord shows pee nation 3, DEJIME 1, ElkG Big Large 1; Super Champions Sean 1 (counted from the logs). Should timer losses (lost on inactivity) count too?
 - [ ] Moves list (Pokémon tab, and a team card's More detail): full names, ×casts lined up, shorter bars. Readable dark and light? On a phone (checked in a 360px frame) the bar, damage and KOs sit under the name.
 - [ ] Replay player on a best of 3 game: "Game 1 of a best-of-3" is no longer a link. Fine, or should it open the set (Set stats)?
