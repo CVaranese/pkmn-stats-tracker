@@ -199,6 +199,14 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   drained target, and the move's user heals (Showdown's `drain` template is `[SOURCE] had its energy drained!`).
   It now heals the last mover, 3/4 of the damage for Draining Kiss / Oblivion Wing, 1/2 for the rest. Games saved
   before 2026-10-29 still have the old drain heals (HP-level only: kills and faints don't change).
+- **Tested** (2026-10-29): the message box over the whole game (every 0.5 s, `box.jsonl`, 1.5-3 min per video)
+  doesn't fix numbers on its own. On the Week 8 videos, taking the box's number whenever it disagreed fixed 1 line,
+  broke 2 and missed 4, lined up by order or by turn (the stream steps back and replays turns, so a reading's time
+  doesn't pin its turn). It now only writes CHECK lines in report.txt. What did catch every wrong number that week:
+  a "lost 0N%" or "lost 0%" in the log (Showdown prints neither), also a CHECK line.
+- **Tested**: more readings of "%": "0/o" ("Zygarde-100/o"), "9/0" ("699/0" = 69%), "<Vo", "Wo", "'Yo", "TVo"; and
+  of "The opposing": "Itie", "Ille", "Tho oppoqinq", "VI he" (a word of up to 4 letters before something close to
+  "opposing" is dropped now). `video_to_replay.py --from-merged` converts a hand-fixed merged.txt again.
 
 ## Known misreads in saved games (checked 2026-10-28)
 - **Tested** (consistency pass over all 45 saved games): kills + self-KOs = deaths in every game, winners and turns match

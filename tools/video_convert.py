@@ -165,6 +165,13 @@ class Converter:
         """'the opposing Metagross' / 'short king' -> ('p2', 'Metagross')"""
         # "The" misread: "e opposing", "lhe opposinq", "I he opposing", "-l he"
         t = re.sub(r"^\W*(?:[tli1|]\s?he\s+o\S*|h?e\s+opp\S*)\s+", "", text.strip(), flags=re.I)
+        if t == text.strip():   # rarer misreads: "Itie opposinq", "Ille opposinq", "Tho oppoqinq", "VI he opposing"
+            w = text.strip().split()
+            for k in (1, 2):
+                if len(w) > k + 1 and len("".join(w[:k]).strip("-|'([")) <= 4 \
+                        and difflib.SequenceMatcher(None, w[k].lower(), "opposing").ratio() >= 0.6:
+                    t = " ".join(w[k + 1:])
+                    break
         side = self.foe(self.own_side()) if t != text.strip() else self.own_side()
         nick = self.close(t, self.nicks[side], 0.5) or t
         return side, nick

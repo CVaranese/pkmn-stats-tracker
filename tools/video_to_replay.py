@@ -7,7 +7,11 @@ Steps, each cached in work_dir (delete a file to redo that step):
   2. scene/*.png + scene.jsonl the battle scene's message box every 0.5 s over the last 40 s of the battle
                                (the log's final lines scroll below the frame; the box shows them)
   3. merged.txt                one ordered battle log, voted turn by turn across every frame that shows it
+  3b. box/*.png + box.jsonl    the message box every 0.5 s over the whole game: report.txt gets a CHECK line for a
+                               "lost N%" the box read differently, and for every "lost 0N%" (a misread digit)
   4. <id>.json + report.txt    protocol log for site/parser.js, and every line that didn't convert
+
+After fixing merged.txt by hand, --from-merged converts it again without touching the frames.
 
 Templates: Showdown's English messages (pokemon-showdown 0.11.11 dist/data/text/{default,moves,abilities,items}.js),
 downloaded from jsDelivr into --templates (default <work_dir>/../pstext) on first use and read as text, never run.
@@ -56,7 +60,8 @@ TURN = re.compile(r"^Turn\s*(\d[\d ]*)$")
 
 def clean(text):
     t = text.strip()
-    t = re.sub(r"(\d+)\s*0/0", r"\1%", t)          # OCR reads "%" as "0/0": "130/0" -> "13%"
+    t = re.sub(r"(\d+)\s*0/[0oO]", r"\1%", t)      # OCR reads "%" as "0/0": "130/0" -> "13%", "Zygarde-100/o"
+    t = re.sub(r"(\d+)\s*(?:9/0|<1/0|<Vo|Wo|'Yo|TVo)", r"\1%", t)   # rarer readings of "%": "699/0", "69<Vo", "31 Wo"
     t = re.sub(r"^Go[l1I|]\s", "Go! ", t)
     t = re.sub(r"^Gol\b", "Go!", t)
     return t
@@ -227,35 +232,99 @@ def merge(log_frames, scene_frames, score, move_names=()):
     return preview, turns, notes
 
 
-# ---------------------------------------------------------------- main
+LOST = re.compile(r"^\W*(.+?)\s+lost\s+(\d{1,3})%")
 
-def main():
-    sys.path.insert(0, HERE)
+
+def canon(name):
+    """'The opposing Latios' / 'I he opposinq Latios' -> 'latios' (letters only, for matching names across reads)."""
+    w = name.split()
+    for k in (1, 2):
+        if len(w) > k and len("".join(w[:k])) <= 5 and difflib.SequenceMatcher(None, w[k].lower(), "opposing").ratio() >= 0.6:
+            w = w[k + 1:]
+            break
+    return re.sub(r"[^a-z]", "", " ".join(w).lower())
+
+
+def box_damage(frames):
+    """'lost N%' readings of the message box over the whole game, in time order: one event per run of frames
+    showing the same Pokémon, with a Counter of the numbers read ({64: 3, 4: 1})."""
+    events = []
+    for f, obs in frames.items():
+        for o in obs:
+            m = LOST.match(clean(o["text"]))
+            if not m:
+                continue
+            name, pct, t = canon(m.group(1)), int(m.group(2)), frame_time(f)
+            e = events[-1] if events else None
+            if e and t - e["t"] <= 1.5 and difflib.SequenceMatcher(None, e["name"], name).ratio() > 0.7:
+                e["n"][pct] += 1
+                e["t"] = t
+            else:
+                events.append({"name": name, "n": collections.Counter({pct: 1}), "t0": t, "t": t})
+    return events
+
+
+def box_check(turns, events, log_frames):
+    """CHECK notes for 'lost N%' lines to look at in the video: a number with a leading 0 (Showdown never prints
+    one: "04%" was 64% or 94%), and a line whose number the message box never read in that turn while it read
+    another at least twice. A box reading's turn is the top "Turn N" header of the log frames just before and after
+    it. Changes nothing: on the Week 8 videos taking the box's number fixed 1 line, broke 2 and missed 4 (the
+    stream steps back and replays turns, so a reading's time doesn't pin its turn)."""
+    tops = sorted((frame_time(f), max(ns)) for f, obs in log_frames.items()
+                  for ns in [[int(m.group(1).replace(" ", "")) for o in obs for m in [TURN.match(clean(o["text"]))] if m]] if ns)
+    def turns_at(t):
+        before = [n for tt, n in tops if tt <= t][-1:]
+        after = [n for tt, n in tops if tt >= t][:1]
+        return set(before + after)
+    lines = collections.defaultdict(list)   # (turn, name) -> [(line index, match)]
+    for n, ls in enumerate(turns):
+        for i, l in enumerate(ls):
+            m = LOST.match(l)
+            if m:
+                lines[(n, canon(m.group(1)))].append((i, m))
+    names = sorted({k[1] for k in lines})
+    seen = collections.defaultdict(list)    # (turn, name) -> [Counter]
+    for e in events:
+        name = (difflib.get_close_matches(e["name"], names, 1, 0.6) or [None])[0]
+        for n in turns_at(e["t0"]) if name else ():
+            seen[(n, name)].append(e)
+    notes = []
+    for (n, _), ls in sorted(lines.items()):
+        for i, m in ls:
+            if re.fullmatch(r"0\d?", m.group(2)):   # Showdown prints at least 1%, never a leading 0
+                notes.append(f"CHECK turn {n}: {m.group(1)} lost {m.group(2)}%: a digit was misread")
+    for key, ls in lines.items():
+        if len(ls) != 1 or key not in seen:
+            continue
+        (i, m), n = ls[0], key[0]
+        votes = collections.Counter()
+        for e in seen[key]:
+            votes.update(e["n"])
+        log_pct = int(m.group(2))
+        box_pct, k = votes.most_common(1)[0]
+        if log_pct in votes or k < 2 or len(votes) > 2:
+            continue
+        t0 = min(e["t0"] for e in seen[key])
+        notes.append(f"CHECK turn {n}: {m.group(1)} lost {log_pct}%, the message box read {box_pct}% ({k} times, "
+                     f"{int(t0) // 60}:{int(t0) % 60:02d})")
+    return notes
+
+
+def read_merged(path):
+    """merged.txt (maybe fixed by hand) back into (preview, turns)."""
+    preview, turns = [], []
+    with open(path, encoding="utf-8") as f:
+        for line in f.read().split("\n"):
+            if line.startswith("== "):
+                turns.append([])
+            elif line:
+                (turns[-1] if turns else preview).append(line)
+    return preview, turns
+
+
+def read_video(args, w, comp):
+    """Steps 1-3: frames, OCR, one voted log. Returns (preview, turns, notes)."""
     import video_convert as vc
-    ap = argparse.ArgumentParser()
-    ap.add_argument("video")
-    ap.add_argument("work")
-    ap.add_argument("--id", required=True)
-    ap.add_argument("--templates", help="folder with default.js moves.js abilities.js items.js")
-    ap.add_argument("--url", default="")
-    ap.add_argument("--length", type=float, required=True, help="video length in seconds (or where to stop reading)")
-    ap.add_argument("--start", type=float, default=0, help="where to start reading, for a video with an earlier game")
-    ap.add_argument("--log-box", default=LOG_BOX, help="x,y,w,h of the battle log in the 1280x720 frame")
-    ap.add_argument("--scene-box", default=SCENE_BOX, help="x,y,w,h of the scene's message box")
-    ap.add_argument("--filter", default=FILTER, help="CSS filter before OCR; add invert(1) for a dark theme")
-    args = ap.parse_args()
-    os.makedirs(args.work, exist_ok=True)
-    w = lambda *p: os.path.join(args.work, *p)
-    args.templates = args.templates or os.path.join(os.path.dirname(os.path.abspath(args.work)), "pstext")
-    os.makedirs(args.templates, exist_ok=True)
-    for kind in ("default", "moves", "abilities", "items"):
-        dest = os.path.join(args.templates, kind + ".js")
-        if not os.path.exists(dest):
-            import urllib.request
-            url = f"https://cdn.jsdelivr.net/npm/pokemon-showdown@0.11.11/dist/data/text/{kind}.js"
-            with urllib.request.urlopen(url, timeout=60) as resp, open(dest, "wb") as f:
-                f.write(resp.read())
-
     grab(args.video, w("log"), [t * 5 for t in range(int(args.start // 5), int(args.length // 5) + 1)], args.log_box, w("log.jsonl"), args.filter)
     log_frames = load_frames(w("log.jsonl"))
     best, first, end = -1, 0, 0   # the highest turn header: the first and last frame showing it
@@ -282,16 +351,59 @@ def main():
     grab(args.video, w("scene"), scene_times, args.scene_box, w("scene.jsonl"), args.filter)
     scene_frames = load_frames(w("scene.jsonl"))
 
-    comp = vc.compile_templates(vc.load_templates(args.templates))
     score = lambda v: (vc.match(comp, v)[0] is not None, "%" in v or "lost" not in v)
     with open(os.path.join(ROOT, "site", "data", "moves.json"), encoding="utf-8") as f:
         move_names = {m["name"].lower() for m in json.load(f).values()}
     preview, turns, notes = merge(log_frames, scene_frames, score, move_names)
-    with open(w("merged.txt"), "w", encoding="utf-8") as f:
-        f.write("".join(l + "\n" for l in preview))
-        for n, ls in enumerate(turns):
-            f.write(f"== Turn {n} ==\n" if n else "== Start ==\n")
-            f.write("".join(l + "\n" for l in ls))
+    # every "lost N%" the box showed over the whole game, to check the log's numbers against
+    box_times = [round(args.start + i * 0.5, 1) for i in range(int((stop - args.start) * 2) + 1)]
+    grab(args.video, w("box"), [t for t in box_times if t <= args.length], args.scene_box, w("box.jsonl"), args.filter)
+    notes += box_check(turns, box_damage(load_frames(w("box.jsonl"))), log_frames)
+    return preview, turns, notes
+
+
+# ---------------------------------------------------------------- main
+
+def main():
+    sys.path.insert(0, HERE)
+    import video_convert as vc
+    ap = argparse.ArgumentParser()
+    ap.add_argument("video")
+    ap.add_argument("work")
+    ap.add_argument("--id", required=True)
+    ap.add_argument("--templates", help="folder with default.js moves.js abilities.js items.js")
+    ap.add_argument("--url", default="")
+    ap.add_argument("--length", type=float, required=True, help="video length in seconds (or where to stop reading)")
+    ap.add_argument("--start", type=float, default=0, help="where to start reading, for a video with an earlier game")
+    ap.add_argument("--log-box", default=LOG_BOX, help="x,y,w,h of the battle log in the 1280x720 frame")
+    ap.add_argument("--scene-box", default=SCENE_BOX, help="x,y,w,h of the scene's message box")
+    ap.add_argument("--filter", default=FILTER, help="CSS filter before OCR; add invert(1) for a dark theme")
+    ap.add_argument("--from-merged", action="store_true",
+                    help="skip the frames: convert work_dir/merged.txt as it is (after fixing it by hand)")
+    args = ap.parse_args()
+    os.makedirs(args.work, exist_ok=True)
+    w = lambda *p: os.path.join(args.work, *p)
+    args.templates = args.templates or os.path.join(os.path.dirname(os.path.abspath(args.work)), "pstext")
+    os.makedirs(args.templates, exist_ok=True)
+    for kind in ("default", "moves", "abilities", "items"):
+        dest = os.path.join(args.templates, kind + ".js")
+        if not os.path.exists(dest):
+            import urllib.request
+            url = f"https://cdn.jsdelivr.net/npm/pokemon-showdown@0.11.11/dist/data/text/{kind}.js"
+            with urllib.request.urlopen(url, timeout=60) as resp, open(dest, "wb") as f:
+                f.write(resp.read())
+
+    comp = vc.compile_templates(vc.load_templates(args.templates))
+    if args.from_merged:
+        preview, turns = read_merged(w("merged.txt"))
+        notes = ["converted from merged.txt as it is (--from-merged)"]
+    else:
+        preview, turns, notes = read_video(args, w, comp)
+        with open(w("merged.txt"), "w", encoding="utf-8") as f:
+            f.write("".join(l + "\n" for l in preview))
+            for n, ls in enumerate(turns):
+                f.write(f"== Turn {n} ==\n" if n else "== Start ==\n")
+                f.write("".join(l + "\n" for l in ls))
 
     data = lambda n: json.load(open(os.path.join(ROOT, "site", "data", n), encoding="utf-8"))
     conv = vc.Converter(comp, data("pokedex.json"), data("moves.json"),
