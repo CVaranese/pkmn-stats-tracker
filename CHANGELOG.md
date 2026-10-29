@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Team sheets: Zololab's sheets for Weeks 1-8 (raw HP, set details and move lists in those games). Week 1's pasted team has Vaporeon where the game has Scrafty, so its Scrafty is pieced together from the game (Leftovers, Intimidate, Bulk Up, Drain Punch; guessed max HP, marked ~).
 - Cloudburst vs DEJIME (Week 7) loses its "errors" note: the Zapdos turn it described is fixed.
 - Stream-video games, last review answers: confusion damage on Garchomp and Tinkaton, four drain heals with the real amounts, Scrafty and Hawlucha HP; every item on the review page is now settled and the misread audit finds nothing.
 - Stream-video games, from the stream text: Rough Skin / Iron Barbs hits (1/8 HP) in Cloudburst vs Weed and Nezergy vs Weed, Zapdos at 2% and Archaludon's Steel Beam in Cloudburst vs DEJIME, Population Bomb's 4 hits, Future Sight on Garganacl; 7 drain heals now exact, worked back from the stream's last hit before a faint.

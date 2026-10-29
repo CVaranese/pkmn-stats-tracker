@@ -539,7 +539,10 @@
    "date": "2026-09-20",
    "turns": 48,
    "note": "Stream video",
-   "video": "https://youtu.be/OQAm2AwTtBc"
+   "video": "https://youtu.be/OQAm2AwTtBc",
+   "sheets": [
+    "zololab"
+   ]
   },
   {
    "id": "video-i21s40qi4em",
@@ -706,7 +709,10 @@
    "turns": 15,
    "note": "Stream video",
    "video": "https://youtu.be/mEbKXAuKmLw",
-   "note_detail": "Last KO from the players."
+   "note_detail": "Last KO from the players.",
+   "sheets": [
+    "zololab"
+   ]
   },
   {
    "id": "video-yvl4oae9bmc",
@@ -910,7 +916,10 @@
    "winner": "pee nation",
    "date": "2026-09-06",
    "turns": 56,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "zololab"
+   ]
   },
   {
    "id": "gen9nationaldex-2680876325",
@@ -941,7 +950,10 @@
    "winner": "zololab",
    "date": "2026-09-13",
    "turns": 29,
-   "note": ""
+   "note": "",
+   "sheets": [
+    "zololab"
+   ]
   },
   {
    "id": "gen9nationaldex-2696935281",
@@ -974,7 +986,8 @@
    "turns": 27,
    "note": "",
    "sheets": [
-    "doxsego"
+    "doxsego",
+    "zololab"
    ]
   },
   {
@@ -1077,7 +1090,10 @@
    "date": "2026-10-04",
    "turns": 26,
    "note": "Stream video",
-   "video": "https://youtu.be/oPUD2yUnQrs"
+   "video": "https://youtu.be/oPUD2yUnQrs",
+   "sheets": [
+    "zololab"
+   ]
   },
   {
    "id": "video-4n49bq2lqsy",
@@ -1307,7 +1323,10 @@
    "date": "2026-10-18",
    "turns": 36,
    "note": "Stream video",
-   "video": "https://youtu.be/IYsf4aQc3jQ"
+   "video": "https://youtu.be/IYsf4aQc3jQ",
+   "sheets": [
+    "zololab"
+   ]
   },
   {
    "id": "video-ek4vkzvwny0",
@@ -1609,7 +1628,10 @@
    "date": "2026-10-25",
    "turns": 24,
    "note": "Stream video",
-   "video": "https://youtu.be/Hdoj_RkUOiw"
+   "video": "https://youtu.be/Hdoj_RkUOiw",
+   "sheets": [
+    "zololab"
+   ]
   }
  ]
 }

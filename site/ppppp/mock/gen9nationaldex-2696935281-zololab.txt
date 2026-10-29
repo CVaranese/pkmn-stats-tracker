@@ -1,0 +1,61 @@
+Diancie-Mega @ Diancite  
+Ability: Magic Bounce  
+Shiny: Yes  
+Tera Type: Rock  
+EVs: 28 HP / 4 Atk / 252 SpA / 224 Spe  
+Hasty Nature  
+- Diamond Storm  
+- Earth Power  
+- Moonblast  
+- Mystical Fire  
+
+Pecharunt @ Black Sludge  
+Ability: Poison Puppeteer  
+Tera Type: Ghost  
+EVs: 252 HP / 24 SpA / 232 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Nasty Plot  
+- Malignant Chain  
+- Shadow Ball  
+- Recover  
+
+Lokix @ Choice Band  
+Ability: Tinted Lens  
+Tera Type: Bug  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Adamant Nature  
+- First Impression  
+- Sucker Punch  
+- Knock Off  
+- U-turn  
+
+Iron Treads @ Booster Energy  
+Ability: Quark Drive  
+EVs: 4 HP / 252 Atk / 252 Spe  
+Jolly Nature  
+- Earthquake  
+- Stealth Rock  
+- Rapid Spin  
+- Ice Spinner  
+
+Latios @ Choice Specs  
+Ability: Levitate  
+Tera Type: Dragon  
+EVs: 32 HP / 252 SpA / 224 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Draco Meteor  
+- Luster Purge  
+- Shadow Ball  
+- Mystical Fire  
+
+Thundurus (M) @ Heavy-Duty Boots  
+Ability: Prankster  
+EVs: 40 HP / 252 SpA / 216 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Volt Switch  
+- Thunderbolt  
+- Focus Blast  
+- Thunder Wave

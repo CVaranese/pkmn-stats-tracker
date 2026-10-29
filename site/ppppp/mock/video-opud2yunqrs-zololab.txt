@@ -1,0 +1,57 @@
+Thundurus (M) @ Expert Belt  
+Ability: Prankster  
+EVs: 252 SpA / 4 SpD / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Thunderbolt  
+- Substitute  
+- Psychic  
+- Agility  
+
+Pecharunt @ Black Sludge  
+Ability: Poison Puppeteer  
+EVs: 252 HP / 228 Def / 28 SpD  
+Bold Nature  
+IVs: 0 Atk  
+- Malignant Chain  
+- Hex  
+- Recover  
+- Parting Shot  
+
+Iron Treads @ Electrium Z  
+Ability: Quark Drive  
+EVs: 4 HP / 252 Atk / 252 Spe  
+Jolly Nature  
+- Stealth Rock  
+- Rapid Spin  
+- Earthquake  
+- Supercell Slam  
+
+Serperior @ Light Clay  
+Ability: Contrary  
+EVs: 252 HP / 4 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Reflect  
+- Light Screen  
+- Leaf Storm  
+- Glare  
+
+Latios (M) @ Choice Scarf  
+Ability: Levitate  
+EVs: 104 HP / 252 SpA / 152 Spe  
+Modest Nature  
+IVs: 0 Atk  
+- Draco Meteor  
+- Thunderbolt  
+- Psychic  
+- Defog  
+
+Lokix @ Choice Band  
+Ability: Tinted Lens  
+EVs: 12 HP / 252 Atk / 4 SpD / 240 Spe  
+Jolly Nature  
+- First Impression  
+- Sucker Punch  
+- Knock Off  
+- U-turn

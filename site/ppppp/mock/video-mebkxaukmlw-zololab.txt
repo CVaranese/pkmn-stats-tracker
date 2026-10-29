@@ -1,0 +1,56 @@
+Parin (Diancie-Mega) @ Diancite  
+Ability: Magic Bounce  
+EVs: 4 Atk / 252 SpA / 252 Spe  
+Naive Nature  
+IVs: 0 Atk  
+- Stealth Rock  
+- Earth Power  
+- Moonblast  
+- Hidden Power [Grass]  
+
+Wazy (Latios) (M) @ Choice Scarf  
+Ability: Levitate  
+EVs: 4 HP / 252 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Draco Meteor  
+- Grass Knot  
+- Thunder  
+- Aura Sphere  
+
+Lechter (Serperior) @ Leftovers  
+Ability: Contrary  
+EVs: 252 HP / 4 SpA / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Leech Seed  
+- Leaf Storm  
+- Substitute  
+- Protect  
+
+Lloyd (Iron Treads) @ Booster Energy  
+Ability: Quark Drive  
+EVs: 148 HP / 252 Atk / 4 SpD / 104 Spe  
+Adamant Nature  
+- Supercell Slam  
+- Earthquake  
+- Rapid Spin  
+- Knock Off  
+
+Pino (Vaporeon) @ Heavy-Duty Boots  
+Ability: Water Absorb  
+EVs: 248 HP / 252 Def / 8 SpD  
+Bold Nature  
+- Flip Turn  
+- Wish  
+- Protect  
+- Scald  
+
+Ash (Scrafty) @ Darkinium Z  
+Ability: Intimidate  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Adamant Nature  
+- Drain Punch  
+- Foul Play  
+- Dragon Dance  
+- Knock Off
