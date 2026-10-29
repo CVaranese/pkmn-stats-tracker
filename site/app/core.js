@@ -31,7 +31,7 @@ const LABELS = {
   won: "Won", end_reason: "Ended by", turns: "Turns", game_seconds: "Game length (s)", seconds_per_turn: "Seconds / turn", timer_on: "Timer on", pokemon: "Pokémon", nickname: "Nickname", brought: "Brought", kills: "Kills",
   direct_kills: "Direct", passive_kills: "Passive", deaths: "Deaths", self_kos: "Self KOs", replay_url: "Link",
   games_brought: "Games", wins_when_brought: "Wins", kills_per_game: "Kills / game",
-  max_hp: "Max HP", max_hp_from: "Max HP from", item: "Item", ability: "Ability", moves: "Moves", set_from: "Set from",
+  max_hp: "Max HP", max_hp_from: "Max HP from", item: "Item", ability: "Ability", moves: "Moves",
   damage_dealt_pct: "Dealt %", damage_taken_pct: "Taken %", damage_dealt_hp: "Dealt HP", damage_taken_hp: "Taken HP",
   hazard_damage_pct: "Hazard %", hazard_damage_hp: "Hazard HP", hazard_kills: "Hazard KOs",
   hazards_set: "Hazards set", hazards_removed: "Hazards removed", hazard_turns: "Hazard turns",
@@ -74,7 +74,6 @@ const DESCRIPTIONS = {
   max_hp_from: "Where Max HP came from: sheet, other sheet (the same player, another game), Smogon (usage stats) or base stats.",
   item: "Item from the team sheet, else the first one the game showed.", ability: "Ability from the team sheet, else the one the game showed.",
   moves: "Moves from the team sheet, else the moves it used.",
-  set_from: "Where item, ability and moves came from: sheet (the player's team sheet), pieced (put together by hand from the game: the sheet had another Pokémon) or seen (no sheet: what the game showed).",
   damage_dealt_pct: "Damage it dealt, in % of the targets' max HP (100 = one full Pokémon). Overkill doesn't count.",
   damage_taken_pct: "Damage it took, in % of its own max HP, self-inflicted damage included.",
   damage_dealt_hp: "Damage dealt in HP (about ±1% of max HP per hit; ~ = uses a guessed max HP, no team sheet).",
@@ -112,7 +111,7 @@ const YES_NO = new Set(["won", "brought", "hidden_zoroark", "mvp", "survived", "
 const GAME_VIEW_FIELDS = RS.GAME_FIELDS.filter((f) => f !== "replay_id" && f !== "format" && f !== "date");
 const ONE_GAME_HIDDEN = new Set(["date", "opponent", "won", "end_reason", "turns", "game_seconds", "seconds_per_turn", "timer_on",
   "info_revealed_pct", "player_luck", "replay_url"]);
-const SHEET_FIELDS = ["max_hp", "max_hp_from", "item", "ability", "moves", "set_from"]; // per game, once any max HP is known
+const SHEET_FIELDS = ["max_hp", "max_hp_from", "item", "ability", "moves"]; // per game, once any max HP is known
 const HP_FROM = { player: "other sheet", smogon: "Smogon", stats: "base stats" }; // max_hp_from of a guess
 const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"],
   healing_pct: ["healing_hp"], healing_given_pct: ["healing_given_hp"], status_damage_pct: ["status_damage_hp"] };

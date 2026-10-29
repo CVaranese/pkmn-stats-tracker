@@ -116,7 +116,6 @@ function koLine(label, others, m) {
   }
   return line;
 }
-const SET_FROM = { sheet: "Sheet", pieced: "Pieced" };
 /** The sets it was used with over the season (team sheets), one row per player and set. */
 function showMonSets(m) {
   const weekOf = (r) => (library.find((g) => g.id === r.replay_id) || {}).week || "";
@@ -126,9 +125,9 @@ function showMonSets(m) {
   $("mon-sets-note").textContent = !found.length ? "No team sheet for any of its games yet."
     : missing ? `No team sheet for ${missing} of its ${m.rows.length} games: those sets aren't known.` : "";
   simpleTable($("mon-sets"), [["Player", ""], ["Weeks", ""], ["Games", "num"], ["Item", ""], ["Ability", ""], ["Moves", ""],
-    ["Nature and EVs", ""], ["From", "", DESCRIPTIONS.set_from]],
+    ["Nature and EVs", ""]],
     found.map((s) => [[m.nameOf(s.player), ""], [s.weeks.join(", "), ""], [String(s.games), "num"], [s.set.item || "–", ""],
-      [s.set.ability || "–", ""], [s.set.moves.join(" / ") || "–", ""], [League.spreadText(s.set) || "–", ""], [SET_FROM[s.from], ""]]));
+      [s.set.ability || "–", ""], [s.set.moves.join(" / ") || "–", ""], [League.spreadText(s.set) || "–", ""]]));
 }
 /** One Pokémon's season moves and its games (player, opponent, result, kills, damage), under the Pokémon table. */
 function showMon(name) {
