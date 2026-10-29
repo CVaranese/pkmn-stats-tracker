@@ -231,8 +231,9 @@
     let ejected = null;                 // stint whose Eject Button / Eject Pack just went off
     let prevFrom = "";                  // [from] of the previous line (what a [silent] heal follows)
     const kills = [];                   // [killer stint or null, kind, victim stint]
-    const hits = [];                    // [dealer stint or null, target stint, % of max HP lost, by hazard, move or null]
-    const heals = [];                   // [healer stint, target stint, % of max HP restored]
+    // hits / heals also carry the turn (0 = before turn 1) and the target's HP % before and after
+    const hits = [];                    // [dealer stint or null, target stint, % of max HP lost, by hazard, move or null, turn, HP before, HP after]
+    const heals = [];                   // [healer stint, target stint, % of max HP restored, turn, HP before, HP after]
 
     // Luck: every random roll the log shows, with what luck.js needs to work out its odds.
     const rolls = [];                   // {kind: acc / hit / par / slp / frz / conf, actor, target?, ...}
@@ -280,17 +281,17 @@
 
     /** Record HP lost by a stint; the dealer only when it is an opponent. */
     function hit(target, source, newHp, hazard = false, move = null) {
-      const lost = Math.round((target.hp - newHp) * 100) / 100;
+      const before = target.hp, lost = Math.round((before - newHp) * 100) / 100;
       target.hp = newHp;
       const dealer = source && source.side !== target.side ? source : null;
-      if (lost > 0) hits.push([dealer, target, lost, hazard && !!dealer, dealer ? move : null]);
+      if (lost > 0) hits.push([dealer, target, lost, hazard && !!dealer, dealer ? move : null, turns, before, newHp]);
     }
 
     /** Record HP restored to a stint; a healer from the other side doesn't count (heals itself). */
     function heal(target, healer, newHp) {
-      const gained = Math.round((newHp - target.hp) * 100) / 100;
+      const before = target.hp, gained = Math.round((newHp - before) * 100) / 100;
       target.hp = newHp;
-      if (gained > 0) heals.push([healer && healer.side === target.side ? healer : target, target, gained]);
+      if (gained > 0) heals.push([healer && healer.side === target.side ? healer : target, target, gained, turns, before, newHp]);
     }
 
     /** At the end of a turn: each player with an entry hazard on the opponent's side gets a turn. */
@@ -926,8 +927,8 @@
       alive: new Set([...latestByKey].filter(([, st]) => !st.deaths).map(([k]) => k)),
       players, preview, teamSize, species, stats, seenSet, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark, illusion,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
-      hits: hits.map(([d, t, pct, hz, mv]) => [keyOf(d), keyOf(t), pct, hz, mv]),
-      heals: heals.map(([h, t, pct]) => [keyOf(h), keyOf(t), pct]),
+      hits: hits.map(([d, t, ...rest]) => [keyOf(d), keyOf(t), ...rest]),
+      heals: heals.map(([h, t, ...rest]) => [keyOf(h), keyOf(t), ...rest]),
       rolls: rolls.map((r) => ({ ...r, actor: keyOf(r.actor), ...(r.target ? { target: keyOf(r.target) } : {}) })),
     };
   }

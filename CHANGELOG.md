@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Under the hood: the tests check every saved league game (214) still counts the same per Pokémon (kills, deaths, damage, healing, hazards, switches) against a stored snapshot, `tests/snapshot.json`, rewritten only on purpose with `.claude/skills/test/write-snapshot.ps1`; the parser now records each hit and heal with its turn and the HP before and after (nothing on the page changes yet).
 - Under the hood: a deploy runs the tests first and stops on a failure, so a broken push never reaches the live site; the first Python CLI (`replay_stats.py`) is gone; the stream-video tools are archived in `tools/video/`.
 
 ## 1.0 (2026-10-29)
