@@ -3,7 +3,7 @@
 Made by `python -I tools/audit_video_games.py` from the logs alone (no video). Each line gives the turn, the
 log line number (in the game's `site/ppppp/games/<id>.json` `log`, counting from 1) and what looks wrong. Some are
 real (a turn spent recharging, a Pokémon that can't move with no line for it), so check each against the video.
-35 games, 61 things to check.
+35 games, 36 things to check.
 
 Coming back with more HP is only flagged for Pokémon that can't have Regenerator. Re-run after fixing.
 
@@ -20,13 +20,12 @@ Video: https://youtu.be/ff5WImD_i3k
 ## Week 2: Nezergy vs pee nation (`video-d1nx5qvh-ca`, 45 turns)
 Video: https://youtu.be/d1nX5QVh-CA
 
-- [ ] Turn 26, line 211: Corviknight takes 'Recoil' damage but stays at 100%: the HP is misread
+- Nothing found.
 
 ## Week 2: FingerStripes vs azpmCloudburst (`video-yytuzxi96hg`, 18 turns)
 Video: https://youtu.be/yytUZXI96hg
 
-- [ ] Turn 16, line 163: Robin takes 'ability: Aftermath' damage but stays at 22%: the HP is misread
-- [ ] Turn 16, line 163: Aftermath with nobody fainting just before: probably Rough Skin / Iron Barbs misread
+- Nothing found.
 
 ## Week 2: DEJIME17 vs chicken parm karm (`video-yj0pgvbcbli`, 26 turns)
 Video: https://youtu.be/Yj0PgVbcblI
@@ -36,25 +35,17 @@ Video: https://youtu.be/Yj0PgVbcblI
 ## Week 2: PeterPikmon vs ElkG Big Large (`video-jjacbpx4g2e`, 36 turns)
 Video: https://youtu.be/JJaCbPX4g2E
 
-- [ ] Turn 9, line 73: Gen 8 takes 'item: bum' damage but stays at 100%: the HP is misread
-- [ ] Turn 14, line 102: Gen 8 takes 'item: bum' damage but stays at 100%: the HP is misread
-- [ ] Turn 15, line 111: Gen 8 takes 'item: bum' damage but stays at 32%: the HP is misread
+- Nothing found.
 
 ## Week 2: doxsego vs weedinmyhonda (`video-4facablyaoc`, 19 turns)
 Video: https://youtu.be/4fACABLYaoc
-Already noted on the site: Turn 19: the Iron Barbs damage to Gerard Blade is misread, so a little damage is missing.
 
-- [ ] Turn 1, line 36: says hit 1 times but 3 hit lines on Landorus: hits missing
-- [ ] Turn 19, line 150: Gerard Blade takes 'ability: Aftermath' damage but stays at 4%: the HP is misread
-- [ ] Turn 19, line 150: Aftermath with nobody fainting just before: probably Rough Skin / Iron Barbs misread
-- [ ] Turn 19, line 151: Gerard Blade takes 'ability: Aftermath' damage but stays at 4%: the HP is misread
-- [ ] Turn 19, line 151: Aftermath with nobody fainting just before: probably Rough Skin / Iron Barbs misread
+- Nothing found.
 
 ## Week 3: Zololab vs weedinmyhonda (`video-oqam2awttbc`, 48 turns)
 Video: https://youtu.be/OQAm2AwTtBc
 
-- [ ] Turn 30, line 235: Iron Treads takes 'ability: Aftermath' damage but stays at 32%: the HP is misread
-- [ ] Turn 30, line 235: Aftermath with nobody fainting just before: probably Rough Skin / Iron Barbs misread
+- Nothing found.
 
 ## Week 3: DEJIME17 vs doxsego (`video-i21s40qi4em`, 15 turns)
 Video: https://youtu.be/I21S40QI4EM
@@ -68,27 +59,15 @@ Video: https://youtu.be/BGMHhByBbaM
 
 ## Week 3: azpmCloudburst vs potatoesareyum (`video-uffx_ququzw`, 19 turns)
 Video: https://youtu.be/UFfx_QuquZw
-Already noted on the site: Turns 1-3 were misread: Bronzong's name, and Zapdos's Heat Wave damage is put on Zapdos's own side, so this game has no HP figures (damage in %) and Zapdos's damage is too low.
 
-- [ ] Turn 0, line 22: Bronzong has no name on the field: `|switch|p2a: |Bronzong|100/100`
-- [ ] Turn 0, line 23: names a Pokémon that never came onto the field (p2: 'br'): misread name, its effect is lost: `|-start|p2a: br|item: Air Balloon`
-- [ ] Turn 1, line 27: names a Pokémon that never came onto the field (p1: 'l he opposing'): misread name, its effect is lost: `|-damage|p1a: l he opposing|76/100`
-- [ ] Turn 1, line 28: names a Pokémon that never came onto the field (p1: 'The opposinq'): misread name, its effect is lost: `|-end|p1a: The opposinq|item: Air Balloon`
-- [ ] Turn 1, line 29: names a Pokémon that never came onto the field (p1: 'The opposing'): misread name, its effect is lost: `|move|p1a: The opposing|Stealth Rock|`
-- [ ] Turn 1, line 31: p2 () did nothing this turn: a move or 'can't move' line may be missing
-- [ ] Turn 2, line 34: names a Pokémon that never came onto the field (p1: 'The opposino'): misread name, its effect is lost: `|-damage|p1a: The opposino|78/100`
-- [ ] Turn 2, line 35: names a Pokémon that never came onto the field (p1: 'The opposing'): misread name, its effect is lost: `|move|p1a: The opposing|Reflect|p1a: The opposing`
-- [ ] Turn 2, line 36: p2 () did nothing this turn: a move or 'can't move' line may be missing
-- [ ] Turn 3, line 39: names a Pokémon that never came onto the field (p2: 'bj nznq*'): misread name, its effect is lost: `|-damage|p2a: bj nznq*|79/100`
-- [ ] Turn 3, line 40: names a Pokémon that never came onto the field (p2: 'Xbrnzng*'): misread name, its effect is lost: `|move|p2a: Xbrnzng*|Trick Room|`
-- [ ] Turn 11, line 109: names a Pokémon that never came onto the field (p2: 'God'): misread name, its effect is lost: `|-unboost|p2a: God|Grift's Attack|1`
-- [ ] Turn 18, line 166: names a Pokémon that never came onto the field (p1: 'play The opposing God'): misread name, its effect is lost: `|-boost|p1a: play The opposing God|Grift's Sp. Atk|1`
-- [ ] Turn 18, line 167: names a Pokémon that never came onto the field (p2: 'God'): misread name, its effect is lost: `|-boost|p2a: God|Grift's Sp. Def|1`
+- [ ] Turn 11, line 112: names a Pokémon that never came onto the field (p2: 'God'): misread name, its effect is lost: `|-unboost|p2a: God|Grift's Attack|1`
+- [ ] Turn 18, line 169: names a Pokémon that never came onto the field (p1: 'play The opposing God'): misread name, its effect is lost: `|-boost|p1a: play The opposing God|Grift's Sp. Atk|1`
+- [ ] Turn 18, line 170: names a Pokémon that never came onto the field (p2: 'God'): misread name, its effect is lost: `|-boost|p2a: God|Grift's Sp. Def|1`
 
 ## Week 3: FingerStripes vs pee nation (`video-mqda-z2vz9e`, 43 turns)
 Video: https://youtu.be/mqDA-Z2vZ9E
 
-- [ ] Turn 1, line 29: p2 (Slowking) did nothing this turn: a move or 'can't move' line may be missing
+- Nothing found.
 
 ## Week 4: Zololab vs DEJIME17 (`video-mebkxaukmlw`, 15 turns)
 Video: https://youtu.be/mEbKXAuKmLw

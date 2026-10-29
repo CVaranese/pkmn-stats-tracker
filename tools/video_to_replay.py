@@ -266,7 +266,7 @@ def box_damage(frames):
 
 def box_check(turns, events, log_frames):
     """CHECK notes for 'lost N%' lines to look at in the video: a number with a leading 0 (Showdown never prints
-    one: "04%" was 64% or 94%), and a line whose number the message box never read in that turn while it read
+    one: "04%" was 64% or 94%; "lost 0%" is real only under Disguise), and a line whose number the message box never read in that turn while it read
     another at least twice. A box reading's turn is the top "Turn N" header of the log frames just before and after
     it. Changes nothing: on the Week 8 videos taking the box's number fixed 1 line, broke 2 and missed 4 (the
     stream steps back and replays turns, so a reading's time doesn't pin its turn)."""
@@ -291,7 +291,8 @@ def box_check(turns, events, log_frames):
     notes = []
     for (n, _), ls in sorted(lines.items()):
         for i, m in ls:
-            if re.fullmatch(r"0\d?", m.group(2)):   # Showdown prints at least 1%, never a leading 0
+            disguise = m.group(2) == "0" and any("disguise" in l.lower() for l in turns[n][max(0, i - 3):i])
+            if re.fullmatch(r"0\d?", m.group(2)) and not disguise:   # never a leading 0; 0% only when Disguise takes the hit
                 notes.append(f"CHECK turn {n}: {m.group(1)} lost {m.group(2)}%: a digit was misread")
     for key, ls in lines.items():
         if len(ls) != 1 or key not in seen:

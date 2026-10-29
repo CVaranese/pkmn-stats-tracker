@@ -213,6 +213,8 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   Barbs where the hit Pokémon can have one. What's left (61 audit items, 14 misread numbers, 7 site notes) went to a
   review page with one frame each, taken when the next turn's header first shows, so the whole turn is on screen.
   `video_frames.py --jpeg` saves those frames at about 120 KB instead of about 600 KB.
+- "X lost 0%" is real when Disguise takes the hit (tested: the user checked two in the videos, 2026-10-29); the
+  converter's leading-zero CHECK skips a 0% with a Disguise line just before it. Any other 0% / 0N% is a misread.
 
 ## Known misreads in saved games (checked 2026-10-28)
 - **Tested** (consistency pass over all 45 saved games): kills + self-KOs = deaths in every game, winners and turns match

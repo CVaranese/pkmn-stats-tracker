@@ -503,10 +503,8 @@
    "winner": "doxsego",
    "date": "2026-09-13",
    "turns": 19,
-   "note": "Stream video, errors",
+   "note": "Stream video",
    "video": "https://youtu.be/4fACABLYaoc",
-   "known_errors": "Turn 19: the Iron Barbs damage to Gerard Blade is misread, so a little damage is missing.",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which.",
    "sheets": [
     "doxsego"
    ]
@@ -639,10 +637,8 @@
    "winner": "potatoesareyum",
    "date": "2026-09-20",
    "turns": 19,
-   "note": "Stream video, errors",
-   "video": "https://youtu.be/UFfx_QuquZw",
-   "known_errors": "Turns 1-3 were misread: Bronzong's name, and Zapdos's Heat Wave damage is put on Zapdos's own side, so this game has no HP figures (damage in %) and Zapdos's damage is too low.",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which."
+   "note": "Stream video",
+   "video": "https://youtu.be/UFfx_QuquZw"
   },
   {
    "id": "video-mqda-z2vz9e",
