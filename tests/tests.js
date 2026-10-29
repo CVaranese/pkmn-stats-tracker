@@ -669,7 +669,73 @@ Ability: Screen Cleaner
       JSON.stringify(matches));
     const item = (p, sp) => { const r = rows.find((x) => x.player === p && x.pokemon === sp); return r.set ? r.set.item : null; };
     check("attach: each row gets its own set", item("jinrachi", "Zoroark-Hisui") === "Choice Specs" &&
-      item("jinrachi", "Gardevoir") === "Choice Scarf" && item("flomarV2", "Primarina") === null);
+      item("jinrachi", "Gardevoir") === "Choice Scarf" && item("flomarV2", "Primarina") === null &&
+      rows.find((x) => x.pokemon === "Gardevoir").set_from === "sheet");
+
+    // library games, per Pokémon: the side is known, so a paste with one wrong Pokémon still gives the other five
+    // their sets; a hand-made set (read first) fills the gap and wins over the paste
+    const pairs = TS.pairEach(["Garchomp", "Mew", "Latios"], TS.parseTeam("Latios\n\nGarchomp"));
+    check("pair each: a species with no set gets null, the rest still pair", same(pairs.map((s) => s && s.species), ["Garchomp", null, "Latios"]));
+    const wrong = TS.parseTeam("Kingambit @ Black Glasses\n\nZoroark-Hisui @ Choice Specs\n\nGarchomp\n\nVolcarona\n\nMamoswine\n\nVaporeon @ Leftovers");
+    const fix = TS.parseTeam("Gardevoir @ Choice Scarf\nAbility: Trace\n- Moonblast");
+    const id = "gen9nationaldex-2705111047";
+    const src = (from, sets, player = "jinrachi") => ({ gameId: id, player, sets, from });
+    for (const r of rows) { delete r.set; delete r.set_from; }
+    const used = TS.attachSets(rows, [src("sheet", wrong)]);
+    const got = rows.filter((r) => r.player === "jinrachi" && r.set).map((r) => r.pokemon);
+    check("attach sets: 5 of 6 from a paste with one wrong Pokémon, Gardevoir none", got.length === 5 && !got.includes("Gardevoir") &&
+      same(used, [[{ replay_id: id, player: "jinrachi", paired: 5, of: 6 }]]) && rows.every((r) => r.player === "jinrachi" || !r.set),
+      JSON.stringify(used));
+    for (const r of rows) { delete r.set; delete r.set_from; }
+    const other = TS.parseTeam("Gardevoir @ Life Orb");  // flomarV2's sheet: never applies to jinrachi's Gardevoir
+    TS.attachSets(rows, [src("sheet", other, "flomarV2"), src("pieced", fix), src("sheet", wrong, "Jin Rachi")]);
+    const gard = rows.find((r) => r.pokemon === "Gardevoir");
+    check("attach sets: the hand-made set fills the gap, marked pieced; the player matches by Showdown ID",
+      gard.set.item === "Choice Scarf" && gard.set_from === "pieced" &&
+      rows.find((r) => r.pokemon === "Zoroark-Hisui").set_from === "sheet", JSON.stringify([gard.set, gard.set_from]));
+    const before = TS.attachSets(rows, [src("sheet", TS.parseTeam("Kingambit @ Leftovers"))]);
+    check("attach sets: rows that have a set keep it", rows.find((r) => r.pokemon === "Kingambit").set.item === "Black Glasses" &&
+      same(before, [[]]));
+  }
+
+  {
+    // every saved Pinecord sheet, as the site reads them (index.json "fixes" before "sheets"): each side with a
+    // sheet gets a set for all its Pokémon. Week 1: Zololab's paste has Vaporeon (game: Scrafty), FingerStripes'
+    // Jirachi (game: Suicune); those two come from the hand-made files.
+    const index = await (await fetch("../site/ppppp/games/index.json")).json();
+    const withSheets = index.games.filter((g) => (g.sheets || []).length);
+    let sides = 0, full = 0;
+    const pieced = [];
+    for (const g of withSheets) {
+      const rows = RS.gameRows({ ...(await (await fetch(`../site/ppppp/games/${g.id}.json`)).json()), illusion: g.illusion });
+      const files = [...(g.fixes || []).map((p) => [p, ".fix", "pieced"]), ...g.sheets.map((p) => [p, "", "sheet"])];
+      const sources = await Promise.all(files.map(async ([player, ext, from]) =>
+        ({ gameId: g.id, player, from, sets: TS.parseTeam(await (await fetch(`../site/ppppp/mock/${g.id}-${player}${ext}.txt`)).text()) })));
+      TS.attachSets(rows, sources);
+      for (const player of g.sheets) {
+        const side = rows.filter((r) => TS.toID(r.player) === TS.toID(player));
+        sides++;
+        if (side.length && side.every((r) => r.set)) full++;
+        pieced.push(...side.filter((r) => r.set_from === "pieced").map((r) => r.pokemon));
+      }
+    }
+    check("library sheets: all 35 sides get a set for every Pokémon", sides === 35 && full === 35, `${full} of ${sides}`);
+    check("library sheets: the hand-made sets are Week 1's Scrafty and Suicune", same(pieced.sort(), ["Scrafty", "Suicune"]), JSON.stringify(pieced));
+  }
+
+  {
+    // the Pokémon tab's season sets: one per player and set, moves in any order, most games first
+    const S = (t) => TS.parseTeam(t)[0];
+    const a = S("Latios @ Choice Scarf\nAbility: Levitate\nEVs: 4 HP / 252 SpA / 252 Spe\nTimid Nature\n- Draco Meteor\n- Ice Beam");
+    const a2 = S("Latios @ Choice Scarf\nAbility: Levitate\nEVs: 4 HP / 252 SpA / 252 Spe\nTimid Nature\n- Ice Beam\n- Draco Meteor");
+    const b = S("Latios @ Choice Specs\nAbility: Levitate\n- Draco Meteor");
+    const rs = [{ player: "Zolo", set: b, set_from: "pieced", replay_id: "w1" }, { player: "zolo", set: a, replay_id: "w2" },
+      { player: "Zolo", set: a2, replay_id: "w3" }, { player: "Other", set: a, replay_id: "w3" }, { player: "Zolo", replay_id: "w4" }];
+    const got = window.League.monSets(rs, TS.toID, (r) => r.replay_id.replace("w", "Week "));
+    check("season sets: grouped by player and set, moves in any order, most games first", same(got.map((s) => [s.player, s.games, s.weeks, s.from]),
+      [["zolo", 2, ["Week 2", "Week 3"], "sheet"], ["Zolo", 1, ["Week 1"], "pieced"], ["Other", 1, ["Week 3"], "sheet"]]), JSON.stringify(got));
+    check("spread text: nature and EVs; nothing for a set with no EVs line", window.League.spreadText(a) === "Timid, 4 HP / 252 SpA / 252 Spe" &&
+      window.League.spreadText(b) === "", window.League.spreadText(a));
   }
 
   // ---- link parsing ----

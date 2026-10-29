@@ -48,9 +48,13 @@ Careful Nature
 - Knock Off
 - Light Screen
 
-Nightwing (Suicune) @ Leftovers
-Ability: Pressure
+Starfire (Jirachi) @ Metronome
+Ability: Serene Grace
 Shiny: Yes
-- Calm Mind
-- Substitute
-- Ice Beam
+Tera Type: Steel
+EVs: 252 HP / 224 SpD / 32 Spe
+Careful Nature
+- Iron Head
+- Wish
+- U-turn
+- Protect
