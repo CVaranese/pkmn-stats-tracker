@@ -108,6 +108,7 @@ async function run(again) {
 
     $("results").hidden = !rows.length;
     renderTeams();
+    if (openedSet) setGames(rows);
     updateWatch();
     render();
   } finally {
@@ -147,7 +148,7 @@ function renderTeams() {
   const cards = players.map((p) => teamCard(p, rows.filter((r) => r.player === p)));
   // a stream video's lines the screen reading got wrong (index.json known_errors), so numbers off by them are explained
   const errs = lib && lib.known_errors ? el("p", "hint", "Rebuilt from the stream video, with errors: " + lib.known_errors) : "";
-  box.replaceChildren(el("h2", "section-title", "This game"), head, errs, videoButtons(g.replay_id), el("div", "team-grid"));
+  box.replaceChildren(el("h2", "section-title", "This game"), head, errs, el("div", "team-grid"));
   box.lastChild.append(...cards);
   if ((g.momentum || []).length > 1) box.appendChild(momentumChart(g.momentum, players, rows));
   if (rows[0] && (rows[0].key_moments || []).length) box.appendChild(keyMomentsList(rows[0].key_moments, rows));
@@ -278,33 +279,6 @@ function momentumChart(points, players, rs) {
   const wrap = el("section", "momentum");
   wrap.append(el("h3", "", "Momentum"), legend, svg, read);
   return wrap;
-}
-/** Copy buttons for the league's videos: a YouTube title, and the names + MVPs for the thumbnail. */
-function videoButtons(id) {
-  const g = library.find((x) => x.id === id);
-  // the library's player order when it's a stored game, else the order the replay lists them
-  const players = g ? g.players : [...new Set(rows.map((r) => r.player))];
-  const copyBtn = (label, title, text) => {
-    const b = Object.assign(el("button", "small", label), { type: "button", title });
-    b.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(text());
-        flash(b, "Copied!");
-      } catch {
-        flash(b, "Copy failed");
-      }
-    });
-    return b;
-  };
-  const title = () => [g && LEAGUE.tag, g && g.week, players.join(" Vs ")].filter(Boolean).join(" ");
-  const thumb = () => [players.join(" vs "), ...players.map((p) => {
-    const mvp = rows.find((r) => r.player === p && r.mvp);
-    return `${p} MVP: ${mvp ? mvp.pokemon : "none"}`;
-  })].join("\n");
-  const bar = el("div", "row video-copy");
-  bar.append(copyBtn("Copy YouTube title", "Copies a video title: league, week, players", title),
-    copyBtn("Copy thumbnail info", "Copies the player names and each team's MVP, one per line", thumb));
-  return bar;
 }
 function megaZ(r) {
   if (r.mega) return `Mega Evolved on turn ${r.mega_turn}`;

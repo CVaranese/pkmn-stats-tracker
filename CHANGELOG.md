@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- Pokémon tab, "Its sets": a Copy set button on each set copies it as Showdown's teambuilder imports it (Import from text).
+- Main viewer: the "Copy YouTube title" and "Copy thumbnail info" buttons are gone.
+- Super Champions standings by set points: 3 for a 2–0 win, 2 for 2–1, 1 for a 1–2 loss, 0 for 0–2 (`set_points` in `site/leagues.json`). Players has a Points column and ranks by it first, then sets won and the tie-breaks as before.
+- Set stats: the set game by game above its totals (winner, turns, each side's MVP, KOs, Stats / Watch for each game; a game with no replay or not played says so), numbered as played. It replaces the "Game 1 · Game 2" links, which numbered only the saved replays.
 - Main viewer: a game that ended in a tie or never finished says "Tie" / "Unfinished" on both team cards instead of "Lost" on both.
 - Revival Blessing: the momentum chart counts a revived Pokémon again from the moment it's revived, not only once it switches back in (DEJIME's Pawmot: Kingambit in Week 2 vs chicken parm karm, Pelipper and Basculegion-F in Week 5 vs ElkG Big Large). One that stays on the bench to the end counts as alive (survived, fantasy points); its faint still counts.
 - Watch plays replays whose format has hyphens too (Smogon Tours: `smogtours-gen9ou-...`), as the rest of the site already read them.

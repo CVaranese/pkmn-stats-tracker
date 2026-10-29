@@ -125,10 +125,26 @@ function showMonSets(m) {
   $("mon-sets-wrap").hidden = !found.length;
   $("mon-sets-note").textContent = !found.length ? "No team sheet for any of its games yet."
     : missing ? `No team sheet for ${missing} of its ${m.rows.length} games: those sets aren't known.` : "";
-  simpleTable($("mon-sets"), [["Player", ""], ["Weeks", ""], ["Games", "num"], ["Item", ""], ["Ability", ""], ["Moves", ""],
+  // the Copy button first: the table is wider than a phone (and than the panel), so it scrolls sideways
+  simpleTable($("mon-sets"), [["", ""], ["Player", ""], ["Weeks", ""], ["Games", "num"], ["Item", ""], ["Ability", ""], ["Moves", ""],
     ["Nature and EVs", ""]],
-    found.map((s) => [[m.nameOf(s.player), ""], [s.weeks.join(", "), ""], [String(s.games), "num"], [s.set.item || "–", ""],
-      [s.set.ability || "–", ""], [s.set.moves.join(" / ") || "–", ""], [League.spreadText(s.set) || "–", ""]]));
+    found.map((s) => [[copySetButton(s.set, m.nameOf(s.player)), ""], [m.nameOf(s.player), ""], [s.weeks.join(", "), ""],
+      [String(s.games), "num"], [s.set.item || "–", ""], [s.set.ability || "–", ""], [s.set.moves.join(" / ") || "–", ""],
+      [League.spreadText(s.set) || "–", ""]]));
+}
+/** Copies the set as Showdown's teambuilder imports it (Import from text). */
+function copySetButton(set, owner) {
+  const b = Object.assign(el("button", "small", "Copy set"), { type: "button",
+    title: `Copies ${owner}'s ${set.species} for Showdown's teambuilder (Import from text)` });
+  b.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(League.setText(set) + "\n");
+      flash(b, "Copied!");
+    } catch {
+      flash(b, "Copy failed");
+    }
+  });
+  return b;
 }
 /** One Pokémon's season moves and its games (player, opponent, result, kills, damage), under the Pokémon table. */
 function showMon(name) {

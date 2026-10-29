@@ -180,6 +180,19 @@
     // head to head counts only sets between the tied players: Ann's win over Dee (not tied) doesn't lift her over Bo
     check("standings: head to head counts only sets among the tied players",
       order([pl("Ann", 2, 1, 4, 3, [0, 1]), pl("Bo", 2, 1, 4, 3), pl("Dee", 0, 3, 1, 6)], [set("Ann", "Dee", "Ann")]) === "Bo,Ann,Dee");
+    // set points (Super Champions: 2–0 = 3, 2–1 = 2, 1–2 = 1, 0–2 = 0)
+    const SCALE = [3, 2, 1, 0], sp = (wins, winner) => window.League.setPoints({ players: ["Ann", "Bo"], wins, winner }, SCALE);
+    check("set points: 2–0, 2–1, 1–2, 0–2; none while undecided",
+      same([sp([2, 0], "Ann"), sp([2, 1], "Ann"), sp([1, 2], "Bo"), sp([0, 2], "Bo"), sp([1, 1], ""), sp([2, 0], "Ann").length],
+        [[3, 0], [2, 1], [1, 2], [0, 3], [0, 0], 2]) && same(window.League.setPoints({ players: ["A", "B"], wins: [2, 0], winner: "A" }), [0, 0]),
+      JSON.stringify([sp([2, 0], "Ann"), sp([2, 1], "Ann"), sp([1, 2], "Bo"), sp([0, 2], "Bo")]));
+    // Ann won the most sets but has fewer points (6) than Bo and Cy (7); Bo and Cy level on points and sets: game difference
+    const withPts = (p, points) => ({ ...p, points });
+    const byPts = (list, sets) => window.League.standings(list, sets, undefined, 3, true).map((p) => p.name).join();
+    check("standings by points: points first, then sets won and the rest",
+      byPts([withPts(pl("Ann", 3, 0, 6, 3), 6), withPts(pl("Bo", 2, 1, 5, 2), 7), withPts(pl("Cy", 2, 1, 4, 3), 7)], []) === "Bo,Cy,Ann" &&
+      order([withPts(pl("Ann", 3, 0, 6, 3), 6), withPts(pl("Bo", 2, 1, 5, 2), 7)], []) === "Ann,Bo",
+      byPts([withPts(pl("Ann", 3, 0, 6, 3), 6), withPts(pl("Bo", 2, 1, 5, 2), 7), withPts(pl("Cy", 2, 1, 4, 3), 7)], []));
     check("standings (no sets): games won, then fewer lost, then KOs, then name",
       order([pl("Ann", 0, 0, 3, 2, [10, 0]), pl("Bo", 0, 0, 4, 3), pl("Cy", 0, 0, 3, 1), pl("Dee", 0, 0, 3, 2, [12, 0]), pl("Al", 0, 0, 3, 2, [10, 0])],
         [], 0) === "Bo,Cy,Dee,Al,Ann");
@@ -556,6 +569,21 @@
     check("league: spriteId", ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"]
       .map(LG.spriteId).join(" ") === "hooh urshifu-rapidstrike zamazenta tapukoko charizard-megax ironvaliant kommoo",
       ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"].map(LG.spriteId).join(" "));
+  }
+  // ---- Copy set (League.setText): Showdown's import format, read back the same by teams.js ----
+  {
+    const LG = window.League, TS = window.TeamSheets;
+    const paste = "Zarude @ Choice Scarf\nAbility: Leaf Guard\nLevel: 50\nEVs: 4 HP / 252 Atk / 252 Spe\nJolly Nature\n" +
+      "IVs: 0 SpA\n- Power Whip\n- Knock Off\n- U-turn\n- Close Combat";
+    const set = TS.parseTeam("Monke (Zarude) (M) @ Choice Scarf\n" + paste.split("\n").slice(1).join("\n"))[0];
+    const text = LG.setText(set);
+    check("Copy set: the export, gender kept, nickname left out", text === paste.replace("Zarude @", "Zarude (M) @"), text);
+    const back = TS.parseTeam(text)[0];
+    check("Copy set: read back the same", same({ ...back, nickname: "Monke" }, set), JSON.stringify(back));
+    const pieced = { species: "Scrafty", item: "", ability: "Intimidate", level: 100, nature: "", evs: {}, evsListed: false,
+      ivs: {}, moves: ["Fake Out"], gender: "" };
+    check("Copy set: a hand-made set has no EVs / nature / level lines", LG.setText(pieced) === "Scrafty\nAbility: Intimidate\n- Fake Out",
+      LG.setText(pieced));
   }
   // ---- share links (League.navQuery / readNav) and the stage picker: links posted on Discord keep opening the same view ----
   {

@@ -155,16 +155,29 @@
       played: slots.filter((sl) => sl.game || sl.kind === "missing").length };
   }
 
-  /** Standings. players: [{key (keyOf of their name), name, wins, losses, setWins, setLosses, rows (their game rows,
-      for KOs and Pokémon lost)}]; sets: with winners (sets / setSlots' score). A league that plays sets (bestOf > 0,
-      a round robin): sets won, then fewer sets lost, then game difference, then games won, then head to head (sets
-      won among the players still tied, counted again for each group of tied players), then KOs minus Pokémon lost,
-      then name. Otherwise: games won, then fewer lost, then KOs, then name. A new array, best first. */
-  function standings(players, sets, keyOf = toID, bestOf = 0) {
+  /** Each player's points for a decided set (score: setSlots' score, players' order), from the league's scale
+      [won without dropping a game, won, lost taking a game, lost without one] (Super Champions: [3, 2, 1, 0]). [0, 0]
+      while the set has no winner. */
+  function setPoints(score, scale) {
+    if (!score.winner || !scale) return [0, 0];
+    const w = score.players.indexOf(score.winner), l = 1 - w;
+    const out = [0, 0];
+    out[w] = score.wins[l] ? scale[1] : scale[0];
+    out[l] = score.wins[l] ? scale[2] : scale[3];
+    return out;
+  }
+
+  /** Standings. players: [{key (keyOf of their name), name, wins, losses, setWins, setLosses, points (with byPoints),
+      rows (their game rows, for KOs and Pokémon lost)}]; sets: with winners (sets / setSlots' score). A league that
+      plays sets (bestOf > 0, a round robin): set points first when the league scores them (byPoints), then sets won,
+      then fewer sets lost, then game difference, then games won, then head to head (sets won among the players still
+      tied, counted again for each group of tied players), then KOs minus Pokémon lost, then name. Otherwise: games
+      won, then fewer lost, then KOs, then name. A new array, best first. */
+  function standings(players, sets, keyOf = toID, bestOf = 0, byPoints = false) {
     const kills = (pl) => sum(pl.rows || [], "kills"), kd = (pl) => kills(pl) - sum(pl.rows || [], "deaths");
     if (!bestOf) return [...players].sort((a, b) => b.wins - a.wins || a.losses - b.losses || kills(b) - kills(a) || a.name.localeCompare(b.name));
-    const base = (a, b) => b.setWins - a.setWins || a.setLosses - b.setLosses || (b.wins - b.losses) - (a.wins - a.losses) ||
-      b.wins - a.wins;
+    const base = (a, b) => (byPoints ? (b.points || 0) - (a.points || 0) : 0) || b.setWins - a.setWins ||
+      a.setLosses - b.setLosses || (b.wins - b.losses) - (a.wins - a.losses) || b.wins - a.wins;
     const sorted = [...players].sort(base);
     const out = [];
     for (let i = 0; i < sorted.length;) {
@@ -187,6 +200,22 @@
   function spreadText(set) {
     const evs = set.evsListed === false ? "" : STAT_SHORT.filter(([k]) => set.evs[k]).map(([k, s]) => `${set.evs[k]} ${s}`).join(" / ");
     return [set.nature, evs].filter(Boolean).join(", ");
+  }
+  /** A sheet set as Showdown's teambuilder imports it (species, no nickname; level, EVs, IVs only when given / not
+      the default). What teams.js doesn't keep (Tera Type, Shiny, Happiness) isn't in it. */
+  function setText(set) {
+    const stats = (o, skip) => STAT_SHORT.filter(([k]) => k in o && o[k] !== skip).map(([k, s]) => `${o[k]} ${s}`).join(" / ");
+    const evs = set.evsListed === false ? "" : stats(set.evs || {}, 0);
+    const ivs = stats(set.ivs || {}, 31);
+    return [
+      set.species + (set.gender ? ` (${set.gender})` : "") + (set.item ? ` @ ${set.item}` : ""),
+      set.ability && `Ability: ${set.ability}`,
+      set.level && set.level !== 100 && `Level: ${set.level}`,
+      evs && `EVs: ${evs}`,
+      set.nature && `${set.nature} Nature`,
+      ivs && `IVs: ${ivs}`,
+      ...(set.moves || []).map((mv) => `- ${mv}`),
+    ].filter(Boolean).join("\n");
   }
 
   /** The sets a Pokémon was used with: rows (one Pokémon's games, in the order played) that have a sheet set
@@ -238,7 +267,7 @@
   }
 
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    setSlots, standings, spreadText, monSets, isPlayoffWeek, tabName, navQuery, readNav };
+    setSlots, setPoints, standings, spreadText, setText, monSets, isPlayoffWeek, tabName, navQuery, readNav };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);
