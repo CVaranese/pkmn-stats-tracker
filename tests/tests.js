@@ -406,6 +406,19 @@
     const got = RS.parseBattle(HEAD + body.replace(/^\n/, "")).hits.map((h) => h.slice(0, 3)); // [dealer, target, %]
     check(`damage: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
   }
+  // hits / heals carry the turn and the target's HP before / after (for a turn by turn view)
+  {
+    const b = RS.parseBattle(HEAD + `|move|p1a: Burner|Knock Off|p2a: Victim
+|-damage|p2a: Victim|70/100
+|turn|2
+|move|p1a: Burner|Knock Off|p2a: Victim
+|-damage|p2a: Victim|25/100
+|-heal|p2a: Victim|31/100|[from] item: Leftovers
+|turn|3`);
+    check("hits / heals: turn, HP before and after", same(b.hits, [["p1: Burner", "p2: Victim", 30, false, "Knock Off", 1, 100, 70],
+      ["p1: Burner", "p2: Victim", 45, false, "Knock Off", 2, 70, 25]]) && same(b.heals, [["p2: Victim", "p2: Victim", 6, 2, 25, 31]]),
+      JSON.stringify([b.hits, b.heals]));
+  }
 
   // ---- Illusion: a disguised stint moves to Zoroark, the real Pokemon keeps its own stints ----
   {
@@ -1373,6 +1386,17 @@ ${switchIn}`).hiddenZoroark;
       }
     }
     check("momentum: 0 left means 0% HP in every saved game", !off.length, off.slice(0, 10).join("\n"));
+  }
+
+  // ---- library snapshot (snapshot.js): every saved league game counts as it did when tests/snapshot.json was written.
+  // "Unchanged", not "right". A changed number after a rule change: check it, then write-snapshot.ps1 and review the diff.
+  // Games added since the snapshot only show in the name, so adding a game never stops a deploy.
+  {
+    const stored = await (await fetch("snapshot.json")).json();
+    const { changed, added, removed } = LibrarySnapshot.diff(stored, await LibrarySnapshot.compute());
+    const extra = [added.length && `${added.length} new, not in it yet`, removed.length && `${removed.length} in it no longer saved`].filter(Boolean);
+    check(`library snapshot: ${Object.keys(stored.games).length - removed.length} games unchanged` + (extra.length ? ` (${extra.join(", ")})` : ""),
+      !changed.length, changed.length + " numbers changed:\n" + changed.slice(0, 30).join("\n") + (changed.length > 30 ? "\n..." : ""));
   }
 
   // ---- fetching: time limit and "site is down" errors (fake fetch functions, 50 ms limit) ----

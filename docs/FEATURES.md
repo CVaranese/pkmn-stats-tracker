@@ -34,8 +34,8 @@ From the review in `docs/audits/2026-10-29-review.md` (its R / T numbers). Each 
 merged into `next` when it works alone; one session per step. Handoff: `docs/audits/HANDOFF-2026-10-29.md`.
 - [x] 0. Tests before every deploy (T1), the old Python CLI deleted, the video tools archived in `tools/video/`
       (2026-10-29, on `main`).
-- [ ] 1. Parser: a snapshot of every saved league game's per-Pokémon stats (T2), then each hit and heal with its turn
-      (R1). The snapshot must pass unchanged after R1.
+- [x] 1. Parser: a snapshot of every saved league game's per-Pokémon stats (T2), then each hit and heal with its turn
+      (R1). The snapshot must pass unchanged after R1. (2026-10-29, branch `parser-turns`: 214 games, unchanged after R1.)
 - [ ] 2. Team sheets per Pokémon (R2, T5) and the Pokémon tab's season sets (the sets each Pokémon was used with).
 - [ ] 3. Standings / tie-breaks and the trade pool into `league.js` / `bet.js` with tests (R3, T3, T4); one list of
       the league caches (R5). After step 2 (both edit `tests/tests.js`).

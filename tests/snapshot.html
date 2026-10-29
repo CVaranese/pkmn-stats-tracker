@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Library snapshot</title></head>
+<body>
+<!-- The library snapshot as it is now (snapshot.js), for .claude/skills/test/write-snapshot.ps1 to save as
+     tests/snapshot.json. Title DONE (n games) or CRASH. -->
+<pre id="out">running</pre>
+<script src="../site/parser.js"></script>
+<script src="../site/teams.js"></script>
+<script src="../site/illusion.js"></script>
+<script src="snapshot.js"></script>
+<script>
+LibrarySnapshot.compute().then((snap) => {
+  document.getElementById("out").textContent = LibrarySnapshot.format(snap);
+  document.title = `DONE (${Object.keys(snap.games).length} games)`;
+}).catch((e) => { document.getElementById("out").textContent = "CRASH " + e.stack; document.title = "CRASH"; });
+</script></body></html>
