@@ -26,7 +26,7 @@ it's ready. Checklist:
 - [x] Sets / playoff series (2026-10-28): `League.sets` (index.json `set` labels from `add_game.py --set`; else, for a league with `best_of`, week + pair of players, flagged `unclear` when it can't be one set; user 2026-10-28: label manually, flag when unclear), Games set line + Set stats (Playoffs tab, stats summed), Main viewer set line, Players Sets column.
 - [ ] Review queue (`docs/REVIEW_QUEUE.md`) gone through by the user, phone width above all.
 - [x] Release notes for visitors: `site/releases.json` (What's new on the league list, version in each league page's footer), 2026-10-28.
-- [ ] Release: CHANGELOG's Unreleased cut as 1.0, a git tag `v1.0`.
+- [x] Release: CHANGELOG's Unreleased cut as 1.0, a git tag `v1.0` (2026-10-29; the deployment as it was that day). Next: 1.1 = playoffs.
 - [x] Playoffs bracket: `peepeepeepeepisspiss` on Challonge (user, 2026-10-28), shown under Games next to the Swiss rounds (`brackets` in site/leagues.json). Playoff records / results on the site itself (beyond the Challonge frame): not done.
 
 ## Bugs / correctness first

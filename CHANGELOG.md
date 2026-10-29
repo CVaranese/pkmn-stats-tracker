@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 1.0 (2026-10-29)
 - Something is hiding in Pinecord's banner for anyone looking closely (a link to the preview of the next version, published from the `next` branch under `next/`).
 - Draft tab: both Pokémon in a trade stay in the player's table, with a small "Traded away" / "Traded in" badge (hover for the swap); a traded-away one the draft sheet dropped is back as a row (tier and cost not known), and traded-away picks no longer count in the draft points spent ("11 Pokémon for 51 draft points · 1 traded away").
 - Draft tab: every player's trade after Week 4 (one each, from the league), under their table: e.g. "Traded: Falinks for Shuckle, after Week 4."
