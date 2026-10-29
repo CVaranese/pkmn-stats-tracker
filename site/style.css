@@ -592,3 +592,13 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .turn-strip .ts-off { background: var(--border); opacity: .45; }
 .ts-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0 0; font-size: var(--fs-xs); color: var(--muted); }
 .ts-legend span { display: inline-flex; gap: 5px; align-items: center; }
+/* Awards tab: a card per award, its winners one line each (sprite, name over player, what it did, Stats) */
+.award-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
+.award { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
+.award h3 { margin: 0 0 8px; font-size: var(--fs-lg); cursor: help; }
+.award-win { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
+.award-win + .award-win { border-top: 1px solid var(--border); }
+.award-who { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: var(--fs-md); }
+.award-who > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.award-who .muted { font-size: var(--fs-sm); }
+.award-value { font-size: var(--fs-md); text-align: right; white-space: nowrap; }

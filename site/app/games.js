@@ -51,7 +51,7 @@ function setStage(v) {
   stage = v;
   try { localStorage.setItem(STAGE_KEY, v); } catch (e) { /* storage blocked */ }
   fillStagePicks();
-  for (const id of ["lib-week", "pl-week", "mon-week"]) fillWeekOptions($(id));
+  for (const id of ["lib-week", "pl-week", "mon-week", "aw-week"]) fillWeekOptions($(id));
   plWeek = $("pl-week").value;
   monWeek = $("mon-week").value;
   renderLibrary();
@@ -59,6 +59,8 @@ function setStage(v) {
   mons = null;
   if (mode === "players") renderPlayers();
   if (mode === "mons") renderMons();
+  awardsShown = false;
+  if (mode === "awards") renderAwards();
 }
 /** The library's sets (League.sets: games labelled with a set, else, in a league that plays sets, a week's games
     between the same two players), players matched through the draft's aliases. */

@@ -570,6 +570,39 @@
       .map(LG.spriteId).join(" ") === "hooh urshifu-rapidstrike zamazenta tapukoko charizard-megax ironvaliant kommoo",
       ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"].map(LG.spriteId).join(" "));
   }
+  // ---- weekly awards (League.awards) ----
+  {
+    const LG = window.League;
+    const mom = (pts) => pts.map(([turn, a, b]) => ({ turn, p1: { hp: a }, p2: { hp: b } }));
+    // game g1: Ann (p1) beat Bo in 20 turns from 40% behind on turn 6; game g2: Cy (p1) beat Dee in 8 turns, never behind;
+    // game g3: Eve won by forfeit in 3 turns (not a quickest win)
+    const m1 = mom([[0, 100, 100], [6, 30, 70], [20, 20, 0]]), m2 = mom([[0, 100, 100], [8, 60, 0]]);
+    const row = (o) => ({ brought: 1, kills: 0, damage_dealt_pct: 0, damage_taken_pct: 0, survived: 0, mvp_score: 0, won: 0,
+      end_reason: "normal", player_luck: "", ...o });
+    const rows = [
+      row({ replay_id: "g1", player: "Ann", side: "p1", pokemon: "Garchomp", kills: 3, damage_dealt_pct: 250, mvp_score: 5.5, won: 1, turns: 20, momentum: m1, player_luck: 1, player_luck_var: 1 }),
+      row({ replay_id: "g1", player: "Ann", side: "p1", pokemon: "Blissey", damage_taken_pct: 180, survived: 1, mvp_score: 1, won: 1, turns: 20, momentum: m1, player_luck: 1, player_luck_var: 1 }),
+      row({ replay_id: "g1", player: "Bo", side: "p2", pokemon: "Kingambit", kills: 3, damage_dealt_pct: 120, mvp_score: 4.7, turns: 20, momentum: m1, player_luck: -2, player_luck_var: 1 }),
+      row({ replay_id: "g2", player: "Cy", side: "p1", pokemon: "Dragapult", kills: 2, damage_dealt_pct: 300, mvp_score: 5.5, won: 1, turns: 8, momentum: m2, player_luck: 0.5, player_luck_var: 4 }),
+      row({ replay_id: "g2", player: "Dee", side: "p2", pokemon: "Toxapex", damage_taken_pct: 400, mvp_score: 0.5, turns: 8, momentum: m2 }),
+      row({ replay_id: "g3", player: "Eve", side: "p1", pokemon: "Pelipper", won: 1, turns: 3, end_reason: "forfeit", momentum: [] }),
+      row({ replay_id: "g3", player: "Fay", side: "p2", pokemon: "Zapdos", brought: 0, mvp_score: 9, turns: 3, momentum: [] }),
+    ];
+    const got = Object.fromEntries(LG.awards(rows).map((a) => [a.id, a.winners.map((w) => [w.player, w.pokemon || "", w.value].join(" / "))]));
+    const want = {
+      top: ["Ann / Garchomp / Performance 5.5", "Cy / Dragapult / Performance 5.5"],  // a tie lists both; Fay's Zapdos wasn't brought
+      kos: ["Ann / Garchomp / 3 KOs", "Bo / Kingambit / 3 KOs"],
+      damage: ["Cy / Dragapult / 300%"],
+      wall: ["Ann / Blissey / 180% taken"],  // Toxapex took more but fainted
+      lucky: ["Ann /  / +1.0 on the luck scale"],  // Cy +0.25
+      unlucky: ["Bo /  / −2.0 on the luck scale"],
+      comeback: ["Ann /  / won from 40% behind (turn 6)"],
+      quick: ["Cy /  / 8 turns"],  // Eve's 3-turn forfeit doesn't count
+    };
+    check("awards: each award's winners, ties, who qualifies", same(got, want), JSON.stringify(got));
+    check("awards: none left out when nothing qualifies, in a fixed order",
+      LG.awards([]).length === 0 && LG.awards(rows).map((a) => a.id).join() === "top,kos,damage,wall,lucky,unlucky,comeback,quick");
+  }
   // ---- turn strip (League.turnCells over a row's timeline) ----
   {
     const LG = window.League;
