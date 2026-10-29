@@ -134,7 +134,8 @@ def main(argv):
     for path, text in pages().items():
         try:
             with open(path, encoding="utf-8", newline="") as f:
-                same = f.read() == text
+                # line endings don't count: a git checkout on Windows writes CRLF where this writes LF
+                same = f.read().replace("\r\n", "\n") == text
         except FileNotFoundError:
             same = False
         if same:
