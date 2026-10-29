@@ -115,7 +115,7 @@ const SHEET_FIELDS = ["max_hp", "max_hp_from", "item", "ability", "moves"]; // p
 const HP_FROM = { player: "other sheet", smogon: "Smogon", stats: "base stats" }; // max_hp_from of a guess
 const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], hazard_damage_pct: ["hazard_damage_hp"],
   healing_pct: ["healing_hp"], healing_given_pct: ["healing_given_hp"], status_damage_pct: ["status_damage_hp"] };
-// Main viewer (one game, the default) or Playoffs (several games); each has its own input, remembered separately
+// Main viewer (one game, the default) or "many" (several games added up: a set from Set stats, or a link with several ?r= ids; no tab of its own since 2026-10-28); each has its own input, remembered separately
 let mode = "one";
 const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
 // tabs with no link box: their own views over the saved league games (gamble: Gambling, still a "coming soon" page)
@@ -236,7 +236,7 @@ function openGame(id) {
   window.scrollTo(0, 0);
 }
 // a set opened with Set stats (its game ids), or null: the several-games totals under a heading naming the set,
-// the Games tab marked (not Playoffs), the link box folded away
+// the Games tab marked, the link box folded away
 let openedSet = null;
 /** Open a set's games together (from Games or a game's line in Main viewer): their stats added up under the set's
     name. push: false when Back / Forward or a ?set= link brings it back. */

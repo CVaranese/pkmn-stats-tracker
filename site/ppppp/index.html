@@ -41,7 +41,6 @@
       <button data-mode="players" type="button">Players</button>
       <button data-mode="mons" type="button">Pokémon</button>
       <button data-mode="draft" type="button">Draft</button>
-      <button data-mode="many" type="button">Playoffs</button>
       <button data-mode="fantasy" type="button">Fantasy</button>
       <button data-mode="gamble" type="button">Gambling</button>
     </nav>
@@ -70,7 +69,10 @@
 
     <section id="mons" class="tab-page" hidden>
       <p class="hint">Every Pokémon brought in the league games saved here, added up over the season, so this tab gives results away. Find one by name or player, or click a column name to sort and a Pokémon in the list to show its moves and games here.</p>
-      <p><label class="inline">Weeks <select id="mon-week"><option value="">All weeks</option></select></label></p>
+      <div class="pl-bar">
+        <div class="tabs stage-pick" hidden></div>
+        <label class="inline">Weeks <select id="mon-week"><option value="">All weeks</option></select></label>
+      </div>
       <label for="mon-find">Find a Pokémon</label>
       <input type="text" id="mon-find" class="mon-find" autocomplete="off" spellcheck="false" enterkeyhint="go"
         placeholder="Name or player: zama, karm…" aria-describedby="mon-find-count">
@@ -100,11 +102,7 @@
     <section id="players" class="tab-page" hidden>
       <p class="hint" id="pl-intro">Every league game saved here, added up per player, so this tab gives results away. Won / Lost count the saved games only; the bracket under Games has every result.</p>
       <div class="pl-bar">
-        <div class="tabs" id="pl-views">
-          <button data-plview="standings" aria-current="true" type="button">Standings</button>
-          <button data-plview="h2h" type="button">Head-to-head</button>
-          <button data-plview="kos" type="button">KO matrix</button>
-        </div>
+        <div class="tabs stage-pick" hidden></div>
         <label class="inline">Weeks <select id="pl-week"><option value="">All weeks</option></select></label>
       </div>
       <p class="muted" id="pl-status"></p>
@@ -117,18 +115,6 @@
         <div class="table-wrap"><table id="pl-mons"></table></div>
       </div>
       </div>
-      <div id="pl-h2h" hidden>
-        <p class="hint">Two players side by side: their games against each other, then both seasons.</p>
-        <div class="pl-bar">
-          <label class="inline">Player <select id="h2h-a"></select></label>
-          <label class="inline">Against <select id="h2h-with"></select></label>
-        </div>
-        <div id="h2h-out" class="h2h"></div>
-      </div>
-      <div id="pl-kos-view" hidden>
-      <p class="hint">Who KO'd whom: each number is how many of the column player's Pokémon the row player's Pokémon knocked out. Hover (or tap) a number for which ones.</p>
-      <div class="table-wrap"><table id="pl-kos" class="ko-matrix"></table></div>
-      </div>
     </section>
 
     <section id="library" class="library" hidden>
@@ -136,6 +122,7 @@
         <label class="inline">Player
           <select id="lib-player"><option value="">Everyone</option></select>
         </label>
+        <div class="tabs stage-pick" hidden></div>
         <label class="inline">Week
           <select id="lib-week"><option value="">All weeks</option></select>
         </label>

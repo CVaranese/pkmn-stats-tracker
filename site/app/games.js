@@ -18,6 +18,48 @@ function setShowResults(on) {
   $("lib-spoilers").setAttribute("aria-pressed", String(on));
   $("lib-spoilers").textContent = on ? "Hide results" : "Show results";
 }
+// Regular season / Playoffs / Both, next to the week pickers (Games, Players, Pokémon), one choice for all three
+// (user 2026-10-28). A playoff game is one whose week isn't "Week n" (Playoffs R1, Semifinals, Finals); the buttons
+// only show in a league that has both.
+const STAGE_KEY = KEYS + "stage";
+const STAGES = [["regular", "Regular season"], ["playoffs", "Playoffs"], ["both", "Both"]];
+let stage = "regular";
+try { stage = STAGES.some(([v]) => v === localStorage.getItem(STAGE_KEY)) ? localStorage.getItem(STAGE_KEY) : "regular"; } catch (e) { /* storage blocked */ }
+const isPlayoffWeek = (w) => !/^Week [0-9]/.test(w);
+const hasStages = () => library.some((g) => isPlayoffWeek(g.week)) && library.some((g) => !isPlayoffWeek(g.week));
+const inStage = (w) => !hasStages() || stage === "both" || (stage === "playoffs") === isPlayoffWeek(w);
+/** A week picker's options: "All weeks", then the weeks of the picked stage; a picked week outside it goes back to all. */
+function fillWeekOptions(sel) {
+  const was = sel.value;
+  const weeks = [...new Set(library.map((g) => g.week))].filter(inStage);
+  sel.replaceChildren(sel.options[0], ...weeks.map((w) => new Option(w, w)));
+  sel.value = weeks.includes(was) ? was : "";
+}
+/** The Regular season / Playoffs / Both buttons, wherever there's a week picker. */
+function fillStagePicks() {
+  for (const box of document.querySelectorAll(".stage-pick")) {
+    box.hidden = !hasStages();
+    box.replaceChildren(...STAGES.map(([v, label]) => {
+      const b = Object.assign(el("button", "", label), { type: "button" });
+      markCurrent(b, v === stage);
+      b.addEventListener("click", () => setStage(v));
+      return b;
+    }));
+  }
+}
+function setStage(v) {
+  stage = v;
+  try { localStorage.setItem(STAGE_KEY, v); } catch (e) { /* storage blocked */ }
+  fillStagePicks();
+  for (const id of ["lib-week", "pl-week", "mon-week"]) fillWeekOptions($(id));
+  plWeek = $("pl-week").value;
+  monWeek = $("mon-week").value;
+  renderLibrary();
+  players = null;
+  mons = null;
+  if (mode === "players") renderPlayers();
+  if (mode === "mons") renderMons();
+}
 /** The library's sets (League.sets: games labelled with a set, else, in a league that plays sets, a week's games
     between the same two players), players matched through the draft's aliases. */
 const librarySets = (games = library) => window.League.sets(games, playerKey, LEAGUE.best_of || 0);
@@ -69,7 +111,7 @@ function setSlots(s) {
     under its own line (score with "Show results", Set stats), its games in the order played. */
 function renderLibrary() {
   const player = $("lib-player").value, week = $("lib-week").value;
-  const pick = (g) => (!player || g.players.some((p) => TS.toID(p) === player)) && (!week || g.week === week);
+  const pick = (g) => (!player || g.players.some((p) => TS.toID(p) === player)) && (!week || g.week === week) && inStage(g.week);
   const shown = library.filter(pick), lostShown = missing.filter(pick);
   $("lib-count").textContent = library.length ? `${shown.length} of ${library.length} games` : "";
   let setCount = 0;   // a league that plays sets counts sets until "Show results": a game count would give a 2–0 away

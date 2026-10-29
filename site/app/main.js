@@ -1,4 +1,4 @@
-/* Main viewer and Playoffs: load the games (run), team cards, the results table, copy / download / share. */
+/* Main viewer and several games added up (Set stats): load the games (run), team cards, the results table, copy / download / share. */
 "use strict";
 
 let watchId = "";

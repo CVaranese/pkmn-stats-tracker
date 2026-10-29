@@ -9,7 +9,7 @@ description: Screenshot the locally served site (headless Edge) and send it to t
    ```
    & .claude/skills/screenshot/shot.ps1 -Replays gen9nationaldex-2705157049 -Name one-game -OutDir <scratchpad>
    ```
-   Params: `-Replays id1,id2` (ids from `site/<league>/games/`; `-Page site/scl/` for another league, `-Page site/` for the league list; 1 id opens Main viewer, 2+ open Playoffs; `-Query tab=players` opens Players), `-Theme dark|light`,
+   Params: `-Replays id1,id2` (ids from `site/<league>/games/`; `-Page site/scl/` for another league, `-Page site/` for the league list; 1 id opens Main viewer, 2+ open the games added up; `-Query tab=players` opens Players), `-Theme dark|light`,
    `-Width` / `-Height` (default 1400 x 2200), `-Page tests/`, `-Query online`, `-Name`, `-OutDir`.
    Always pass the session scratchpad as `-OutDir`.
 2. Look at the PNG yourself (Read) before sending: check the change is visible and nothing is broken (blank page,

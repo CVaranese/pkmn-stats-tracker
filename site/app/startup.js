@@ -28,7 +28,7 @@ $("add-sheet").addEventListener("click", () => addSheetBox("").querySelector("te
 $("run").addEventListener("click", run);
 // "bet": the Fantasy tab's old name (saved tab, old ?tab=bet links)
 const tabName = (t) => (t === "bet" ? "fantasy" : t);
-try { mode = ["many", ...NO_INPUT_TABS].includes(tabName(localStorage.getItem(MODE_KEY))) ? tabName(localStorage.getItem(MODE_KEY)) : "one"; } catch (e) { /* storage blocked */ }
+try { mode = [...NO_INPUT_TABS].includes(tabName(localStorage.getItem(MODE_KEY))) ? tabName(localStorage.getItem(MODE_KEY)) : "one"; } catch (e) { /* storage blocked */ }
 try { $("one-link").value = localStorage.getItem(ONE_KEY) || ""; } catch (e) { /* storage blocked */ }
 $("one-link").addEventListener("input", () => {
   try { localStorage.setItem(ONE_KEY, $("one-link").value); } catch (e) { /* storage blocked */ }
@@ -60,7 +60,8 @@ const libraryReady = fetch(DIR + "games/index.json")
     for (const p of library.flatMap((g) => g.players)) if (!players.has(TS.toID(p))) players.set(TS.toID(p), p);
     const weeks = [...new Set(library.map((g) => g.week))];
     $("lib-player").append(...[...players].sort((a, b) => a[1].localeCompare(b[1])).map(([id, p]) => new Option(p, id)));
-    $("lib-week").append(...weeks.map((w) => new Option(w, w)));
+    fillStagePicks();
+    fillWeekOptions($("lib-week"));
     renderLibrary();
     // Main viewer's game list: latest week first, players only (no winner, like Games)
     $("one-game").append(...[...weeks].reverse().map((w) => {
@@ -170,14 +171,14 @@ const sharedPastes = (params.get("t") || "").split(",").map((t) => TS.pokepasteI
   .filter((id) => id && !sheetInputs().some((s) => TS.pokepasteIdFrom(s) === id));
 for (const id of sharedPastes) addSheetBox(TS.PASTE_HOST + id);
 if (sharedPastes.length) { $("sheets-wrap").open = true; saveSheets(); }
-// one replay in the link opens Main viewer, more open Playoffs
+// one replay in the link opens Main viewer, more open them added up ("many", no tab marked)
 const shared = RS.replayIdsFromText(params.get("r") || "");
 if (shared.length === 1) $("one-link").value = linkFor(shared[0]);
 else if (shared.length) $("links").value = shared.map(linkFor).join("\n");
 if (shared.length) activeInput().dispatchEvent(new Event("input"));
 // ?tab=games (or many / bet) opens that tab, e.g. a link to the game list
 const tabParam = tabName(params.get("tab"));
-if (["one", "many", ...NO_INPUT_TABS].includes(tabParam) && !shared.length) mode = tabParam;
+if (["one", ...NO_INPUT_TABS].includes(tabParam) && !shared.length) mode = tabParam;
 setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
 // ?tab=players&player=<key> / ?tab=mons&mon=<name>: that player or Pokémon picked (links from the game viewer)
 if (mode === "players" && params.get("player")) wantPlayer(params.get("player"));

@@ -225,18 +225,13 @@ button.small { padding: 4px 10px; font-size: 13px; }
 
 .results { margin-top: 24px; }
 
-/* main tabs: Main viewer, Games, Players, Pokémon, Playoffs, Fantasy, Gambling */
+/* main tabs: Main viewer, Games, Players, Pokémon, Draft, Fantasy, Gambling */
 .modes { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--outline); }
 .modes button { border: 2px solid transparent; border-bottom: 0; border-radius: 6px 6px 0 0; margin-bottom: -2px;
   background: transparent; padding: 8px 16px; font-weight: 600; color: var(--muted); }
 .tab-page { padding: 8px 0 24px; }
-/* Players: sub-tabs (Standings / Head-to-head / KO matrix) and the Weeks picker on one line */
+/* Players, Pokémon: Regular season / Playoffs / Both and the Weeks picker on one line */
 .pl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 4px 0 8px; }
-/* head-to-head: the games list, then the two seasons side by side */
-.h2h { margin-top: 10px; }
-.h2h-sub { margin: 16px 0 8px; font-size: 15px; }
-.h2h-table { max-width: 560px; }
-td.ko-list { font-size: 13px; }
 /* Pokémon tab: who it knocked out, and who knocked it out, as buttons */
 .mon-kos { margin-top: 10px; }
 .ko-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 6px; }
@@ -244,9 +239,6 @@ td.ko-list { font-size: 13px; }
 .ko-line > .stat-label { flex-basis: 100%; font-size: 13px; }
 .ko-line .mon-match { gap: 4px; padding: 2px 10px 2px 2px; font-size: 14px; }
 .ko-line .mon-match .sprite.tiny { width: 30px; height: 30px; }
-/* KO matrix: player x player, numbers only; a number has its list as a title */
-.ko-matrix th:not(:first-child) { font-size: 12px; max-width: 90px; white-space: normal; text-align: right; }
-.ko-cell { cursor: help; text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
 .tab-page .section-title { margin-top: 22px; }
 /* Gambling, not built yet: one box with a stripe along its top (--stripe-box) */
 .soon { max-width: 640px; margin-top: 8px; padding: 0 18px 14px; border: 2px solid var(--outline); border-radius: 8px;

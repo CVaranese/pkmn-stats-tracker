@@ -15,7 +15,7 @@ async function renderMons() {
   $("mon-status").textContent = "Loading games…";
   const league = await loadLeague();
   fillWeeks("mon-week", (w) => { monWeek = w; mons = null; renderMons(); });
-  const games = library.filter((g) => !monWeek || g.week === monWeek);
+  const games = library.filter((g) => (!monWeek || g.week === monWeek) && inStage(g.week));
   const ids = new Set(games.map((g) => g.id));
   const all = league.filter((r) => r.brought && ids.has(r.replay_id));
   const nameOf = shownName;
