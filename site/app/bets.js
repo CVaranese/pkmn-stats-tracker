@@ -4,11 +4,13 @@
 
 // the next branch's preview (/next/ in the address) or this computer: where the bets show
 const PREVIEW = ADMIN || location.pathname.includes("/next/");
+// leagues.json bets: on for Pinecord; off for VGC leagues until their lines are worked out (user 2026-10-29)
+const BETS_ON = PREVIEW && !!LEAGUE.bets;
 let betsShown = false;
 onLeagueChange(() => { betsShown = false; });
 let betWeek = null;  // null: not picked yet (opens on the latest week)
 async function renderBets() {
-  if (!PREVIEW || betsShown) return;
+  if (!BETS_ON || betsShown) return;
   betsShown = true;
   $("bet-draw").hidden = false;
   const league = await loadLeague();
@@ -27,6 +29,10 @@ async function renderBets() {
     sel.dataset.ready = "1";
     sel.addEventListener("change", () => { betWeek = sel.value; betsShown = false; renderBets(); });
   }
+  // a game that didn't load isn't counted: say so, as results and lines would be off
+  const inWeek = library.filter((g) => g.week === betWeek).length, counted = (weeks[betWeek] || []).length;
+  $("bet-status").textContent = `${betWeek}: ${counted} game${counted === 1 ? "" : "s"}` +
+    (counted < inWeek ? ` (${inWeek - counted} didn't load, so the results may be off)` : "") + ".";
   $("bet-list").replaceChildren(...Bet.weeklyBets(LEAGUE.id, betWeek, weeks).map(betCard));
 }
 /** One bet: what it's on, the line (over / under) or Yes / No, and how it came out once the week's games are in. */

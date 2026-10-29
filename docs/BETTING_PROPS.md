@@ -160,6 +160,26 @@ More stats only make variants of the props above (the same count with another li
 | A Pokémon reaches 15 season KOs | Y/N | `kills` |
 | Total hazard KOs in the season: over / under 6.5 | O/U | `hazard_kills` |
 
+## Decided so far (user, 2026-10-29, planning)
+- **Against the house, even money.** Pool betting dropped: about 10 people will bet, too few for a pot.
+- **No VGC betting for now** (user): only leagues with `bets: true` in `site/leagues.json` (Pinecord) show bets;
+  Super Champions (VGC doubles) stays off, and no VGC line analysis until it's wanted.
+- **Leaning: one fixed stake per bet, no amounts to choose** (user, to keep it simple), with a weekly allowance that
+  covers every bet. Then points can't run out and there's no sizing: a week's score is (right - wrong) x the stake,
+  in effect a pick'em score. Not settled.
+- **Lines "close enough" to 50/50**, not from the league's past weeks alone (week 1 has none; the sample is tiny):
+  simulate weeks from a large sample of Showdown replays of the league's format (Nat Dex for Pinecord), drawing as many games as the week has, many times; the median
+  weekly total is the 50/50 line. Blend in the league's own games as they come, weighted by how many. Yes / no bets
+  get a threshold the same way ("a Pokémon gets N+ KOs": the N that happens about half the time).
+- **The user's nudge:** each line moved by a random amount from a normal distribution centred on the 50/50 line
+  (spread a share of the weekly total's spread), seeded by league + week, rounded to x.5.
+- **Close enough, checked:** run the lines over the league's past weeks; a bet whose Over / Yes rate is outside about
+  35-65% is fixed or dropped from the draw. A test, so it stays checked as games come in.
+- **The house keeps a record** of what it won or lost per bet, to fix or drop a line that keeps losing.
+- Open: the stake and allowance, bet on the six drawn only or more, where points are kept (a login, not decided).
+- Before the playoffs: adapt the new kinds with smaller numbers (rest-of-season picks, a featured game each week,
+  running totals to the end of the regular season); the bracket waits for the playoffs. Bracket pick'ems: `docs/FEATURES.md`.
+
 ## Weekly draw (to decide)
 - How many props a week (e.g. 5), and whether every kind is in each draw (one O/U, one Y/N, one Pick...).
 - Lines: last week's total, the season average, or rounded halfway so there's no push.
