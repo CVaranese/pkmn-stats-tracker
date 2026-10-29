@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Stream-video games: misread names fixed in 7 games (a hit, heal or stat change that named nobody now lands on the right Pokémon), Aftermath that was Rough Skin / Iron Barbs, moves with the next line glued on (Make It Rain's 57% on Toxicroak is back), Magma Storm's trap, and Hydrapple's two hits in Week 8 Karm vs Fingy (6% and 66%). Main viewer's "with errors" notes updated: two games have none left.
 - Pinecord Week 8: the last three games (Karm vs Fingy, Dox vs Sneez, Cloudburst vs Zololab) from the stream videos, so all six Week 8 games are in; FingerStripes' Week 8 team sheet with the Karm game.
 - Players and Pokémon tabs: Copy for Google Sheets and Download CSV buttons next to the Weeks picker; they copy the table as shown (its sort, weeks, and the Pokémon search).
 - Names that open a season now have a faint underline (the border colour, accent on hover), so they read as clickable on phones too.

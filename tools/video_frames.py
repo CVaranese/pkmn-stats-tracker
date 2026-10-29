@@ -89,6 +89,7 @@ def main():
     ap.add_argument("--scale", type=float, default=2)
     ap.add_argument("--filter", default="", help="canvas filter, e.g. 'grayscale(1) contrast(1.6)'")
     ap.add_argument("--port", type=int, default=8771)
+    ap.add_argument("--jpeg", action="store_true", help="save JPEG (85%%) instead of PNG: smaller, for review pictures")
     args = ap.parse_args()
     if args.times:
         times = [float(t) for t in args.times.split(",")]
@@ -103,7 +104,8 @@ def main():
                                           make_handler(os.path.abspath(args.video), args.out_dir, done))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     box = "0,0,1280,720" if args.box == "full" else args.box
-    name = lambda t: f"f{round(t * 10):05d}.png"
+    ext = ".jpg" if args.jpeg else ".png"
+    name = lambda t: f"f{round(t * 10):05d}{ext}"
     profile = os.path.join(os.environ.get("TEMP", "."), "edge-headless-frames")
     t0, skipped, launches, ok = time.time(), [], 0, False
     # Edge's video decoder sometimes wedges for good (no seek finishes, even on a new <video>): when no frame
@@ -117,11 +119,11 @@ def main():
         launches += 1
         done.clear()
         url = (f"http://127.0.0.1:{args.port}/video_grab.html?t={','.join(map(str, left))}"
-               f"&box={box}&scale={args.scale}&filter={urllib.parse.quote(args.filter)}")
+               f"&box={box}&scale={args.scale}&filter={urllib.parse.quote(args.filter)}" + ("&jpeg=1" if args.jpeg else ""))
         p = subprocess.Popen([EDGE, "--headless=new", "--disable-gpu", "--mute-audio", "--autoplay-policy=no-user-gesture-required",
                               f"--user-data-dir={profile}-{launches}", "--dump-dom", url],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        count = lambda: sum(1 for f in os.listdir(args.out_dir) if f.endswith(".png"))
+        count = lambda: sum(1 for f in os.listdir(args.out_dir) if f.endswith(ext))
         last_n, last_t = count(), time.time()
         while not done.wait(2):
             if count() != last_n:
@@ -136,7 +138,7 @@ def main():
             time.sleep(0.5)
             skipped += [t for t in left if not os.path.exists(os.path.join(args.out_dir, name(t)))]
     srv.shutdown()
-    n = sum(1 for f in os.listdir(args.out_dir) if f.endswith(".png"))
+    n = sum(1 for f in os.listdir(args.out_dir) if f.endswith(ext))
     if skipped:
         print(f"skipped (stuck): {', '.join(map(str, skipped))}")
     print(f"{'done' if ok else 'TIMEOUT'}: {len(times)} times, {n} PNGs in {args.out_dir}, {time.time() - t0:.0f} s")

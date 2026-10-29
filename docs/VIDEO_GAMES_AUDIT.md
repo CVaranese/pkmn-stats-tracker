@@ -3,14 +3,14 @@
 Made by `python -I tools/audit_video_games.py` from the logs alone (no video). Each line gives the turn, the
 log line number (in the game's `site/ppppp/games/<id>.json` `log`, counting from 1) and what looks wrong. Some are
 real (a turn spent recharging, a Pokémon that can't move with no line for it), so check each against the video.
-35 games, 74 things to check.
+35 games, 61 things to check.
 
 Coming back with more HP is only flagged for Pokémon that can't have Regenerator. Re-run after fixing.
 
 ## Week 1: azpmCloudburst vs chicken parm karm (`video-d5ivr2s_7de`, 24 turns)
 Video: https://youtu.be/d5iVr2s_7dE
 
-- [ ] Turn 24, line 213: move 'Ice Beaml It's super effective' isn't a Showdown move: misread
+- Nothing found.
 
 ## Week 1: ElkG Big Large vs weedinmyhonda (`video-ff5wimd_i3k`, 27 turns)
 Video: https://youtu.be/ff5WImD_i3k
@@ -42,14 +42,10 @@ Video: https://youtu.be/JJaCbPX4g2E
 
 ## Week 2: doxsego vs weedinmyhonda (`video-4facablyaoc`, 19 turns)
 Video: https://youtu.be/4fACABLYaoc
-Already noted on the site: Five lines name no Pokémon (a Rocky Helmet hit, a hit, a Roost heal, an Aftermath hit), so a little damage and healing is missing.
+Already noted on the site: Turn 19: the Iron Barbs damage to Gerard Blade is misread, so a little damage is missing.
 
-- [ ] Turn 1, line 32: names a Pokémon that never came onto the field (p1: '1 01 a4)unny'): misread name, its effect is lost: `|-damage|p1a: 1 01 a4)unny|83/100|[from] item: Rocky Helmet`
 - [ ] Turn 1, line 36: says hit 1 times but 3 hit lines on Landorus: hits missing
-- [ ] Turn 5, line 60: names a Pokémon that never came onto the field (p1: 'Thc opposing Michal'): misread name, its effect is lost: `|-damage|p1a: Thc opposing Michal|89/100`
-- [ ] Turn 17, line 137: names a Pokémon that never came onto the field (p1: 'Tho oppoinq BIGBIRD'): misread name, its effect is lost: `|-heal|p1a: Tho oppoinq BIGBIRD|100/100`
-- [ ] Turn 17, line 138: names a Pokémon that never came onto the field (p1: 'Thc opposing BIGBIRD'): misread name, its effect is lost: `|-start|p1a: Thc opposing BIGBIRD|move: Roost`
-- [ ] Turn 19, line 150: names a Pokémon that never came onto the field (p2: 'Gen5's Iron BarbsJ Gerard Blade'): misread name, its effect is lost: `|-damage|p2a: Gen5's Iron BarbsJ Gerard Blade|100/100|[from] ability: Aftermath`
+- [ ] Turn 19, line 150: Gerard Blade takes 'ability: Aftermath' damage but stays at 4%: the HP is misread
 - [ ] Turn 19, line 150: Aftermath with nobody fainting just before: probably Rough Skin / Iron Barbs misread
 - [ ] Turn 19, line 151: Gerard Blade takes 'ability: Aftermath' damage but stays at 4%: the HP is misread
 - [ ] Turn 19, line 151: Aftermath with nobody fainting just before: probably Rough Skin / Iron Barbs misread
@@ -68,8 +64,7 @@ Video: https://youtu.be/I21S40QI4EM
 ## Week 3: ElkG Big Large vs chicken parm karm (`video-bgmhhbybbam`, 17 turns)
 Video: https://youtu.be/BGMHhByBbaM
 
-- [ ] Turn 17, line 142: move 'Thunder Wavel Toxicroak is paralyzed, so it may be unable to move' isn't a Showdown move: misread
-- [ ] Turn 17, line 145: move 'Make It Rainl (Toxicroak lost 57% of its health!)' isn't a Showdown move: misread
+- Nothing found.
 
 ## Week 3: azpmCloudburst vs potatoesareyum (`video-uffx_ququzw`, 19 turns)
 Video: https://youtu.be/UFfx_QuquZw
@@ -86,7 +81,6 @@ Already noted on the site: Turns 1-3 were misread: Bronzong's name, and Zapdos's
 - [ ] Turn 2, line 36: p2 () did nothing this turn: a move or 'can't move' line may be missing
 - [ ] Turn 3, line 39: names a Pokémon that never came onto the field (p2: 'bj nznq*'): misread name, its effect is lost: `|-damage|p2a: bj nznq*|79/100`
 - [ ] Turn 3, line 40: names a Pokémon that never came onto the field (p2: 'Xbrnzng*'): misread name, its effect is lost: `|move|p2a: Xbrnzng*|Trick Room|`
-- [ ] Turn 5, line 50: names a Pokémon that never came onto the field (p1: 'Ille opposinq II IL LARGESl'): misread name, its effect is lost: `|-mega|p1a: Ille opposinq II IL LARGESl|Ille opposinq II IL LARGESl|Tyranitarite`
 - [ ] Turn 11, line 109: names a Pokémon that never came onto the field (p2: 'God'): misread name, its effect is lost: `|-unboost|p2a: God|Grift's Attack|1`
 - [ ] Turn 18, line 166: names a Pokémon that never came onto the field (p1: 'play The opposing God'): misread name, its effect is lost: `|-boost|p1a: play The opposing God|Grift's Sp. Atk|1`
 - [ ] Turn 18, line 167: names a Pokémon that never came onto the field (p2: 'God'): misread name, its effect is lost: `|-boost|p2a: God|Grift's Sp. Def|1`
@@ -122,11 +116,10 @@ Already noted on the site: Turn 19: Ceruledge is shown at 0% after Sucker Punch 
 
 ## Week 4: FingerStripes vs ElkG Big Large (`video-yycxiiszqek`, 33 turns)
 Video: https://youtu.be/yyCXiIsZQek
-Already noted on the site: Turn 10: Sableye is shown at 0% after Dark Pulse but didn't faint (it comes back at 1%). One Thunder Cage line names no Pokémon.
+Already noted on the site: Turn 10: Sableye is shown at 0% after Dark Pulse but didn't faint (it comes back at 1%).
 
 - [ ] Turn 0, line 25: move 'its Booster Energy to activate its Quark Driv' isn't a Showdown move: misread
 - [ ] Turn 20, line 90: Raven goes to 0 ('0 fnt') with no faint and comes back at 1% (line 158): the HP is misread
-- [ ] Turn 21, line 168: names a Pokémon that never came onto the field (p1: 'by swirling magn'): misread name, its effect is lost: `|-start|p1a: by swirling magn|move: Thunder Cage`
 
 ## Week 4: PeterPikmon vs pee nation (`video-ktyq3nes_gm`, 25 turns)
 Video: https://youtu.be/ktYq3NES_GM
@@ -181,11 +174,8 @@ Video: https://youtu.be/D-SnlPgNt04
 
 ## Week 6: FingerStripes vs potatoesareyum (`video-fivtp9wacta`, 34 turns)
 Video: https://youtu.be/FiVtP9WAcTA
-Already noted on the site: Three stat-change lines name no Pokémon; damage and KOs are unaffected.
 
-- [ ] Turn 26, line 210: names a Pokémon that never came onto the field (p1: 'That'): misread name, its effect is lost: `|-boost|p1a: That|Rough Buddy's Defense|1|[from] item: Electric Seed`
-- [ ] Turn 28, line 229: names a Pokémon that never came onto the field (p1: 'That'): misread name, its effect is lost: `|-unboost|p1a: That|Rough Buddy's Defense|1`
-- [ ] Turn 28, line 230: names a Pokémon that never came onto the field (p1: 'That'): misread name, its effect is lost: `|-unboost|p1a: That|Rough Buddy's Sp. Def|1`
+- Nothing found.
 
 ## Week 6: chicken parm karm vs PeterPikmon (`video-efjkwhtidmm`, 47 turns)
 Video: https://youtu.be/efjkWhTidmM
@@ -210,9 +200,7 @@ Video: https://youtu.be/IYsf4aQc3jQ
 
 ## Week 7: peterpikmon vs potatoesareyum (`video-ek4vkzvwny0`, 22 turns)
 Video: https://youtu.be/ek4VkZvwnY0
-Already noted on the site: Ursaluna's Flame Orb burn names no Pokémon, so its burn isn't counted (burn damage after it still is).
 
-- [ ] Turn 2, line 36: names a Pokémon that never came onto the field (p1: 'Thc opposing Ursa!una'): misread name, its effect is lost: `|-status|p1a: Thc opposing Ursa!una|brn|[from] item: Flame Orb`
 - [ ] Turn 14, line 115: p1 (Thunder Thighs) did nothing this turn: a move or 'can't move' line may be missing
 
 ## Week 7: FingerStripes vs doxsego (`video-pq9jwax63pc`, 26 turns)

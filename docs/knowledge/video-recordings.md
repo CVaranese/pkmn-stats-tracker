@@ -207,6 +207,12 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
 - **Tested**: more readings of "%": "0/o" ("Zygarde-100/o"), "9/0" ("699/0" = 69%), "<Vo", "Wo", "'Yo", "TVo"; and
   of "The opposing": "Itie", "Ille", "Tho oppoqinq", "VI he" (a word of up to 4 letters before something close to
   "opposing" is dropped now). `video_to_replay.py --from-merged` converts a hand-fixed merged.txt again.
+- **Tested** (2026-10-29, pass over the saved games): names misread on non-switch lines map back to the Pokémon on
+  the field by spelling (the field's Pokémon weigh a little more); a hit or heal moved that way carries its HP change
+  over to the real Pokémon and moves its later HP with it. Aftermath with nobody fainting became Rough Skin / Iron
+  Barbs where the hit Pokémon can have one. What's left (61 audit items, 14 misread numbers, 7 site notes) went to a
+  review page with one frame each, taken when the next turn's header first shows, so the whole turn is on screen.
+  `video_frames.py --jpeg` saves those frames at about 120 KB instead of about 600 KB.
 
 ## Known misreads in saved games (checked 2026-10-28)
 - **Tested** (consistency pass over all 45 saved games): kills + self-KOs = deaths in every game, winners and turns match

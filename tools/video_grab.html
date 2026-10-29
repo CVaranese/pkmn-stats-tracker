@@ -38,8 +38,9 @@ window.onerror = (m) => done("ERR " + m);
       if (!(await open()) || !(await seek(t))) continue;
     }
     g.drawImage(v, bx * sx, by * sy, bw * sx, bh * sy, 0, 0, c.width, c.height);
-    const blob = await new Promise((r) => c.toBlob(r, "image/png"));
-    await fetch("/save?name=f" + String(Math.round(t * 10)).padStart(5, "0") + ".png", { method: "POST", body: blob });
+    const ext = q.get("jpeg") ? "jpg" : "png";   // JPEG for pictures people look at; PNG (lossless) for OCR
+    const blob = await new Promise((r) => c.toBlob(r, ext === "jpg" ? "image/jpeg" : "image/png", 0.85));
+    await fetch("/save?name=f" + String(Math.round(t * 10)).padStart(5, "0") + "." + ext, { method: "POST", body: blob });
   }
   done("ok " + times.length + " frames, duration " + v.duration);
 })();

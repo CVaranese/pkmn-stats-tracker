@@ -505,7 +505,7 @@
    "turns": 19,
    "note": "Stream video, errors",
    "video": "https://youtu.be/4fACABLYaoc",
-   "known_errors": "Five lines name no Pokémon (a Rocky Helmet hit, a hit, a Roost heal, an Aftermath hit), so a little damage and healing is missing.",
+   "known_errors": "Turn 19: the Iron Barbs damage to Gerard Blade is misread, so a little damage is missing.",
    "note_detail": "Some lines of the stream were misread; Main viewer says which.",
    "sheets": [
     "doxsego"
@@ -814,7 +814,7 @@
    "note": "Stream video, errors",
    "video": "https://youtu.be/yyCXiIsZQek",
    "note_detail": "Last KO from the players. Some lines of the stream were misread; Main viewer says which.",
-   "known_errors": "Turn 10: Sableye is shown at 0% after Dark Pulse but didn't faint (it comes back at 1%). One Thunder Cage line names no Pokémon.",
+   "known_errors": "Turn 10: Sableye is shown at 0% after Dark Pulse but didn't faint (it comes back at 1%).",
    "sheets": [
     "fingerstripes"
    ]
@@ -1246,10 +1246,8 @@
    "winner": "potatoesareyum",
    "date": "2026-10-11",
    "turns": 34,
-   "note": "Stream video, errors",
+   "note": "Stream video",
    "video": "https://youtu.be/FiVtP9WAcTA",
-   "known_errors": "Three stat-change lines name no Pokémon; damage and KOs are unaffected.",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which.",
    "sheets": [
     "fingerstripes"
    ]
@@ -1350,10 +1348,8 @@
    "winner": "peterpikmon",
    "date": "2026-10-18",
    "turns": 22,
-   "note": "Stream video, errors",
+   "note": "Stream video",
    "video": "https://youtu.be/ek4VkZvwnY0",
-   "known_errors": "Ursaluna's Flame Orb burn names no Pokémon, so its burn isn't counted (burn damage after it still is).",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which.",
    "sheets": [
     "potatoesareyum"
    ]
