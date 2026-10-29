@@ -43,6 +43,7 @@
       <button data-mode="games" type="button">Games</button>
       <button data-mode="players" type="button">Players</button>
       <button data-mode="mons" type="button">Pokémon</button>
+        <button data-mode="awards" type="button">Awards</button>
       <button data-mode="draft" type="button">Draft</button>
       <button data-mode="fantasy" type="button">Fantasy</button>
       <button data-mode="gamble" type="button">Gambling</button>
@@ -70,6 +71,17 @@
       <div class="table-wrap bet-table"><table id="bet-ranks"></table></div>
     </section>
 
+    <section id="awards" class="tab-page" hidden>
+      <p class="hint">The week's standouts from the league games saved here, so this tab gives results away. Pick All weeks for the season so far. Hover an award's name for how it's picked.</p>
+      <div class="pl-bar">
+        <div class="tabs stage-pick" hidden></div>
+        <label class="inline">Weeks <select id="aw-week"><option value="">All weeks</option></select></label>
+        <span class="spacer"></span>
+        <button id="aw-copy" type="button">Copy for Discord</button>
+      </div>
+      <p class="hint" id="aw-status"></p>
+      <div class="award-grid" id="aw-list"></div>
+    </section>
     <section id="mons" class="tab-page" hidden>
       <p class="hint">Every Pokémon brought in the league games saved here, added up over the season, so this tab gives results away. Find one by name or player, or click a column name to sort and a Pokémon in the list to show its moves and games here.</p>
       <div class="pl-bar">
@@ -274,6 +286,7 @@
   <script src="app/fantasy.js"></script>
   <script src="app/players.js"></script>
   <script src="app/mons.js"></script>
+  <script src="app/awards.js"></script>
   <script src="app/draft.js"></script>
   <script src="app/sheets.js"></script>
   <script src="app/main.js"></script>

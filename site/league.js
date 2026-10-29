@@ -239,6 +239,71 @@
     return [...by.values()].sort((a, b) => b.games - a.games);
   }
 
+  /** Awards over some games (a week, or the season so far). rows: those games' rows, every Pokémon (brought or not);
+      keyOf: one key per player (draft aliases). Each award: { id, title, how, winners: [{ player, pokemon (none for
+      player awards), value (text), game (replay id; none for a player's whole week) }] }, ties all listed; an award no
+      game qualifies for is left out. In this order: Top Pokémon (best Performance in a game), Most KOs, Most damage,
+      Wall (most damage taken by one that was still standing at the end), Luckiest / Unluckiest player (their rolls
+      over these games: League.seasonLuck), Biggest comeback (the winner furthest behind on HP share at a turn's end),
+      Quickest win (fewest turns, forfeits and timeouts left out). */
+  function awards(rows, keyOf = toID) {
+    const brought = rows.filter((r) => r.brought);
+    const out = [];
+    const best = (list, score) => {
+      const vals = list.map(score).filter((v) => typeof v === "number" && isFinite(v));
+      if (!vals.length) return [];
+      const top = Math.max(...vals);
+      return list.filter((x) => score(x) === top);
+    };
+    const mon = (r, value) => ({ player: r.player, pokemon: r.pokemon, value, game: r.replay_id });
+    const add = (id, title, how, winners) => { if (winners.length) out.push({ id, title, how, winners }); };
+    add("top", "Top Pokémon", "Best Performance in one game (the MVP score: damage, KOs, healing, staying alive).",
+      best(brought, (r) => r.mvp_score).map((r) => mon(r, `Performance ${r.mvp_score}`)));
+    add("kos", "Most KOs", "Most KOs in one game.",
+      best(brought.filter((r) => r.kills > 0), (r) => r.kills).map((r) => mon(r, `${r.kills} KO${r.kills > 1 ? "s" : ""}`)));
+    add("damage", "Most damage", "Most damage dealt in one game (% of a full health bar, so bulky and frail targets count the same).",
+      best(brought.filter((r) => r.damage_dealt_pct > 0), (r) => r.damage_dealt_pct).map((r) => mon(r, amount([r], ["damage_dealt_pct"]).text)));
+    add("wall", "Wall", "Most damage taken in one game by a Pokémon still standing at the end.",
+      best(brought.filter((r) => r.survived && r.damage_taken_pct > 0), (r) => r.damage_taken_pct)
+        .map((r) => mon(r, amount([r], ["damage_taken_pct"]).text + " taken")));
+    // luck: one row per player per game carries the player's luck for that game
+    const byPlayer = new Map();
+    const seen = new Set();
+    for (const r of rows) {
+      const k = keyOf(r.player), g = r.replay_id + "|" + k;
+      if (seen.has(g) || typeof r.player_luck !== "number") continue;
+      seen.add(g);
+      if (!byPlayer.has(k)) byPlayer.set(k, { player: r.player, rows: [] });
+      byPlayer.get(k).rows.push(r);
+    }
+    const lucks = [...byPlayer.values()].map((p) => ({ ...p, luck: seasonLuck(p.rows, "player_luck", "player_luck_var") }))
+      .filter((p) => p.luck);
+    const luckText = (z) => `${z > 0 ? "+" : z < 0 ? "−" : ""}${Math.abs(z).toFixed(1)} on the luck scale`;
+    add("lucky", "Luckiest player", "Their rolls (crits, misses, paralysis, secondary effects...) against what those rolls could have given, over these games.",
+      best(lucks.filter((p) => p.luck.z > 0), (p) => p.luck.z).map((p) => ({ player: p.player, value: luckText(p.luck.z) })));
+    add("unlucky", "Unluckiest player", "The other end of the same scale.",
+      best(lucks.filter((p) => p.luck.z < 0), (p) => -p.luck.z).map((p) => ({ player: p.player, value: luckText(p.luck.z) })));
+    // comeback: per game, the winner's lowest HP share minus the loser's at a turn's end
+    const games = new Map();
+    for (const r of rows) if (r.won && !games.has(r.replay_id)) games.set(r.replay_id, r);
+    const comebacks = [...games.values()].map((r) => {
+      const other = r.side === "p1" ? "p2" : "p1";
+      let worst = 0, turn = null;
+      for (const pt of r.momentum || []) {
+        const gap = pt[r.side].hp - pt[other].hp;
+        if (gap < worst) { worst = gap; turn = pt.turn; }
+      }
+      return { r, worst, turn };
+    }).filter((c) => c.worst < 0);
+    add("comeback", "Biggest comeback", "The winner furthest behind: their team's HP share minus the other team's, at the end of a turn.",
+      best(comebacks, (c) => -c.worst).map((c) => ({ player: c.r.player, value: `won from ${Math.round(-c.worst)}% behind (turn ${c.turn})`,
+        game: c.r.replay_id })));
+    const wins = [...games.values()].filter((r) => r.end_reason === "normal" && r.turns > 0);
+    add("quick", "Quickest win", "Fewest turns to win a game that was played out (no forfeit or timeout).",
+      best(wins, (r) => -r.turns).map((r) => ({ player: r.player, value: `${r.turns} turns`, game: r.replay_id })));
+    return out;
+  }
+
   // why a Pokémon couldn't move (|cant| reasons), as the turn strip says it
   const CANT = { par: "fully paralyzed", slp: "asleep", frz: "frozen", flinch: "flinched", recharge: "recharging",
     nopp: "out of PP", Disable: "its move was disabled", Taunt: "taunted", Imprison: "imprisoned", "move: Taunt": "taunted",
@@ -303,7 +368,7 @@
   }
 
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    setSlots, setPoints, standings, spreadText, setText, monSets, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
+    setSlots, setPoints, standings, spreadText, setText, monSets, awards, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);
