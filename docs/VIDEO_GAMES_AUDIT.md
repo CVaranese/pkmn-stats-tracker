@@ -1,9 +1,9 @@
 # Video-rebuilt games: what to fix by hand
 
 Made by `python -I tools/audit_video_games.py` from the logs alone (no video). Each line gives the turn, the
-log line number (in the game's `site/games/<id>.json` `log`, counting from 1) and what looks wrong. Some are
+log line number (in the game's `site/ppppp/games/<id>.json` `log`, counting from 1) and what looks wrong. Some are
 real (a turn spent recharging, a Pokémon that can't move with no line for it), so check each against the video.
-32 games, 72 things to check.
+35 games, 74 things to check.
 
 Coming back with more HP is only flagged for Pokémon that can't have Regenerator. Re-run after fixing.
 
@@ -226,3 +226,19 @@ Already noted on the site: Turn 9: Zapdos is shown at 0% after Dragon Pulse but 
 
 - [ ] Turn 18, line 84: Genghis Zong goes to 0 ('0 fnt') with no faint and comes back at 2% (line 171): the HP is misread
 - [ ] Turn 16, line 145: Archaludon takes 'Mind Blown' damage but stays at 92%: the HP is misread
+
+## Week 8: chicken parm karm vs FingerStripes (`video-x2mvt-7opzc`, 23 turns)
+Video: https://youtu.be/X2MvT-7opZc
+
+- Nothing found.
+
+## Week 8: pee nation vs doxsego (`video-bfmitcpowya`, 24 turns)
+Video: https://youtu.be/BFmITCpOwYA
+
+- [ ] Turn 3, line 41: p2 (Photo Bomber) did nothing this turn: a move or 'can't move' line may be missing
+- [ ] Turn 19, line 174: Gargle deez loses HP with no move before it: the attack line is missing or misread
+
+## Week 8: azpmCloudburst vs Zololab (`video-hdoj_rkuoiw`, 24 turns)
+Video: https://youtu.be/Hdoj_RkUOiw
+
+- Nothing found.

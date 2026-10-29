@@ -91,6 +91,11 @@ vs Zololab (IYsf4aQc3jQ), Pikmon vs PotatoesAreYum (ek4VkZvwnY0), Dox vs Fingy (
 PotatoesAreYum stream shows the live battle id gen9nationaldex-2701939365 in the address bar; it isn't uploaded (404).
 Sneez vs Karm (9STJZ-Xvmj8) was already in.
 
+Week 8 (playlist PLGVNUmNrNtGo, uploaded 2026-10-29; added 2026-10-29): Karm vs Fingy (X2MvT-7opZc), Dox vs Sneez
+(BFmITCpOwYA), Cloudburst vs Zololab (Hdoj_RkUOiw) are in site/ppppp/games/ from their videos, every winner matching
+Challonge round 8 (Karm, Dox, Zolo). Big Large vs PotatoesAreYum, Nezergy vs DEJIME and Bad Bully vs Pikmon have replays.
+All six Week 8 games are in.
+
 ## Super Champions League (site/scl/games/, done 2026-10-28)
 
 Every regular-season and playoff set with a replay is in (165 games). Weeks 1-8 from the league sheet's schedule;
@@ -106,5 +111,5 @@ Saved in `site/mock/<game id>-<player>.txt`; each game lists its players' sheets
 - FingerStripes (Fingy), from the user 2026-10-28: Weeks 1-7 saved and matched (all 6 Pokémon each). Week 1 (vs DEJIME,
   2676843288): the sheet had Jirachi but the game brought Suicune; user: swap in what the game shows, so the Suicune set
   is only that (Nightwing, shiny, Leftovers, Pressure, Calm Mind / Substitute / Ice Beam; no EVs line, so its max HP
-  is a guess). Nothing else in that game contradicts the sheet. Held in `docs/sheets-pending/`: Week 8 vs Karm (no
-  Week 8 Fingy vs Karm game saved yet).
+  is a guess). Nothing else in that game contradicts the sheet. Week 8 vs Karm saved 2026-10-29 with its video game
+  (all six Pokémon match).

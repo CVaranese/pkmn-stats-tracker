@@ -14,6 +14,7 @@ STATUSES = {"brn", "par", "psn", "tox", "slp", "frz"}
 SKIP_KEYS = {"name", "desc", "shortDesc", "statName", "statShortName", "weatherName"}
 FRAGMENTS = {"pokemon", "opposingPokemon", "team", "opposingTeam", "party", "opposingParty"}  # parts of messages
 # HP % for damage / healing the spectator log shows no number for (guesses from the game's fractions)
+DRAIN_3_4 = {"Draining Kiss", "Oblivion Wing"}   # heal 3/4 of the damage; every other drain move 1/2
 TRAP_MOVES = {"Bind", "Wrap", "Fire Spin", "Clamp", "Whirlpool", "Sand Tomb", "Magma Storm", "Infestation", "Snap Trap",
               "Thunder Cage"}
 PASSIVE_PCT = {"psn": 12.5, "brn": 6.25, "Life Orb": 10, "Sandstorm": 6.25, "Hail": 6.25, "Spikes": 12.5,
@@ -360,7 +361,7 @@ class Converter:
                 foe = self.foe(side)
                 target = self.ref(side, nick) if tgt in ("self", "allySide", "allies", "adjacentAllyOrSelf") \
                     else self.ref(foe, self.active[foe]) if self.active[foe] and tgt != "all" else ""
-                self.last_mover = (side, nick)
+                self.last_mover, self.last_move = (side, nick), mv
                 return self.emit("move", self.ref(side, nick), mv, target)
             if key == "abilityActivation":
                 side, nick = P()
@@ -455,10 +456,12 @@ class Converter:
         elif sect == "confusion" and key == "startFromFatigue":   # Outrage / Petal Dance ending
             return self.emit("-start", self.ref(*P()), "confusion", "[fatigue]")
         elif sect == "drain" and key == "heal":
+            # "[SOURCE] had its energy drained!" names the drained target; the move's user heals.
             # Half the damage just dealt; the target's % stands in for the user's (max HP differ), so a guess.
-            side, nick = P("SOURCE" if "SOURCE" in s else "POKEMON")
-            pct = round(getattr(self, "last_damage", 0) / 2, 1)
-            self.guessed.append(f"{nick} drained: +{pct}% (half the target's loss)")
+            side, nick = self.last_mover or P("SOURCE" if "SOURCE" in s else "POKEMON")
+            share = 0.75 if getattr(self, "last_move", "") in DRAIN_3_4 else 0.5
+            pct = round(getattr(self, "last_damage", 0) * share, 1)
+            self.guessed.append(f"{nick} drained: +{pct}% ({share:g} of the target's loss)")
             return self.heal(side, nick, pct, "drain")
         elif sect in ("moves", "abilities", "items"):
             label = {"moves": "move: ", "abilities": "ability: ", "items": "item: "}[sect] + name

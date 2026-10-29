@@ -189,6 +189,17 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   Sinistcha" on two lines, or the 6th name past the panel edge): four games had 5 of 6 (one 4 of 6). Fixed from the
   user's screenshots of the "X's team:" box. Seven other stream games had a preview under 6 (three with none): filled from the Pokémon sent out (Mega forms skipped, preview shows the base). The two left at 5 (DEJIME in Week 4 vs Zololab, Pikmon in Week 7 vs PotatoesAreYum) were completed from the user's screenshots of the team box. A switch-in with no nickname reads as the bare species ("Enamorus" for Enamorus-Therian): check forms against the team box.
 
+- **Tested** (2026-10-29, Week 8 playlist PLGVNUmNrNtGo, 3 videos): all three in one layout, light theme with the log
+  at x 660-1205 (`--log-box 660,56,545,664 --scene-box 110,390,445,40`), a played-back battle. Every winner matches
+  Challonge round 8. The run's merged.txt was fixed by hand and converted again (each number checked against
+  the frames or the message box: "04%" was 64% / 94%, "03%" 93%, "09%" 69%; Garganacl's one Earth Power read as
+  both 36% and 50% was 56%). The last turn of Cloudburst vs Zololab (Acrobatics KO on Blaziken) was only in the
+  message box and wasn't joined on; added by hand.
+- **Tested**: `video_convert.py` healed the wrong Pokémon for drain moves: "[X] had its energy drained!" names the
+  drained target, and the move's user heals (Showdown's `drain` template is `[SOURCE] had its energy drained!`).
+  It now heals the last mover, 3/4 of the damage for Draining Kiss / Oblivion Wing, 1/2 for the rest. Games saved
+  before 2026-10-29 still have the old drain heals (HP-level only: kills and faints don't change).
+
 ## Known misreads in saved games (checked 2026-10-28)
 - **Tested** (consistency pass over all 45 saved games): kills + self-KOs = deaths in every game, winners and turns match
   the library. The errors are in damage, healing and status lines, listed per game in `site/ppppp/games/index.json`

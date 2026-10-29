@@ -1527,6 +1527,105 @@
    "note": "Stream screenshots",
    "video": "https://youtu.be/efjkWhTidmM",
    "note_detail": "HP after hazards / poison / sand / Regenerator estimated."
+  },
+  {
+   "id": "video-x2mvt-7opzc",
+   "league": "ppppp",
+   "week": "Week 8",
+   "players": [
+    "chicken parm karm",
+    "FingerStripes"
+   ],
+   "teams": [
+    [
+     "Hydrapple",
+     "Primarina",
+     "Aerodactyl",
+     "Gholdengo",
+     "Glimmora",
+     "Deoxys-Defense"
+    ],
+    [
+     "Tapu Koko",
+     "Iron Moth",
+     "Jirachi",
+     "Rotom-Wash",
+     "Zygarde-10%",
+     "Hawlucha"
+    ]
+   ],
+   "winner": "chicken parm karm",
+   "date": "2026-10-25",
+   "turns": 23,
+   "note": "Stream video",
+   "video": "https://youtu.be/X2MvT-7opZc",
+   "sheets": [
+    "fingerstripes"
+   ]
+  },
+  {
+   "id": "video-bfmitcpowya",
+   "league": "ppppp",
+   "week": "Week 8",
+   "players": [
+    "pee nation",
+    "doxsego"
+   ],
+   "teams": [
+    [
+     "Gliscor",
+     "Sableye",
+     "Kommo-o",
+     "Ninetales-Alola",
+     "Slowking-Galar",
+     "Garganacl"
+    ],
+    [
+     "Ceruledge",
+     "Lopunny",
+     "Shuckle",
+     "Tinkaton",
+     "Slowbro",
+     "Enamorus"
+    ]
+   ],
+   "winner": "doxsego",
+   "date": "2026-10-25",
+   "turns": 24,
+   "note": "Stream video",
+   "video": "https://youtu.be/BFmITCpOwYA"
+  },
+  {
+   "id": "video-hdoj_rkuoiw",
+   "league": "ppppp",
+   "week": "Week 8",
+   "players": [
+    "azpmCloudburst",
+    "Zololab"
+   ],
+   "teams": [
+    [
+     "Venusaur",
+     "Torkoal",
+     "Garchomp",
+     "Cresselia",
+     "Gengar",
+     "Blaziken"
+    ],
+    [
+     "Dudunsparce",
+     "Diancie",
+     "Latios",
+     "Iron Treads",
+     "Pecharunt",
+     "Thundurus"
+    ]
+   ],
+   "winner": "Zololab",
+   "date": "2026-10-25",
+   "turns": 24,
+   "note": "Stream video",
+   "video": "https://youtu.be/Hdoj_RkUOiw"
   }
  ]
 }
