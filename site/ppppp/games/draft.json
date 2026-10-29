@@ -65,7 +65,7 @@
    {
     "pokemon": "Aron",
     "tier": "LC",
-    "note": "brought in Week 1, not on the sheet now (traded for Glimmet?)"
+    "note": "brought in Week 1, traded for Glimmet after Week 4 (no longer on the sheet)"
    }
   ],
   "PeterPikmon": [
@@ -616,11 +616,88 @@
   ]
  },
  "trades": {
-  "_note": "After Week 4 each player could trade one Pokemon for a 3-point-or-less one. Placeholder: the user is getting the full list (2026-10-28). out = traded away, in = what came in (null = not known yet).",
+  "_note": "After Week 4 each player could trade one Pokemon for a 3-point-or-less one. The full list from the league (2026-10-29), one trade each. out = traded away, in = what came in.",
+  "Nezergy": [
+   {
+    "out": "Aron",
+    "in": "Glimmet",
+    "after": "Week 4"
+   }
+  ],
+  "PeterPikmon": [
+   {
+    "out": "Brambleghast",
+    "in": "Fezandipiti",
+    "after": "Week 4"
+   }
+  ],
+  "chicken parm karm": [
+   {
+    "out": "Copperajah",
+    "in": "Deoxys-Defense",
+    "after": "Week 4"
+   }
+  ],
+  "azpmCloudburst": [
+   {
+    "out": "Togekiss",
+    "in": "Cresselia",
+    "after": "Week 4"
+   }
+  ],
+  "ElkG Big Large": [
+   {
+    "out": "Toxicroak",
+    "in": "Cloyster",
+    "after": "Week 4"
+   }
+  ],
+  "DEJIME": [
+   {
+    "out": "Pikachu",
+    "in": "Munkidori",
+    "after": "Week 4"
+   }
+  ],
+  "weedinmyhonda": [
+   {
+    "out": "Spiritomb",
+    "in": "Magnezone",
+    "after": "Week 4"
+   }
+  ],
+  "potatoesareyum": [
+   {
+    "out": "Pincurchin",
+    "in": "Azelf",
+    "after": "Week 4"
+   }
+  ],
+  "FingerStripes": [
+   {
+    "out": "Suicune",
+    "in": "Zygarde-10%",
+    "after": "Week 4"
+   }
+  ],
+  "Zololab": [
+   {
+    "out": "Stoutland",
+    "in": "Lokix",
+    "after": "Week 4"
+   }
+  ],
+  "pee nation": [
+   {
+    "out": "Armarouge",
+    "in": "Sableye",
+    "after": "Week 4"
+   }
+  ],
   "doxsego": [
    {
     "out": "Falinks",
-    "in": null,
+    "in": "Shuckle",
     "after": "Week 4"
    }
   ]
