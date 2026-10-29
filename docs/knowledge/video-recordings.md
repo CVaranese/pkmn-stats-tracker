@@ -13,13 +13,15 @@
   can't seek), on the real clock (seeking never finishes under `--virtual-time-budget`).
 - **Tested**: Showdown names seen: "pee nation" (Eric's draft pool) vs "chicken parm karm".
 
-## Pipeline (pilot, 2026-10-27): `tools/video_to_replay.py`
+Archived 2026-10-29: the tools are in `tools/video/` and no new games are expected from videos.
 
-`python -I tools/video_to_replay.py <video.mp4> <work_dir> --id video-<youtube id> --length <seconds> --url <link>`
+## Pipeline (pilot, 2026-10-27): `tools/video/video_to_replay.py`
+
+`python -I tools/video/video_to_replay.py <video.mp4> <work_dir> --id video-<youtube id> --length <seconds> --url <link>`
 writes `<work_dir>/<id>.json` (a replay `site/parser.js` reads) and `report.txt` (vote counts per turn, unparsed
-lines, every guessed HP number). Check it with `tools/video_check.html?replay=<path>` (serve the repo root). Pieces:
-`tools/video_frames.py` + `video_grab.html` (crops via headless Edge, POSTed to the script's own server, no
-screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_convert.py` (sentences to protocol).
+lines, every guessed HP number). Check it with `tools/video/video_check.html?replay=<path>` (serve the repo root). Pieces:
+`tools/video/video_frames.py` + `video_grab.html` (crops via headless Edge, POSTed to the script's own server, no
+screenshots), `tools/video/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video/video_convert.py` (sentences to protocol).
 
 - **Tested**: OCR on the log crop (720p box x 686-1280, y 56-720). Drawn at 4x with `grayscale(1) contrast(2)` it read
   27 of 27 "lost N%" numbers on 15 test frames; 2x / 3x without the filter read 24 of 28, 3x with it 25. OCR reads
@@ -228,7 +230,7 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
 - **Tested** (2026-10-28): those nameless / misread lines ("p1a: The opposing", "p2a: God") make a Pokémon that
   never switched in. parser.js gives it no species; Momentum leaves such Pokémon out (they never faint, so 4 games'
   losers ended above 0%). tests.js checks every saved game ends with 0 left = 0% HP.
-- **Tested** (2026-10-28): `tools/audit_video_games.py` lists per game what the log itself shows is wrong (72 in 32
+- **Tested** (2026-10-28): `tools/video/audit_video_games.py` lists per game what the log itself shows is wrong (72 in 32
   games; 11 games clean): misread names, nameless switch-ins, moves that don't exist, "0 fnt" with no faint, chip
   damage that leaves HP unchanged, Rough Skin / Iron Barbs read as Aftermath, hit counts with hits missing, a side
   doing nothing in a turn. It can't see a misread that still makes sense (a wrong but plausible HP, a real move

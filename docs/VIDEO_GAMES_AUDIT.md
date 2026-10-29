@@ -1,6 +1,6 @@
 # Video-rebuilt games: what to fix by hand
 
-Made by `python -I tools/audit_video_games.py` from the logs alone (no video). Each line gives the turn, the
+Made by `python -I tools/video/audit_video_games.py` from the logs alone (no video). Each line gives the turn, the
 log line number (in the game's `site/ppppp/games/<id>.json` `log`, counting from 1) and what looks wrong. Some are
 real (a turn spent recharging, a Pokémon that can't move with no line for it), so check each against the video.
 35 games, 0 things to check.
@@ -164,7 +164,6 @@ Video: https://youtu.be/pq9jWAX63Pc
 
 ## Week 7: azpmCloudburst vs DEJIME (`video-s2znfx4ir1m`, 18 turns)
 Video: https://youtu.be/s2ZnFx4iR1M
-Already noted on the site: Turn 9: Zapdos is shown at 0% after Dragon Pulse but didn't faint (it comes back at 2%), so Raging Bolt's damage and Zapdos's damage taken are about 2% too high.
 
 - Nothing found.
 

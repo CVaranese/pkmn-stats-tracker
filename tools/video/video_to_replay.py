@@ -1,9 +1,9 @@
 """Rebuild a Showdown replay from a YouTube recording of the battle page (a pilot; see docs/knowledge/video-recordings.md).
 
-    python -I tools/video_to_replay.py <video.mp4> <work_dir> --id video-<youtube id> --length <seconds> [--url <link>]
+    python -I tools/video/video_to_replay.py <video.mp4> <work_dir> --id video-<youtube id> --length <seconds> [--url <link>]
 
 Steps, each cached in work_dir (delete a file to redo that step):
-  1. log/*.png + log.jsonl     crops of the text log panel every 5 s, OCR'd by tools/ocr_frames.ps1
+  1. log/*.png + log.jsonl     crops of the text log panel every 5 s, OCR'd by tools/video/ocr_frames.ps1
   2. scene/*.png + scene.jsonl the battle scene's message box every 0.5 s over the last 40 s of the battle
                                (the log's final lines scroll below the frame; the box shows them)
   3. merged.txt                one ordered battle log, voted turn by turn across every frame that shows it
@@ -15,13 +15,13 @@ After fixing merged.txt by hand, --from-merged converts it again without touchin
 
 Templates: Showdown's English messages (pokemon-showdown 0.11.11 dist/data/text/{default,moves,abilities,items}.js),
 downloaded from jsDelivr into --templates (default <work_dir>/../pstext) on first use and read as text, never run.
-Move / Pokédex data from site/data/. Check the result with tools/video_check.html.
+Move / Pokédex data from site/data/. Check the result with tools/video/video_check.html.
 Get the video with yt-dlp -f 136 (720p H.264, no ffmpeg needed).'
 """
 import argparse, collections, difflib, json, os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
+ROOT = os.path.dirname(os.path.dirname(HERE))  # tools/video/ -> the repo root
 LOG_BOX, SCENE_BOX = "686,56,594,664", "110,398,480,48"
 FILTER = "grayscale(1) contrast(2)"  # 4x + contrast read every "lost N%" on the test frames; 2x-3x dropped some
 

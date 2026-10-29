@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Draft tab: both Pokémon in a trade stay in the player's table, with a small "Traded away" / "Traded in" badge (hover for the swap); a traded-away one the draft sheet dropped is back as a row (tier and cost not known), and traded-away picks no longer count in the draft points spent ("11 Pokémon for 51 draft points · 1 traded away").
+- Under the hood: a deploy runs the tests first and stops on a failure, so a broken push never reaches the live site; the first Python CLI (`replay_stats.py`) is gone; the stream-video tools are archived in `tools/video/`.
 
 ## 1.0 (2026-10-29)
 - Something is hiding in Pinecord's banner for anyone looking closely (a link to the preview of the next version, published from the `next` branch under `next/`).

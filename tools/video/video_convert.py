@@ -1,5 +1,5 @@
 """Battle-log sentences (as the Showdown client prints them) -> protocol lines for site/parser.js.
-Used by tools/video_to_replay.py. Showdown's English templates are turned into regexes; each matched message maps
+Used by tools/video/video_to_replay.py. Showdown's English templates are turned into regexes; each matched message maps
 to one protocol line. Spectator view: "Go! X" is the recording player's own side; "the opposing X" the other."""
 import difflib, json, os, re
 

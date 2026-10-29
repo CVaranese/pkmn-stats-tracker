@@ -1,5 +1,5 @@
 # OCR every PNG in a folder with Windows' built-in OCR (Windows.Media.Ocr, no install). Windows PowerShell 5.1 only.
-#   powershell -NoProfile -File tools/ocr_frames.ps1 <png_dir> <out.jsonl>
+#   powershell -NoProfile -File tools/video/ocr_frames.ps1 <png_dir> <out.jsonl>
 # One JSON object per line: {"frame": "f03000", "y": 123, "x": 4, "h": 18, "text": "..."} (crop pixels, top to bottom).
 param([Parameter(Mandatory)] [string] $Dir, [Parameter(Mandatory)] [string] $Out)
 $ErrorActionPreference = 'Stop'
