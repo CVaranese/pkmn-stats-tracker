@@ -34,7 +34,7 @@ function loadLeague() {
     const [smogon, pool] = await Promise.all([TS.loadSmogonHp("data/smogon_hp.json"), loadMockPool()]);
     const all = [];
     for (const rows of loaded) {
-      if (rows.length) TS.attachSheets(rows, mockSheets.filter((s) => s.gameId === rows[0].replay_id));
+      attachSaved(rows);  // saved sheets, per Pokémon
       fillMaxHp(rows, dex, smogon, pool);
       all.push(...rows);
     }

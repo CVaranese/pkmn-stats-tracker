@@ -130,7 +130,37 @@
     return [...by.values()];
   }
 
-  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets };
+  const STAT_SHORT = [["hp", "HP"], ["atk", "Atk"], ["def", "Def"], ["spa", "SpA"], ["spd", "SpD"], ["spe", "Spe"]];
+  /** A sheet set's nature and EVs as the export writes them ("Timid, 4 HP / 252 SpA / 252 Spe"); "" when neither is
+      known (a set pieced together from a game has no EVs line). */
+  function spreadText(set) {
+    const evs = set.evsListed === false ? "" : STAT_SHORT.filter(([k]) => set.evs[k]).map(([k, s]) => `${set.evs[k]} ${s}`).join(" / ");
+    return [set.nature, evs].filter(Boolean).join(", ");
+  }
+
+  /** The sets a Pokémon was used with: rows (one Pokémon's games, in the order played) that have a sheet set
+      (row.set, from teams.js), grouped by player (keyOf) and set (item, ability, nature, EVs, the same moves in any
+      order). Each: {player (the first row's), set (the first game's), from ("sheet", or "pieced" when any game's came
+      from a hand-made set), games, weeks (weekOf(row), each once, in order)}, most games first. Rows with no set
+      aren't counted. */
+  function monSets(rows, keyOf = toID, weekOf = (r) => r.replay_id) {
+    const by = new Map();
+    for (const r of rows) {
+      const s = r.set;
+      if (!s) continue;
+      const key = [keyOf(r.player), toID(s.item), toID(s.ability), spreadText(s), s.moves.map(toID).sort().join(",")].join("|");
+      if (!by.has(key)) by.set(key, { player: r.player, set: s, from: "sheet", games: 0, weeks: [] });
+      const g = by.get(key);
+      g.games++;
+      if (r.set_from === "pieced") g.from = "pieced";
+      const w = weekOf(r);
+      if (w && !g.weeks.includes(w)) g.weeks.push(w);
+    }
+    return [...by.values()].sort((a, b) => b.games - a.games);
+  }
+
+  const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
+    spreadText, monSets };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

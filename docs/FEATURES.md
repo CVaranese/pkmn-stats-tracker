@@ -36,7 +36,9 @@ merged into `next` when it works alone; one session per step. Handoff: `docs/aud
       (2026-10-29, on `main`).
 - [x] 1. Parser: a snapshot of every saved league game's per-Pokémon stats (T2), then each hit and heal with its turn
       (R1). The snapshot must pass unchanged after R1. (2026-10-29, branch `parser-turns`: 214 games, unchanged after R1.)
-- [ ] 2. Team sheets per Pokémon (R2, T5) and the Pokémon tab's season sets (the sets each Pokémon was used with).
+- [x] 2. Team sheets per Pokémon (R2, T5) and the Pokémon tab's season sets (the sets each Pokémon was used with).
+      (2026-10-29, branch `sheets-per-mon`: all 35 saved sheets cover every Pokémon of their side; hand-made sets in
+      `mock/<game>-<player>.fix.txt`.)
 - [ ] 3. Standings / tie-breaks and the trade pool into `league.js` / `bet.js` with tests (R3, T3, T4); one list of
       the league caches (R5). After step 2 (both edit `tests/tests.js`).
 - [ ] 4. Small open findings (#4, #7, #8, #9, #10, #13) and the remaining tests (T6 preview script + banner egg,

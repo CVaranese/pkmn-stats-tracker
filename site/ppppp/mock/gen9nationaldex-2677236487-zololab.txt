@@ -8,11 +8,6 @@ Careful Nature
 - Fake Out  
 - Flare Blitz  
 
-Scrafty (M) @ Leftovers
-Ability: Intimidate
-- Bulk Up
-- Drain Punch
-
 Diancie-Mega @ Diancite  
 Ability: Magic Bounce  
 Shiny: Yes  
