@@ -418,6 +418,44 @@ function luckOdds(z) {
   return `${word} than ${Math.min(pct, 99)}% of seasons with these rolls` +
     (tail <= 0.25 ? ` (about 1 in ${Math.round(1 / tail)} is this ${adj}).` : ".");
 }
+/** A drawn table as shown (its order, rows the filter hid left out), for Copy for Google Sheets / Download CSV:
+    each cell's text; a cell with only pictures (sprites) gives their titles. Whole numbers ("12", "−3", "+2") go out
+    as numbers so Sheets can add them up. */
+function shownTable(table) {
+  const [head, ...body] = [...table.rows];
+  const fields = [...head.cells].map((th) => th.textContent.replace(/[▲▼]/g, "").trim());
+  const value = (td) => {
+    const text = td.textContent.trim() ||
+      [...td.querySelectorAll("[title]")].map((x) => x.title).join(", ");
+    return /^[−+-]?\d+(\.\d+)?$/.test(text) ? Number(text.replace("−", "-")) : text;
+  };
+  const data = body.filter((tr) => !tr.hidden).map((tr) => Object.fromEntries([...tr.cells].map((td, i) => [fields[i], value(td)])));
+  return { fields, data };
+}
+/** Copy for Google Sheets and Download CSV buttons for a table drawn on a tab (Players, Pokémon). */
+function tableExport(copyBtn, downloadBtn, table, file) {
+  copyBtn.addEventListener("click", async () => {
+    const { fields, data } = shownTable(table);
+    try {
+      await navigator.clipboard.writeText(RS.toTsv(fields, data));
+      flash(copyBtn, "Copied! Paste into Sheets");
+    } catch (e) {
+      flash(copyBtn, "Copy failed: use Download CSV");
+    }
+  });
+  downloadBtn.addEventListener("click", () => {
+    const { fields, data } = shownTable(table);
+    // BOM so Excel reads accented names (Pokémon, player names) as UTF-8
+    const blob = new Blob(["﻿" + RS.toCsv(fields, data)], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+}
 function flash(btn, text) {
   const old = btn.textContent;
   btn.textContent = text;

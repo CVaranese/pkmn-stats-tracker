@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Players and Pokémon tabs: Copy for Google Sheets and Download CSV buttons next to the Weeks picker; they copy the table as shown (its sort, weeks, and the Pokémon search).
 - Names that open a season now have a faint underline (the border colour, accent on hover), so they read as clickable on phones too.
 - Replay player: "a best-of-3" (in "Game 1 of a best-of-3") opens that set's stats on the league page.
 - Players: a Timed out column (games lost on the battle timer), shown once any saved game ended that way.

@@ -153,6 +153,8 @@ $("group").addEventListener("change", render);
 $("player").addEventListener("change", render);
 $("copy").addEventListener("click", copyTable);
 $("download").addEventListener("click", downloadCsv);
+tableExport($("pl-copy"), $("pl-download"), $("pl-table"), "players.csv");
+tableExport($("mon-copy"), $("mon-download"), $("mon-table"), "pokemon.csv");
 $("share").addEventListener("click", copyShareLink);
 try { detailed = localStorage.getItem(DETAIL_KEY) === "1"; } catch (e) { /* storage blocked */ }
 if (TOUCH) {
