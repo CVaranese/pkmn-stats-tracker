@@ -1,5 +1,5 @@
 /* Season maths and display text from game rows (ReplayStats.gameRows): HP-or-% amounts, season move totals, luck
-   totals, best move, sprite file names. No DOM; loadable from Node. The page (app/*.js) renders with these. */
+   totals, best move, sprite file names, sets and standings. No DOM; loadable from Node. The page (app/*.js) renders with these. */
 (function (root) {
   "use strict";
   const toID = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -130,6 +130,57 @@
     return [...by.values()];
   }
 
+  /** A set's game slots in a league that plays sets (bestOf): its saved games, its missing ones (s.missing, from
+      index.json `missing`: {game (its number, or null), winner}) at their game number, and "not played" up to bestOf,
+      so a 2–0 shows as many rows as a 2–1. Each slot: {n, game} (a saved game) or {n, kind: "missing" | "unplayed",
+      winner}. Also the set score with the missing games' winners ({...s, wins, winner}), how many missing games have
+      no known winner, whether the set has no game number at all (unknownSet), and how many games were played. */
+  function setSlots(s, bestOf, keyOf = toID) {
+    const lost = s.missing || [];
+    const total = Math.max(bestOf, s.games.length + lost.length);
+    const slots = [];
+    for (const m of lost) if (m.game) slots[m.game - 1] = { n: m.game, kind: "missing", winner: m.winner };
+    const unknownSet = lost.some((m) => !m.game);   // a set with no replay at all: how many games isn't known
+    let next = 0;
+    for (const g of s.games) {
+      while (slots[next]) next++;
+      slots[next] = { n: next + 1, game: g };
+    }
+    for (let i = 0; i < total; i++) if (!slots[i]) slots[i] = { n: i + 1, kind: unknownSet ? "missing" : "unplayed", winner: null };
+    const winnerOf = (sl) => (sl.game ? sl.game.winner : sl.winner);
+    const wins = s.players.map((p) => slots.filter((sl) => winnerOf(sl) && keyOf(winnerOf(sl)) === keyOf(p)).length);
+    const w = wins.findIndex((n) => n > bestOf / 2);
+    const unknown = slots.filter((sl) => sl.kind === "missing" && !sl.winner).length;
+    return { slots, score: { ...s, wins, winner: w >= 0 ? s.players[w] : "" }, unknown, unknownSet,
+      played: slots.filter((sl) => sl.game || sl.kind === "missing").length };
+  }
+
+  /** Standings. players: [{key (keyOf of their name), name, wins, losses, setWins, setLosses, rows (their game rows,
+      for KOs and Pokémon lost)}]; sets: with winners (sets / setSlots' score). A league that plays sets (bestOf > 0,
+      a round robin): sets won, then fewer sets lost, then game difference, then games won, then head to head (sets
+      won among the players still tied, counted again for each group of tied players), then KOs minus Pokémon lost,
+      then name. Otherwise: games won, then fewer lost, then KOs, then name. A new array, best first. */
+  function standings(players, sets, keyOf = toID, bestOf = 0) {
+    const kills = (pl) => sum(pl.rows || [], "kills"), kd = (pl) => kills(pl) - sum(pl.rows || [], "deaths");
+    if (!bestOf) return [...players].sort((a, b) => b.wins - a.wins || a.losses - b.losses || kills(b) - kills(a) || a.name.localeCompare(b.name));
+    const base = (a, b) => b.setWins - a.setWins || a.setLosses - b.setLosses || (b.wins - b.losses) - (a.wins - a.losses) ||
+      b.wins - a.wins;
+    const sorted = [...players].sort(base);
+    const out = [];
+    for (let i = 0; i < sorted.length;) {
+      let j = i + 1;
+      while (j < sorted.length && !base(sorted[i], sorted[j])) j++;
+      const tied = sorted.slice(i, j), keys = new Set(tied.map((pl) => pl.key));
+      const h2h = new Map(tied.map((pl) => [pl.key, 0]));
+      for (const s of sets) {
+        if (s.winner && s.players.every((p) => keys.has(keyOf(p)))) h2h.set(keyOf(s.winner), h2h.get(keyOf(s.winner)) + 1);
+      }
+      out.push(...tied.sort((a, b) => h2h.get(b.key) - h2h.get(a.key) || kd(b) - kd(a) || a.name.localeCompare(b.name)));
+      i = j;
+    }
+    return out;
+  }
+
   const STAT_SHORT = [["hp", "HP"], ["atk", "Atk"], ["def", "Def"], ["spa", "SpA"], ["spd", "SpD"], ["spe", "Spe"]];
   /** A sheet set's nature and EVs as the export writes them ("Timid, 4 HP / 252 SpA / 252 Spe"); "" when neither is
       known (a set pieced together from a game has no EVs line). */
@@ -160,7 +211,7 @@
   }
 
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    spreadText, monSets };
+    setSlots, standings, spreadText, monSets };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

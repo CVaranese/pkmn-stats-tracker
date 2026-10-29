@@ -2,6 +2,7 @@
 "use strict";
 
 let fantasyRows = null;  // every library game's rows, loaded the first time the tab opens
+onLeagueChange(() => { fantasyRows = null; });
 async function renderFantasy() {
   await libraryReady;
   if (fantasyRows) return;

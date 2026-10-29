@@ -44,12 +44,62 @@
     const name = playerKey(draft, player);
     const pool = Object.entries(draft.players).find(([p]) => toID(p) === name);
     if (!pool) return null;
+    // one the sheet no longer lists because it was traded away still counts as theirs (its games before the trade)
+    return matchEntry(pool[1], pokemon) || matchEntry(tradedAway(draft, name), pokemon);
+  }
+  function matchEntry(entries, pokemon) {
     const id = toID(pokemon);
     const species = (s) => toID(s.split("-")[0]);
-    const sameSpecies = pool[1].filter((d) => species(d.pokemon) === species(pokemon));
-    return pool[1].find((d) => toID(d.pokemon) === id) ||
-      pool[1].find((d) => toID(d.pokemon).replace(/mega[xy]?$/, "") === id) ||
+    const sameSpecies = entries.filter((d) => species(d.pokemon) === species(pokemon));
+    return entries.find((d) => toID(d.pokemon) === id) ||
+      entries.find((d) => toID(d.pokemon).replace(/mega[xy]?$/, "") === id) ||
       (sameSpecies.length === 1 ? sameSpecies[0] : null);
+  }
+
+  /** A player's trades (draft.trades, keyed by any of their names; "_note" skipped), in the order given. A trade's
+      out / in may name several Pokémon ("A, B": a free-agent move); in may be empty (not known yet). Each:
+      {out: [names], in: [names], after}. */
+  function trades(draft, player) {
+    const key = playerKey(draft, player);
+    const list = Object.entries((draft && draft.trades) || {}).find(([p]) => p !== "_note" && playerKey(draft, p) === key);
+    const names = (s) => String(s || "").split(",").map((x) => x.trim()).filter(Boolean);
+    return list ? list[1].map((t) => ({ out: names(t.out), in: names(t.in), after: t.after })) : [];
+  }
+  // entries for the traded-away Pokémon the sheet no longer lists (tier and cost not known); the same objects each time
+  const awayCache = new WeakMap();
+  function tradedAway(draft, key) {
+    if (!awayCache.has(draft)) awayCache.set(draft, new Map());
+    const byKey = awayCache.get(draft);
+    if (!byKey.has(key)) {
+      const pool = (Object.entries(draft.players || {}).find(([p]) => toID(p) === key) || [, []])[1];
+      const out = [...new Set(trades(draft, key).flatMap((t) => t.out))];
+      byKey.set(key, out.filter((m) => !pool.some((d) => d.pokemon === m)).map((pokemon) => ({ pokemon, tier: null })));
+    }
+    return byKey.get(key);
+  }
+
+  /** A player's draft with their trades: every Pokémon on the sheet, then each traded-away one the sheet no longer
+      lists. Each: the sheet's entry ({pokemon, tier | cost}) with trade: null, or {label: "Traded away" | "Traded in",
+      title, away (true when traded away)} from the last trade naming it (a Pokémon traded in and later out is away).
+      Also the trades (as trades()) and the draft points spent on the Pokémon still held. null when the player has
+      no pool. */
+  function draftPool(draft, player) {
+    const key = playerKey(draft, player);
+    const entry = Object.entries((draft && draft.players) || {}).find(([p]) => toID(p) === key);
+    if (!entry) return null;
+    const ts = trades(draft, key);
+    const list = (names) => (names.length ? names.join(", ") : "(not known yet)");
+    const tradeOf = (mon) => {
+      let got = null;
+      for (const t of ts) {
+        if (t.out.includes(mon)) got = { label: "Traded away", title: `Traded for ${list(t.in)} after ${t.after}`, away: true };
+        else if (t.in.includes(mon)) got = { label: "Traded in", title: `Came in for ${list(t.out)} after ${t.after}`, away: false };
+      }
+      return got;
+    };
+    const pool = [...entry[1], ...tradedAway(draft, key)].map((d) => ({ entry: d, trade: tradeOf(d.pokemon) }));
+    const spent = pool.filter((p) => !(p.trade && p.trade.away)).reduce((t, p) => t + (pickCost(draft, p.entry) || 0), 0);
+    return { name: entry[0], pool, trades: ts, spent };
   }
 
   /** The name a row counts under: a Mega is its own Pokémon, as in the draft (Latios is Zololab's, Latios-Mega
@@ -86,14 +136,14 @@
         f.survived * SCORING.survived + f.wins * SCORING.won) * 10) / 10;
       f.perGame = Math.round(f.points / f.games * 10) / 10;
       const d = drafted(draft, f.player, f.pokemon);
-      f.tier = d ? d.tier : "";
+      f.tier = (d && d.tier) || "";
       f.cost = d ? pickCost(draft, d) : null;
       f.perCost = f.cost ? Math.round(f.points / f.cost * 10) / 10 : null;
     }
     return [...by.values()].sort((a, b) => b.points - a.points || b.kills - a.kills || a.pokemon.localeCompare(b.pokemon));
   }
 
-  const Bet = { SCORING, playerKey, records, drafted, pickCost, hasTiers, megaName, fantasy };
+  const Bet = { SCORING, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);

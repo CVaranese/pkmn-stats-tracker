@@ -2,6 +2,7 @@
 "use strict";
 
 let players = null;   // [{ key, name, games: [library games], rows }], best record first
+onLeagueChange(() => { players = null; });
 let playerPicked = "";
 let playerWanted = "";  // asked for by a link (?player=, the game viewer) before the tab had loaded: a name or key
 let plWeek = "";        // "" = every week, else only that week's games ("Week 3")
@@ -73,8 +74,7 @@ async function renderPlayers() {
   }
   // one spelling on the rows too, so RS.summarize keeps one line per Pokémon
   for (const r of all) { const pl = get(r.player); pl.rows.push({ ...r, player: pl.name }); }
-  players = bestOf ? setStandings([...byKey.values()], leagueSets) : [...byKey.values()].sort((a, b) =>
-    b.wins - a.wins || a.losses - b.losses || sum(b.rows, "kills") - sum(a.rows, "kills") || a.name.localeCompare(b.name));
+  players = window.League.standings([...byKey.values()], leagueSets, playerKey, bestOf);
   players.forEach((pl, i) => { pl.place = i + 1; });
   for (const pl of players) Object.assign(pl, playerMons(pl), { luck: seasonLuck(perGameRows(pl.rows), "player_luck", "player_luck_var") });
   const counted = new Set(all.map((r) => r.replay_id)).size;
@@ -131,27 +131,6 @@ async function renderPlayers() {
     });
   });
   if (!(playerWanted && showWantedPlayer())) showPlayer(players.some((p) => p.key === playerPicked) ? playerPicked : players[0] && players[0].key);
-}
-/** Round-robin standings for a league that plays sets: sets won, then game difference, then games won, then head to
-    head (sets won among the players still tied), then KOs minus Pokémon lost, then name. sets: with winners. */
-function setStandings(list, sets) {
-  const kd = (pl) => sum(pl.rows, "kills") - sum(pl.rows, "deaths");
-  const base = (a, b) => b.setWins - a.setWins || a.setLosses - b.setLosses || (b.wins - b.losses) - (a.wins - a.losses) ||
-    b.wins - a.wins;
-  const sorted = [...list].sort(base);
-  const out = [];
-  for (let i = 0; i < sorted.length;) {
-    let j = i + 1;
-    while (j < sorted.length && !base(sorted[i], sorted[j])) j++;
-    const tied = sorted.slice(i, j), keys = new Set(tied.map((pl) => pl.key));
-    const h2h = new Map(tied.map((pl) => [pl.key, 0]));
-    for (const s of sets) {
-      if (s.winner && s.players.every((p) => keys.has(playerKey(p)))) h2h.set(playerKey(s.winner), h2h.get(playerKey(s.winner)) + 1);
-    }
-    out.push(...tied.sort((a, b) => h2h.get(b.key) - h2h.get(a.key) || kd(b) - kd(a) || a.name.localeCompare(b.name)));
-    i = j;
-  }
-  return out;
 }
 /** A week picker (Players, Pokémon): the weeks of the picked stage (fillWeekOptions); picked(week or "") on a change. */
 function fillWeeks(id, picked) {
