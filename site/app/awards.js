@@ -4,7 +4,6 @@
 let awardsShown = false;  // the tab is drawn for the picked week; a new game or a stage change draws it again
 onLeagueChange(() => { awardsShown = false; });
 let awWeek = null;  // null: not picked yet (opens on the latest week); "" = all weeks, else "Week 3"
-let awText = "";  // the picked week's awards as Discord text
 async function renderAwards() {
   if (awardsShown) return;
   awardsShown = true;
@@ -28,11 +27,6 @@ async function renderAwards() {
   $("aw-list").replaceChildren(...list.map(awardCard));
   const none = all.filter((a) => !a.winners.length);
   $("aw-none").textContent = games.length && none.length ? `No winner in these games: ${none.map((a) => a.title).join(", ")}.` : "";
-  // **Pinecord · Week 3 awards**, then one line each: "Top Pokémon: Garchomp (Ann), Performance 5.5"
-  const who = (w) => (w.pokemon ? `${w.pokemon} (${shownName(w.player)})` : shownName(w.player));
-  awText = [`**${LEAGUE.short || LEAGUE.name} · ${awWeek ? awWeek + " awards" : "season awards so far"}**`,
-    ...list.map((a) => `${a.title}: ${a.winners.map((w) => `${who(w)}, ${w.value}`).join("; ")}`)].join("\n");
-  $("aw-copy").disabled = !list.length;
 }
 /** One award: its name (hover for how it's picked), then each winner: sprite, Pokémon and player (or the player),
     what it did, and Stats to open that game. A tie of many (e.g. KO'd before moving): the first 3, then how many
@@ -67,11 +61,3 @@ function awardCard(a) {
   }
   return card;
 }
-$("aw-copy").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(awText);
-    flash($("aw-copy"), "Copied!");
-  } catch {
-    flash($("aw-copy"), "Copy failed");
-  }
-});
