@@ -557,6 +557,21 @@
       .map(LG.spriteId).join(" ") === "hooh urshifu-rapidstrike zamazenta tapukoko charizard-megax ironvaliant kommoo",
       ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"].map(LG.spriteId).join(" "));
   }
+  // ---- Copy set (League.setText): Showdown's import format, read back the same by teams.js ----
+  {
+    const LG = window.League, TS = window.TeamSheets;
+    const paste = "Zarude @ Choice Scarf\nAbility: Leaf Guard\nLevel: 50\nEVs: 4 HP / 252 Atk / 252 Spe\nJolly Nature\n" +
+      "IVs: 0 SpA\n- Power Whip\n- Knock Off\n- U-turn\n- Close Combat";
+    const set = TS.parseTeam("Monke (Zarude) (M) @ Choice Scarf\n" + paste.split("\n").slice(1).join("\n"))[0];
+    const text = LG.setText(set);
+    check("Copy set: the export, gender kept, nickname left out", text === paste.replace("Zarude @", "Zarude (M) @"), text);
+    const back = TS.parseTeam(text)[0];
+    check("Copy set: read back the same", same({ ...back, nickname: "Monke" }, set), JSON.stringify(back));
+    const pieced = { species: "Scrafty", item: "", ability: "Intimidate", level: 100, nature: "", evs: {}, evsListed: false,
+      ivs: {}, moves: ["Fake Out"], gender: "" };
+    check("Copy set: a hand-made set has no EVs / nature / level lines", LG.setText(pieced) === "Scrafty\nAbility: Intimidate\n- Fake Out",
+      LG.setText(pieced));
+  }
   // ---- share links (League.navQuery / readNav) and the stage picker: links posted on Discord keep opening the same view ----
   {
     const LG = window.League;

@@ -188,6 +188,22 @@
     const evs = set.evsListed === false ? "" : STAT_SHORT.filter(([k]) => set.evs[k]).map(([k, s]) => `${set.evs[k]} ${s}`).join(" / ");
     return [set.nature, evs].filter(Boolean).join(", ");
   }
+  /** A sheet set as Showdown's teambuilder imports it (species, no nickname; level, EVs, IVs only when given / not
+      the default). What teams.js doesn't keep (Tera Type, Shiny, Happiness) isn't in it. */
+  function setText(set) {
+    const stats = (o, skip) => STAT_SHORT.filter(([k]) => k in o && o[k] !== skip).map(([k, s]) => `${o[k]} ${s}`).join(" / ");
+    const evs = set.evsListed === false ? "" : stats(set.evs || {}, 0);
+    const ivs = stats(set.ivs || {}, 31);
+    return [
+      set.species + (set.gender ? ` (${set.gender})` : "") + (set.item ? ` @ ${set.item}` : ""),
+      set.ability && `Ability: ${set.ability}`,
+      set.level && set.level !== 100 && `Level: ${set.level}`,
+      evs && `EVs: ${evs}`,
+      set.nature && `${set.nature} Nature`,
+      ivs && `IVs: ${ivs}`,
+      ...(set.moves || []).map((mv) => `- ${mv}`),
+    ].filter(Boolean).join("\n");
+  }
 
   /** The sets a Pokémon was used with: rows (one Pokémon's games, in the order played) that have a sheet set
       (row.set, from teams.js), grouped by player (keyOf) and set (item, ability, nature, EVs, the same moves in any
@@ -238,7 +254,7 @@
   }
 
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    setSlots, standings, spreadText, monSets, isPlayoffWeek, tabName, navQuery, readNav };
+    setSlots, standings, spreadText, setText, monSets, isPlayoffWeek, tabName, navQuery, readNav };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);
