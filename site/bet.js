@@ -248,7 +248,10 @@
     });
   }
 
-  const Bet = { SCORING, PROPS, weeklyBets, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy };
+  // the formats whose bet lines are worked out (docs/BETTING_PROPS.md); a league of another format shows no bets
+  const BET_FORMATS = ["gen9nationaldex"];
+
+  const Bet = { SCORING, PROPS, BET_FORMATS, weeklyBets, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);

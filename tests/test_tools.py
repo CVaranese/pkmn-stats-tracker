@@ -86,6 +86,25 @@ def load(path):
     return mod
 
 
+class LeagueFormats(unittest.TestCase):
+    """Every league in site/leagues.json names its Showdown format, and its saved replays are that format (a
+    best-of-three replay's id adds bo3): the page is tailored by it (which bets show, ...)."""
+    def test_each_league_has_its_format(self):
+        root = Path(__file__).resolve().parent.parent
+        leagues = json.loads((root / "site" / "leagues.json").read_text(encoding="utf-8"))["leagues"]
+        for lg in leagues:
+            fmt = lg.get("format", "")
+            self.assertRegex(fmt, r"^gen\d+[a-z0-9]+$", f"{lg['id']}: format id missing or not a Showdown id")
+            wrong = []
+            for f in sorted((root / "site" / lg["id"] / "games").glob("*.json")):
+                if f.name in ("index.json", "draft.json", "records.json"):
+                    continue
+                got = json.loads(f.read_text(encoding="utf-8")).get("formatid")
+                if got and got not in (fmt, fmt + "bo3"):
+                    wrong.append(f"{f.name}: {got}")
+            self.assertEqual(wrong, [], f"{lg['id']}: replays of another format than {fmt}")
+
+
 class BannerEgg(unittest.TestCase):
     """tools/build_pages.py: the hidden link to the preview sits only on a league whose banner has an egg."""
     def test_egg_links_to_that_leagues_preview(self):
