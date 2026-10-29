@@ -2,6 +2,7 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Draft tab, trades (branch `draft-trades`): "Traded away" / "Traded in" badges next to the name (the plain bordered badge, like Lost), hover says the swap. Traded-away Pokémon the sheet dropped (Falinks, Brambleghast, ...) are rows with tier and cost "–": do you know their draft-day tiers? Points spent leaves traded-away picks out. Phone width not checked.
 - [ ] Names that open a season (team card player name, Draft names): a faint underline in the border colour, accent on hover. Visible enough on a phone, dark and light?
 - [ ] Replay player, a Super Champions game: click "a best-of-3" in "Game 1 of a best-of-3". It should open that set's stats (Set stats view) in the same tab. Checked: the link is written right and ?set=<one game> opens the whole set; the click itself not tried.
 - [ ] Super Champions Games tab, every set has 3 game rows: with results hidden a game that wasn't played (2–0) or has no replay looks like a played one (team, Watch, Stats; clicking says what happened) and the set line says "best of 3"; with Show results (or `?results` in the address) it reads "Not played" / "No replay", muted. Check Week 9 Dox vs Leaf (no replays at all), Week 3 Soop vs Kirbyhat (game 1 no replay), Playoffs R1 Aargab vs Saltyswede (games 1-2 no replay, score "1–0 · 2 with no replay"), on a phone too.

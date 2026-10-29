@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Draft tab: both Pokémon in a trade stay in the player's table, with a small "Traded away" / "Traded in" badge (hover for the swap); a traded-away one the draft sheet dropped is back as a row (tier and cost not known), and traded-away picks no longer count in the draft points spent ("11 Pokémon for 51 draft points · 1 traded away").
 - Draft tab: every player's trade after Week 4 (one each, from the league), under their table: e.g. "Traded: Falinks for Shuckle, after Week 4."
 - Team sheets: Zololab's sheets for Weeks 1-8 (raw HP, set details and move lists in those games). Week 1's pasted team has Vaporeon where the game has Scrafty, so its Scrafty is pieced together from the game (Leftovers, Intimidate, Bulk Up, Drain Punch; guessed max HP, marked ~).
 - Cloudburst vs DEJIME (Week 7) loses its "errors" note: the Zapdos turn it described is fixed.

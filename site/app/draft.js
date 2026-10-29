@@ -52,13 +52,23 @@ function showDraft() {
   // phones scroll the row sideways: keep the picked player in sight (e.g. a ?tab=draft&player= link)
   const bar = $("dr-players"), cur = bar.querySelector('[aria-current="true"]');
   if (cur && bar.scrollWidth > bar.clientWidth) bar.scrollLeft = Math.max(0, cur.offsetLeft - (bar.clientWidth - cur.offsetWidth) / 2);
-  const pool = draft.players[name];
+  // trades after Week 4 (draft.trades): both Pokémon stay in the table with a badge; a traded-away one the
+  // sheet no longer lists is added back (tier and cost not known), and it doesn't count in the points spent
+  const trades = (Object.entries(draft.trades || {}).find(([p]) => p !== "_note" && playerKey(p) === draftPicked) || [, []])[1];
+  const pool = [...draft.players[name]];
+  for (const t of trades) if (!pool.some((d) => d.pokemon === t.out)) pool.push({ pokemon: t.out, tier: null });
+  const tradeOf = (mon) => {
+    const t = trades.find((x) => x.out === mon || x.in === mon);
+    return t && (t.out === mon ? { label: "Traded away", title: `Traded for ${t.in || "(not known yet)"} after ${t.after}` }
+      : { label: "Traded in", title: `Came in for ${t.out} after ${t.after}` });
+  };
   const mine = Bet.fantasy(draftRows.filter((r) => playerKey(r.player) === draftPicked), draft);
-  const picks = pool.map((d) => draftPick(d, mine));
+  const picks = pool.map((d) => Object.assign(draftPick(d, mine), { trade: tradeOf(d.pokemon) }));
   const extra = mine.filter((f) => !pool.includes(Bet.drafted(draft, f.player, f.pokemon)));
+  const kept = picks.filter((p) => !(p.trade && p.trade.label === "Traded away"));
 
   const rec = Bet.records(library, draft).find((p) => p.id === draftPicked);
-  const spent = picks.reduce((t, p) => t + (p.cost || 0), 0);
+  const spent = kept.reduce((t, p) => t + (p.cost || 0), 0);
   const brought = picks.filter((p) => p.games);
   const best = [...brought].filter((p) => p.perCost !== null).sort((a, b) => b.perCost - a.perCost)[0];
   const head = el("h2", "section-title");
@@ -67,7 +77,8 @@ function showDraft() {
   const who = el("div", "draft-who");
   who.append(trainerImg(draftPicked, "trainer big"), head);
   const line = el("p", "hint", [rec ? `${rec.wins}–${rec.losses} in the saved games` : "No saved games yet",
-    `${pool.length} Pokémon for ${spent} draft points`, `${brought.length} brought so far`,
+    `${kept.length} Pokémon for ${spent} draft points`, picks.length > kept.length ? `${picks.length - kept.length} traded away` : "",
+    `${brought.length} brought so far`,
     best ? `best value: ${best.pokemon}, ${best.perCost} points per draft point` : ""].filter(Boolean).join(" · "));
   $("dr-head").replaceChildren(who, line);
 
@@ -86,6 +97,7 @@ function showDraft() {
   ], picks, draftSort, (p) => {
     const mon = el("span", "bet-mon");
     mon.append(sprite(p.pokemon, ["gen5/"], "tiny"), p.games ? seasonLink(p.pokemon, "mons", p.pokemon) : p.pokemon);
+    if (p.trade) mon.append(Object.assign(el("span", "badge", p.trade.label), { title: p.trade.title }));
     const dash = (v) => (p.games ? String(v) : "–");
     return [[mon, ""], ...(tiers ? [[p.tier || "–", ""]] : []), [p.cost === null ? "–" : String(p.cost), "num"], [String(p.games), "num"],
       [dash(p.wins), "num"], [dash(p.kills), "num"], [dash(p.points.toFixed(1)), "num"],
@@ -96,8 +108,6 @@ function showDraft() {
     });
   });
   // a Pokémon brought that the draft sheet doesn't list (a trade, a free pick): said, not hidden
-  // trades after Week 4 (draft.trades, still being filled in): a traded-away Pokémon isn't in the pool any more
-  const trades = (Object.entries(draft.trades || {}).find(([p]) => p !== "_note" && playerKey(p) === draftPicked) || [, []])[1];
   const traded = trades.map((t) => `${t.out} for ${t.in || "(not known yet)"}, after ${t.after}`);
   $("dr-extra").textContent = [
     traded.length ? "Traded: " + traded.join("; ") + "." : "",
