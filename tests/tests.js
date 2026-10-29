@@ -570,6 +570,35 @@
       .map(LG.spriteId).join(" ") === "hooh urshifu-rapidstrike zamazenta tapukoko charizard-megax ironvaliant kommoo",
       ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"].map(LG.spriteId).join(" "));
   }
+  // ---- turn strip (League.turnCells over a row's timeline) ----
+  {
+    const LG = window.League;
+    // lead, moves turns 1-2, switched out turn 3 (before acting), back in turn 5 (no action), paralyzed turn 6,
+    // U-turn out turn 7, back in after a KO at the end of turn 8, Close Combat then fainted turn 9
+    const tl = [[0, "in"], [1, "move", "Thunderbolt"], [2, "move", "Dazzling Gleam"], [3, "out"], [5, "in"], [6, "cant", "par"],
+      [7, "move", "U-turn"], [7, "out"], [8, "in"], [9, "move", "Close Combat"], [9, "faint"]];
+    const cells = LG.turnCells(tl, 10);
+    check("turn strip: one cell per turn, each kind", cells.map((c) => c.kind).join() ===
+      "move,move,off,off,on,cant,move,on,faint,off", cells.map((c) => c.kind).join());
+    check("turn strip: the text for each", cells[0].text === "Turn 1: Thunderbolt" && cells[2].text === "Turn 3: switched out" &&
+      cells[3].text === "Turn 4: on the bench" && cells[4].text === "Turn 5: switched in" && cells[5].text === "Turn 6: fully paralyzed" &&
+      cells[8].text === "Turn 9: Close Combat, then fainted", JSON.stringify(cells.map((c) => c.text)));
+    check("turn strip: no timeline, all bench", LG.turnCells([], 3).every((c) => c.kind === "off") && LG.turnCells(undefined, 0).length === 0);
+    // real games: one ✕ per death, as many moves as the move list counts, a cell for every turn
+    const bad = [];
+    for (const id of Object.keys(REAL)) {
+      const rs = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
+      for (const r of rs.filter((x) => x.brought && x.mon_key)) {
+        const cs = LG.turnCells(r.timeline, r.turns);
+        const moved = r.timeline.filter((e) => e[1] === "move").length;
+        const uses = r.move_stats.reduce((t, m) => t + (m.uses || 0), 0);
+        if (cs.length !== r.turns || cs.filter((c) => c.kind === "faint").length !== r.deaths || moved !== uses) {
+          bad.push(`${id} ${r.pokemon}: ${cs.filter((c) => c.kind === "faint").length} ✕ vs ${r.deaths} deaths, ${moved} moves vs ${uses}`);
+        }
+      }
+    }
+    check("turn strip, real fixtures: ✕ = deaths, moves = the move list's uses", !bad.length, bad.join("\n"));
+  }
   // ---- Copy set (League.setText): Showdown's import format, read back the same by teams.js ----
   {
     const LG = window.League, TS = window.TeamSheets;

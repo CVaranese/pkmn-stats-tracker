@@ -239,6 +239,42 @@
     return [...by.values()].sort((a, b) => b.games - a.games);
   }
 
+  // why a Pokémon couldn't move (|cant| reasons), as the turn strip says it
+  const CANT = { par: "fully paralyzed", slp: "asleep", frz: "frozen", flinch: "flinched", recharge: "recharging",
+    nopp: "out of PP", Disable: "its move was disabled", Taunt: "taunted", Imprison: "imprisoned", "move: Taunt": "taunted",
+    "move: Disable": "its move was disabled", "move: Imprison": "imprisoned", "move: Gravity": "stopped by Gravity",
+    "move: Heal Block": "stopped by Heal Block", Truant: "loafing around (Truant)", "ability: Truant": "loafing around (Truant)" };
+  /** The turn strip: one cell per turn (1..turns) for a Pokémon's timeline (row.timeline: [turn, kind, move or reason],
+      kind in / out / move / cant / faint, from parser.js), each { kind, text }. kind: "faint" (it fainted that turn),
+      "move" (it moved), "cant" (it tried and couldn't), "on" (on the field, didn't act: e.g. it came in that turn),
+      "off" (on the bench, switched out before acting, or fainted earlier). text: "Turn 3: Thunderbolt". */
+  function turnCells(timeline, turns) {
+    const cells = [];
+    let on = false, i = 0;
+    const evs = timeline || [];
+    while (i < evs.length && evs[i][0] < 1) { if (evs[i][1] === "in") on = true; i++; }  // the lead, before turn 1
+    for (let t = 1; t <= turns; t++) {
+      const now = [];
+      while (i < evs.length && evs[i][0] <= t) now.push(evs[i++]);
+      const moves = now.filter((e) => e[1] === "move").map((e) => e[2]);
+      const cant = now.find((e) => e[1] === "cant");
+      const fainted = now.some((e) => e[1] === "faint");
+      const cameIn = now.some((e) => e[1] === "in");
+      const wasOn = on;
+      for (const e of now) { if (e[1] === "in") on = true; if (e[1] === "out" || e[1] === "faint") on = false; }
+      const why = cant && (CANT[cant[2]] || String(cant[2] || "couldn't move"));
+      let kind, text;
+      if (fainted) { kind = "faint"; text = (moves.length ? moves.join(", ") + ", then fainted" : "fainted"); }
+      else if (moves.length) { kind = "move"; text = moves.join(", ") + (cameIn && !wasOn ? " (switched in)" : ""); }
+      else if (cant) { kind = "cant"; text = why; }
+      else if (cameIn) { kind = "on"; text = "switched in"; }
+      else if (wasOn && on) { kind = "on"; text = "on the field"; }
+      else { kind = "off"; text = wasOn ? "switched out" : "on the bench"; }
+      cells.push({ kind, text: `Turn ${t}: ${text}` });
+    }
+    return cells;
+  }
+
   /** A playoff week: any week label not "Week <n>" ("Quarterfinals", "Finals"), for the stage picker. */
   const isPlayoffWeek = (w) => !/^Week [0-9]/.test(w);
 
@@ -267,7 +303,7 @@
   }
 
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    setSlots, setPoints, standings, spreadText, setText, monSets, isPlayoffWeek, tabName, navQuery, readNav };
+    setSlots, setPoints, standings, spreadText, setText, monSets, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

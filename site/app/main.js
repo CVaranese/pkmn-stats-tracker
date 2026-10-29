@@ -392,7 +392,33 @@ function monDetail(r) {
     box.appendChild(pic);
     pic = box;
   }
-  return [pic, who, mark, grid, adv(moveList(r, best)), luck, more];
+  return [pic, who, mark, grid, adv(moveList(r, best)), adv(turnStrip(r)), luck, more];
+}
+/** Its game turn by turn: a square per turn (League.turnCells), the turn and its move on hover / tap; a number under
+    turn 1 and every 5th. Brought ones only (a benched one's strip would be all bench). */
+function turnStrip(r) {
+  const box = el("div", "turn-strip");
+  if (!r.brought || !r.turns) return box;
+  box.append(el("h4", "", "Turn by turn"));
+  const cells = League.turnCells(r.timeline, r.turns);
+  // each turn a column (square, then its number) so a long game wraps onto more lines and the numbers stay put
+  const row = el("div", "ts-cells");
+  cells.forEach((c, i) => {
+    const col = el("span", "ts-col");
+    col.title = c.text;
+    col.append(el("i", "ts-" + c.kind, c.kind === "faint" ? "✕" : ""), el("span", "", i === 0 || (i + 1) % 5 === 0 ? String(i + 1) : ""));
+    row.append(col);
+  });
+  const legend = el("p", "ts-legend");
+  for (const [kind, label] of [["move", "moved"], ["on", "on the field, didn't act"], ["cant", "couldn't move"],
+    ["faint", "fainted"], ["off", "on the bench"]]) {
+    const item = el("span");
+    item.append(el("i", "ts-" + kind, kind === "faint" ? "✕" : ""), label);
+    legend.append(item);
+  }
+  box.append(row, legend);
+
+  return box;
 }
 // simple view (name, best move, kills, damage, survived) or detailed (+ turns, healing, damage sources, luck);
 // cards side by side (wide screen) switch together so their rows line up; stacked (phone) only the tapped card
