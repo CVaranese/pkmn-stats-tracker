@@ -25,7 +25,7 @@ const STAGE_KEY = KEYS + "stage";
 const STAGES = [["regular", "Regular season"], ["playoffs", "Playoffs"], ["both", "Both"]];
 let stage = "regular";
 try { stage = STAGES.some(([v]) => v === localStorage.getItem(STAGE_KEY)) ? localStorage.getItem(STAGE_KEY) : "regular"; } catch (e) { /* storage blocked */ }
-const isPlayoffWeek = (w) => !/^Week [0-9]/.test(w);
+const isPlayoffWeek = League.isPlayoffWeek;
 const hasStages = () => library.some((g) => isPlayoffWeek(g.week)) && library.some((g) => !isPlayoffWeek(g.week));
 const inStage = (w) => !hasStages() || stage === "both" || (stage === "playoffs") === isPlayoffWeek(w);
 /** A week picker's options: "All weeks", then the weeks of the picked stage; a picked week outside it goes back to all. */
@@ -210,7 +210,7 @@ function libraryRow(g, n = 0) {
     if (i) match.append(el("span", "lib-vs", "vs"));
     const side = el("div", "lib-side");
     const name = el("div", "lib-name", p);
-    if (results && p === g.winner) name.append(" ", el("span", "badge win", "Won"));
+    if (results && g.winner && playerKey(p) === playerKey(g.winner)) name.append(" ", el("span", "badge win", "Won"));
     const team = el("div", "lib-team");
     team.append(...((g.teams || [])[i] || []).map((mon) => sprite(mon, ["gen5/"], "tiny", true)));
     side.append(name, team);

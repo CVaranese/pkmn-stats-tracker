@@ -118,7 +118,9 @@ def landing_page(template, cfg):
 def pages():
     """{path: text} for every page this writes."""
     cfg = load_leagues()
-    read = lambda name: open(os.path.join(SITE, "app", name), encoding="utf-8").read()
+    def read(name):
+        with open(os.path.join(SITE, "app", name), encoding="utf-8") as f:
+            return f.read()
     league_tpl = read("league.html")
     out = {os.path.join(SITE, "index.html"): landing_page(read("landing.html"), cfg)}
     for lg in cfg["leagues"]:

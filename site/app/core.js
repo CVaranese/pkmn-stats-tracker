@@ -167,17 +167,7 @@ const navPick = () => (mode === "players" ? (playerWanted && playerKey(playerWan
   mode === "mons" ? monWanted || monPicked : mode === "draft" ? draftPicked && playerKey(draftPicked) : "");
 const navState = () => ({ mode, r: mode === "one" ? activeIds()[0] || "" : "", watch: $("lib-watch").hidden ? "" : watching,
   pick: navPick(), set: openedSet ? openedSet.join(",") : "" });
-const PICK_PARAM = { players: "player", mons: "mon", draft: "player" };
-function navUrl(st) {
-  const q = new URLSearchParams(location.search);
-  q.delete("r"); q.delete("tab"); q.delete("player"); q.delete("mon"); q.delete("set");
-  if (st.set) q.set("set", st.set);
-  else if (st.r) q.set("r", st.r);
-  else if (st.mode !== "one") q.set("tab", st.mode);
-  if (!st.r && st.pick && PICK_PARAM[st.mode]) q.set(PICK_PARAM[st.mode], st.pick);
-  const s = q.toString().replace(/%2C/g, ",");
-  return location.pathname + (s ? "?" + s : "");
-}
+const navUrl = (st) => location.pathname + League.navQuery(location.search, st);
 function pushNav() {
   const st = navState();
   if (JSON.stringify(st) === JSON.stringify(history.state)) return;

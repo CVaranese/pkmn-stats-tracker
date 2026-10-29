@@ -27,7 +27,7 @@ for (const text of savedSheets) addSheetBox(text);
 $("add-sheet").addEventListener("click", () => addSheetBox("").querySelector("textarea").focus());
 $("run").addEventListener("click", run);
 // "bet": the Fantasy tab's old name (saved tab, old ?tab=bet links)
-const tabName = (t) => (t === "bet" ? "fantasy" : t);
+const tabName = League.tabName;
 try { mode = [...NO_INPUT_TABS].includes(tabName(localStorage.getItem(MODE_KEY))) ? tabName(localStorage.getItem(MODE_KEY)) : "one"; } catch (e) { /* storage blocked */ }
 try { $("one-link").value = localStorage.getItem(ONE_KEY) || ""; } catch (e) { /* storage blocked */ }
 $("one-link").addEventListener("input", () => {
@@ -47,7 +47,8 @@ window.addEventListener("popstate", (e) => {
   const g = st.watch && library.find((x) => x.id === st.watch);
   if (g) watchHere(g, false); else closeWatch();
 });
-const libraryReady = fetch(DIR + "games/index.json")
+// "no-cache" (as the draft and records): a new game shows without waiting out the 10-minute browser cache
+const libraryReady = fetch(DIR + "games/index.json", { cache: "no-cache" })
   .then((r) => (r.ok ? r.json() : { games: [] }))
   .catch(() => ({ games: [] }))
   .then((index) => {
@@ -174,20 +175,21 @@ const sharedPastes = (params.get("t") || "").split(",").map((t) => TS.pokepasteI
 for (const id of sharedPastes) addSheetBox(TS.PASTE_HOST + id);
 if (sharedPastes.length) { $("sheets-wrap").open = true; saveSheets(); }
 // one replay in the link opens Main viewer, more open them added up ("many", no tab marked)
-const shared = RS.replayIdsFromText(params.get("r") || "");
+const nav = League.readNav(location.search);
+const shared = RS.replayIdsFromText(nav.r);
 if (shared.length === 1) $("one-link").value = linkFor(shared[0]);
 else if (shared.length) $("links").value = shared.map(linkFor).join("\n");
 if (shared.length) activeInput().dispatchEvent(new Event("input"));
 // ?tab=games (or many / bet) opens that tab, e.g. a link to the game list
-const tabParam = tabName(params.get("tab"));
+const tabParam = nav.tab;
 if (["one", ...NO_INPUT_TABS].includes(tabParam) && !shared.length) mode = tabParam;
 setMode(shared.length ? (shared.length === 1 ? "one" : "many") : mode, shared.length > 0);
 // ?tab=players&player=<key> / ?tab=mons&mon=<name>: that player or Pokémon picked (links from the game viewer)
-if (mode === "players" && params.get("player")) wantPlayer(params.get("player"));
-if (mode === "mons" && params.get("mon")) wantMon(params.get("mon"));
+if (mode === "players" && nav.player) wantPlayer(nav.player);
+if (mode === "mons" && nav.mon) wantMon(nav.mon);
 // ?tab=draft&player=<key>: that player's draft
-if (mode === "draft" && params.get("player")) { draftPicked = params.get("player"); showDraft(); }
+if (mode === "draft" && nav.player) { draftPicked = nav.player; showDraft(); }
 try { history.replaceState(navState(), ""); } catch (e) { /* sandboxed frame: no history */ }
 // ?set=id1,id2: a set opened with Set stats (naming it needs the league's games)
-const setParam = RS.replayIdsFromText(params.get("set") || "");
+const setParam = RS.replayIdsFromText(nav.set);
 if (setParam.length && !shared.length) libraryReady.then(() => { openSet(setParam, false); replaceNav(); });

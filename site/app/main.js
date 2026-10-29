@@ -320,7 +320,10 @@ function teamCard(player, rs) {
   const h = el("h3", "team-name");
   const name = inLeague(rs[0].replay_id) ? seasonLink(player, "players", player) : el("span", "", player);
   if (name.href) name.title = "Their season on Players";
-  h.append(name, el("span", rs[0].won ? "badge win" : "badge loss", rs[0].won ? "Won" : "Lost"));
+  // a tie or an unfinished game has no winner: neither side Lost
+  const end = rs[0].end_reason, open = !rs[0].won && (end === "tie" || end === "unfinished");
+  h.append(name, open ? el("span", "badge", end === "tie" ? "Tie" : "Unfinished")
+    : el("span", rs[0].won ? "badge win" : "badge loss", rs[0].won ? "Won" : "Lost"));
   card.appendChild(h);
 
   // the team: brought ones are buttons that show their stats below (Team MVP first)

@@ -1,6 +1,12 @@
 # Changelog
 
 ## Unreleased
+- Main viewer: a game that ended in a tie or never finished says "Tie" / "Unfinished" on both team cards instead of "Lost" on both.
+- A Pokémon brought back by Revival Blessing that stays on the bench counts as alive at the end (survived, fantasy points, the momentum chart); its faint still counts.
+- Watch plays replays whose format has hyphens too (Smogon Tours: `smogtours-gen9ou-...`), as the rest of the site already read them.
+- A newly added game shows on the next page load instead of after up to 10 minutes of browser cache (the game list is fetched like the draft and records).
+- Games tab: the Won badge matches the winner's name ignoring case and spaces, as the rest of the site does (no badge was wrong before).
+- Under the hood: each game's log is read once instead of twice when no stay is picked as a hidden Zoroark; share links (`?tab=`, `?r=`, `?set=`, `?player=`, `?mon=`) and the playoff-week check moved into `league.js` with tests; tests for the preview marking (`mark_preview.py`), Pinecord's banner egg and `tools/set_illusion.py`.
 - Team sheets, one Pokémon at a time: a league game's saved sheet now gives each Pokémon its set even when the sheet has one the game didn't (it used to apply only when all 6 matched). Sets put together by hand from a game live in their own file (`site/<league>/mock/<game>-<player>.fix.txt`, listed in `index.json` `fixes`), so the paste files stay as players gave them: FingerStripes' Week 1 paste has its Jirachi back, Zololab's Week 1 Scrafty moved out of the paste. A saved sheet's box says when it covered only some Pokémon ("5 of its 6 Pokémon"). Every number stays the same.
 - Pokémon tab: "Its sets" lists the sets each Pokémon was used with over the season, from the team sheets (player, weeks, item, ability, moves, nature and EVs), and how many of its games have no sheet.
 - Draft tab: both Pokémon in a trade stay in the player's table, with a small "Traded away" / "Traded in" badge (hover for the swap); a traded-away one the draft sheet dropped is back as a row (tier and cost not known), and traded-away picks no longer count in the draft points spent ("11 Pokémon for 51 draft points · 1 traded away").

@@ -23,16 +23,11 @@ def write_atomic(path, text):
     tmp.write_text(text, encoding="utf-8")
     os.replace(tmp, path)
 
-if __name__ == "__main__":
-    if len(sys.argv) != 4 or sys.argv[2] not in ("p1", "p2"):
-        sys.exit(__doc__)
-    gid, side, pick = sys.argv[1:]
-    INDEX = index_with(gid)
-    index = json.loads(INDEX.read_text(encoding="utf-8"))
-    game = next((g for g in index["games"] if g["id"] == gid), None)
-    if game is None:
-        sys.exit(f"{gid} isn't in the game library")
-    picks = game.get("illusion", {})
+
+def set_pick(game, side, pick):
+    """Change one game's entry (from index.json) in place: side p1 / p2, pick "1,8" / "none" / "auto".
+    Exits with a message on a bad pick, leaving the game as it was."""
+    picks = dict(game.get("illusion", {}))
     if pick == "auto":
         picks.pop(side, None)
     else:
@@ -45,5 +40,18 @@ if __name__ == "__main__":
         picks[side] = ns
     if picks: game["illusion"] = picks
     else: game.pop("illusion", None)
+    return picks
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 4 or sys.argv[2] not in ("p1", "p2"):
+        sys.exit(__doc__)
+    gid, side, pick = sys.argv[1:]
+    INDEX = index_with(gid)
+    index = json.loads(INDEX.read_text(encoding="utf-8"))
+    game = next((g for g in index["games"] if g["id"] == gid), None)
+    if game is None:
+        sys.exit(f"{gid} isn't in the game library")
+    picks = set_pick(game, side, pick)
     write_atomic(INDEX, json.dumps(index, ensure_ascii=False, indent=1) + "\n")
     print(f"{gid} {side}: {picks.get(side, 'auto (proven stays only)')}")

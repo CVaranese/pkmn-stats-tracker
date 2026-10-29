@@ -1,5 +1,5 @@
 /* Season maths and display text from game rows (ReplayStats.gameRows): HP-or-% amounts, season move totals, luck
-   totals, best move, sprite file names, sets and standings. No DOM; loadable from Node. The page (app/*.js) renders with these. */
+   totals, best move, sprite file names, sets and standings, share links. No DOM; loadable from Node. The page (app/*.js) renders with these. */
 (function (root) {
   "use strict";
   const toID = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -210,8 +210,35 @@
     return [...by.values()].sort((a, b) => b.games - a.games);
   }
 
+  /** A playoff week: any week label not "Week <n>" ("Quarterfinals", "Finals"), for the stage picker. */
+  const isPlayoffWeek = (w) => !/^Week [0-9]/.test(w);
+
+  // share links (posted on Discord: they must keep opening the same view). The address holds one of ?r=<id>,
+  // ?set=<id>,<id> or ?tab=<tab>, plus the pick on Players / Pokémon / Draft (?player=<key>, ?mon=<name>); other
+  // params (?online, ?results, ?t=) stay as they are
+  const PICK_PARAM = { players: "player", mons: "mon", draft: "player" };
+  /** "bet" was the Fantasy tab's old name: old links still open it. */
+  const tabName = (t) => (t === "bet" ? "fantasy" : t);
+  /** The query ("?..." or "") for a view st = { mode, r, pick, set } over the page's current one (location.search). */
+  function navQuery(search, st) {
+    const q = new URLSearchParams(search);
+    for (const k of ["r", "tab", "player", "mon", "set"]) q.delete(k);
+    if (st.set) q.set("set", st.set);
+    else if (st.r) q.set("r", st.r);
+    else if (st.mode !== "one") q.set("tab", st.mode);
+    if (!st.r && st.pick && PICK_PARAM[st.mode]) q.set(PICK_PARAM[st.mode], st.pick);
+    const s = q.toString().replace(/%2C/g, ",");
+    return s ? "?" + s : "";
+  }
+  /** What a link asks for, read back: { r, set, tab, player, mon } ("" when not there). */
+  function readNav(search) {
+    const q = new URLSearchParams(search);
+    const get = (k) => q.get(k) || "";
+    return { r: get("r"), set: get("set"), tab: tabName(get("tab")), player: get("player"), mon: get("mon") };
+  }
+
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    setSlots, standings, spreadText, monSets };
+    setSlots, standings, spreadText, monSets, isPlayoffWeek, tabName, navQuery, readNav };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);
