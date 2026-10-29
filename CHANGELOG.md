@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- New Awards tab: each week's standouts from the saved league games (Top Pokémon, Most KOs, Most damage, Wall, Luckiest and Unluckiest player, Biggest comeback, Quickest win), opening on the latest week; All weeks gives the season so far. Ties list every winner, Stats opens the game, hover an award for how it's picked, and Copy for Discord copies the week's list.
+- New Awards tab: each week's standouts from the saved league games (Top Pokémon, Most KOs, Most damage, Wall, Biggest comeback, Quickest win), opening on the latest week; All weeks gives the season so far. Ties list every winner, Stats opens the game, hover an award for how it's picked, and Copy for Discord copies the week's list. Under them, while it's on the preview: "Trying out", 23 numbered award ideas with the week's real winners, to pick from.
 - Under the hood: every font size and corner radius in `style.css` is a named variable at the top of the file (docs/STYLE.md, Sizes), so the look can be retuned in one place; the Pokémon card's parts span its width by default. No visible change (15 views compared pixel by pixel).
 - Main viewer, a Pokémon's card in the detailed view ("More detail"): "Turn by turn", a square per turn of the game: moved, on the field without acting (e.g. the turn it came in), couldn't move (paralysis, sleep, flinch...), fainted (✕), on the bench. Hover or tap a square for the turn and the move ("Turn 14: Moonblast, then fainted").
 - Pokémon tab, "Its sets": a Copy set button on each set copies it as Showdown's teambuilder imports it (Import from text).

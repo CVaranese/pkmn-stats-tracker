@@ -243,8 +243,7 @@
       keyOf: one key per player (draft aliases). Each award: { id, title, how, winners: [{ player, pokemon (none for
       player awards), value (text), game (replay id; none for a player's whole week) }] }, ties all listed; an award no
       game qualifies for is left out. In this order: Top Pokémon (best Performance in a game), Most KOs, Most damage,
-      Wall (most damage taken by one that was still standing at the end), Luckiest / Unluckiest player (their rolls
-      over these games: League.seasonLuck), Biggest comeback (the winner furthest behind on HP share at a turn's end),
+      Wall (most damage taken by one that was still standing at the end), Biggest comeback (the winner furthest behind on HP share at a turn's end),
       Quickest win (fewest turns, forfeits and timeouts left out). */
   function awards(rows, keyOf = toID) {
     const brought = rows.filter((r) => r.brought);
@@ -266,23 +265,8 @@
     add("wall", "Wall", "Most damage taken in one game by a Pokémon still standing at the end.",
       best(brought.filter((r) => r.survived && r.damage_taken_pct > 0), (r) => r.damage_taken_pct)
         .map((r) => mon(r, amount([r], ["damage_taken_pct"]).text + " taken")));
-    // luck: one row per player per game carries the player's luck for that game
-    const byPlayer = new Map();
-    const seen = new Set();
-    for (const r of rows) {
-      const k = keyOf(r.player), g = r.replay_id + "|" + k;
-      if (seen.has(g) || typeof r.player_luck !== "number") continue;
-      seen.add(g);
-      if (!byPlayer.has(k)) byPlayer.set(k, { player: r.player, rows: [] });
-      byPlayer.get(k).rows.push(r);
-    }
-    const lucks = [...byPlayer.values()].map((p) => ({ ...p, luck: seasonLuck(p.rows, "player_luck", "player_luck_var") }))
-      .filter((p) => p.luck);
-    const luckText = (z) => `${z > 0 ? "+" : z < 0 ? "−" : ""}${Math.abs(z).toFixed(1)} on the luck scale`;
-    add("lucky", "Luckiest player", "Their rolls (crits, misses, paralysis, secondary effects...) against what those rolls could have given, over these games.",
-      best(lucks.filter((p) => p.luck.z > 0), (p) => p.luck.z).map((p) => ({ player: p.player, value: luckText(p.luck.z) })));
-    add("unlucky", "Unluckiest player", "The other end of the same scale.",
-      best(lucks.filter((p) => p.luck.z < 0), (p) => -p.luck.z).map((p) => ({ player: p.player, value: luckText(p.luck.z) })));
+    // (Luckiest / Unluckiest player were here: a player's luck is theirs minus their opponent's, so the two were
+    // always the two sides of one game; user 2026-10-29. Luckiest / Unluckiest Pokémon are among awardIdeas.)
     // comeback: per game, the winner's lowest HP share minus the loser's at a turn's end
     const games = new Map();
     for (const r of rows) if (r.won && !games.has(r.replay_id)) games.set(r.replay_id, r);
@@ -301,6 +285,72 @@
     const wins = [...games.values()].filter((r) => r.end_reason === "normal" && r.turns > 0);
     add("quick", "Quickest win", "Fewest turns to win a game that was played out (no forfeit or timeout).",
       best(wins, (r) => -r.turns).map((r) => ({ player: r.player, value: `${r.turns} turns`, game: r.replay_id })));
+    return out;
+  }
+
+  /** Award ideas on trial (user 2026-10-29: picks the good ones from the page), numbered n as brainstormed; the same
+      shape as awards(). Pokémon ones are the best single game; player ones a player's whole team in one game; game
+      ones the game. Ties all listed; an idea no game qualifies for is left out. */
+  function awardIdeas(rows, keyOf = toID) {
+    const brought = rows.filter((r) => r.brought);
+    const out = [];
+    const best = (list, score) => {
+      const vals = list.map(score).filter((v) => typeof v === "number" && isFinite(v));
+      if (!vals.length) return [];
+      const top = Math.max(...vals);
+      return list.filter((x) => score(x) === top);
+    };
+    const add = (n, id, title, how, winners) => { if (winners.length) out.push({ n, id, title, how, winners }); };
+    const plural = (k, one, many = one + "s") => `${k} ${k === 1 ? one : many}`;
+    // a Pokémon idea: the most of score (above 0) in one game
+    const mons = (n, id, title, how, score, text) => add(n, id, title, how,
+      best(brought.filter((r) => score(r) > 0), score).map((r) => ({ player: r.player, pokemon: r.pokemon, value: text(r), game: r.replay_id })));
+    const z = (r) => (typeof r.luck === "number" && r.luck_var > 0 ? r.luck / Math.sqrt(r.luck_var) : null);
+    const zText = (r) => `${z(r) > 0 ? "+" : "−"}${Math.abs(z(r)).toFixed(1)} on the luck scale`;
+    mons(1, "mon-lucky", "Luckiest Pokémon", "Its own rolls in one game (crits, misses, paralysis, effects...) against what they could have given.", z, zText);
+    mons(2, "mon-unlucky", "Unluckiest Pokémon", "The other end of the same scale, one Pokémon's own rolls.", (r) => (z(r) === null ? null : -z(r)), zText);
+    mons(3, "crits", "Crit machine", "Most critical hits landed in one game.", (r) => r.crits, (r) => plural(r.crits, "crit"));
+    mons(4, "misses", "Butterfingers", "Most moves missed in one game.", (r) => r.misses, (r) => plural(r.misses, "miss", "misses"));
+    mons(5, "dodges", "Untouchable", "Most moves aimed at it that missed, in one game.", (r) => r.dodges, (r) => plural(r.dodges, "dodge"));
+    mons(6, "sleep", "Sleepyhead", "Most turns asleep in one game.", (r) => r.sleep_turns, (r) => plural(r.sleep_turns, "turn") + " asleep");
+    mons(7, "para", "Stuck in place", "Most turns fully paralyzed in one game.", (r) => r.full_paras, (r) => plural(r.full_paras, "full para"));
+    mons(8, "confused", "Hurt itself in its confusion", "Most hits on itself from confusion in one game.", (r) => r.confusion_hits, (r) => plural(r.confusion_hits, "time"));
+    mons(9, "flinch", "Flinch magnet", "Most flinches in one game.", (r) => r.flinched, (r) => plural(r.flinched, "flinch", "flinches"));
+    mons(10, "hazard", "Hazard king", "Most damage from the hazards it set, in one game.", (r) => r.hazard_damage_pct, (r) => amount([r], ["hazard_damage_pct"]).text);
+    mons(11, "janitor", "Janitor", "Most hazards cleared off its side in one game (Defog, Rapid Spin...).", (r) => r.hazards_removed, (r) => plural(r.hazards_removed, "clear"));
+    mons(12, "medic", "Medic", "Most healing in one game, its own and given to teammates.", (r) => (r.healing_pct || 0) + (r.healing_given_pct || 0),
+      (r) => amount([r], ["healing_pct", "healing_given_pct"]).text + " healed");
+    mons(13, "status", "Plague doctor", "Most statuses put on the other team in one game.", (r) => r.statuses_inflicted, (r) => plural(r.statuses_inflicted, "status", "statuses"));
+    mons(14, "pivot", "Pivot master", "Most exits by U-turn, Volt Switch, Flip Turn, Parting Shot... in one game.", (r) => r.pivots, (r) => plural(r.pivots, "pivot"));
+    mons(15, "ironman", "Iron man", "Most turns on the field in one game.", (r) => r.turns_on_field, (r) => plural(r.turns_on_field, "turn") + " on the field");
+    mons(16, "oneanddone", "One and done", "Knocked out before it got to move, most times in one game.", (r) => r.ko_before_moving, (r) => "KO'd before moving" + (r.ko_before_moving > 1 ? ` ×${r.ko_before_moving}` : ""));
+    mons(17, "passive", "Passive aggressive", "Most KOs from burn, poison, hazards and the like in one game.", (r) => r.passive_kills, (r) => plural(r.passive_kills, "passive KO"));
+    // player ideas: a player's team in one game
+    const teams = new Map();
+    for (const r of rows) {
+      const k = r.replay_id + "|" + keyOf(r.player);
+      if (!teams.has(k)) teams.set(k, { player: r.player, game: r.replay_id, won: r.won, end: r.end_reason, info: r.info_revealed_pct, rows: [] });
+      teams.get(k).rows.push(r);
+    }
+    const ts = [...teams.values()];
+    const team = (n, id, title, how, list, score, text) => add(n, id, title, how,
+      best(list, score).map((t) => ({ player: t.player, value: text(t), game: t.game })));
+    team(18, "switches", "Revolving door", "Most switches by one player's team in one game.", ts.filter((t) => sum(t.rows, "switches") > 0),
+      (t) => sum(t.rows, "switches"), (t) => plural(sum(t.rows, "switches"), "switch", "switches"));
+    team(19, "pokerface", "Poker face", "Least of their team shown in one game (Pokémon sent out, moves, items, abilities).",
+      ts.filter((t) => typeof t.info === "number"), (t) => -t.info, (t) => `${t.info}% of the team shown`);
+    team(20, "openbook", "Open book", "Most of their team shown in one game.", ts.filter((t) => typeof t.info === "number"), (t) => t.info,
+      (t) => `${t.info}% of the team shown`);
+    team(21, "cleansweep", "Clean sweep", "Won a game losing the fewest Pokémon.", ts.filter((t) => t.won && t.end === "normal"),
+      (t) => -sum(t.rows, "deaths"), (t) => `won losing ${plural(sum(t.rows, "deaths"), "Pokémon", "Pokémon")}`);
+    // game ideas
+    const games = [...new Map(rows.filter((r) => r.won).map((r) => [r.replay_id, r])).values()];
+    const left = (r) => { const m = r.momentum || []; return m.length ? m[m.length - 1][r.side].hp : null; };
+    team(22, "nailbiter", "Nail-biter", "Won a played-out game with the least team HP left (share of the whole team).",
+      games.filter((r) => r.end_reason === "normal" && left(r) !== null).map((r) => ({ player: r.player, game: r.replay_id, r })),
+      (t) => -left(t.r), (t) => `won with ${Math.round(left(t.r))}% of the team's HP left`);
+    team(23, "marathon", "Marathon", "The longest game in turns.", games.filter((r) => r.turns > 0).map((r) => ({ player: r.player, game: r.replay_id, r })),
+      (t) => t.r.turns, (t) => `${t.r.turns} turns, won`);
     return out;
   }
 
@@ -368,7 +418,7 @@
   }
 
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    setSlots, setPoints, standings, spreadText, setText, monSets, awards, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
+    setSlots, setPoints, standings, spreadText, setText, monSets, awards, awardIdeas, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -594,14 +594,21 @@
       kos: ["Ann / Garchomp / 3 KOs", "Bo / Kingambit / 3 KOs"],
       damage: ["Cy / Dragapult / 300%"],
       wall: ["Ann / Blissey / 180% taken"],  // Toxapex took more but fainted
-      lucky: ["Ann /  / +1.0 on the luck scale"],  // Cy +0.25
-      unlucky: ["Bo /  / −2.0 on the luck scale"],
       comeback: ["Ann /  / won from 40% behind (turn 6)"],
       quick: ["Cy /  / 8 turns"],  // Eve's 3-turn forfeit doesn't count
     };
     check("awards: each award's winners, ties, who qualifies", same(got, want), JSON.stringify(got));
     check("awards: none left out when nothing qualifies, in a fixed order",
-      LG.awards([]).length === 0 && LG.awards(rows).map((a) => a.id).join() === "top,kos,damage,wall,lucky,unlucky,comeback,quick");
+      LG.awards([]).length === 0 && LG.awards(rows).map((a) => a.id).join() === "top,kos,damage,wall,comeback,quick");
+    // award ideas on trial: over the real fixtures, numbered in order, every value readable
+    const real = [];
+    for (const id of Object.keys(REAL)) real.push(...RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json()));
+    const ideas = LG.awardIdeas(real);
+    const ns = ideas.map((a) => a.n);
+    const odd = ideas.flatMap((a) => a.winners.filter((w) => /NaN|undefined|null/.test(w.value)).map((w) => `#${a.n} ${w.value}`));
+    check("award ideas: numbered in order, values readable, Marathon and Iron man found", ns.join() === [...ns].sort((a, b) => a - b).join() &&
+      new Set(ns).size === ns.length && !odd.length && ideas.some((a) => a.id === "marathon") && ideas.some((a) => a.id === "ironman"),
+      odd.join("\n") || ns.join());
   }
   // ---- turn strip (League.turnCells over a row's timeline) ----
   {
