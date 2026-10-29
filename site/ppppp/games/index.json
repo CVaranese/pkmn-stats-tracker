@@ -415,7 +415,7 @@
    "league": "ppppp",
    "week": "Week 2",
    "players": [
-    "DEJIME17",
+    "DEJIME",
     "chicken parm karm"
    ],
    "teams": [
@@ -546,7 +546,7 @@
    "league": "ppppp",
    "week": "Week 3",
    "players": [
-    "DEJIME17",
+    "DEJIME",
     "doxsego"
    ],
    "teams": [
@@ -567,7 +567,7 @@
      "Ninetales"
     ]
    ],
-   "winner": "DEJIME17",
+   "winner": "DEJIME",
    "date": "2026-09-20",
    "turns": 15,
    "note": "Stream video",
@@ -681,7 +681,7 @@
    "week": "Week 4",
    "players": [
     "Zololab",
-    "DEJIME17"
+    "DEJIME"
    ],
    "teams": [
     [
@@ -701,7 +701,7 @@
      "Basculegion-F"
     ]
    ],
-   "winner": "DEJIME17",
+   "winner": "DEJIME",
    "date": "2026-09-27",
    "turns": 15,
    "note": "Stream video",
@@ -770,10 +770,9 @@
    "winner": "azpmCloudburst",
    "date": "2026-09-27",
    "turns": 33,
-   "note": "Stream video, errors",
+   "note": "Stream video",
+   "note_detail": "Last KO from the players.",
    "video": "https://youtu.be/vxtlxLNR19c",
-   "note_detail": "Last KO from the players. Some lines of the stream were misread; Main viewer says which.",
-   "known_errors": "Turn 19: Ceruledge is shown at 0% after Sucker Punch but didn't faint (it comes back at 1%), so that hit is about 1% too high.",
    "sheets": [
     "doxsego"
    ]
@@ -807,10 +806,9 @@
    "winner": "ElkG Big Large",
    "date": "2026-09-27",
    "turns": 33,
-   "note": "Stream video, errors",
+   "note": "Stream video",
+   "note_detail": "Last KO from the players.",
    "video": "https://youtu.be/yyCXiIsZQek",
-   "note_detail": "Last KO from the players. Some lines of the stream were misread; Main viewer says which.",
-   "known_errors": "Turn 10: Sableye is shown at 0% after Dark Pulse but didn't faint (it comes back at 1%).",
    "sheets": [
     "fingerstripes"
    ]
@@ -820,7 +818,7 @@
    "league": "ppppp",
    "week": "Week 1",
    "players": [
-    "DEJIME17",
+    "DEJIME",
     "FingerStripes"
    ],
    "teams": [
@@ -841,7 +839,7 @@
      "Iron Moth"
     ]
    ],
-   "winner": "DEJIME17",
+   "winner": "DEJIME",
    "date": "2026-09-06",
    "turns": 18,
    "note": "",
@@ -1110,17 +1108,15 @@
    "winner": "pee nation",
    "date": "2026-10-04",
    "turns": 17,
-   "note": "Stream video, errors",
-   "video": "https://youtu.be/4n49BQ2LQsY",
-   "known_errors": "Turn 9: Landorus-Therian is shown at 0% after burn damage but didn't faint (it comes back at 48%), so its damage taken and the burn damage are too high.",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which."
+   "note": "Stream video",
+   "video": "https://youtu.be/4n49BQ2LQsY"
   },
   {
    "id": "video-xcoo3lljspm",
    "league": "ppppp",
    "week": "Week 5",
    "players": [
-    "DEJIME17",
+    "DEJIME",
     "ElkG Big Large"
    ],
    "teams": [
@@ -1144,10 +1140,8 @@
    "winner": "ElkG Big Large",
    "date": "2026-10-04",
    "turns": 28,
-   "note": "Stream video, errors",
-   "video": "https://youtu.be/xcoo3llJSpM",
-   "known_errors": "Turn 6: Overqwil is shown at 0% after a resisted Dark Pulse but didn't faint (it comes back at 55%), so that hit counts about 55% too much damage.",
-   "note_detail": "Some lines of the stream were misread; Main viewer says which."
+   "note": "Stream video",
+   "video": "https://youtu.be/xcoo3llJSpM"
   },
   {
    "id": "video--zrrn-yi98u",

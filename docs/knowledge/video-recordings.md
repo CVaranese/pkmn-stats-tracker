@@ -234,3 +234,6 @@ screenshots), `tools/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video_conver
   doing nothing in a turn. It can't see a misread that still makes sense (a wrong but plausible HP, a real move
   name for the wrong one, a missing crit / status line that leaves no trace): only the video shows those.
 - Revival Blessing (Pawmot) makes a Pokémon faint twice: real, not a misread (DEJIME's games).
+- Old games (before the drain fix) had every drain heal on the drained Pokémon. 2026-10-29: each moved to the move's
+  user, the amount estimated as damage x share x target / user max HP (level 100, no HP investment, capped at 100%)
+  - a guess, so each is on the review page. Later HP lines of both Pokémon moved by the same amount.

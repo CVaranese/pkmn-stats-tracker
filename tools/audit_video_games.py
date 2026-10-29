@@ -3,7 +3,8 @@
     python -I tools/audit_video_games.py --stdout   # prints it instead
 Checks only the log itself (no video): names that never came onto the field, moves Showdown doesn't have, a hit with
 no move before it, "0 fnt" with no faint, HP that goes up with no heal, a hit count that doesn't match the hits,
-an Aftermath with nobody fainting, chip damage that didn't lower HP, and a turn where a side did nothing.
+an Aftermath with nobody fainting, chip damage that didn't lower HP, and a turn where a side did nothing (fainting first counts as acting; a
+confused Pokémon with no move and no confusion damage gets its own note).
 """
 import json
 import os
@@ -44,7 +45,8 @@ def audit(log, moves, regen):
     turn = 0
     hp = {}                    # (side, name) -> last HP seen
     active = {}                # side -> (side, name)
-    acted = set()              # sides that did something this turn
+    acted = set()              # sides that did something this turn (or fainted before they could)
+    confused = set()           # sides shown "is confused!" this turn
     since_move = None          # the |move| line in force: (actor, target) or None after a turn / switch
     hits = {}                  # target -> damage lines since the last move
     zero = {}                  # (side, name) -> line number of a "0 fnt" not yet followed by |faint|
@@ -58,9 +60,13 @@ def audit(log, moves, regen):
             if turn > 0:
                 for side in ("p1", "p2"):
                     if side in active and side not in acted:
-                        out.append((turn, n, f"{side} ({active[side][1]}) did nothing this turn: a move or 'can't move' line may be missing"))
+                        if side in confused:
+                            out.append((turn, n, f"{active[side][1]} is confused but neither moves nor takes confusion damage: the 'hurt itself' damage line is missing"))
+                        else:
+                            out.append((turn, n, f"{side} ({active[side][1]}) did nothing this turn: a move or 'can't move' line may be missing"))
             turn = int(p[2]) if p[2].isdigit() else turn + 1
             acted = set()
+            confused = set()
             since_move = None
             continue
         who = ident(p[2]) if len(p) > 2 else None
@@ -90,7 +96,14 @@ def audit(log, moves, regen):
             hits = {}
         elif cmd == "cant" and who:
             acted.add(who[0])
+        elif cmd in ("-activate", "-end") and who and len(p) > 3 and "Future Sight" in p[3]:
+            since_move = (None, who)   # the delayed hit lands now
+            hits = {}
+        elif cmd == "-activate" and who and len(p) > 3 and p[3] == "confusion":
+            confused.add(who[0])
         elif cmd in ("-damage", "-heal") and who:
+            if "[from] confusion" in l:
+                acted.add(who[0])   # hurt itself instead of moving
             tags = " ".join(p[4:])
             new = hp_of(p[3]) if len(p) > 3 else None
             old = hp.get(who)
@@ -112,6 +125,7 @@ def audit(log, moves, regen):
             if want is not None and got != want:
                 out.append((turn, n, f"says hit {want} times but {got} hit lines on {who[1]}: hits missing"))
         elif cmd == "faint" and who:
+            acted.add(who[0])   # fainted before it could move
             zero.pop(who, None)
             last_faint_line = n
     for who, n in zero.items():

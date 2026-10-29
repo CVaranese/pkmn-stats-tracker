@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- Stream-video games, last review answers: confusion damage on Garchomp and Tinkaton, four drain heals with the real amounts, Scrafty and Hawlucha HP; every item on the review page is now settled and the misread audit finds nothing.
+- Stream-video games, from the stream text: Rough Skin / Iron Barbs hits (1/8 HP) in Cloudburst vs Weed and Nezergy vs Weed, Zapdos at 2% and Archaludon's Steel Beam in Cloudburst vs DEJIME, Population Bomb's 4 hits, Future Sight on Garganacl; 7 drain heals now exact, worked back from the stream's last hit before a faint.
+- DEJIME17 is shown as DEJIME everywhere (Games list, game viewer, saved games); the draft alias stays for replays fetched from Showdown.
+- Stream-video games, second round of review answers: Dondozo's recoil and Rest in Cloudburst vs Dox, multi-hit counts (Triple Axel, Beat Up, Icicle Spear), Disguise, Sableye, Overqwil, Ceruledge and Charizard numbers; four games lose their "errors" note. Drain heals the old converter put on the drained Pokémon now go to the move's user in 8 more games (amounts estimated, on the review page).
 - Stream-video games, from the review-page answers: Bronzong's name and turns 1-3 in Cloudburst vs PotatoesAreYum (Week 3), the 3-hit Triple Axel and the last turn's Bitter Blade / Iron Barbs / Rocky Helmet in Dox vs Weed, burn and Leftovers numbers on Aegislash, Corviknight's recoil, two Rough Skin / Iron Barbs hits, and Slowking failing to use Chilly Reception under Taunt; two games lose their "errors" note.
 - Stream-video games: misread names fixed in 7 games (a hit, heal or stat change that named nobody now lands on the right Pokémon), Aftermath that was Rough Skin / Iron Barbs, moves with the next line glued on (Make It Rain's 57% on Toxicroak is back), Magma Storm's trap, and Hydrapple's two hits in Week 8 Karm vs Fingy (6% and 66%). Main viewer's "with errors" notes updated: two games have none left.
 - Pinecord Week 8: the last three games (Karm vs Fingy, Dox vs Sneez, Cloudburst vs Zololab) from the stream videos, so all six Week 8 games are in; FingerStripes' Week 8 team sheet with the Karm game.
