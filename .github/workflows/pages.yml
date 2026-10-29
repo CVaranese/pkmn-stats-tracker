@@ -3,6 +3,8 @@
 # Runs on a push to main, and after "Preview pushed" (preview.yml) finishes for a push to next: workflow_run always
 # runs this file from main, so the deploy never comes from another branch (the github-pages environment may allow
 # main only). Both parts are rebuilt every time, so a push to either branch keeps the other one as it is.
+# main's tests (tests/test_tools.py, tests/index.html in headless Chrome) run first: FAIL or CRASH means no deploy,
+# and the live site stays as it was.
 # One-time setup on GitHub: Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
 name: Deploy site to GitHub Pages
 
@@ -37,7 +39,24 @@ jobs:
         with:
           ref: main
           path: live
+          fetch-depth: 0          # tags too: test_tools.py checks every release is tagged
           persist-credentials: false
+      # No deploy unless main's tests pass (the live site is assumed in use). next's aren't run: a broken preview
+      # is allowed and shouldn't hold up the live site.
+      - name: Test main
+        working-directory: live
+        run: |
+          python3 -I tests/test_tools.py
+          python3 -m http.server 8765 --bind 127.0.0.1 >/dev/null 2>&1 &
+          for i in $(seq 1 20); do curl -sf http://127.0.0.1:8765/tests/ >/dev/null && break; sleep 0.25; done
+          dom=$(google-chrome --headless=new --disable-gpu --no-sandbox --user-data-dir="$RUNNER_TEMP/chrome" \
+            --virtual-time-budget=15000 --dump-dom http://127.0.0.1:8765/tests/index.html 2>/dev/null)
+          title=$(printf '%s' "$dom" | grep -o '<title>[^<]*' | head -1 | cut -c8-)
+          echo "tests/index.html: ${title:-no title}"
+          if [ "$title" != "PASS" ]; then
+            printf '%s' "$dom" | sed -n '/id="out"/,/<\/pre>/p' | grep -E '^(FAIL|  )' | head -40
+            exit 1
+          fi
       - id: next
         name: Is there a next branch?
         run: |

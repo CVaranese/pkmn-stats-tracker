@@ -1,6 +1,6 @@
 <!doctype html><body><img src="/hold" style="display:none">
 <script>
-// Served by tools/video_frames.py. ?t=60,70&box=x,y,w,h&scale=2 : seeks /video.mp4 to each time, draws the box
+// Served by tools/video/video_frames.py. ?t=60,70&box=x,y,w,h&scale=2 : seeks /video.mp4 to each time, draws the box
 // (1280x720 frame coordinates) at `scale`, and POSTs it as PNG to /save?name=f<t*10>.png. Then POSTs a summary to /done.
 const q = new URLSearchParams(location.search);
 const times = q.get("t").split(",").map(Number);

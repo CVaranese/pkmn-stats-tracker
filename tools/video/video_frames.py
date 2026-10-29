@@ -1,9 +1,9 @@
 """Cut crops out of a match video into PNG files, using headless Edge (no ffmpeg needed).
 
-    python -I tools/video_frames.py <video.mp4> <out_dir> --times 60,70,80 [--box 640,60,640,600] [--scale 2]
-    python -I tools/video_frames.py <video.mp4> <out_dir> --every 8 --start 30 --end 640
+    python -I tools/video/video_frames.py <video.mp4> <out_dir> --times 60,70,80 [--box 640,60,640,600] [--scale 2]
+    python -I tools/video/video_frames.py <video.mp4> <out_dir> --every 8 --start 30 --end 640
 
-Serves tools/video_grab.html and the video from a local server with HTTP Range support (Python's http.server
+Serves tools/video/video_grab.html and the video from a local server with HTTP Range support (Python's http.server
 can't seek video), opens the page in headless Edge on the real clock, and the page POSTs one PNG per time to
 /save. Each file is named <out_dir>/f<seconds*10, 5 digits>.png. Edge is killed once the page reports done.
 """

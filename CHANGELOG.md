@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Under the hood: a deploy runs the tests first and stops on a failure, so a broken push never reaches the live site; the first Python CLI (`replay_stats.py`) is gone; the stream-video tools are archived in `tools/video/`.
 
 ## 1.0 (2026-10-29)
 - Something is hiding in Pinecord's banner for anyone looking closely (a link to the preview of the next version, published from the `next` branch under `next/`).

@@ -17,7 +17,7 @@ Add them with `python -I tools/add_game.py <link> --week "<week>"` (the `add-gam
 Weeks confirmed 2026-10-27 from each replay's date and winner against the bracket (Week N = Swiss round N).
 All 48 Swiss games (weeks 1-8) are saved: 13 Showdown replays, 35 rebuilt from stream videos; checked against Challonge 2026-10-29 (every winner matches).
 
-## Stream videos (no replay; rebuilt with tools/video_to_replay.py)
+## Stream videos (no replay; rebuilt with tools/video/video_to_replay.py)
 
 Playlists: Week 1 https://youtube.com/playlist?list=PLe1tROU59cYo, Week 2 https://www.youtube.com/playlist?list=PLc3TezsXgkoE, Week 3 https://www.youtube.com/playlist?list=PLGJlQdSaplkQ.
 

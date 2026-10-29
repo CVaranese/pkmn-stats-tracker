@@ -1,6 +1,6 @@
 """List what looks misread in the games rebuilt from stream videos (site/ppppp/games/video-*.json), so they can be fixed by hand.
-    python -I tools/audit_video_games.py            # writes docs/VIDEO_GAMES_AUDIT.md
-    python -I tools/audit_video_games.py --stdout   # prints it instead
+    python -I tools/video/audit_video_games.py            # writes docs/VIDEO_GAMES_AUDIT.md
+    python -I tools/video/audit_video_games.py --stdout   # prints it instead
 Checks only the log itself (no video): names that never came onto the field, moves Showdown doesn't have, a hit with
 no move before it, "0 fnt" with no faint, HP that goes up with no heal, a hit count that doesn't match the hits,
 an Aftermath with nobody fainting, chip damage that didn't lower HP, and a turn where a side did nothing (fainting first counts as acting; a
@@ -11,7 +11,7 @@ import os
 import re
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # tools/video/ -> the repo root
 GAMES = os.path.join(ROOT, "site", "ppppp", "games")  # the stream-video games are all Pinecord's
 OUT = os.path.join(ROOT, "docs", "VIDEO_GAMES_AUDIT.md")
 
@@ -142,7 +142,7 @@ def main():
     order = {g["id"]: i for i, g in enumerate(games)}
     vids = sorted((g for g in games if g["id"].startswith("video-")), key=lambda g: (int(re.sub(r"\D", "", g["week"]) or 0), order[g["id"]]))
     md = ["# Video-rebuilt games: what to fix by hand", "",
-          "Made by `python -I tools/audit_video_games.py` from the logs alone (no video). Each line gives the turn, the",
+          "Made by `python -I tools/video/audit_video_games.py` from the logs alone (no video). Each line gives the turn, the",
           "log line number (in the game's `site/ppppp/games/<id>.json` `log`, counting from 1) and what looks wrong. Some are",
           "real (a turn spent recharging, a Pokémon that can't move with no line for it), so check each against the video.",
           "Coming back with more HP is only flagged for Pokémon that can't have Regenerator. Re-run after fixing.", ""]

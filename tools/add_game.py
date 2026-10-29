@@ -9,7 +9,7 @@ of a week between the same two players by itself, and the Games tab flags a grou
     python tools/add_game.py https://replay.pokemonshowdown.com/gen9nationaldex-123 --league ppppp --week "Week 3"
     python tools/add_game.py gen9nationaldex-123 --league ppppp --week "Playoffs R1" --note "Game 2"
 
-A game rebuilt from its YouTube stream (tools/video_to_replay.py) has no Showdown replay: give the video link
+A game rebuilt from its YouTube stream (tools/video/video_to_replay.py) has no Showdown replay: give the video link
 and the rebuilt JSON. It's stored as video-<youtube id, lowercase>, dated by --date: the day the game was played
 (league games are Sundays at 9pm Pacific, usually the Sunday before the video went up), not the upload day.
 
@@ -122,7 +122,7 @@ def main():
     rid = replay_id(args.replay)
     copy = GAMES / (rid + ".json")
     if rid.startswith("video-") and not args.file and not copy.exists():
-        sys.exit("A video game needs --file with the JSON from tools/video_to_replay.py")
+        sys.exit("A video game needs --file with the JSON from tools/video/video_to_replay.py")
     if args.file:
         replay = json.loads(Path(args.file).read_text(encoding="utf-8"))
         if rid.startswith("video-"):
