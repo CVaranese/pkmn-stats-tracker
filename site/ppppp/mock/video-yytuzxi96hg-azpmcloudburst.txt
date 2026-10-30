@@ -1,0 +1,63 @@
+Mozzarella Sticks (Venusaur) (F) @ Life Orb
+Ability: Chlorophyll
+Tera Type: Grass
+EVs: 120 HP / 252 SpA / 136 Spe
+Mild Nature
+IVs: 0 Atk
+- Earth Power
+- Sleep Powder
+- Giga Drain
+- Sludge Bomb
+
+Narq (Torkoal) (M) @ Heat Rock
+Ability: Drought
+Tera Type: Fire
+EVs: 248 HP / 8 Atk / 252 Def
+Impish Nature
+- Stealth Rock
+- Rapid Spin
+- Body Press
+- Eruption
+
+Zapdash (Zapdos) @ Rocky Helmet
+Ability: Static
+Tera Type: Electric
+EVs: 252 HP / 252 SpA
+Modest Nature
+IVs: 0 Atk
+- Volt Switch
+- Hurricane
+- Heat Wave
+- Roost
+
+Garfield (Garchomp) (M) @ Choice Scarf
+Ability: Rough Skin
+Tera Type: Dragon
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Outrage
+- Earthquake
+- Rock Slide
+- Bite
+
+RuPaul (Blaziken) (M) @ Groundium Z
+Ability: Speed Boost
+Shiny: Yes
+Tera Type: Fire
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Close Combat
+- Swords Dance
+- Sand Attack
+- Blaze Kick
+
+Dumbass (Dondozo) @ Ability Shield
+Ability: Unaware
+Shiny: Yes
+Tera Type: Water
+EVs: 248 HP / 252 Def / 8 SpD
+Adamant Nature
+- Sleep Talk
+- Rest
+- Wave Crash
+- Body Press

@@ -113,3 +113,5 @@ Saved in `site/mock/<game id>-<player>.txt`; each game lists its players' sheets
   is only that (Nightwing, shiny, Leftovers, Pressure, Calm Mind / Substitute / Ice Beam; no EVs line, so its max HP
   is a guess). Nothing else in that game contradicts the sheet. Week 8 vs Karm saved 2026-10-29 with its video game
   (all six Pokémon match).
+- azpmCloudburst (Cloudburst), 2026-10-29: Weeks 2 and 4-8 saved, every nickname in each game on its sheet (Week 6's
+  "Bad Bully" is weedinmyhonda). No sheets for Weeks 1 and 3.

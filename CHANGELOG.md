@@ -27,6 +27,7 @@
 - Draft tab, trades: a traded-away Pokémon counts its games from before the trade on its own row (they used to be left out, the row showing 0 games), and a Super Champions free-agent move that names several Pokémon gives each its own row ("Dragalge-Mega", "Oranguru", ... instead of one row named after all five).
 - Under the hood: standings and tie-breaks (`League.standings`, `League.setSlots`) and the trade pool (`Bet.draftPool`) moved out of the page code into `league.js` / `bet.js`, with tests (sets, fewer sets lost, game difference, games won, head to head, KOs minus Pokémon lost; trades); the Players tables of both leagues are the same before and after. Each tab registers its own cache reset, so a Zoroark pick now also refreshes the Draft tab.
 - Under the hood: the tests check every saved league game (214) still counts the same per Pokémon (kills, deaths, damage, healing, hazards, switches) against a stored snapshot, `tests/snapshot.json`, rewritten only on purpose with `.claude/skills/test/write-snapshot.ps1`; the parser now records each hit and heal with its turn and the HP before and after (nothing on the page changes yet).
+- Team sheets: Cloudburst's sheets for Weeks 2 and 4-8 (raw HP, set details and move lists in those games; none for Weeks 1 and 3).
 - Under the hood: a deploy runs the tests first and stops on a failure, so a broken push never reaches the live site; the first Python CLI (`replay_stats.py`) is gone; the stream-video tools are archived in `tools/video/`.
 
 ## 1.0 (2026-10-29)

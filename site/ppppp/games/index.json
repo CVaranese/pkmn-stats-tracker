@@ -138,7 +138,8 @@
     ]
    },
    "sheets": [
-    "nezergy"
+    "nezergy",
+    "azpmcloudburst"
    ]
   },
   {
@@ -407,7 +408,8 @@
    "note": "Stream video",
    "video": "https://youtu.be/yytUZXI96hg",
    "sheets": [
-    "fingerstripes"
+    "fingerstripes",
+    "azpmcloudburst"
    ]
   },
   {
@@ -780,7 +782,8 @@
    "note_detail": "Last KO from the players.",
    "video": "https://youtu.be/vxtlxLNR19c",
    "sheets": [
-    "doxsego"
+    "doxsego",
+    "azpmcloudburst"
    ]
   },
   {
@@ -1195,7 +1198,10 @@
    "date": "2026-10-11",
    "turns": 18,
    "note": "Stream video",
-   "video": "https://youtu.be/-ZRRN-yi98U"
+   "video": "https://youtu.be/-ZRRN-yi98U",
+   "sheets": [
+    "azpmcloudburst"
+   ]
   },
   {
    "id": "video-d-snlpgnt04",
@@ -1434,7 +1440,10 @@
    "date": "2026-10-18",
    "turns": 18,
    "note": "Stream video",
-   "video": "https://youtu.be/s2ZnFx4iR1M"
+   "video": "https://youtu.be/s2ZnFx4iR1M",
+   "sheets": [
+    "azpmcloudburst"
+   ]
   },
   {
    "id": "gen9nationaldex-2705438906",
@@ -1636,7 +1645,8 @@
    "note": "Stream video",
    "video": "https://youtu.be/Hdoj_RkUOiw",
    "sheets": [
-    "zololab"
+    "zololab",
+    "azpmcloudburst"
    ]
   }
  ]

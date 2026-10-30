@@ -1,0 +1,64 @@
+Zapacuno (Zapdos) @ Heat Rock
+Ability: Static
+Tera Type: Electric
+EVs: 248 HP / 252 SpD
+Modest Nature
+IVs: 0 Atk
+- Volt Switch
+- Hurricane
+- Sunny Day
+- Roost
+
+Earthquake (Garchomp) (M) @ Choice Band
+Ability: Rough Skin
+Tera Type: Dragon
+EVs: 4 HP / 252 Atk / 252 Spe
+Lonely Nature
+- Outrage
+- Earthquake
+- Rock Slide
+- Fire Fang
+
+Qtip to the Brain (Whimsicott) @ Fairium Z
+Ability: Chlorophyll
+Shiny: Yes
+Tera Type: Steel
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Moonblast
+- Giga Drain
+- U-turn
+- Tailwind
+
+Space Lapras (Cresselia) @ Light Clay
+Ability: Levitate
+Tera Type: Psychic
+EVs: 252 HP / 252 Def / 4 SpD
+Bold Nature
+IVs: 0 Atk
+- Ice Beam
+- Reflect
+- Light Screen
+- Gravity
+
+Portulacaria Afra (Venusaur) @ Life Orb
+Ability: Chlorophyll
+Tera Type: Grass
+EVs: 120 HP / 252 SpA / 136 Spe
+Mild Nature
+IVs: 0 Atk
+- Earth Power
+- Weather Ball
+- Giga Drain
+- Sludge Bomb
+
+G on eng til I gar (Gengar) @ Choice Specs
+Ability: Cursed Body
+Tera Type: Ghost
+EVs: 4 Def / 252 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Thunder
+- Shadow Ball
+- Sludge Wave
+- Focus Blast
