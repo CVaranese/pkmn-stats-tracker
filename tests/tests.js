@@ -1848,7 +1848,7 @@ ${switchIn}`).hiddenZoroark;
     const card = (c) => [c.name, c.grade, c.firepower.grade + c.bulk.grade + c.peaks.grade + c.even.grade, c.firepower.perGame,
       c.bulk.perGame, `${c.peaks.count}/${c.peaks.of}`, c.even.spread, c.best && c.best.pokemon, c.bust && c.bust.pokemon].join(" ");
     check("report cards: firepower and bulk against the tier (a small tier against the league), peaks, even use, each graded, then overall",
-      cards.map(card).join(" | ") === "Ann B BBBD 4.6 1.1 1/2 0.71 Garchomp Toxapex | Bo D DDDB 1.5 -2.5 0/3 0 Kingambit Pikachu | Cy   0 0 0/0 0  ",
+      cards.map(card).join(" | ") === "Ann A AAAD 4.6 1.1 1/2 0.71 Garchomp Toxapex | Bo D DDDA 1.5 -2.5 0/3 0 Kingambit Pikachu | Cy   0 0 0/0 0  ",
       cards.map(card).join(" | "));
     const ann = cards[0].picks;
     check("report cards: each pick's expected firepower a game, what it did above that, its hits and best game",
@@ -1859,16 +1859,17 @@ ${switchIn}`).hiddenZoroark;
     const priced = Bet.reportCards({ costs: {}, players: { Dee: [{ pokemon: "Mew", cost: 12 }, { pokemon: "Eevee", cost: 1 }, { pokemon: "Ditto" }] } }, []);
     check("report cards: a league priced per Pokémon groups picks in price bands of 5", same(priced[0].picks.map((p) => p.group), ["11–15", "1–5", ""]) &&
       priced[0].grade === "" && priced[0].bulk.grade === "", JSON.stringify(priced[0]));
-    const c12 = Bet.curve(12).join(""), c3 = Bet.curve(3).join(""), c1 = Bet.curve(1).join("");
-    check("report cards: the curve for 12 drafts is 2 A, 3 B, 3 C, 2 D, 2 F; 3 drafts A, C, D; one alone a C",
-      c12 === "AABBBCCCDDFF" && c3 === "ACD" && c1 === "C", [c12, c3, c1].join(" "));
-    // a tie shares the better letter: Ann and Bo with the same game; a pick traded in after the last week played is left
+    // letters from distance to the league's average in its spread, no set number each: 5 drafts well above 7 others
+    // (z about +1.2 against -0.8) are 5 As
+    const cuts = [1, 0.99, 0.35, 0.34, -0.35, -0.36, -1, -1.01].map(Bet.letterFor).join("");
+    check("report cards: A from +1, B from +0.35, C from -0.35, D from -1, else F", cuts === "ABBCCDDF", cuts);
+    // a tie shares the place (and, from the same numbers, the letter): Ann and Bo with the same game; a pick traded in after the last week played is left
     // out of even use (Ann's Mew, no game yet)
     const tie = { costs: { OU: 7 }, players: { Ann: [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Mew", tier: "OU" }],
       Bo: [{ pokemon: "Kingambit", tier: "OU" }] }, trades: { Ann: [{ out: "Clefable", in: "Mew", after: "Week 1" }] } };
     const tc = Bet.reportCards(tie, [rr("Ann", "Garchomp", 1, 0, 2), rr("Bo", "Kingambit", 1, 0, 2)], ["Week 1"]);
     check("report cards: tied drafts share the place and letter; a pick traded in after the last week isn't held against even use",
-      tc.map((c) => c.grade + c.place + c.even.grade).join() === "B1B,B1B" && tc.find((c) => c.name === "Ann").even.spread === 0,
+      tc.map((c) => c.grade + c.place + c.even.grade).join() === "C1C,C1C" && tc.find((c) => c.name === "Ann").even.spread === 0,
       JSON.stringify(tc.map((c) => [c.name, c.grade, c.place, c.score, c.even])));
   }
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge

@@ -39,7 +39,7 @@ function trainerImg(key, cls) {
 }
 /** +3.5 / −2.0 / 0.0: a number above or below expectation, one decimal, a real minus sign. */
 const signed = (x) => (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x).toFixed(1);
-/** The report card above the picks: the overall grade on the league's curve, then firepower, bulk, peaks and even use,
+/** The report card above the picks: the overall grade against the league's other drafts, then firepower, bulk, peaks and even use,
     each with its letter, the best pick and biggest bust (Bet.reportCards), and how it's graded. Hidden for a player
     with no games yet. */
 function showReportCard(c) {
@@ -67,7 +67,8 @@ function showReportCard(c) {
   $("dr-card-table").rows[0].remove();  // no header row: each row names itself
   $("dr-card-how").textContent = `Each part is graded against the league's other drafts, and the overall grade from all four. ` +
     `Firepower and the best pick and bust: 3 points a KO and 1 per 100% damage, against what a ${group} pick does in as many games. ` +
-    `About a sixth of the drafts get an A, a quarter a B, a sixth each a D and an F.`;
+    `A letter says how far a draft is from the league's average, measured by how spread out the drafts are: A well above, B above, ` +
+    `C around the average, D below, F well below. Any number of drafts can share a letter.`;
 }
 /** The picked player's draft: a line about their season, then every pick (never-brought ones greyed). */
 function showDraft() {

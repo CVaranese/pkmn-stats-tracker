@@ -145,14 +145,13 @@
     return [...by.values()].sort((a, b) => b.points - a.points || b.kills - a.kills || a.pokemon.localeCompare(b.pokemon));
   }
 
-  /** The curve for n drafts, best first: each place by where its middle falls in the ranking, the top sixth A, the
-      next quarter B, then C to two thirds, D to five sixths, the rest F (12 drafts: 2 A, 3 B, 3 C, 2 D, 2 F; 3: A, C, D). */
-  function curve(n) {
-    const cuts = [[1 / 6, "A"], [5 / 12, "B"], [2 / 3, "C"], [5 / 6, "D"]];
-    return Array.from({ length: n }, (_, i) => (cuts.find(([c]) => (i + 0.5) / n <= c) || [, "F"])[1]);
-  }
+  /** A draft's letter from how far it is from the league's average, in the league's own spread (a z-score): A from
+      +1, B from +0.35, C from −0.35, D from −1, below that F. No set number per letter (user 2026-10-29): five drafts
+      well above the rest are five As; a league of close drafts is mostly Bs and Cs. */
+  const GRADE_CUTS = [[1, "A"], [0.35, "B"], [-0.35, "C"], [-1, "D"]];
+  const letterFor = (z) => (GRADE_CUTS.find(([cut]) => z >= cut) || [, "F"])[1];
 
-  /** Draft report cards (singles: CARD_FORMATS), four parts each graded on the league's curve, then an overall grade
+  /** Draft report cards (singles: CARD_FORMATS), four parts each graded against the league (letterFor), then an overall grade
       from all four, so the card says what kind of draft it was and isn't just the standings again (Pinecord, rank
       correlation with wins: firepower alone 0.97, the four together about 0.6; user 2026-10-29):
       - Firepower: KOs (3 each) and damage (1 per 100%) against what a pick of the same tier earns in as many games
@@ -247,7 +246,7 @@
       const low = best(used, (a, b) => a.above < b.above || (a.above === b.above && (a.cost || 0) > (b.cost || 0)));
       c.bust = low && low.above < 0 ? low : null;
     }
-    // each part on the curve against the league (players with games only), then the overall from all four
+    // each part against the league (players with games only): how far from the average, in the league's spread
     const graded = cards.filter((c) => c.games);
     const z = (f) => {
       const vs = graded.map(f), m = vs.reduce((t, v) => t + v, 0) / (vs.length || 1);
@@ -256,19 +255,13 @@
     };
     const parts = [["firepower", z((c) => c.firepower.perGame)], ["bulk", z((c) => c.bulk.perGame)],
       ["peaks", z((c) => (c.peaks.of ? c.peaks.count / c.peaks.of : 0))], ["even", z((c) => -c.even.spread)]];
-    /** [card, letter, place] best first on the curve; a tie shares the better letter and place. */
-    const onCurve = (score) => {
-      const sorted = [...graded].sort((a, b) => score(b) - score(a) || a.name.localeCompare(b.name));
-      const letters = curve(sorted.length), out = [];
-      sorted.forEach((c, i) => {
-        const prev = out[i - 1];
-        out.push(prev && score(prev[0]) === score(c) ? [c, prev[1], prev[2]] : [c, letters[i], i + 1]);
-      });
-      return out;
-    };
-    for (const [part, zf] of parts) for (const [c, g] of onCurve(zf)) c[part].grade = g;
-    for (const c of graded) c.score = round1(parts.reduce((t, [, zf]) => t + zf(c), 0) / parts.length);
-    const out = onCurve((c) => c.score).map(([c, g, place]) => Object.assign(c, { grade: g, place }));
+    for (const [part, zf] of parts) for (const c of graded) c[part].grade = letterFor(zf(c));
+    // overall: the four parts' average, put back on the league's spread so it reads like each part
+    const overall = z((c) => parts.reduce((t, [, zf]) => t + zf(c), 0) / parts.length);
+    for (const c of graded) Object.assign(c, { score: overall(c), grade: letterFor(overall(c)) });
+    // places: a tie shares the better one
+    const out = [...graded].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+    out.forEach((c, i) => { c.place = i && out[i - 1].score === c.score ? out[i - 1].place : i + 1; });
     for (const c of cards) {
       if (c.games) continue;
       Object.assign(c, { score: null, grade: "", place: null });
@@ -393,7 +386,7 @@
   // the formats whose bet lines are worked out (docs/BETTING_PROPS.md); a league of another format shows no bets
   const BET_FORMATS = ["gen9nationaldex"];
 
-  const Bet = { SCORING, PROPS, BET_FORMATS, CARD_FORMATS, weeklyBets, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy, curve, reportCards };
+  const Bet = { SCORING, PROPS, BET_FORMATS, CARD_FORMATS, weeklyBets, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy, letterFor, reportCards };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);
