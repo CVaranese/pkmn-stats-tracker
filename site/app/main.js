@@ -93,11 +93,15 @@ async function run(again) {
     await addMockSheets(ids);
     await applySheets(rs, errors);
     const data = await applyLuck(rs, errors);
-    // reads and misplays (Plays.analyze), the game's, on each of its rows (not exported)
-    for (const replay of results) {
-      if (!replay) continue;
-      const plays = Plays.analyze(replay.log, data);
-      for (const r of rs) if (r.replay_id === replay.id) r.plays = plays;
+    // reads and misplays (Plays.analyze), on the rows (not exported): shown only with one game, so worked out only then
+    const loaded = results.filter(Boolean);
+    if (loaded.length === 1) {
+      try {
+        const plays = Plays.analyze(loaded[0].log, data);
+        for (const r of rs) r.plays = plays;
+      } catch (e) {
+        errors.push(`${loaded[0].id}: could not find the reads and misplays (${e.message || e})`);
+      }
     }
     if (stale()) return;
     megaNames(rs);

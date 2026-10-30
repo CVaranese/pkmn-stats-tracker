@@ -84,8 +84,8 @@
     const boosts = {};          // position -> { atk: 2, ... } as the log shows them
     const last = {};            // position -> { move, failed }: the move an Encore would lock
     const encore = {}, taunt = {}, trick = {}, pursued = {}, perish = {}, hung = {};
+    const hit = {};             // position -> true once the current move's own damage took it to 0 (not sand, poison...)
     let bond = null;            // a Destiny Bond that went off: { side, mon }, until the attacker's faint
-    let singer = null;          // the latest Perish Song: { side, mon }
     const show = (ident, ability) => (seen[monId(ident)] = seen[monId(ident)] || new Set()).add(toID(ability));
     const typesOf = (species) => {
       const d = data && data.dex && (data.dex[toID(species)] || null);
@@ -99,7 +99,7 @@
       const fromAb = /^\[from\] ability: (.+)$/.exec(tags.find((t) => t.startsWith("[from] ability:")) || "");
       if (cmd === "-ability") show(p[2], p[3]);
       brilliantLine(cmd, p, tags);
-      if (cmd === "player" && p[2] && p[3]) out[p[2]].name = p[3];
+      if (cmd === "player" && out[p[2]] && p[3]) out[p[2]].name = p[3];  // p3 / p4 (free-for-all) have no counts
       else if (cmd === "turn") { turn = Number(p[2]); inTurn = true; switchedIn = new Set(); ctx = null; }
       else if (cmd === "upkeep") { inTurn = false; ctx = null; }
       else if (cmd === "switch" || cmd === "drag" || cmd === "replace") {
@@ -154,7 +154,7 @@
       const at = pos(p[2]);
       const onFoe = !!(ctx && at && sideOf(p[2]) !== ctx.side);  // the line is about a foe of the current move's user
       const mv = ctx ? toID(ctx.move) : "";
-      const gone = (q) => { for (const w of [encore, trick, taunt, pursued, perish, hung, last]) delete w[q]; };
+      const gone = (q) => { for (const w of [encore, trick, taunt, pursued, perish, hung, last, hit]) delete w[q]; };
       if (cmd === "move") {
         const e = encore[at], t = trick[at];
         if (e) {
@@ -166,7 +166,10 @@
           if (isStatus(p[3])) brilliant(t.side, "trick", t.mon, `${t.mon}'s ${t.move} gave ${speciesAt(p[2])} ${t.item}, and it then used ${p[3]}`);
         }
         last[at] = { move: p[3], failed: false };
-        if (toID(p[3]) === "perishsong") singer = { side: sideOf(p[2]), mon: speciesAt(p[2]) };
+        // Perish Song starts a count on each Pokémon on the field that hasn't one yet: whose song it is goes with it
+        if (toID(p[3]) === "perishsong")
+          for (const q of Object.keys(active)) if (!perish[q]) perish[q] = { side: sideOf(p[2]), mon: speciesAt(p[2]), due: false };
+        for (const q of Object.keys(hit)) delete hit[q];
       } else if (cmd === "-fail" && ctx && at === ctx.at && last[at]) {
         last[at].failed = true;
       } else if (cmd === "switch" || cmd === "drag") {
@@ -218,7 +221,9 @@
       } else if (cmd === "-activate" && p[3] === "move: Destiny Bond") {
         bond = { side: sideOf(p[2]), mon: speciesAt(p[2]) };
       } else if (cmd === "-start" && p[3] === "perish0") {
-        perish[at] = true;
+        if (perish[at]) perish[at].due = true;
+      } else if (cmd === "-damage" && onFoe && /^0 fnt/.test(p[3] || "") && !tags.some((x) => x.startsWith("[from]"))) {
+        hit[at] = true;
       } else if (!tags.some((x) => x.startsWith("[from]")) &&  // not a Sash knocked off, not Sturdy copied by Trace
                  ((cmd === "-enditem" && p[3] === "Focus Sash") || (cmd === "-end" && p[3] === "item: Focus Sash") ||
                   (cmd === "-activate" && p[3] === "ability: Sturdy") || (cmd === "-ability" && p[3] === "Sturdy"))) {
@@ -226,8 +231,9 @@
       } else if (cmd === "faint") {
         const foe = speciesAt(p[2]), side = sideOf(p[2]);
         if (bond && bond.side !== side) { brilliant(bond.side, "destinybond", bond.mon, `${bond.mon}'s Destiny Bond took ${foe} down with it`); bond = null; }
-        if (perish[at] && singer && singer.side !== side) brilliant(singer.side, "perishsong", singer.mon, `${foe} fainted to ${singer.mon}'s Perish Song`);
-        if (onFoe) {
+        const ps = perish[at];
+        if (ps && ps.due && ps.side !== side) brilliant(ps.side, "perishsong", ps.mon, `${foe} fainted to ${ps.mon}'s Perish Song`);
+        if (onFoe && hit[at]) {  // KO'd by the move itself
           if (COUNTERS.has(mv)) brilliant(ctx.side, "counter", ctx.mon, `${ctx.mon}'s ${ctx.move} KO'd ${foe}`);
           if (mv === "pursuit" && pursued[at]) brilliant(ctx.side, "pursuit", ctx.mon, `${ctx.mon}'s Pursuit KO'd ${foe} as it switched out`);
           const h = hung[ctx.at];

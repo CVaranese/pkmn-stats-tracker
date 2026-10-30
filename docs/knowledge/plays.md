@@ -50,7 +50,9 @@ Main viewer before deciding to keep or remove it. No engine and no damage calc.
   Throw takes away +2 or more (raised stages added up: Dragon Dance's +1 / +1 is +2); Trick / Switcheroo puts a Choice
   item on a foe whose next action is a status move or a switch (an attack first ends it); a foe faints to Perish Song; a
   Pokémon that lived on Focus Sash / Sturdy KOs a foe with its own move before it faints or leaves. Priority KOs are left
-  out. Status moves come from Showdown's move data: without it, Encore counts only a failed move, Trick only a switch.
+  out. A KO is the move's own `-damage|<foe>|0 fnt` (no `[from]`), so a faint to sand or poison at the end of the turn
+  isn't the last move's. Perish Song: the count is the singer's who started it (a second song doesn't restart it).
+  Status moves come from Showdown's move data: without it, Encore counts only a failed move, Trick only a switch.
   A brilliant play is good: true but counted apart from good reads.
 
 ## Known gaps (guess)

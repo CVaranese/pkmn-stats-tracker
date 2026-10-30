@@ -1961,6 +1961,10 @@ ${switchIn}`).hiddenZoroark;
         "|move|p1a: A|Shadow Ball|p2a: B\n|-damage|p2a: B|50/100\n" + T(2) + "|move|p2a: B|Earthquake|p1a: A\n" + ko("p1a: A") +
         "|switch|p1a: D|Weavile|100/100\n" + T(3) + "|move|p2a: B|Knock Off|p1a: D\n|-enditem|p1a: D|Focus Sash|[from] move: Knock Off|[of] p2a: B\n" +
         "|move|p1a: D|Ice Shard|p2a: B\n" + ko("p2a: B"), []],
+      ["Focus Sash or Mirror Coat, then the foe faints to sand, not the move", "|move|p2a: B|Earthquake|p1a: A\n|-enditem|p1a: A|Focus Sash\n|-damage|p1a: A|1/100\n" +
+        "|move|p1a: A|Mirror Coat|p2a: B\n|-damage|p2a: B|5/100\n|-weather|Sandstorm|[upkeep]\n|-damage|p2a: B|0 fnt|[from] Sandstorm\n|faint|p2a: B\n", []],
+      ["Both sides sing: the foe's count is the first singer's", "|move|p1a: A|Perish Song|p1a: A\n|-fieldstart|move: Perish Song\n" + T(2) +
+        "|switch|p1a: D|Weavile|100/100\n|move|p2a: B|Perish Song|p2a: B\n" + T(3) + T(4) + "|-start|p2a: B|perish0\n|faint|p2a: B\n", ["perishsong p1 Gengar"]],
     ];
     const wrong = [];
     for (const [name, body, want] of cases) {
@@ -1973,6 +1977,9 @@ ${switchIn}`).hiddenZoroark;
       "|move|p2a: B|Sucker Punch|p1a: A\n|-fail|p2a: B\n" + T(4) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + T(5) +
       "|move|p2a: B|Sucker Punch|p1a: A\n|-fail|p2a: B\n|upkeep\n|win|Bob").events.filter((e) => e.brilliant).map((e) => e.turn + " " + e.kind);
     check("plays: with no move data, Encore counts on a move that failed only", same(nod, ["5 encore"]), JSON.stringify(nod));
+    let ffa = null;
+    try { ffa = Plays.analyze("|player|p1|Alice|\n|player|p3|Cy|\n|turn|1\n").p1.name; } catch (e) { ffa = String(e); }
+    check("plays: a third player's line (free-for-all) doesn't throw", ffa === "Alice", ffa);
   }
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
   const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],
