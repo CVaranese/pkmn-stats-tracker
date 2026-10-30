@@ -2,6 +2,7 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Draft report cards (branch `report-cards`): Draft tab, under a player's name. Checked dark (Pinecord), light (Super Champions) and 360px. Do the grades feel right? Pinecord comes out close to the standings (chicken parm karm A, weedinmyhonda F); in Super Champions, Kirbyhat gets an A on +1.0 a game (deep, little waste) while Aargab gets a C on +2.0 a game with 13 draft points never brought: the weights (value ×2, depth, waste) can be tuned. Walls and pivots read as busts (fantasy points score KOs and damage: Landorus-T 2.3 points in 8 games).
 - [ ] Weekly bets, review fixes (branch `review-fixes`): on `/next/` Gambling, the latest week says "n of 6 games counted"; with all 6 in, every bet has a result. A week still being played shows "x so far" / "Not yet" until a bet can't change. The block is now drawn by `app/bets.js`: does it look as before (heading, hint, Week picker, cards)?
 - [ ] Weekly bets (branch `bet-draw`, preview only): on `/next/` Gambling, under the Under construction box, six bets for the picked week. On the live site the block must stay hidden (it shows only when the address has `/next/` or on 127.0.0.1): check once after a release. Do the lines look fair (Week 8: KOs 50.5, came in at 50)? Player names in the results are Showdown names, not draft names. `docs/BETTING_PROPS.md`: the pool with the new kinds (season predictions, bracket, featured game, running totals); which next?
 
