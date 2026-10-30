@@ -157,6 +157,10 @@
     check("setSlots: a set with no replay and no game number: every slot missing, winners not known",
       c.unknownSet && c.slots.length === 3 && c.slots.every((sl) => sl.kind === "missing") && c.unknown === 3 && c.score.winner === "",
       JSON.stringify(c));
+    const d = slots({ players: ["Dox", "Leaf"], games: [g("x", "Leaf")], missing: [{ game: null, winner: "leaf" }] });
+    check("setSlots: a missing game with no number still counts its known winner",
+      d.slots[0].game && d.slots[1].kind === "missing" && d.slots[1].winner === "leaf" && same(d.score.wins, [0, 2]) &&
+      d.score.winner === "Leaf", JSON.stringify(d));
   }
   {
     // standings (playoff seeding builds on them): a league that plays sets, then one that counts games
@@ -597,6 +601,21 @@
     check("bets: the same draw every time for a league and week, 6 different bets, another week another draw",
       same(d1.map((b) => b.id), d2.map((b) => b.id)) && new Set(d1.map((b) => b.id)).size === 6 &&
       !same(d1.map((b) => b.id), d3.map((b) => b.id)), JSON.stringify([d1.map((b) => b.id), d3.map((b) => b.id)]));
+    // Week 2 of 3 planned games: the line is for 3 (4 a game: 12.5); 9 crits so far isn't Under yet; a Yes is final
+    const part = (id) => {
+      const keep = B.PROPS, p = keep.find((x) => x.id === id), saved = keep.splice(0, keep.length, p);
+      try { return B.weeklyBets("t", "Week 2", weeks, 1, { "Week 2": 3 })[0]; } finally { keep.splice(0, keep.length, ...saved); }
+    };
+    const pc = part("crits"), pk = part("fourko"), pn = part("kobm1");
+    check("bets: before the week's games are all in, the line is for the whole week and only a sure result settles",
+      pc.line === 12.5 && pc.result.outcome === null && !pc.result.final && pc.result.value === 9 &&
+      pk.result.outcome === "Yes" && pk.result.final && pn.result.outcome === null, JSON.stringify([pc, pk, pn]));
+    // a win with one Pokémon left: standing at the end, a revived one counts (fainted once, survived)
+    const lm = B.PROPS.find((x) => x.id === "lastmon");
+    const side = (o) => ({ player: "A", opponent: "B", won: 1, end_reason: "normal", brought: 1, ...o });
+    check("bets: one Pokémon left counts those standing, a Revival Blessing one included",
+      lm.find([[side({ deaths: 1, survived: 1 }), side({ deaths: 0, survived: 1 }), side({ deaths: 1, survived: 0 })]]) === null &&
+      lm.find([[side({ deaths: 1, survived: 0 }), side({ deaths: 0, survived: 1 })]]) === "A over B");
   }
   // ---- weekly awards (League.awards) ----
   {
@@ -1561,20 +1580,17 @@ ${switchIn}`).hiddenZoroark;
       JSON.stringify(m));
   }
 
-  // ---- gameRows takes the caller's plain parse (prepareIllusion) once, and only with no Zoroark picks ----
+  // ---- gameRows takes the caller's plain parse (prepareIllusion's), only with no Zoroark picks ----
   {
     const log = "|poke|p1|Pelipper|\n|poke|p2|Garchomp|\n" + lhead() + "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|60/100\n|win|Alice";
     const replay = { id: "test-parsed", log };
     const plain = RS.parseBattle(log);
     plain.turns = 99;  // marked: rows from this parse say 99 turns
-    Object.defineProperty(replay, "parsed", { value: plain, configurable: true, writable: true });
     const turnsOf = (rs) => rs[0].turns;
-    const first = RS.gameRows(replay), second = RS.gameRows(replay);
-    check("gameRows: uses replay.parsed once, then reads the log", "parsed" in replay === false &&
-      turnsOf(first) === 99 && turnsOf(second) === 1, `${turnsOf(first)} ${turnsOf(second)}`);
+    check("gameRows: uses the parse it's given, else reads the log", turnsOf(RS.gameRows(replay, plain)) === 99 &&
+      turnsOf(RS.gameRows(replay)) === 1 && !("parsed" in replay), `${turnsOf(RS.gameRows(replay, plain))} ${turnsOf(RS.gameRows(replay))}`);
     const picked = { id: "test-parsed", log, illusion: { p1: [1] } };
-    Object.defineProperty(picked, "parsed", { value: plain, configurable: true, writable: true });
-    check("gameRows: with Zoroark picks the log is read again", turnsOf(RS.gameRows(picked)) !== 99);
+    check("gameRows: with Zoroark picks the log is read again", turnsOf(RS.gameRows(picked, plain)) !== 99);
   }
 
   // ---- survival, Mega Evolution, Z-moves ----
@@ -1793,6 +1809,12 @@ ${switchIn}`).hiddenZoroark;
       "Zapdos:Traded in,Natu:Traded away,Xatu:Traded away" && cy.spent === 10, JSON.stringify(cy));
     check("draftPool: no trades, no badges; no pool, null", same(view("Dee"), { name: "Dee", spent: 0, pool: [] }) &&
       Bet.draftPool(td, "Nobody") === null && Bet.trades(td, "Dee").length === 0);
+    const typed = { ...td, players: { Eve: [{ pokemon: "Great Tusk", tier: "UU" }, { pokemon: "Glimmet", tier: "PU" }] },
+      trades: { Eve: [{ out: "great tusk", in: "GLIMMET", after: "Week 3" }] } };
+    const eve = Bet.draftPool(typed, "Eve");
+    check("draftPool: trade names match the sheet ignoring case and spaces (no extra row, the badge on the sheet's row)",
+      eve.pool.map((p) => p.entry.pokemon + ":" + (p.trade ? p.trade.label : "")).join() === "Great Tusk:Traded away,Glimmet:Traded in" &&
+      eve.spent === 3, JSON.stringify(eve.pool));
     // a traded-away Pokémon's games before the trade count for its row (the same entry draftPool lists), not as "not on the sheet"
     const cop = Bet.draftPool(td, "Ann").pool.find((p) => p.entry.pokemon === "Copperajah").entry;
     check("drafted: a traded-away Pokémon the sheet no longer lists is still theirs, as draftPool's entry",

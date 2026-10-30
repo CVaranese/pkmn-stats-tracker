@@ -73,7 +73,7 @@
     if (!byKey.has(key)) {
       const pool = (Object.entries(draft.players || {}).find(([p]) => toID(p) === key) || [, []])[1];
       const out = [...new Set(trades(draft, key).flatMap((t) => t.out))];
-      byKey.set(key, out.filter((m) => !pool.some((d) => d.pokemon === m)).map((pokemon) => ({ pokemon, tier: null })));
+      byKey.set(key, out.filter((m) => !pool.some((d) => toID(d.pokemon) === toID(m))).map((pokemon) => ({ pokemon, tier: null })));
     }
     return byKey.get(key);
   }
@@ -89,11 +89,13 @@
     if (!entry) return null;
     const ts = trades(draft, key);
     const list = (names) => (names.length ? names.join(", ") : "(not known yet)");
+    // names as typed in the trades may differ from the sheet's in case and spacing
+    const has = (names, mon) => names.some((x) => toID(x) === toID(mon));
     const tradeOf = (mon) => {
       let got = null;
       for (const t of ts) {
-        if (t.out.includes(mon)) got = { label: "Traded away", title: `Traded for ${list(t.in)} after ${t.after}`, away: true };
-        else if (t.in.includes(mon)) got = { label: "Traded in", title: `Came in for ${list(t.out)} after ${t.after}`, away: false };
+        if (has(t.out, mon)) got = { label: "Traded away", title: `Traded for ${list(t.in)} after ${t.after}`, away: true };
+        else if (has(t.in, mon)) got = { label: "Traded in", title: `Came in for ${list(t.out)} after ${t.after}`, away: false };
       }
       return got;
     };
@@ -191,18 +193,16 @@
     { id: "timer", kind: "yn", text: "Someone turns the battle timer on", find: anyRow((r) => r.timer_on, (r) => r.player) },
     { id: "sixzero", kind: "yn", text: "A 6–0: the winner loses no Pokémon",
       find: anyRow((r, rs) => r.won && r.end_reason === "normal" && sumOf(team(rs, r), "deaths") === 0, (r) => `${r.player} over ${r.opponent}`) },
+    // standing at the end, not brought minus faints: one Revival Blessing brought back counts as left
     { id: "lastmon", kind: "yn", text: "A win with only one Pokémon left",
       find: anyRow((r, rs) => r.won && r.end_reason === "normal" &&
-        team(rs, r).filter((x) => x.brought).length - sumOf(team(rs, r), "deaths") === 1, (r) => `${r.player} over ${r.opponent}`) },
+        team(rs, r).filter((x) => x.brought && x.survived).length === 1, (r) => `${r.player} over ${r.opponent}`) },
     { id: "comeback", kind: "yn", text: "A comeback from 30% or more behind on team HP",
       find: anyRow((r) => r.won && comebackGap(r) >= 30, (r) => `${r.player}, from ${Math.round(comebackGap(r))}% behind`) },
   ];
   function sumOf(rs, f) { return rs.reduce((t, r) => t + (typeof r[f] === "number" ? r[f] : 0), 0); }
-  /** How far behind on team HP share the winner was at its worst turn end (0 if never behind). */
-  function comebackGap(r) {
-    const o = r.side === "p1" ? "p2" : "p1";
-    return Math.max(0, ...(r.momentum || []).map((pt) => pt[o].hp - pt[r.side].hp));
-  }
+  /** How far behind on team HP share the winner was at its worst turn end (0 if never behind): League.comeback. */
+  const comebackGap = (r) => (root.League || require("./league.js")).comeback(r).gap;
   /** A number from text (FNV-1a), then a small seeded random (mulberry32): the same draw for everyone. */
   function seeded(text) {
     let h = 2166136261;
@@ -218,9 +218,11 @@
   }
   /** The week's bets: n drawn from PROPS by seed (league id + week), in the order drawn. weeks: { week: [game rows of
       each game] } for the whole league; lines from the earlier weeks (any other week when there are none: week 1),
-      per game, times this week's games, rounded to the half below (x.5: no push). Each: { id, kind, text, line,
-      result: { value, outcome: "Over" | "Under" | "Yes" | "No", detail } (null until the week has games) }. */
-  function weeklyBets(seed, week, weeks, n = 6) {
+      per game, times the games the week has (planned: { week: how many }, else the games in weeks), rounded to the
+      half below (x.5: no push). Each: { id, kind, text, line, result: { value, outcome: "Over" | "Under" | "Yes" |
+      "No" | null, detail, final } (null until the week has games) }. Before all the week's games are in, a bet
+      settles only when no later game can change it (Over passed, a Yes found): else outcome null, final false. */
+  function weeklyBets(seed, week, weeks, n = 6, planned = {}) {
     const rand = seeded(seed + "|" + week);
     const pool = PROPS.slice();
     const picked = [];
@@ -230,19 +232,24 @@
     const earlier = names.slice(0, Math.max(0, at)).filter((w) => weeks[w].length);
     const base = earlier.length ? earlier : names.filter((w) => w !== week && weeks[w].length);
     const games = weeks[week] || [];
+    const due = Math.max(games.length, planned[week] || 0);
+    const complete = games.length >= due;
     return picked.map((p) => {
       const bet = { id: p.id, kind: p.kind, text: p.text, line: null, result: null };
       if (p.kind === "ou") {
         const past = base.flatMap((w) => weeks[w]);
         const perGame = past.length ? past.reduce((t, rs) => t + p.count(rs), 0) / past.length : 0;
-        bet.line = Math.floor(perGame * Math.max(1, games.length)) + 0.5;
+        bet.line = Math.floor(perGame * Math.max(1, due)) + 0.5;
         if (games.length) {
+          // counts only go up: Over is final at once, Under once every game is in
           const value = games.reduce((t, rs) => t + p.count(rs), 0);
-          bet.result = { value, outcome: value > bet.line ? "Over" : "Under", detail: String(value) };
+          const outcome = value > bet.line ? "Over" : complete ? "Under" : null;
+          bet.result = { value, outcome, detail: String(value), final: !!outcome };
         }
       } else if (games.length) {
         const hit = p.find(games);
-        bet.result = { value: hit ? 1 : 0, outcome: hit ? "Yes" : "No", detail: hit || "" };
+        const outcome = hit ? "Yes" : complete ? "No" : null;
+        bet.result = { value: hit ? 1 : 0, outcome, detail: hit || "", final: !!outcome };
       }
       return bet;
     });

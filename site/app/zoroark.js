@@ -14,15 +14,14 @@ function savePicks(id, side, ns) {
   if (ns === null) { if (all[id]) delete all[id][side]; } else all[id] = { ...(all[id] || {}), [side]: ns };
   try { localStorage.setItem(PICKS_KEY, JSON.stringify(all)); } catch (e) { /* private window: this page view only */ }
 }
-/** Sets replay.illusion (what gameRows counts as Zoroark) and replay.zoroarks (for the notice). */
+/** Sets replay.illusion (what gameRows counts as Zoroark) and replay.zoroarks (for the notice). Returns the parse it
+    made (no picks), for RS.gameRows to take instead of reading the log again; nothing when it had already run. */
 async function prepareIllusion(replay) {
-  if (!replay || replay.zoroarks) return;
+  if (!replay || replay.zoroarks) return null;
   const b = RS.parseBattle(replay.log);
-  // gameRows takes this parse instead of reading the log again (not enumerable: not saved with the replay)
-  Object.defineProperty(replay, "parsed", { value: b, configurable: true, writable: true });
   replay.zoroarks = {};
   delete replay.illusionNote;
-  if (!Illusion.hiddenSides(b).length) return;
+  if (!Illusion.hiddenSides(b).length) return b;
   let learn = null, dex = null;
   try { [learn, dex] = await Promise.all([Illusion.loadLearnsets(), TS.loadDex()]); } catch (e) {
     replay.illusionNote = `the move / Pokédex data for the hidden Zoroark check didn't load (${e.message || e}), so fewer stays are ruled out`;
@@ -35,6 +34,7 @@ async function prepareIllusion(replay) {
     const from = side in mine ? "you" : side in lib ? "library" : "proven";
     replay.zoroarks[side] = { ...a, player: b.players[side] || side, from };
   }
+  return b;
 }
 /** Change one side's picks and count the game again. */
 function pickZoroark(replay, side, ns) {
