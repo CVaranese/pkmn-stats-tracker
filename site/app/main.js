@@ -165,11 +165,13 @@ function renderTeams() {
 /** Reads and misplays (Plays.analyze): each player's count, then every one by turn. A trial (user 2026-10-29: checked
     by hand before it stays). */
 function playsList(pl) {
-  const count = (s) => `${pl[s].name}: ${pl[s].good} good read${pl[s].good === 1 ? "" : "s"}, ${pl[s].bad} misplay${pl[s].bad === 1 ? "" : "s"}`;
+  const count = (s) => `${pl[s].name}: ${pl[s].good} good read${pl[s].good === 1 ? "" : "s"}, ` +
+    `${pl[s].brilliant} brilliant play${pl[s].brilliant === 1 ? "" : "s"}, ${pl[s].bad} misplay${pl[s].bad === 1 ? "" : "s"}`;
   const list = el("ol", "moments");
   for (const e of pl.events) {
+    // a brilliant play is told apart by its label; its border is a good read's
     const li = el("li", e.good ? "lucky" : "unlucky");
-    li.append(el("span", "moment-turn", "Turn " + e.turn), el("span", "moment-who", e.good ? "Good read" : "Misplay"),
+    li.append(el("span", "moment-turn", "Turn " + e.turn), el("span", "moment-who", e.brilliant ? "Brilliant" : e.good ? "Good read" : "Misplay"),
       el("span", "muted", ` (${pl[e.side].name})`), " " + e.text);
     list.appendChild(li);
   }
@@ -177,6 +179,8 @@ function playsList(pl) {
   wrap.append(el("h3", "", "Reads and misplays"), el("p", "", count("p1") + " · " + count("p2")),
     el("p", "hint", "From the log alone: switching in on a hit that does nothing or is resisted, or that's super effective; " +
       "hitting the Pokémon switching in harder than the one leaving; a move into something it can't affect; a move that fails. " +
+      "Brilliant: a rare play that paid off in the log (Destiny Bond, Counter, Pursuit on a switch, Encore, Taunt, Haze or " +
+      "phazing away boosts, Trick with a Choice item, Perish Song, a KO after Focus Sash or Sturdy). " +
       "It can't tell a deliberate sacrifice or a double switch from a mistake."),
     pl.events.length ? list : el("p", "muted", "None found in this game."));
   return wrap;

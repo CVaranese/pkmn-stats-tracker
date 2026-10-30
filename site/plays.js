@@ -5,6 +5,11 @@
  *   bad:  a switch in on a super-effective hit; an attack or status move into a Pokémon already on the field that it
  *         can't affect (types, or an ability already seen); a move that fails (Sucker Punch into a status move, a second
  *         Protect in a row, Fake Out after the first turn, status on something already statused)
+ *   brilliant: an unexpected or narrow play whose payoff the log shows: Destiny Bond takes the attacker down; Counter /
+ *         Mirror Coat / Metal Burst KOs; Pursuit KOs the Pokémon switching out; Encore locks a status move (or one that
+ *         failed) and the foe switches or uses it again; Taunt stops a status move; Haze / Clear Smog / a phazing move
+ *         takes away +2 or more; Trick / Switcheroo puts a Choice item on a foe whose next action is a status move or a
+ *         switch; a foe faints to Perish Song; a Pokémon that lived on Focus Sash / Sturdy KOs a foe before it goes down
  * No DOM. Exposes window.Plays (browser) or module.exports (Node).
  */
 (function (root) {
@@ -44,11 +49,18 @@
   }
   // a -fail that isn't the mover's mistake: a stat drop blocked by the target's ability (Clear Body against Parting Shot)
   const NOT_MISTAKE = new Set(["unboost"]);
+  const COUNTERS = new Set(["counter", "mirrorcoat", "metalburst", "comeuppance"]);
+  const PHAZE = new Set(["roar", "whirlwind", "dragontail", "circlethrow"]);
+  const TRICK = new Set(["trick", "switcheroo"]);
+  /** Boosts for a brilliant Haze or phaze: the raised stats' stages added up (+2 or more counts). */
+  const raised = (b) => Object.values(b || {}).reduce((a, v) => a + Math.max(0, v), 0);
 
-  /** The game's reads and misplays: { events: [{ turn, side ("p1" / "p2"), good, kind, mon, text }], p1 / p2: { name,
-      good, bad } }. log: the replay's log; data: { moves, dex } (Showdown's), optional: without it, no predicted switches. */
+  /** The game's reads and misplays: { events: [{ turn, side ("p1" / "p2"), good, brilliant, kind, mon, text }], p1 / p2:
+      { name, good, bad, brilliant } } (a brilliant play is good: true and counted in brilliant, not good). log: the
+      replay's log; data: { moves, dex } (Showdown's), optional: without it, no predicted switches, and Encore / Trick
+      count only a locked move that had failed / a switch (status moves need the move data). */
   function analyze(log, data = null) {
-    const out = { events: [], p1: { name: "", good: 0, bad: 0 }, p2: { name: "", good: 0, bad: 0 } };
+    const out = { events: [], p1: { name: "", good: 0, bad: 0, brilliant: 0 }, p2: { name: "", good: 0, bad: 0, brilliant: 0 } };
     const active = {};          // position (p1a) -> { species, nick }
     const left = {};            // position -> the species that switched out this turn, for a predicted switch
     let switchedIn = new Set(); // positions whose Pokémon switched in this turn (by choice: not a lead or a replacement)
@@ -63,6 +75,17 @@
       out.events.push({ turn, side, good, kind, mon, text });
       out[side][good ? "good" : "bad"]++;
     };
+    const brilliant = (side, kind, mon, text) => {
+      out.events.push({ turn, side, good: true, brilliant: true, kind, mon, text });
+      out[side].brilliant++;
+    };
+    const isStatus = (move) => { const m = data && data.moves && data.moves[toID(move)]; return !!m && m.category === "Status"; };
+    // brilliant plays waiting on their payoff, by the position of the foe they act on (the survivor's, for a Sash)
+    const boosts = {};          // position -> { atk: 2, ... } as the log shows them
+    const last = {};            // position -> { move, failed }: the move an Encore would lock
+    const encore = {}, taunt = {}, trick = {}, pursued = {}, perish = {}, hung = {};
+    let bond = null;            // a Destiny Bond that went off: { side, mon }, until the attacker's faint
+    let singer = null;          // the latest Perish Song: { side, mon }
     const show = (ident, ability) => (seen[monId(ident)] = seen[monId(ident)] || new Set()).add(toID(ability));
     const typesOf = (species) => {
       const d = data && data.dex && (data.dex[toID(species)] || null);
@@ -75,6 +98,7 @@
       // abilities shown: [from] ability: X [of] mon, or -ability
       const fromAb = /^\[from\] ability: (.+)$/.exec(tags.find((t) => t.startsWith("[from] ability:")) || "");
       if (cmd === "-ability") show(p[2], p[3]);
+      brilliantLine(cmd, p, tags);
       if (cmd === "player" && p[2] && p[3]) out[p[2]].name = p[3];
       else if (cmd === "turn") { turn = Number(p[2]); inTurn = true; switchedIn = new Set(); ctx = null; }
       else if (cmd === "upkeep") { inTurn = false; ctx = null; }
@@ -89,7 +113,7 @@
       } else if (cmd === "move") {
         // a move the player didn't pick this turn (locked into Outrage, called by another move, Encore) or with no target
         const chosen = !tags.some((t) => t.startsWith("[from]") || t === "[notarget]") && !encored.has(pos(p[2]));
-        ctx = { side: sideOf(p[2]), mon: speciesAt(p[2]), move: p[3], target: pos(p[4]), chosen, done: false };
+        ctx = { side: sideOf(p[2]), at: pos(p[2]), mon: speciesAt(p[2]), move: p[3], target: pos(p[4]), chosen, done: false };
       } else if (ctx && !ctx.done && ctx.chosen && inTurn) {
         const target = pos(p[2]);
         const foe = target && sideOf(p[2]) !== ctx.side;
@@ -123,6 +147,99 @@
       if (cmd === "-activate" && /^ability: /.test(p[3] || "")) show(p[2], p[3].slice(9));
     }
     return out;
+
+    /** One log line's part in a brilliant play: the play (kept until its payoff) or the payoff. Runs before the line
+        changes who is on the field, so a drag or a switch still sees the Pokémon that leaves. */
+    function brilliantLine(cmd, p, tags) {
+      const at = pos(p[2]);
+      const onFoe = !!(ctx && at && sideOf(p[2]) !== ctx.side);  // the line is about a foe of the current move's user
+      const mv = ctx ? toID(ctx.move) : "";
+      const gone = (q) => { for (const w of [encore, trick, taunt, pursued, perish, hung, last]) delete w[q]; };
+      if (cmd === "move") {
+        const e = encore[at], t = trick[at];
+        if (e) {
+          delete encore[at];
+          if (toID(p[3]) === toID(e.move)) brilliant(e.side, "encore", e.mon, `${e.mon}'s Encore locked ${speciesAt(p[2])} into ${e.move}, and it used it again`);
+        }
+        if (t && !tags.some((x) => x.startsWith("[from]"))) {
+          delete trick[at];
+          if (isStatus(p[3])) brilliant(t.side, "trick", t.mon, `${t.mon}'s ${t.move} gave ${speciesAt(p[2])} ${t.item}, and it then used ${p[3]}`);
+        }
+        last[at] = { move: p[3], failed: false };
+        if (toID(p[3]) === "perishsong") singer = { side: sideOf(p[2]), mon: speciesAt(p[2]) };
+      } else if (cmd === "-fail" && ctx && at === ctx.at && last[at]) {
+        last[at].failed = true;
+      } else if (cmd === "switch" || cmd === "drag") {
+        const e = encore[at], t = trick[at], leaving = speciesAt(p[2]);
+        if (cmd === "switch" && inTurn) {
+          if (e) brilliant(e.side, "encore", e.mon, `${e.mon}'s Encore locked ${leaving} into ${e.move}, and it switched out`);
+          if (t) brilliant(t.side, "trick", t.mon, `${t.mon}'s ${t.move} gave ${leaving} ${t.item}, and it then switched out`);
+        }
+        if (cmd === "drag" && onFoe && PHAZE.has(mv) && raised(boosts[at]) >= 2)
+          brilliant(ctx.side, "phaze", ctx.mon, `${ctx.mon}'s ${ctx.move} forced out ${leaving} at +${raised(boosts[at])}`);
+        // Baton Pass hands its boosts on; any other way in starts from none
+        if (!(cmd === "switch" && ctx && mv === "batonpass" && ctx.at === at)) delete boosts[at];
+        gone(at);
+      } else if (cmd === "-boost" || cmd === "-unboost") {
+        const b = (boosts[at] = boosts[at] || {});
+        b[p[3]] = Math.max(-6, Math.min(6, (b[p[3]] || 0) + (cmd === "-boost" ? 1 : -1) * Number(p[4] || 0)));
+      } else if (cmd === "-setboost") {
+        (boosts[at] = boosts[at] || {})[p[3]] = Number(p[4] || 0);
+      } else if (cmd === "-clearallboost") {
+        if (ctx) for (const q of Object.keys(boosts))
+          if (q.slice(0, 2) !== ctx.side && raised(boosts[q]) >= 2)
+            brilliant(ctx.side, "haze", ctx.mon, `${ctx.mon}'s ${ctx.move} wiped ${speciesAt(q)}'s +${raised(boosts[q])}`);
+        for (const q of Object.keys(boosts)) delete boosts[q];
+      } else if (cmd === "-clearboost" || cmd === "-clearpositiveboost") {
+        if (onFoe && raised(boosts[at]) >= 2) brilliant(ctx.side, "haze", ctx.mon, `${ctx.mon}'s ${ctx.move} wiped ${speciesAt(p[2])}'s +${raised(boosts[at])}`);
+        if (cmd === "-clearboost") delete boosts[at];
+        else for (const k in boosts[at] || {}) boosts[at][k] = Math.min(0, boosts[at][k]);
+      } else if (cmd === "-clearnegativeboost") {
+        for (const k in boosts[at] || {}) boosts[at][k] = Math.max(0, boosts[at][k]);
+      } else if (cmd === "-copyboost" && p[3]) {
+        boosts[at] = Object.assign({}, boosts[pos(p[3])]);
+      } else if (cmd === "-start" && onFoe && /encore$/i.test(p[3] || "")) {
+        const l = last[at];
+        if (l && (l.failed || isStatus(l.move))) encore[at] = { side: ctx.side, mon: ctx.mon, move: l.move };
+      } else if (cmd === "-end" && /encore$/i.test(p[3] || "")) {
+        delete encore[at];
+      } else if (cmd === "-start" && onFoe && p[3] === "move: Taunt") {
+        taunt[at] = { side: ctx.side, mon: ctx.mon };
+      } else if (cmd === "-end" && p[3] === "move: Taunt") {
+        delete taunt[at];
+      } else if (cmd === "cant" && p[3] === "move: Taunt" && taunt[at]) {
+        const t = taunt[at];
+        delete taunt[at];  // one call per Taunt
+        brilliant(t.side, "taunt", t.mon, `${t.mon}'s Taunt stopped ${speciesAt(p[2])}'s ${p[4] || "status move"}`);
+      } else if (cmd === "-item" && onFoe && TRICK.has(mv) && /^Choice /.test(p[3] || "") && tags.some((x) => /^\[from\] move: (Trick|Switcheroo)$/.test(x))) {
+        trick[at] = { side: ctx.side, mon: ctx.mon, move: ctx.move, item: p[3] };
+      } else if (cmd === "-activate" && p[3] === "move: Pursuit") {
+        pursued[at] = true;
+      } else if (cmd === "-activate" && p[3] === "move: Destiny Bond") {
+        bond = { side: sideOf(p[2]), mon: speciesAt(p[2]) };
+      } else if (cmd === "-start" && p[3] === "perish0") {
+        perish[at] = true;
+      } else if (!tags.some((x) => x.startsWith("[from]")) &&  // not a Sash knocked off, not Sturdy copied by Trace
+                 ((cmd === "-enditem" && p[3] === "Focus Sash") || (cmd === "-end" && p[3] === "item: Focus Sash") ||
+                  (cmd === "-activate" && p[3] === "ability: Sturdy") || (cmd === "-ability" && p[3] === "Sturdy"))) {
+        hung[at] = { side: sideOf(p[2]), mon: speciesAt(p[2]), by: p[3].replace(/^(item|ability): /, "") };
+      } else if (cmd === "faint") {
+        const foe = speciesAt(p[2]), side = sideOf(p[2]);
+        if (bond && bond.side !== side) { brilliant(bond.side, "destinybond", bond.mon, `${bond.mon}'s Destiny Bond took ${foe} down with it`); bond = null; }
+        if (perish[at] && singer && singer.side !== side) brilliant(singer.side, "perishsong", singer.mon, `${foe} fainted to ${singer.mon}'s Perish Song`);
+        if (onFoe) {
+          if (COUNTERS.has(mv)) brilliant(ctx.side, "counter", ctx.mon, `${ctx.mon}'s ${ctx.move} KO'd ${foe}`);
+          if (mv === "pursuit" && pursued[at]) brilliant(ctx.side, "pursuit", ctx.mon, `${ctx.mon}'s Pursuit KO'd ${foe} as it switched out`);
+          const h = hung[ctx.at];
+          if (h && h.side === ctx.side) {
+            delete hung[ctx.at];  // one call per survival
+            brilliant(ctx.side, "survived", h.mon, `${h.mon} lived on its ${h.by}, then KO'd ${foe}`);
+          }
+        }
+        gone(at);
+        delete boosts[at];
+      }
+    }
   }
 
   const Plays = { CHART, effect, analyze };

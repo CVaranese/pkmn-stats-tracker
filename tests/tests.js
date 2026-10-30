@@ -1912,6 +1912,67 @@ ${switchIn}`).hiddenZoroark;
     const syn = Plays.analyze(log).events.map((e) => [e.turn, e.side, e.kind].join(" "));
     check("plays: Encore, an ability not seen yet, a replacement, a locked move and a blocked stat drop aren't counted",
       same(syn, ["3 p1 immune"]), JSON.stringify(syn));
+
+    // brilliant plays, a real game checked by hand (Week 4, Nezergy's p2): T11 Donphan (Champlin) lives on Sturdy at 1%
+    // and KOs Nidoking with Ice Spinner; T17 Iron Valiant (DeFalco) uses Destiny Bond and takes Gholdengo down with it
+    const [rb] = await Promise.all(["../site/ppppp/games/gen9nationaldex-2689027321.json"].map((u) => fetch(u).then((r) => r.json())));
+    const pb = Plays.analyze(rb.log, { dex, moves });
+    const bril = pb.events.filter((e) => e.brilliant).map((e) => [e.turn, e.side, e.kind, e.mon].join(" "));
+    check("plays: a real game's brilliant plays (Sturdy then a KO, Destiny Bond)", same(bril, ["11 p2 survived Donphan", "17 p2 destinybond Iron Valiant"]) &&
+      pb.p2.brilliant === 2 && pb.p1.brilliant === 0 && pb.events.filter((e) => e.brilliant).every((e) => e.good), JSON.stringify(pb.events.filter((e) => e.brilliant)));
+    // made up, one log per pattern: [name, turns after the leads (p1 Alice's A, p2 Bob's B, Bob's C in the back), calls]
+    const bh = "|player|p1|Alice|\n|player|p2|Bob|\n|switch|p1a: A|Gengar|100/100\n|switch|p2a: B|Garchomp|100/100\n|turn|1\n";
+    const ko = (who) => `|-damage|${who}|0 fnt\n|faint|${who}\n`;
+    const T = (n) => `|upkeep\n|turn|${n}\n`;
+    const sd = "|move|p2a: B|Swords Dance|p2a: B\n|-boost|p2a: B|atk|2\n";
+    const cases = [
+      ["Destiny Bond takes the attacker down", "|move|p1a: A|Destiny Bond|p1a: A\n|move|p2a: B|Earthquake|p1a: A\n" + ko("p1a: A") +
+        "|-activate|p1a: A|move: Destiny Bond\n|faint|p2a: B\n", ["destinybond p1 Gengar"]],
+      ["Destiny Bond the attacker lives through", "|move|p1a: A|Destiny Bond|p1a: A\n|move|p2a: B|Earthquake|p1a: A\n|-damage|p1a: A|20/100\n", []],
+      ["Counter KOs", "|move|p2a: B|Shadow Ball|p1a: A\n|-damage|p1a: A|50/100\n|move|p1a: A|Mirror Coat|p2a: B\n" + ko("p2a: B"), ["counter p1 Gengar"]],
+      ["Counter that doesn't KO", "|move|p2a: B|Shadow Ball|p1a: A\n|-damage|p1a: A|50/100\n|move|p1a: A|Mirror Coat|p2a: B\n|-damage|p2a: B|10/100\n", []],
+      ["Pursuit KOs a switch", "|-activate|p2a: B|move: Pursuit\n|move|p1a: A|Pursuit|p2a: B|[from] move: Pursuit\n" + ko("p2a: B"), ["pursuit p1 Gengar"]],
+      ["Pursuit KOs a Pokémon staying in", "|move|p1a: A|Pursuit|p2a: B\n" + ko("p2a: B"), []],
+      ["Encore on a setup move, used again", sd + T(2) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + sd, ["encore p1 Gengar"]],
+      ["Encore on a setup move, then a switch", sd + T(2) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + T(3) + "|switch|p2a: C|Toxapex|100/100\n", ["encore p1 Gengar"]],
+      ["Encore on an attack that worked, used again", "|move|p2a: B|Earthquake|p1a: A\n|-immune|p1a: A\n" + T(2) +
+        "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n|move|p2a: B|Earthquake|p1a: A\n", []],
+      ["Encore on a setup move, then dragged out", sd + T(2) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + T(3) +
+        "|move|p1a: A|Roar|p2a: B\n|drag|p2a: C|Toxapex|100/100\n", ["phaze p1 Gengar"]],
+      ["Taunt stops a status move (once)", "|move|p1a: A|Taunt|p2a: B\n|-start|p2a: B|move: Taunt\n" + T(2) + "|cant|p2a: B|move: Taunt|Stealth Rock\n" + T(3) +
+        "|cant|p2a: B|move: Taunt|Spikes\n", ["taunt p1 Gengar"]],
+      ["Taunt, then an attack", "|move|p1a: A|Taunt|p2a: B\n|-start|p2a: B|move: Taunt\n" + T(2) + "|move|p2a: B|Earthquake|p1a: A\n|-immune|p1a: A\n", []],
+      ["Haze wipes +2", sd + T(2) + "|move|p1a: A|Haze|p1a: A\n|-clearallboost\n", ["haze p1 Gengar"]],
+      ["Haze on +1, and on its own boosts", "|move|p2a: B|Hone Claws|p2a: B\n|-boost|p2a: B|atk|1\n|move|p1a: A|Nasty Plot|p1a: A\n|-boost|p1a: A|spa|2\n" + T(2) +
+        "|move|p1a: A|Haze|p1a: A\n|-clearallboost\n", []],
+      ["Clear Smog wipes +2", sd + T(2) + "|move|p1a: A|Clear Smog|p2a: B\n|-damage|p2a: B|80/100\n|-clearboost|p2a: B\n", ["haze p1 Gengar"]],
+      ["Roar on +2", sd + T(2) + "|move|p1a: A|Roar|p2a: B\n|drag|p2a: C|Toxapex|100/100\n", ["phaze p1 Gengar"]],
+      ["Roar after the boosted one switched out and back", sd + T(2) + "|switch|p2a: C|Toxapex|100/100\n" + T(3) + "|switch|p2a: B|Garchomp|100/100\n" + T(4) +
+        "|move|p1a: A|Roar|p2a: B\n|drag|p2a: C|Toxapex|100/100\n", []],
+      ["Trick a Choice Scarf, then a status move", "|move|p1a: A|Trick|p2a: B\n|-activate|p1a: A|move: Trick|[of] p2a: B\n|-item|p2a: B|Choice Scarf|[from] move: Trick\n" +
+        "|-item|p1a: A|Leftovers|[from] move: Trick\n" + T(2) + "|move|p2a: B|Stealth Rock|p1a: A\n", ["trick p1 Gengar"]],
+      ["Trick a Choice Scarf, then an attack, then a status move", "|move|p1a: A|Trick|p2a: B\n|-item|p2a: B|Choice Scarf|[from] move: Trick\n" + T(2) +
+        "|move|p2a: B|Earthquake|p1a: A\n|-immune|p1a: A\n" + T(3) + "|move|p2a: B|Stealth Rock|p1a: A\n", []],
+      ["Trick a Leftovers, then a switch", "|move|p1a: A|Trick|p2a: B\n|-item|p2a: B|Leftovers|[from] move: Trick\n" + T(2) + "|switch|p2a: C|Toxapex|100/100\n", []],
+      ["Perish Song KOs a foe, not its own", "|move|p1a: A|Perish Song|p1a: A\n|-fieldstart|move: Perish Song\n" + T(2) + T(3) + T(4) +
+        "|-start|p1a: A|perish0\n|-start|p2a: B|perish0\n|faint|p1a: A\n|faint|p2a: B\n", ["perishsong p1 Gengar"]],
+      ["Focus Sash, then a KO", "|move|p2a: B|Earthquake|p1a: A\n|-enditem|p1a: A|Focus Sash\n|-damage|p1a: A|1/100\n|move|p1a: A|Shadow Ball|p2a: B\n" + ko("p2a: B"), ["survived p1 Gengar"]],
+      ["Focus Sash, then down with no KO; a Sash knocked off", "|move|p2a: B|Earthquake|p1a: A\n|-enditem|p1a: A|Focus Sash\n|-damage|p1a: A|1/100\n" +
+        "|move|p1a: A|Shadow Ball|p2a: B\n|-damage|p2a: B|50/100\n" + T(2) + "|move|p2a: B|Earthquake|p1a: A\n" + ko("p1a: A") +
+        "|switch|p1a: D|Weavile|100/100\n" + T(3) + "|move|p2a: B|Knock Off|p1a: D\n|-enditem|p1a: D|Focus Sash|[from] move: Knock Off|[of] p2a: B\n" +
+        "|move|p1a: D|Ice Shard|p2a: B\n" + ko("p2a: B"), []],
+    ];
+    const wrong = [];
+    for (const [name, body, want] of cases) {
+      const got = Plays.analyze(bh + body + "|upkeep\n|win|Bob", { dex, moves }).events.filter((e) => e.brilliant).map((e) => [e.kind, e.side, e.mon].join(" "));
+      if (!same(got, want)) wrong.push(`${name}: ${JSON.stringify(got)}, wanted ${JSON.stringify(want)}`);
+    }
+    check(`plays: brilliant plays count only with their payoff (${cases.length} made-up logs)`, !wrong.length, wrong.join("\n"));
+    // without move data an Encore counts only on a move that had failed, a Trick only on a switch
+    const nod = Plays.analyze(bh + sd + T(2) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + sd + T(3) +
+      "|move|p2a: B|Sucker Punch|p1a: A\n|-fail|p2a: B\n" + T(4) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + T(5) +
+      "|move|p2a: B|Sucker Punch|p1a: A\n|-fail|p2a: B\n|upkeep\n|win|Bob").events.filter((e) => e.brilliant).map((e) => e.turn + " " + e.kind);
+    check("plays: with no move data, Encore counts on a move that failed only", same(nod, ["5 encore"]), JSON.stringify(nod));
   }
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
   const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],
