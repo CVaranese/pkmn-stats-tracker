@@ -1580,6 +1580,15 @@ ${switchIn}`).hiddenZoroark;
       JSON.stringify(m));
   }
 
+  // ---- hits taken: damage straight from the other side's moves, not a burn tick (report cards' Bulk) ----
+  {
+    const log = "|poke|p1|Pelipper|\n|poke|p2|Garchomp|\n" + lhead() + "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|60/100\n" +
+      "|move|p2a: B|Earthquake|p1a: A\n|-immune|p1a: A\n|-status|p2a: B|brn\n|-damage|p2a: B|54/100 brn|[from] brn\n|turn|2\n" +
+      "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|10/100 brn\n|win|Alice";
+    const got = Object.fromEntries(RS.gameRows({ id: "test-hits", log }).map((r) => [r.pokemon, r.hits_taken]));
+    check("hits taken: two Hurricanes count, the burn tick and a miss don't", same(got, { Pelipper: 0, Garchomp: 2 }), JSON.stringify(got));
+  }
+
   // ---- gameRows takes the caller's plain parse (prepareIllusion's), only with no Zoroark picks ----
   {
     const log = "|poke|p1|Pelipper|\n|poke|p2|Garchomp|\n" + lhead() + "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|60/100\n|win|Alice";
