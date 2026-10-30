@@ -1,0 +1,64 @@
+Kim Bong Un (Venusaur) (F) @ Life Orb
+Ability: Chlorophyll
+Tera Type: Grass
+EVs: 252 HP / 252 SpA / 4 Spe
+Mild Nature
+IVs: 0 Atk
+- Earth Power
+- Hidden Power [Electric]
+- Giga Drain
+- Sleep Powder
+
+Osama bin blazin (Torkoal) (M) @ Heat Rock
+Ability: Drought
+Shiny: Yes
+Tera Type: Fire
+EVs: 252 HP / 252 Def / 4 SpD
+Impish Nature
+- Stealth Rock
+- Rapid Spin
+- Body Press
+- Will-O-Wisp
+
+Mao Zebong (Garchomp) (M) @ Groundium Z
+Ability: Rough Skin
+Shiny: Yes
+Tera Type: Dragon
+EVs: 4 HP / 140 Atk / 112 Def / 252 Spe
+Jolly Nature
+- Outrage
+- Earthquake
+- Stone Edge
+- Sand Tomb
+
+Vladimir Zootin (Whimsicott) @ Choice Scarf
+Ability: Prankster
+Tera Type: Steel
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Stun Spore
+- U-turn
+- Tailwind
+- Giga Drain
+
+Genghis Zong (Zapdos) @ Expert Belt
+Ability: Static
+Tera Type: Electric
+EVs: 252 HP / 252 SpA
+Modest Nature
+IVs: 0 Atk
+- Volt Switch
+- Hurricane
+- Hidden Power [Grass]
+- Roost
+
+Pol Pot (Cresselia) @ Light Clay
+Ability: Levitate
+Tera Type: Psychic
+EVs: 252 HP / 252 Def / 4 SpD
+Bold Nature
+IVs: 0 Atk
+- Thunder
+- Reflect
+- Hidden Power [Fighting]
+- Gravity

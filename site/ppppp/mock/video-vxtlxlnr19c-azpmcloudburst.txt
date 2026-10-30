@@ -1,0 +1,62 @@
+Zapdash (Zapdos) @ Heavy-Duty Boots
+Ability: Static
+Tera Type: Electric
+EVs: 252 HP / 252 SpA
+Modest Nature
+IVs: 0 Atk
+- Volt Switch
+- Hurricane
+- Heat Wave
+- Roost
+
+Scouser (Garchomp) (M) @ Dragonium Z
+Ability: Rough Skin
+Tera Type: Dragon
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Outrage
+- Earthquake
+- Rock Slide
+- Bite
+
+Dumbass (Dondozo) @ Rocky Helmet
+Ability: Unaware
+Shiny: Yes
+Tera Type: Water
+EVs: 248 HP / 252 Def / 8 SpD
+Adamant Nature
+- Sleep Talk
+- Rest
+- Wave Crash
+- Curse
+
+Ariana Grande (Mawile) @ Mawilite
+Ability: Intimidate
+EVs: 116 HP / 252 Atk / 140 Spe
+Adamant Nature
+- Swords Dance
+- Play Rough
+- Iron Head
+- Sucker Punch
+
+Nihilism (Gengar) @ Choice Specs
+Ability: Cursed Body
+Tera Type: Ghost
+EVs: 4 Def / 252 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Thunder
+- Shadow Ball
+- Sludge Wave
+- Focus Blast
+
+Global Warming (Whimsicott) @ Focus Sash
+Ability: Prankster
+Shiny: Yes
+Tera Type: Steel
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Moonblast
+- Giga Drain
+- U-turn
+- Tailwind

@@ -1,0 +1,65 @@
+Play Rocket League (Venusaur) (F) @ Life Orb
+Ability: Chlorophyll
+Tera Type: Grass
+EVs: 252 SpA / 4 Spe
+Mild Nature
+IVs: 0 Atk
+- Earth Power
+- Sludge Bomb
+- Giga Drain
+- Sleep Powder
+
+Bring It On Again (Torkoal) (M) @ Heat Rock
+Ability: Drought
+Shiny: Yes
+Tera Type: Fire
+EVs: 252 HP / 252 Def / 4 SpD
+Impish Nature
+- Stealth Rock
+- Rapid Spin
+- Eruption
+- Will-O-Wisp
+
+Syphilis (Garchomp) (M) @ Weakness Policy
+Ability: Rough Skin
+Shiny: Yes
+Tera Type: Dragon
+EVs: 4 HP / 252 Atk / 252 SpD
+Brave Nature
+- Outrage
+- Earthquake
+- Stone Edge
+- Protect
+
+Ducky's Mom (Cresselia) @ Light Clay
+Ability: Levitate
+Tera Type: Psychic
+EVs: 192 HP / 196 Def / 120 SpD
+Bold Nature
+IVs: 0 Atk
+- Trick Room
+- Reflect
+- Light Screen
+- Gravity
+
+Home Invader (Gengar) @ Black Sludge
+Ability: Cursed Body
+Tera Type: Ghost
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+- Dark Pulse
+- Shadow Ball
+- Sludge Wave
+- Trick
+
+Justin Bieber (Blaziken) (M) @ Fightinium Z
+Ability: Speed Boost
+Shiny: Yes
+Tera Type: Fire
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Close Combat
+- Swords Dance
+- Protect
+- Blaze Kick

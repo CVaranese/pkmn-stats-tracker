@@ -1,0 +1,65 @@
+Kim Jong Un (Venusaur) (F) @ Life Orb
+Ability: Chlorophyll
+Tera Type: Grass
+EVs: 120 HP / 252 SpA / 136 Spe
+Mild Nature
+IVs: 0 Atk
+- Earth Power
+- Weather Ball
+- Giga Drain
+- Sludge Bomb
+
+RFK Jr (Torkoal) (M) @ Heat Rock
+Ability: Drought
+Shiny: Yes
+Tera Type: Fire
+EVs: 248 HP / 252 Def / 8 Spe
+Impish Nature
+- Stealth Rock
+- Rapid Spin
+- Body Press
+- Eruption
+
+Badlands Chugs (Garchomp) (M) @ Choice Band
+Ability: Rough Skin
+Shiny: Yes
+Tera Type: Dragon
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Outrage
+- Earthquake
+- Stone Edge
+- Fire Fang
+
+Troy Bolton (Blaziken) (M) @ Firium Z
+Ability: Speed Boost
+Shiny: Yes
+Tera Type: Fire
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Close Combat
+- Swords Dance
+- Protect
+- Blaze Kick
+
+Vladimir Putin (Whimsicott) @ Focus Sash
+Ability: Chlorophyll
+Shiny: Yes
+Tera Type: Steel
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+- Moonblast
+- U-turn
+- Tailwind
+- Solar Beam
+
+Duterte (Dondozo) @ Rocky Helmet
+Ability: Unaware
+Shiny: Yes
+Tera Type: Water
+EVs: 248 HP / 252 Def / 8 SpD
+Adamant Nature
+- Sleep Talk
+- Rest
+- Wave Crash
+- Avalanche

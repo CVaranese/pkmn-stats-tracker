@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Team sheets: Cloudburst's sheets for Weeks 2 and 4-8 (raw HP, set details and move lists in those games; none for Weeks 1 and 3).
 - Under the hood: a deploy runs the tests first and stops on a failure, so a broken push never reaches the live site; the first Python CLI (`replay_stats.py`) is gone; the stream-video tools are archived in `tools/video/`.
 
 ## 1.0 (2026-10-29)
