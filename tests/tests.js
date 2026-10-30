@@ -1871,6 +1871,23 @@ ${switchIn}`).hiddenZoroark;
     check("report cards: tied drafts share the place and letter; a pick traded in after the last week isn't held against even use",
       tc.map((c) => c.grade + c.place + c.even.grade).join() === "C1C,C1C" && tc.find((c) => c.name === "Ann").even.spread === 0,
       JSON.stringify(tc.map((c) => [c.name, c.grade, c.place, c.score, c.even])));
+    // the cut-offs are exact, not on a rounded z: firepower a game +3, +2, 0, -5 against the league is z 0.97, 0.65,
+    // 0, -1.62: B (not A), B, C, F
+    const four = { costs: { OU: 7 }, players: Object.fromEntries(["Ann", "Bo", "Cy", "Di"].map((p, i) => [p, [{ pokemon: ["Garchomp", "Kingambit", "Mew", "Clefable"][i], tier: "OU" }]])) };
+    const fr = (player, pokemon, kills, dmg, id) => ({ replay_id: id, player, pokemon, brought: 1, kills, damage_dealt_pct: dmg, hits_taken: 0, survived: 1, won: 0 });
+    const fc = Bet.reportCards(four, [fr("Ann", "Garchomp", 2, 200, "a"), fr("Bo", "Kingambit", 2, 100, "b"), fr("Cy", "Mew", 1, 200, "c"), fr("Di", "Clefable", 0, 0, "d")]);
+    const fg = fc.map((c) => c.name + c.firepower.grade).join();
+    check("report cards: a part's letter from the exact z (0.97 is a B, A only from 1)", fg === "AnnB,BoB,CyC,DiF", fg);
+    // a league with nothing in it yet has no top-10% games
+    const flat = Bet.reportCards(four, [fr("Ann", "Garchomp", 0, 0, "a"), fr("Bo", "Kingambit", 0, 0, "b")]);
+    check("report cards: a game with no KOs or damage is no peak", flat.every((c) => c.peaks.count === 0), JSON.stringify(flat.map((c) => c.peaks)));
+    // a pick traded in after Week 2 of 4, brought in both weeks since, is used as evenly as one brought every week
+    const mid = { costs: { OU: 7 }, players: { Ann: [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Mew", tier: "OU" }] },
+      trades: { Ann: [{ out: "Clefable", in: "Mew", after: "Week 2" }] } };
+    const mr = ["g1", "g2", "g3", "g4"].map((id) => fr("Ann", "Garchomp", 0, 0, id)).concat(["g3", "g4"].map((id) => fr("Ann", "Mew", 0, 0, id)));
+    const mc = Bet.reportCards(mid, mr, ["Week 1", "Week 2", "Week 3", "Week 4"])[0];
+    check("report cards: a mid-season trade-in's even use counts the weeks since it came in", mc.even.spread === 0 && mc.picks.find((p) => p.pokemon === "Mew").weeksHeld === 2,
+      JSON.stringify([mc.even.spread, mc.picks.map((p) => [p.pokemon, p.games, p.weeksHeld])]));
   }
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
   const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],

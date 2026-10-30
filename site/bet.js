@@ -114,6 +114,9 @@
   }
 
   const SCORING = { kill: 3, damagePer100: 1, survived: 1, won: 1 };
+  /** One game row's firepower (KOs and damage, as scored) and its fantasy points (firepower, alive at the end, won). */
+  const fireOf = (r) => r.kills * SCORING.kill + (Number(r.damage_dealt_pct) || 0) / 100 * SCORING.damagePer100;
+  const fantasyOf = (r) => fireOf(r) + r.survived * SCORING.survived + r.won * SCORING.won;
 
   /** Fantasy points per Pokémon per player, from RS.gameRows rows (brought Pokémon only), most points first.
       With a draft ({costs, players}), each gets its tier, cost and points per draft point. */
@@ -122,9 +125,10 @@
     for (const r of rows) {
       if (!r.brought) continue;
       const key = playerKey(draft, r.player) + "|" + r.pokemon;
-      if (!by.has(key)) by.set(key, { pokemon: r.pokemon, player: r.player, games: 0, kills: 0, damage: 0, damageHp: 0, damageHpEst: false, survived: 0, wins: 0 });
+      if (!by.has(key)) by.set(key, { pokemon: r.pokemon, player: r.player, games: 0, kills: 0, damage: 0, damageHp: 0, damageHpEst: false, survived: 0, wins: 0, points: 0 });
       const f = by.get(key);
       f.games++;
+      f.points += fantasyOf(r);
       f.kills += r.kills;
       f.damage += Number(r.damage_dealt_pct) || 0;
       // in HP once every game has it (rows with max HP, ReplayStats.addDamageHp); "" otherwise
@@ -134,8 +138,7 @@
       f.wins += r.won;
     }
     for (const f of by.values()) {
-      f.points = Math.round((f.kills * SCORING.kill + f.damage / 100 * SCORING.damagePer100 +
-        f.survived * SCORING.survived + f.wins * SCORING.won) * 10) / 10;
+      f.points = Math.round(f.points * 10) / 10;
       f.perGame = Math.round(f.points / f.games * 10) / 10;
       const d = drafted(draft, f.player, f.pokemon);
       f.tier = (d && d.tier) || "";
@@ -153,20 +156,21 @@
 
   /** Draft report cards (singles: CARD_FORMATS), four parts each graded against the league (letterFor), then an overall grade
       from all four, so the card says what kind of draft it was and isn't just the standings again (Pinecord, rank
-      correlation with wins: firepower alone 0.97, the four together about 0.6; user 2026-10-29):
+      correlation with wins: firepower alone 0.96, the four together 0.6; user 2026-10-29):
       - Firepower: KOs (3 each) and damage (1 per 100%) against what a pick of the same tier earns in as many games
         (a league priced per Pokémon: the same price band, 1–5, 6–10...); a group with fewer than 3 picks brought is
         held to the league's average pick. Per game of theirs.
       - Bulk: hits taken from the other side's moves (row.hits_taken), against the tier the same way. Per game.
       - Peaks: share of picks brought with at least one top-10% game (one game's firepower, the league's 90th percentile).
-      - Even use: how evenly the games are spread over the picks held (spread of games per pick / the average; picks
-        traded away or traded in after the last week played left out); lower is better.
+      - Even use: how evenly the games are spread over the picks held (spread of games per pick / the average; a pick
+        traded in mid-season by its games a week since; picks traded away or traded in after the last week played left
+        out); lower is better.
       rows: every league game's rows (RS.gameRows); weeks: the weeks played, in order. Each card: { name, key, games,
       spent, firepower: { value, perGame, grade }, bulk: { value, perGame, grade }, peaks: { count, of, line (the 90th
       percentile), best: { pokemon, points, game } | null, grade }, even: { spread, most, least (picks), grade }, best,
       bust (picks, by firepower against the tier), score, grade, place, picks }. picks: draftPool's order, each
       { pokemon, entry, tier, group, cost, trade, away, fresh, games, wins, kills, points (fantasy points, as on Fantasy),
-      perCost, fire, hits, peak (best one-game firepower), peakGame, expected (firepower a game), above (null if never
+      perCost, fire, hits, peak (best one-game firepower), peakGame, weeksHeld (weeks played since it came in), expected (firepower a game), above (null if never
       brought) }. Grades: "" with no games; tied scores share place and letter. Best first. */
   function reportCards(draft, rows, weeks = []) {
     if (!draft || !draft.players) return [];
@@ -181,8 +185,6 @@
     const round1 = (x) => Math.round(x * 10) / 10;
     const same = (a, b) => toID(a) === toID(b);
     const best = (list, better) => list.reduce((m, x) => (!m || better(x, m) ? x : m), null);
-    const fireOf = (r) => r.kills * SCORING.kill + (Number(r.damage_dealt_pct) || 0) / 100 * SCORING.damagePer100;
-    const fantasyOf = (r) => fireOf(r) + r.survived * SCORING.survived + r.won * SCORING.won;
     // each drafted entry's games, from the rows (a Mega and its base form are the one pick: drafted())
     const byEntry = new Map();
     const singles = [];
@@ -203,10 +205,11 @@
         const add = (f) => rs.reduce((t, r) => t + f(r), 0);
         const cost = pickCost(draft, p.entry), games = rs.length, points = round1(add(fantasyOf));
         const top = best(rs, (a, b) => fireOf(a) > fireOf(b));
-        // traded in after the last week played: no game yet to bring it to
+        // traded in: only the weeks played after the trade to bring it to (none: fresh)
         const inAfter = (dp.trades.filter((t) => t.in.some((m) => same(m, p.entry.pokemon))).pop() || {}).after;
+        const since = inAfter ? weeks.indexOf(inAfter) : -1;
         return { pokemon: p.entry.pokemon, entry: p.entry, tier: p.entry.tier || "", group: groupOf(p.entry), cost, trade: p.trade,
-          away: !!(p.trade && p.trade.away), fresh: !!inAfter && weeks.indexOf(inAfter) >= weeks.length - 1, games,
+          away: !!(p.trade && p.trade.away), fresh: !!inAfter && since >= weeks.length - 1, weeksHeld: weeks.length - 1 - since, games,
           wins: add((r) => r.won), kills: add((r) => r.kills), points, perCost: cost && games ? round1(points / cost) : null,
           fire: add(fireOf), hits: add((r) => r.hits_taken || 0), peak: top ? round1(fireOf(top)) : null, peakGame: top ? top.replay_id : null };
       });
@@ -234,13 +237,16 @@
       c.firepower = { value: round1(fire), perGame: c.games ? round1(fire / c.games) : 0 };
       c.bulk = { value: round1(bulk), perGame: c.games ? round1(bulk / c.games) : 0 };
       const top = best(used, (a, b) => a.peak > b.peak);
-      c.peaks = { count: used.filter((p) => p.peak >= line).length, of: used.length, line,
+      // a game with nothing in it is no peak, even in a league whose top 10% is nothing yet
+      c.peaks = { count: used.filter((p) => p.peak > 0 && p.peak >= line).length, of: used.length, line,
         best: top && { pokemon: top.pokemon, points: top.peak, game: top.peakGame } };
+      // games a week it could be brought (a pick traded in mid-season: the weeks since), so a trade isn't uneven use
       const held = c.picks.filter((p) => !p.away && !p.fresh);
-      const mean = held.length ? held.reduce((t, p) => t + p.games, 0) / held.length : 0;
-      const sd = held.length ? Math.sqrt(held.reduce((t, p) => t + (p.games - mean) ** 2, 0) / held.length) : 0;
-      c.even = { spread: mean ? Math.round(sd / mean * 100) / 100 : 0, most: best(held, (a, b) => a.games > b.games),
-        least: best(held, (a, b) => a.games < b.games) };
+      const use = (p) => (weeks.length ? p.games / p.weeksHeld : p.games);
+      const mean = held.length ? held.reduce((t, p) => t + use(p), 0) / held.length : 0;
+      const sd = held.length ? Math.sqrt(held.reduce((t, p) => t + (use(p) - mean) ** 2, 0) / held.length) : 0;
+      c.even = { spread: mean ? Math.round(sd / mean * 100) / 100 : 0, most: best(held, (a, b) => use(a) > use(b)),
+        least: best(held, (a, b) => use(a) < use(b)) };
       // ties: the dearer pick (a bust that cost more hurt more)
       c.best = best(used, (a, b) => a.above > b.above || (a.above === b.above && (a.cost || 0) > (b.cost || 0)));
       const low = best(used, (a, b) => a.above < b.above || (a.above === b.above && (a.cost || 0) > (b.cost || 0)));
@@ -251,7 +257,8 @@
     const z = (f) => {
       const vs = graded.map(f), m = vs.reduce((t, v) => t + v, 0) / (vs.length || 1);
       const sd = Math.sqrt(vs.reduce((t, v) => t + (v - m) ** 2, 0) / (vs.length || 1)) || 1;
-      return (c) => round1((f(c) - m) / sd);
+      // unrounded, so the cut-offs are exact (A from +1, not +0.95); 6 places only to keep equal drafts equal
+      return (c) => Math.round((f(c) - m) / sd * 1e6) / 1e6;
     };
     const parts = [["firepower", z((c) => c.firepower.perGame)], ["bulk", z((c) => c.bulk.perGame)],
       ["peaks", z((c) => (c.peaks.of ? c.peaks.count / c.peaks.of : 0))], ["even", z((c) => -c.even.spread)]];

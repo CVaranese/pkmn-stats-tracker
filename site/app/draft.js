@@ -17,8 +17,11 @@ async function renderDraft() {
   await loadDraft();
   if (!draft || !draft.players) { $("dr-status").textContent = "The draft didn't load."; draftRows = null; return; }
   draftRows = await loadLeague();
-  // the weeks played, in order (the library is sorted by date): a pick traded in after the last isn't waste yet
-  draftCards = Bet.reportCards(draft, draftRows, [...new Set(library.map((g) => g.week))]);
+  // the weeks played, in order: "Week n" by n (the library is by date, and a late makeup game would put its week
+  // last), then playoff weeks as played. A pick traded in after the last has had no game yet
+  const num = (w) => (League.isPlayoffWeek(w) ? Infinity : parseInt(w.slice(5), 10));
+  const weeks = [...new Set(library.map((g) => g.week))].sort((a, b) => num(a) - num(b) || 0);
+  draftCards = Bet.reportCards(draft, draftRows, weeks);
   const games = new Set(draftRows.map((r) => r.replay_id)).size;
   $("dr-status").textContent = games < library.length ? `Counted ${games} of ${library.length} games (the rest didn't load).` : "";
   const names = Object.keys(draft.players).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
