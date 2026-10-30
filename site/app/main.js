@@ -74,15 +74,17 @@ async function run(again) {
     }
 
     const rs = [];  // this run's rows; they replace the shown ones only if no newer run started meanwhile
-    await Promise.all(results.map((r) => prepareIllusion(r).catch((e) => {
+    // each one's parse (no picks), for gameRows to take instead of reading the log again
+    const parses = await Promise.all(results.map((r) => prepareIllusion(r).catch((e) => {
       delete r.zoroarks;  // try again on the next run
       errors.push(`${r.id}: the hidden Zoroark check failed (${e.message || e}), so whatever it did is counted on the Pokémon it copied.`);
+      return null;
     })));
     for (const r of results) if (r && r.illusionNote) errors.push(`${r.id}: ${r.illusionNote}.`);
-    for (const replay of results) {
+    for (const [i, replay] of results.entries()) {
       if (!replay) continue;
       try {
-        rs.push(...RS.gameRows(replay));
+        rs.push(...RS.gameRows(replay, parses[i]));
       } catch (e) {
         errors.push(`${replay.id}: could not read the battle log (${e.message || e})`);
       }

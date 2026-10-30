@@ -146,6 +146,12 @@
       while (slots[next]) next++;
       slots[next] = { n: next + 1, game: g };
     }
+    // a missing game with no number: the first free slot, its winner (when known) still counted
+    for (const m of lost) {
+      if (m.game) continue;
+      while (slots[next]) next++;
+      slots[next] = { n: next + 1, kind: "missing", winner: m.winner };
+    }
     for (let i = 0; i < total; i++) if (!slots[i]) slots[i] = { n: i + 1, kind: unknownSet ? "missing" : "unplayed", winner: null };
     const winnerOf = (sl) => (sl.game ? sl.game.winner : sl.winner);
     const wins = s.players.map((p) => slots.filter((sl) => winnerOf(sl) && keyOf(winnerOf(sl)) === keyOf(p)).length);
@@ -239,6 +245,25 @@
     return [...by.values()].sort((a, b) => b.games - a.games);
   }
 
+  /** The items with the highest score (ties all kept); non-numbers left out. */
+  function best(list, score) {
+    const vals = list.map(score).filter((v) => typeof v === "number" && isFinite(v));
+    if (!vals.length) return [];
+    const top = Math.max(...vals);
+    return list.filter((x) => score(x) === top);
+  }
+  /** How far a row's player was behind on team HP share at their worst turn end (row.momentum, row.side): { gap (0 if
+      never behind), turn (null if never) }. The Biggest comeback award and the comeback bet. */
+  function comeback(r) {
+    const other = r.side === "p1" ? "p2" : "p1";
+    let gap = 0, turn = null;
+    for (const pt of r.momentum || []) {
+      const behind = pt[other].hp - pt[r.side].hp;
+      if (behind > gap) { gap = behind; turn = pt.turn; }
+    }
+    return { gap, turn };
+  }
+
   /** Awards over some games (a week, or the season so far). rows: those games' rows, every Pokémon (brought or not);
       keyOf: one key per player (draft aliases). Each award: { id, title, how, winners: [{ player, pokemon (none for
       player awards), value (text), game (replay id; none for a player's whole week) }] }, ties all listed; an award no
@@ -248,12 +273,6 @@
   function awards(rows, keyOf = toID) {
     const brought = rows.filter((r) => r.brought);
     const out = [];
-    const best = (list, score) => {
-      const vals = list.map(score).filter((v) => typeof v === "number" && isFinite(v));
-      if (!vals.length) return [];
-      const top = Math.max(...vals);
-      return list.filter((x) => score(x) === top);
-    };
     const mon = (r, value) => ({ player: r.player, pokemon: r.pokemon, value, game: r.replay_id });
     const add = (id, title, how, winners) => { if (winners.length) out.push({ id, title, how, winners }); };
     add("top", "Top Pokémon", "Best Performance in one game (the MVP score: damage, KOs, healing, staying alive).",
@@ -270,17 +289,9 @@
     // comeback: per game, the winner's lowest HP share minus the loser's at a turn's end
     const games = new Map();
     for (const r of rows) if (r.won && !games.has(r.replay_id)) games.set(r.replay_id, r);
-    const comebacks = [...games.values()].map((r) => {
-      const other = r.side === "p1" ? "p2" : "p1";
-      let worst = 0, turn = null;
-      for (const pt of r.momentum || []) {
-        const gap = pt[r.side].hp - pt[other].hp;
-        if (gap < worst) { worst = gap; turn = pt.turn; }
-      }
-      return { r, worst, turn };
-    }).filter((c) => c.worst < 0);
+    const comebacks = [...games.values()].map((r) => ({ r, ...comeback(r) })).filter((c) => c.gap > 0);
     add("comeback", "Biggest comeback", "The winner furthest behind: their team's HP share minus the other team's, at the end of a turn.",
-      best(comebacks, (c) => -c.worst).map((c) => ({ player: c.r.player, value: `won from ${Math.round(-c.worst)}% behind (turn ${c.turn})`,
+      best(comebacks, (c) => c.gap).map((c) => ({ player: c.r.player, value: `won from ${Math.round(c.gap)}% behind (turn ${c.turn})`,
         game: c.r.replay_id })));
     const wins = [...games.values()].filter((r) => r.end_reason === "normal" && r.turns > 0);
     add("quick", "Quickest win", "Fewest turns to win a game that was played out (no forfeit or timeout).",
@@ -294,12 +305,6 @@
   function moreAwards(rows, keyOf = toID) {
     const brought = rows.filter((r) => r.brought);
     const out = [];
-    const best = (list, score) => {
-      const vals = list.map(score).filter((v) => typeof v === "number" && isFinite(v));
-      if (!vals.length) return [];
-      const top = Math.max(...vals);
-      return list.filter((x) => score(x) === top);
-    };
     const add = (n, id, title, how, winners) => out.push({ id, title, how, winners });  // n: the order brainstormed
     const plural = (k, one, many = one + "s") => `${k} ${k === 1 ? one : many}`;
     // a Pokémon idea: the most of score (above 0) in one game
@@ -333,6 +338,8 @@
       teams.get(k).rows.push(r);
     }
     const ts = [...teams.values()];
+    // Pokémon down at the end: one Revival Blessing brought back isn't lost, one KO'd twice is one
+    const lostMons = (t) => t.rows.filter((r) => r.brought && !r.survived).length;
     const team = (n, id, title, how, list, score, text) => add(n, id, title, how,
       best(list, score).map((t) => ({ player: t.player, value: text(t), game: t.game })));
     team(18, "switches", "Revolving door", "Most switches by one player's team in one game.", ts.filter((t) => sum(t.rows, "switches") > 0),
@@ -342,7 +349,7 @@
     team(20, "openbook", "Open book", "Most of their team shown in one game.", ts.filter((t) => typeof t.info === "number"), (t) => t.info,
       (t) => `${t.info}% of the team shown`);
     team(21, "cleansweep", "Clean sweep", "Won a game losing the fewest Pokémon.", ts.filter((t) => t.won && t.end === "normal"),
-      (t) => -sum(t.rows, "deaths"), (t) => `won losing ${plural(sum(t.rows, "deaths"), "Pokémon", "Pokémon")}`);
+      (t) => -lostMons(t), (t) => `won losing ${plural(lostMons(t), "Pokémon", "Pokémon")}`);
     // game ideas
     const games = [...new Map(rows.filter((r) => r.won).map((r) => [r.replay_id, r])).values()];
     const left = (r) => { const m = r.momentum || []; return m.length ? m[m.length - 1][r.side].hp : null; };
@@ -418,7 +425,7 @@
   }
 
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    setSlots, setPoints, standings, spreadText, setText, monSets, awards, moreAwards, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
+    setSlots, setPoints, standings, spreadText, setText, monSets, best, comeback, awards, moreAwards, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -25,8 +25,8 @@ function loadLeague() {
     const loaded = await Promise.all(library.map(async (g) => {
       try {
         if (!cache.has(g.id)) cache.set(g.id, await RS.fetchReplay(g.id));
-        await prepareIllusion(cache.get(g.id));
-        return RS.gameRows(cache.get(g.id));
+        const parsed = await prepareIllusion(cache.get(g.id));
+        return RS.gameRows(cache.get(g.id), parsed);
       } catch (e) { return []; }  // a game that won't load just isn't counted
     }));
     let dex = null;

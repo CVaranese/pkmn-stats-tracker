@@ -266,7 +266,9 @@ function setHead(s) {
     el("p", "hint", "Every saved game of the set, added up below."));
   $("set-head").hidden = false;
   shownSet = { ...s, missing: lost };
-  if (rows.length) setGames(rows);
+  // the rows already shown, only when they're this set's (else run() draws it once the set's games are in)
+  const ids = new Set(s.games.map((g) => g.id));
+  if (rows.length && rows.every((r) => ids.has(r.replay_id))) setGames(rows);
 }
 let shownSet = null;  // the set setHead shows (with its missing games), for setGames once the rows are in
 /** The opened set game by game, above its totals: winner, turns, each side's MVP and KOs, Stats / Watch; a game

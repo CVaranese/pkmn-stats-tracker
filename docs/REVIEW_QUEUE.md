@@ -2,6 +2,7 @@
 
 Things only a person can check. Remove an item once checked.
 
+- [ ] Weekly bets, review fixes (branch `review-fixes`): on `/next/` Gambling, the latest week says "n of 6 games counted"; with all 6 in, every bet has a result. A week still being played shows "x so far" / "Not yet" until a bet can't change. The block is now drawn by `app/bets.js`: does it look as before (heading, hint, Week picker, cards)?
 - [ ] Weekly bets (branch `bet-draw`, preview only): on `/next/` Gambling, under the Under construction box, six bets for the picked week. On the live site the block must stay hidden (it shows only when the address has `/next/` or on 127.0.0.1): check once after a release. Do the lines look fair (Week 8: KOs 50.5, came in at 50)? Player names in the results are Showdown names, not draft names. `docs/BETTING_PROPS.md`: the pool with the new kinds (season predictions, bracket, featured game, running totals); which next?
 
 - [ ] Awards tab (branch `awards`): checked dark, light and 360px (Pinecord Week 8, Super Champions Week 11). All 29 awards kept (user 2026-10-29). Are the names right ("Wall" for most damage taken by one still standing)? Pinecord Week 8: potatoesareyum's Azelf takes three awards, real but repetitive; should one Pokémon be limited to one award?

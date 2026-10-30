@@ -962,13 +962,12 @@
 
   const round2 = (x) => Math.round(x * 100) / 100;
 
-  /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
-  function gameRows(replay) {
-    // replay.parsed: the caller's own parse of this log with no Zoroark picks (prepareIllusion), taken once so two
-    // calls never share one battle's arrays; with picks the log is read again with them
+  /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. parsed: the
+      caller's own parseBattle of this log with no Zoroark picks, to skip reading it again (used only when the replay
+      has no picks; pass a fresh one each call, as the rows share its arrays). */
+  function gameRows(replay, parsed = null) {
     const picked = Object.values(replay.illusion || {}).some((ns) => ns && ns.length);
-    const b = (!picked && replay.parsed) || parseBattle(replay.log, { illusion: replay.illusion });
-    delete replay.parsed;
+    const b = (!picked && parsed) || parseBattle(replay.log, { illusion: replay.illusion });
     const rid = replay.id;
     // the game day in Pacific time (league games are Sunday 9pm Pacific, already Monday in UTC); en-CA writes YYYY-MM-DD
     const date = replay.uploadtime ? new Date(replay.uploadtime * 1000).toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" }) : "";
