@@ -92,7 +92,17 @@ async function run(again) {
     await loadDraft();  // before the sheets: draft aliases (DEJIME17 -> DEJIME) for the player's other sheets
     await addMockSheets(ids);
     await applySheets(rs, errors);
-    await applyLuck(rs, errors);
+    const data = await applyLuck(rs, errors);
+    // reads and misplays (Plays.analyze), on the rows (not exported): shown only with one game, so worked out only then
+    const loaded = results.filter(Boolean);
+    if (loaded.length === 1) {
+      try {
+        const plays = Plays.analyze(loaded[0].log, data);
+        for (const r of rs) r.plays = plays;
+      } catch (e) {
+        errors.push(`${loaded[0].id}: could not find the reads and misplays (${e.message || e})`);
+      }
+    }
     if (stale()) return;
     megaNames(rs);
     rows = rs;
@@ -154,6 +164,30 @@ function renderTeams() {
   box.lastChild.append(...cards);
   if ((g.momentum || []).length > 1) box.appendChild(momentumChart(g.momentum, players, rows));
   if (rows[0] && (rows[0].key_moments || []).length) box.appendChild(keyMomentsList(rows[0].key_moments, rows));
+  if (rows[0] && rows[0].plays) box.appendChild(playsList(rows[0].plays));
+}
+/** Reads and misplays (Plays.analyze): each player's count, then every one by turn. A trial (user 2026-10-29: checked
+    by hand before it stays). */
+function playsList(pl) {
+  const count = (s) => `${pl[s].name}: ${pl[s].good} good read${pl[s].good === 1 ? "" : "s"}, ` +
+    `${pl[s].brilliant} brilliant play${pl[s].brilliant === 1 ? "" : "s"}, ${pl[s].bad} misplay${pl[s].bad === 1 ? "" : "s"}`;
+  const list = el("ol", "moments");
+  for (const e of pl.events) {
+    // a brilliant play is told apart by its label; its border is a good read's
+    const li = el("li", e.good ? "lucky" : "unlucky");
+    li.append(el("span", "moment-turn", "Turn " + e.turn), el("span", "moment-who", e.brilliant ? "Brilliant" : e.good ? "Good read" : "Misplay"),
+      el("span", "muted", ` (${pl[e.side].name})`), " " + e.text);
+    list.appendChild(li);
+  }
+  const wrap = el("section", "momentum key-moments");
+  wrap.append(el("h3", "", "Reads and misplays"), el("p", "", count("p1") + " · " + count("p2")),
+    el("p", "hint", "From the log alone: switching in on a hit that does nothing or is resisted, or that's super effective; " +
+      "hitting the Pokémon switching in harder than the one leaving; a move into something it can't affect; a move that fails. " +
+      "Brilliant: a rare play that paid off in the log (Destiny Bond, Counter, Pursuit on a switch, Encore, Taunt, Haze or " +
+      "phazing away boosts, Trick with a Choice item, Perish Song, a KO after Focus Sash or Sturdy). " +
+      "It can't tell a deliberate sacrifice or a double switch from a mistake."),
+    pl.events.length ? list : el("p", "muted", "None found in this game."));
+  return wrap;
 }
 /** Key moments (Luck.keyMoments): the unlikely rolls, by turn, each with whose Pokémon and how likely it was. */
 function keyMomentsList(moments, rows) {
@@ -620,7 +654,8 @@ async function copyShareLink() {
     flash($("share"), "Copy failed");
   }
 }
-/** Luck score columns: need Showdown's move data (and the Pokedex for types); blank if they don't load. */
+/** Luck score columns: need Showdown's move data (and the Pokedex for types); blank if they don't load. Returns
+    that data ({ moves, dex }, or null) for the reads and misplays. */
 async function applyLuck(rows, errors) {
   let data = null;
   if (rows.length) {
@@ -633,4 +668,5 @@ async function applyLuck(rows, errors) {
     }
   }
   LK.addLuck(rows, data);
+  return data;
 }
