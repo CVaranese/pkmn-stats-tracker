@@ -145,23 +145,26 @@
     return [...by.values()].sort((a, b) => b.points - a.points || b.kills - a.kills || a.pokemon.localeCompare(b.pokemon));
   }
 
-  /** The curve for n drafts, best first: about a sixth A, a quarter B, a sixth D, a sixth F, the rest C. */
+  /** The curve for n drafts, best first: each place by where its middle falls in the ranking, the top sixth A, the
+      next quarter B, then C to two thirds, D to five sixths, the rest F (12 drafts: 2 A, 3 B, 3 C, 2 D, 2 F; 3: A, C, D). */
   function curve(n) {
-    const a = Math.round(n / 6), b = Math.round(n / 4), d = Math.round(n / 6), f = Math.round(n / 6);
-    return [["A", a], ["B", b], ["C", Math.max(0, n - a - b - d - f)], ["D", d], ["F", f]].flatMap(([g, k]) => Array(k).fill(g));
+    const cuts = [[1 / 6, "A"], [5 / 12, "B"], [2 / 3, "C"], [5 / 6, "D"]];
+    return Array.from({ length: n }, (_, i) => (cuts.find(([c]) => (i + 0.5) / n <= c) || [, "F"])[1]);
   }
 
   /** Draft report cards: each player's picks graded on their fantasy points (fantasy()) against what a pick of the same
       tier earns (a league priced per Pokémon: the same price band, 1–5, 6–10...), per game, over the whole league. A
       group with fewer than 3 picks brought is held to the league's average pick instead. rows: every league game's
-      rows (RS.gameRows). Each card: { name, key, games (theirs), spent, value (points above expectation, summed),
-      perGame (value / games), depth: [picks at or above expectation, picks brought], waste (draft points on held picks
-      never brought), wasted (their names), best, bust (picks, or null), score, grade (A-F on a curve, "" with no
-      games), place, picks: [{ pokemon, group (tier or band, as shown), cost, games, points, expected (a game), above
-      (null if never brought), away (traded away) }] }. Best first. The grade: value a game counts double, then depth
-      (share brought that pulled their weight) and waste (share of draft points), each against the league (z-scores),
-      on the curve(). */
-  function reportCards(draft, rows) {
+      rows (RS.gameRows); weeks: the weeks played, in order (a pick traded in after the last of them hasn't had a game
+      to be brought to, so it isn't waste). Each card: { name, key, games (theirs), spent, value (points above
+      expectation, summed), perGame (value / games), depth: [picks at or above expectation, picks brought], waste
+      (draft points on held picks never brought), wasted (their names), best, bust (picks, or null), score, grade (A-F
+      on a curve, "" with no games), place (tied scores share it and the grade), picks: draftPool's order, each
+      { pokemon, entry (the draft's), tier, group (tier or band, as shown), cost, trade (draftPool's), away (traded
+      away), games, wins, kills, points, perCost, expected (a game), above (null if never brought) } }. Best first.
+      The grade: value a game counts double, then depth (share brought that pulled their weight) and waste (share of
+      draft points), each against the league (z-scores), on the curve(). */
+  function reportCards(draft, rows, weeks = []) {
     if (!draft || !draft.players) return [];
     const fan = fantasy(rows, draft);
     const tiers = hasTiers(draft);
@@ -173,13 +176,20 @@
       return `${(b - 1) * 5 + 1}–${b * 5}`;
     };
     const round1 = (x) => Math.round(x * 10) / 10;
+    const same = (a, b) => toID(a) === toID(b);
     const cards = Object.keys(draft.players).map((name) => {
       const key = playerKey(draft, name), dp = draftPool(draft, name);
       const mine = fan.filter((f) => playerKey(draft, f.player) === key);
       const picks = dp.pool.map((p) => {
         const fs = mine.filter((f) => drafted(draft, f.player, f.pokemon) === p.entry);
-        return { pokemon: p.entry.pokemon, group: groupOf(p.entry), cost: pickCost(draft, p.entry),
-          games: fs.reduce((t, f) => t + f.games, 0), points: round1(fs.reduce((t, f) => t + f.points, 0)), away: !!(p.trade && p.trade.away) };
+        const add = (k) => fs.reduce((t, f) => t + f[k], 0);
+        const cost = pickCost(draft, p.entry), games = add("games"), points = round1(add("points"));
+        // traded in after the last week played: no game yet to bring it to
+        const inAfter = (dp.trades.filter((t) => t.in.some((m) => same(m, p.entry.pokemon))).pop() || {}).after;
+        const fresh = !!inAfter && weeks.indexOf(inAfter) >= weeks.length - 1;
+        return { pokemon: p.entry.pokemon, entry: p.entry, tier: p.entry.tier || "", group: groupOf(p.entry), cost, trade: p.trade,
+          away: !!(p.trade && p.trade.away), fresh, games, wins: add("wins"), kills: add("kills"), points,
+          perCost: cost && games ? round1(points / cost) : null };
       });
       const games = new Set(rows.filter((r) => playerKey(draft, r.player) === key).map((r) => r.replay_id)).size;
       return { name: dp.name, key, games, spent: dp.spent, picks };
@@ -200,13 +210,15 @@
       c.value = round1(used.reduce((t, p) => t + p.points - expect(p.group) * p.games, 0));
       c.perGame = c.games ? round1(c.value / c.games) : 0;
       c.depth = [used.filter((p) => p.above >= 0).length, used.length];
-      const idle = c.picks.filter((p) => !p.games && !p.away);
+      const idle = c.picks.filter((p) => !p.games && !p.away && !p.fresh);
       c.waste = idle.reduce((t, p) => t + (p.cost || 0), 0);
       c.wasted = idle.map((p) => p.pokemon);
       // ties: the dearer pick (a bust that cost more hurt more)
-      const order = (sign) => [...used].sort((a, b) => sign * (b.above - a.above) || (b.cost || 0) - (a.cost || 0));
-      c.best = order(1)[0] || null;
-      c.bust = (order(-1)[0] && order(-1)[0].above < 0) ? order(-1)[0] : null;
+      const better = (a, b) => a.above > b.above || (a.above === b.above && (a.cost || 0) > (b.cost || 0));
+      const worse = (a, b) => a.above < b.above || (a.above === b.above && (a.cost || 0) > (b.cost || 0));
+      c.best = used.reduce((m, p) => (!m || better(p, m) ? p : m), null);
+      const low = used.reduce((m, p) => (!m || worse(p, m) ? p : m), null);
+      c.bust = low && low.above < 0 ? low : null;
     }
     // the grade: against the league, players with games only
     const graded = cards.filter((c) => c.games);
@@ -219,7 +231,11 @@
     for (const c of cards) c.score = c.games ? round1(2 * zv(c) + zd(c) - zw(c)) : null;
     const out = [...graded].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
     const letters = curve(out.length);
-    out.forEach((c, i) => { c.grade = letters[i]; c.place = i + 1; });
+    // a tie shares the better place and letter
+    out.forEach((c, i) => {
+      const prev = out[i - 1];
+      [c.grade, c.place] = prev && prev.score === c.score ? [prev.grade, prev.place] : [letters[i], i + 1];
+    });
     for (const c of cards) if (!c.games) { c.grade = ""; c.place = null; out.push(c); }
     return out;
   }

@@ -1836,7 +1836,7 @@ ${switchIn}`).hiddenZoroark;
       rr("Bo", "Kingambit", 1, 0, 0), rr("Bo", "Clefable", 0, 0, 0), rr("Bo", "Pikachu", 0, 0, 0)]);
     const card = (c) => [c.name, c.grade, c.games, c.value, c.depth.join("/"), c.waste, c.wasted.join(), c.best && c.best.pokemon, c.bust && c.bust.pokemon].join(" ");
     check("report cards: value against the tier (a small tier against the league), depth, waste, best and bust, graded best first",
-      cards.map(card).join(" | ") === "Ann B 1 6.7 2/2 3 Hattrem Garchomp  | Bo C 1 -0.9 1/3 0  Kingambit Clefable | Cy  0 0 0/0 7 Mew  ",
+      cards.map(card).join(" | ") === "Ann B 1 6.7 2/2 3 Hattrem Garchomp  | Bo D 1 -0.9 1/3 0  Kingambit Clefable | Cy  0 0 0/0 7 Mew  ",
       cards.map(card).join(" | "));
     const ann = cards[0].picks;
     check("report cards: each pick's expected points a game and points above it", same(ann.map((p) => [p.pokemon, p.group, p.expected, p.above]),
@@ -1845,8 +1845,16 @@ ${switchIn}`).hiddenZoroark;
     const priced = Bet.reportCards({ costs: {}, players: { Dee: [{ pokemon: "Mew", cost: 12 }, { pokemon: "Eevee", cost: 1 }, { pokemon: "Ditto" }] } }, []);
     check("report cards: a league priced per Pokémon groups picks in price bands of 5", same(priced[0].picks.map((p) => p.group), ["11–15", "1–5", ""]) &&
       priced[0].grade === "" && priced[0].waste === 13, JSON.stringify(priced[0]));
-    const c12 = Bet.curve(12).join("");
-    check("report cards: the curve for 12 drafts is 2 A, 3 B, 3 C, 2 D, 2 F", c12 === "AABBBCCCDDFF", c12);
+    const c12 = Bet.curve(12).join(""), c3 = Bet.curve(3).join(""), c1 = Bet.curve(1).join("");
+    check("report cards: the curve for 12 drafts is 2 A, 3 B, 3 C, 2 D, 2 F; 3 drafts A, C, D; one alone a C",
+      c12 === "AABBBCCCDDFF" && c3 === "ACD" && c1 === "C", [c12, c3, c1].join(" "));
+    // a tie shares the better letter: Ann and Bo with the same game; a pick traded in after the last week played isn't waste
+    const tie = { costs: { OU: 7 }, players: { Ann: [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Mew", tier: "OU" }],
+      Bo: [{ pokemon: "Kingambit", tier: "OU" }] }, trades: { Ann: [{ out: "Clefable", in: "Mew", after: "Week 1" }] } };
+    const tc = Bet.reportCards(tie, [rr("Ann", "Garchomp", 1, 1, 0), rr("Bo", "Kingambit", 1, 1, 0)], ["Week 1"]);
+    check("report cards: tied drafts share the place and letter; a pick traded in after the last week isn't waste",
+      tc.map((c) => c.grade + c.place).join() === "B1,B1" && tc.find((c) => c.name === "Ann").waste === 0,
+      JSON.stringify(tc.map((c) => [c.name, c.grade, c.place, c.score, c.waste])));
   }
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
   const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],

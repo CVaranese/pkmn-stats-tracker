@@ -15,7 +15,8 @@ async function renderDraft() {
   await loadDraft();
   if (!draft || !draft.players) { $("dr-status").textContent = "The draft didn't load."; draftRows = null; return; }
   draftRows = await loadLeague();
-  draftCards = Bet.reportCards(draft, draftRows);
+  // the weeks played, in order (the library is sorted by date): a pick traded in after the last isn't waste yet
+  draftCards = Bet.reportCards(draft, draftRows, [...new Set(library.map((g) => g.week))]);
   const games = new Set(draftRows.map((r) => r.replay_id)).size;
   $("dr-status").textContent = games < library.length ? `Counted ${games} of ${library.length} games (the rest didn't load).` : "";
   const names = Object.keys(draft.players).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
@@ -33,16 +34,6 @@ function trainerImg(key, cls) {
   const img = Object.assign(el("img", cls), { src: `${DIR}img/trainers/${key}.png`, alt: "", loading: "lazy" });
   img.addEventListener("error", () => img.remove());
   return img;
-}
-/** One drafted Pokémon's season: its fantasy entries summed (a Mega and its base form count as the one pick). */
-function draftPick(d, mine) {
-  const fs = mine.filter((f) => Bet.drafted(draft, f.player, f.pokemon) === d);
-  const add = (k) => fs.reduce((t, f) => t + f[k], 0);
-  const cost = Bet.pickCost(draft, d);
-  const games = add("games");
-  const points = Math.round(add("points") * 10) / 10;
-  return { pokemon: d.pokemon, tier: d.tier, cost, games, wins: add("wins"), kills: add("kills"), points,
-    perCost: cost && games ? Math.round((points / cost) * 10) / 10 : null };
 }
 /** +3.5 / −2.0 / 0.0: a number above or below expectation, one decimal, a real minus sign. */
 const signed = (x) => (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x).toFixed(1);
@@ -82,12 +73,13 @@ function showDraft() {
   // added back with its games before the trade (Bet.draftPool)
   const dp = Bet.draftPool(draft, name);
   const mine = Bet.fantasy(draftRows.filter((r) => playerKey(r.player) === draftPicked), draft);
-  const picks = dp.pool.map((p) => Object.assign(draftPick(p.entry, mine), { trade: p.trade }));
+  // each pick's season and its number against its tier: the report card's picks (Bet.reportCards), one count for both
+  const card = draftCards.find((c) => c.key === draftPicked);
+  const picks = card ? card.picks : [];
   const extra = mine.filter((f) => !Bet.drafted(draft, f.player, f.pokemon));
   const kept = picks.filter((p) => !(p.trade && p.trade.away));
 
   const rec = Bet.records(library, draft).find((p) => p.id === draftPicked);
-  const card = draftCards.find((c) => c.key === draftPicked);
   const spent = dp.spent;
   const brought = picks.filter((p) => p.games);
   const best = [...brought].filter((p) => p.perCost !== null).sort((a, b) => b.perCost - a.perCost)[0];
@@ -103,9 +95,6 @@ function showDraft() {
     best && !(card && card.grade) ? `best value: ${best.pokemon}, ${best.perCost} points per draft point` : ""].filter(Boolean).join(" · "));
   $("dr-head").replaceChildren(who, line);
   showReportCard(card);
-  // each pick's points against what its tier (or price band) earns in as many games, from the report card
-  const above = (i) => (card && card.picks[i] ? card.picks[i].above : null);
-  picks.forEach((p, i) => { p.above = above(i); });
 
   const num = (label, title, key) => ({ label, cls: "num", title, key });
   // a league priced per Pokémon has no tiers: no Tier column
