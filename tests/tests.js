@@ -1889,6 +1889,30 @@ ${switchIn}`).hiddenZoroark;
     check("report cards: a mid-season trade-in's even use counts the weeks since it came in", mc.even.spread === 0 && mc.picks.find((p) => p.pokemon === "Mew").weeksHeld === 2,
       JSON.stringify([mc.even.spread, mc.picks.map((p) => [p.pokemon, p.games, p.weeksHeld])]));
   }
+  {
+    // reads and misplays (Plays.analyze), a real game checked by hand (Week 1, Nezergy vs potatoesareyum): T2 Tapu Fini in on
+    // Close Combat (resisted), T5 Donphan's Earthquake into Enamorus-Therian (on the field), T8 Tyranitar in on Moonblast
+    // (super effective; Houndstone, Ghost, wouldn't have been), T10 Corviknight in on Play Rough, T11 Great Tusk in on U-turn
+    const [dex, moves, rp] = await Promise.all(["../site/data/pokedex.json", "../site/data/moves.json",
+      "../site/ppppp/games/gen9nationaldex-2677227914.json"].map((u) => fetch(u).then((r) => r.json())));
+    const pa = Plays.analyze(rp.log, { dex, moves });
+    const got = pa.events.map((e) => [e.turn, e.side, e.kind].join(" "));
+    check("plays: a real game's reads and misplays, by turn", same(got, ["2 p1 switch-resisted", "5 p1 immune", "8 p2 switch-weak", "8 p1 predicted",
+      "10 p1 switch-resisted", "11 p2 switch-resisted"]) && pa.p1.name === "Nezergy" && pa.p1.good === 3 && pa.p1.bad === 1, JSON.stringify(pa.events));
+    // made up: Encore makes the move not a choice; an ability immunity counts once that ability has been seen; a
+    // replacement after a faint isn't a switch by choice; a locked Outrage isn't a choice; a stat drop blocked by an ability isn't a misplay
+    const head = "|player|p1|Alice|\n|player|p2|Bob|\n|switch|p1a: A|Raging Bolt|100/100\n|switch|p2a: B|Heatran|100/100\n|turn|1\n";
+    const log = head +
+      "|move|p1a: A|Fire Blast|p2a: B\n|-immune|p2a: B|[from] ability: Flash Fire\n|move|p2a: B|Encore|p1a: A\n|-start|p1a: A|Encore\n|upkeep\n|turn|2\n" +
+      "|move|p1a: A|Fire Blast|p2a: B\n|-immune|p2a: B|[from] ability: Flash Fire\n|-end|p1a: A|Encore\n|upkeep\n|turn|3\n" +
+      "|move|p1a: A|Fire Blast|p2a: B\n|-immune|p2a: B|[from] ability: Flash Fire\n|move|p2a: B|Earth Power|p1a: A\n|-damage|p1a: A|0 fnt\n|faint|p1a: A\n|upkeep\n" +
+      "|switch|p1a: C|Garchomp|100/100\n|turn|4\n|move|p1a: C|Outrage|p2a: B|[from]lockedmove\n|-fail|p1a: C\n" +
+      "|move|p2a: B|Parting Shot|p1a: C\n|-fail|p1a: C|unboost|[from] ability: Clear Body|[of] p1a: C\n|upkeep\n|turn|5\n" +
+      "|move|p2a: B|Ice Beam|p1a: C\n|-supereffective|p1a: C\n|-damage|p1a: C|10/100\n|upkeep\n|win|Bob";
+    const syn = Plays.analyze(log).events.map((e) => [e.turn, e.side, e.kind].join(" "));
+    check("plays: Encore, an ability not seen yet, a replacement, a locked move and a blocked stat drop aren't counted",
+      same(syn, ["3 p1 immune"]), JSON.stringify(syn));
+  }
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
   const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],
     Cy: [{ pokemon: "Gyarados" }, { pokemon: "Gyarados-Mega" }] } };
