@@ -1824,37 +1824,43 @@ ${switchIn}`).hiddenZoroark;
     check("fantasy: a traded-away Pokémon has no tier or cost", tf[0].tier === "" && tf[0].cost === null && tf[0].perCost === null, JSON.stringify(tf));
   }
   {
-    // draft report cards (Bet.reportCards): one game, Ann beat Bo. RU has 3 picks brought (Toxapex 2, Clefable 0,
-    // Pikachu 0 points: 2/3 a game); OU only 2, so it's held to the league's average pick (13 points / 5 = 2.6)
+    // draft report cards (Bet.reportCards): one game, Ann beat Bo. Firepower = 3 a KO + 1 per 100% damage. RU has 3
+    // picks brought (Toxapex 0, Clefable 0.5, Pikachu 0: 1/6 a game; hits 5, 3, 0: 8/3); OU only 2, so it's held to the
+    // league's average pick (firepower 11 / 5 = 2.2, hits 11 / 5 = 2.2). Top-10% game: 7 (the 5th of 5 sorted).
     const rd = { costs: { OU: 7, RU: 3 }, players: {
       Ann: [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Toxapex", tier: "RU" }, { pokemon: "Hattrem", tier: "RU" }],
       Bo: [{ pokemon: "Kingambit", tier: "OU" }, { pokemon: "Clefable", tier: "RU" }, { pokemon: "Pikachu", tier: "RU" }],
       Cy: [{ pokemon: "Mew", tier: "OU" }] } };
-    const rr = (player, pokemon, kills, survived, won) => ({ replay_id: "g1", player, pokemon, brought: 1, kills, damage_dealt_pct: 0, survived, won });
-    const cards = Bet.reportCards(rd, [rr("Ann", "Garchomp", 2, 1, 1), rr("Ann", "Toxapex", 0, 1, 1),
+    const rr = (player, pokemon, kills, dmg, hits, won = 0) => ({ replay_id: "g1", player, pokemon, brought: 1, kills,
+      damage_dealt_pct: dmg, hits_taken: hits, survived: 1, won });
+    const cards = Bet.reportCards(rd, [rr("Ann", "Garchomp", 2, 100, 1, 1), rr("Ann", "Toxapex", 0, 0, 5, 1),
       { replay_id: "g1", player: "Ann", pokemon: "Hattrem", brought: 0 },
-      rr("Bo", "Kingambit", 1, 0, 0), rr("Bo", "Clefable", 0, 0, 0), rr("Bo", "Pikachu", 0, 0, 0)]);
-    const card = (c) => [c.name, c.grade, c.games, c.value, c.depth.join("/"), c.waste, c.wasted.join(), c.best && c.best.pokemon, c.bust && c.bust.pokemon].join(" ");
-    check("report cards: value against the tier (a small tier against the league), depth, waste, best and bust, graded best first",
-      cards.map(card).join(" | ") === "Ann B 1 6.7 2/2 3 Hattrem Garchomp  | Bo D 1 -0.9 1/3 0  Kingambit Clefable | Cy  0 0 0/0 7 Mew  ",
+      rr("Bo", "Kingambit", 1, 50, 2), rr("Bo", "Clefable", 0, 50, 3), rr("Bo", "Pikachu", 0, 0, 0)]);
+    const card = (c) => [c.name, c.grade, c.firepower.grade + c.bulk.grade + c.peaks.grade + c.even.grade, c.firepower.perGame,
+      c.bulk.perGame, `${c.peaks.count}/${c.peaks.of}`, c.even.spread, c.best && c.best.pokemon, c.bust && c.bust.pokemon].join(" ");
+    check("report cards: firepower and bulk against the tier (a small tier against the league), peaks, even use, each graded, then overall",
+      cards.map(card).join(" | ") === "Ann B BBBD 4.6 1.1 1/2 0.71 Garchomp Toxapex | Bo D DDDB 1.5 -2.5 0/3 0 Kingambit Pikachu | Cy   0 0 0/0 0  ",
       cards.map(card).join(" | "));
     const ann = cards[0].picks;
-    check("report cards: each pick's expected points a game and points above it", same(ann.map((p) => [p.pokemon, p.group, p.expected, p.above]),
-      [["Garchomp", "OU", 2.6, 5.4], ["Toxapex", "RU", 0.7, 1.3], ["Hattrem", "RU", 0.7, null]]), JSON.stringify(ann));
+    check("report cards: each pick's expected firepower a game, what it did above that, its hits and best game",
+      same(ann.map((p) => [p.pokemon, p.group, p.expected, p.above, p.hits, p.peak]),
+        [["Garchomp", "OU", 2.2, 4.8, 1, 7], ["Toxapex", "RU", 0.2, -0.2, 5, 0], ["Hattrem", "RU", 0.2, null, 0, null]]) &&
+      cards[0].peaks.line === 7 && ann[0].points === 9, JSON.stringify(ann));
     // priced per Pokémon (no tiers): bands of 5
     const priced = Bet.reportCards({ costs: {}, players: { Dee: [{ pokemon: "Mew", cost: 12 }, { pokemon: "Eevee", cost: 1 }, { pokemon: "Ditto" }] } }, []);
     check("report cards: a league priced per Pokémon groups picks in price bands of 5", same(priced[0].picks.map((p) => p.group), ["11–15", "1–5", ""]) &&
-      priced[0].grade === "" && priced[0].waste === 13, JSON.stringify(priced[0]));
+      priced[0].grade === "" && priced[0].bulk.grade === "", JSON.stringify(priced[0]));
     const c12 = Bet.curve(12).join(""), c3 = Bet.curve(3).join(""), c1 = Bet.curve(1).join("");
     check("report cards: the curve for 12 drafts is 2 A, 3 B, 3 C, 2 D, 2 F; 3 drafts A, C, D; one alone a C",
       c12 === "AABBBCCCDDFF" && c3 === "ACD" && c1 === "C", [c12, c3, c1].join(" "));
-    // a tie shares the better letter: Ann and Bo with the same game; a pick traded in after the last week played isn't waste
+    // a tie shares the better letter: Ann and Bo with the same game; a pick traded in after the last week played is left
+    // out of even use (Ann's Mew, no game yet)
     const tie = { costs: { OU: 7 }, players: { Ann: [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Mew", tier: "OU" }],
       Bo: [{ pokemon: "Kingambit", tier: "OU" }] }, trades: { Ann: [{ out: "Clefable", in: "Mew", after: "Week 1" }] } };
-    const tc = Bet.reportCards(tie, [rr("Ann", "Garchomp", 1, 1, 0), rr("Bo", "Kingambit", 1, 1, 0)], ["Week 1"]);
-    check("report cards: tied drafts share the place and letter; a pick traded in after the last week isn't waste",
-      tc.map((c) => c.grade + c.place).join() === "B1,B1" && tc.find((c) => c.name === "Ann").waste === 0,
-      JSON.stringify(tc.map((c) => [c.name, c.grade, c.place, c.score, c.waste])));
+    const tc = Bet.reportCards(tie, [rr("Ann", "Garchomp", 1, 0, 2), rr("Bo", "Kingambit", 1, 0, 2)], ["Week 1"]);
+    check("report cards: tied drafts share the place and letter; a pick traded in after the last week isn't held against even use",
+      tc.map((c) => c.grade + c.place + c.even.grade).join() === "B1B,B1B" && tc.find((c) => c.name === "Ann").even.spread === 0,
+      JSON.stringify(tc.map((c) => [c.name, c.grade, c.place, c.score, c.even])));
   }
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
   const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],

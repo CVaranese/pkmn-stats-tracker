@@ -4,7 +4,9 @@
 
 let draftPicked = "";   // the player shown: a name or key, from a sub-tab or ?tab=draft&player=<key>
 let draftRows = null;   // every league game's rows, loaded the first time the tab opens
-let draftCards = [];    // Bet.reportCards over those rows: each player's grade, best first
+let draftCards = [];    // Bet.reportCards over those rows: each player's picks and grade, best first
+// the report card (grade, vs tier column) only for formats it's designed for (Bet.CARD_FORMATS): singles, no VGC yet
+const CARDS_ON = Bet.CARD_FORMATS.includes(LEAGUE.format);
 onLeagueChange(() => { draftRows = null; draftCards = []; });
 const draftSort = { col: 2, dir: -1 };  // by cost, dearest first
 async function renderDraft() {
@@ -37,25 +39,34 @@ function trainerImg(key, cls) {
 }
 /** +3.5 / −2.0 / 0.0: a number above or below expectation, one decimal, a real minus sign. */
 const signed = (x) => (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x).toFixed(1);
-/** The report card above the picks: the grade on the league's curve, then value, depth, waste, best pick and biggest
-    bust (Bet.reportCards), and how it's graded. Hidden for a player with no games yet. */
+/** The report card above the picks: the overall grade on the league's curve, then firepower, bulk, peaks and even use,
+    each with its letter, the best pick and biggest bust (Bet.reportCards), and how it's graded. Hidden for a player
+    with no games yet. */
 function showReportCard(c) {
   $("dr-card").hidden = !c || !c.grade;
   if (!c || !c.grade) return;
   const n = draftCards.filter((x) => x.grade).length;
   const tiers = Bet.hasTiers(draft), group = tiers ? "tier" : "price band";
+  const plural = (k, one, many = one + "s") => `${k} ${k === 1 ? one : many}`;
   $("dr-grade").textContent = `Report card: ${c.grade} (${c.place} of ${n} drafts)`;
-  const pick = (p) => `${p.pokemon} (${p.group ? (tiers ? p.group : "price " + p.group) : "no " + group}), ${signed(p.above)} in ${p.games} game${p.games === 1 ? "" : "s"}`;
-  simpleTable($("dr-card-table"), [["", ""], ["", ""]], [
-    [["Value", ""], [`${signed(c.value)} points compared with what picks of the same ${group} earn (${signed(c.perGame)} a game)`, ""]],
-    [["Depth", ""], [`${c.depth[0]} of ${c.depth[1]} picks brought at or above their ${group}`, ""]],
-    [["Waste", ""], [c.waste ? `${c.waste} draft point${c.waste === 1 ? "" : "s"} on Pokémon never brought (${c.wasted.join(", ")})` : "Every pick brought at least once", ""]],
-    [["Best pick", ""], [c.best ? pick(c.best) : "–", ""]],
-    [["Biggest bust", ""], [c.bust ? pick(c.bust) : "None below their " + group, ""]],
+  const label = (p) => (p.group ? (tiers ? p.group : "price " + p.group) : "no " + group);
+  const pick = (p) => `${p.pokemon} (${label(p)}), ${signed(p.above)} in ${plural(p.games, "game")}`;
+  const weekOf = (id) => (library.find((g) => g.id === id) || {}).week || "";
+  const peak = c.peaks.best;
+  const { most, least } = c.even;
+  simpleTable($("dr-card-table"), [["", ""], ["", ""], ["", ""]], [
+    [["Firepower", ""], [c.firepower.grade, ""], [`${signed(c.firepower.perGame)} a game: KOs and damage compared with picks of the same ${group}`, ""]],
+    [["Bulk", ""], [c.bulk.grade, ""], [`${signed(c.bulk.perGame)} hits taken a game compared with picks of the same ${group} (hits from moves)`, ""]],
+    [["Peaks", ""], [c.peaks.grade, ""], [`${c.peaks.count} of ${plural(c.peaks.of, "pick")} brought had a top-10% game ` +
+      `(${c.peaks.line} or more)` + (peak ? `; best: ${peak.pokemon}, ${peak.points} in ${weekOf(peak.game) || "one game"}` : ""), ""]],
+    [["Even use", ""], [c.even.grade, ""], [most ? `Most brought ${most.pokemon} (${plural(most.games, "game")}), least ${least.pokemon} ` +
+      `(${plural(least.games, "game")})` : "–", ""]],
+    [["Best pick", ""], ["", ""], [c.best ? pick(c.best) : "–", ""]],
+    [["Biggest bust", ""], ["", ""], [c.bust ? pick(c.bust) : "None below their " + group, ""]],
   ]);
   $("dr-card-table").rows[0].remove();  // no header row: each row names itself
-  $("dr-card-how").textContent = `Graded against the league's other drafts: value a game counts double, then depth and waste. ` +
-    `A pick is held to what a ${group} pick earns a game across the league (fantasy points, as on Fantasy). ` +
+  $("dr-card-how").textContent = `Each part is graded against the league's other drafts, and the overall grade from all four. ` +
+    `Firepower and the best pick and bust: 3 points a KO and 1 per 100% damage, against what a ${group} pick does in as many games. ` +
     `About a sixth of the drafts get an A, a quarter a B, a sixth each a D and an F.`;
 }
 /** The picked player's draft: a line about their season, then every pick (never-brought ones greyed). */
@@ -92,9 +103,9 @@ function showDraft() {
     `${kept.length} Pokémon for ${spent} draft points`, picks.length > kept.length ? `${picks.length - kept.length} traded away` : "",
     `${brought.length} brought so far`,
     // the report card names the best pick (against its tier) when there is one: one "best" on the page, not two
-    best && !(card && card.grade) ? `best value: ${best.pokemon}, ${best.perCost} points per draft point` : ""].filter(Boolean).join(" · "));
+    best && !(CARDS_ON && card && card.grade) ? `best value: ${best.pokemon}, ${best.perCost} points per draft point` : ""].filter(Boolean).join(" · "));
   $("dr-head").replaceChildren(who, line);
-  showReportCard(card);
+  showReportCard(CARDS_ON ? card : null);
 
   const num = (label, title, key) => ({ label, cls: "num", title, key });
   // a league priced per Pokémon has no tiers: no Tier column
@@ -108,8 +119,8 @@ function showDraft() {
     num("KOs", DESCRIPTIONS.kills, (p) => p.kills),
     num("Points", "Fantasy points, as on Fantasy: 3 a KO, 1 per 100% damage, 1 for each game alive at the end, 1 for each win.", (p) => p.points),
     num("Per cost", "Points for each draft point it cost.", (p) => p.perCost ?? -Infinity),
-    num(tiers ? "vs tier" : "vs price", `Points above (or below) what a pick of its ${tiers ? "tier" : "price band"} earns in as many games.`,
-      (p) => p.above ?? -Infinity),
+    ...(CARDS_ON ? [num(tiers ? "vs tier" : "vs price", `Firepower (3 a KO, 1 per 100% damage) above or below what a pick of its ${tiers ? "tier" : "price band"} does in as many games.`,
+      (p) => p.above ?? -Infinity)] : []),
   ], picks, draftSort, (p) => {
     const mon = el("span", "bet-mon");
     mon.append(sprite(p.pokemon, ["gen5/"], "tiny"), p.games ? seasonLink(p.pokemon, "mons", p.pokemon) : p.pokemon);
@@ -117,7 +128,7 @@ function showDraft() {
     const dash = (v) => (p.games ? String(v) : "–");
     return [[mon, ""], ...(tiers ? [[p.tier || "–", ""]] : []), [p.cost === null ? "–" : String(p.cost), "num"], [String(p.games), "num"],
       [dash(p.wins), "num"], [dash(p.kills), "num"], [dash(p.points.toFixed(1)), "num"],
-      [p.perCost === null ? "–" : p.perCost.toFixed(1), "num"], [p.above === null ? "–" : signed(p.above), "num"]];
+      [p.perCost === null ? "–" : p.perCost.toFixed(1), "num"], ...(CARDS_ON ? [[p.above === null ? "–" : signed(p.above), "num"]] : [])];
   }, (sorted) => {
     [...$("dr-table").rows].slice(1).forEach((tr, i) => {
       if (!sorted[i].games) { tr.classList.add("not-brought"); tr.title = "Not brought to a saved game yet"; }

@@ -152,21 +152,25 @@
     return Array.from({ length: n }, (_, i) => (cuts.find(([c]) => (i + 0.5) / n <= c) || [, "F"])[1]);
   }
 
-  /** Draft report cards: each player's picks graded on their fantasy points (fantasy()) against what a pick of the same
-      tier earns (a league priced per Pokémon: the same price band, 1–5, 6–10...), per game, over the whole league. A
-      group with fewer than 3 picks brought is held to the league's average pick instead. rows: every league game's
-      rows (RS.gameRows); weeks: the weeks played, in order (a pick traded in after the last of them hasn't had a game
-      to be brought to, so it isn't waste). Each card: { name, key, games (theirs), spent, value (points above
-      expectation, summed), perGame (value / games), depth: [picks at or above expectation, picks brought], waste
-      (draft points on held picks never brought), wasted (their names), best, bust (picks, or null), score, grade (A-F
-      on a curve, "" with no games), place (tied scores share it and the grade), picks: draftPool's order, each
-      { pokemon, entry (the draft's), tier, group (tier or band, as shown), cost, trade (draftPool's), away (traded
-      away), games, wins, kills, points, perCost, expected (a game), above (null if never brought) } }. Best first.
-      The grade: value a game counts double, then depth (share brought that pulled their weight) and waste (share of
-      draft points), each against the league (z-scores), on the curve(). */
+  /** Draft report cards (singles: CARD_FORMATS), four parts each graded on the league's curve, then an overall grade
+      from all four, so the card says what kind of draft it was and isn't just the standings again (Pinecord, rank
+      correlation with wins: firepower alone 0.97, the four together about 0.6; user 2026-10-29):
+      - Firepower: KOs (3 each) and damage (1 per 100%) against what a pick of the same tier earns in as many games
+        (a league priced per Pokémon: the same price band, 1–5, 6–10...); a group with fewer than 3 picks brought is
+        held to the league's average pick. Per game of theirs.
+      - Bulk: hits taken from the other side's moves (row.hits_taken), against the tier the same way. Per game.
+      - Peaks: share of picks brought with at least one top-10% game (one game's firepower, the league's 90th percentile).
+      - Even use: how evenly the games are spread over the picks held (spread of games per pick / the average; picks
+        traded away or traded in after the last week played left out); lower is better.
+      rows: every league game's rows (RS.gameRows); weeks: the weeks played, in order. Each card: { name, key, games,
+      spent, firepower: { value, perGame, grade }, bulk: { value, perGame, grade }, peaks: { count, of, line (the 90th
+      percentile), best: { pokemon, points, game } | null, grade }, even: { spread, most, least (picks), grade }, best,
+      bust (picks, by firepower against the tier), score, grade, place, picks }. picks: draftPool's order, each
+      { pokemon, entry, tier, group, cost, trade, away, fresh, games, wins, kills, points (fantasy points, as on Fantasy),
+      perCost, fire, hits, peak (best one-game firepower), peakGame, expected (firepower a game), above (null if never
+      brought) }. Grades: "" with no games; tied scores share place and letter. Best first. */
   function reportCards(draft, rows, weeks = []) {
     if (!draft || !draft.players) return [];
-    const fan = fantasy(rows, draft);
     const tiers = hasTiers(draft);
     const groupOf = (d) => {
       if (tiers) return d.tier || "";
@@ -177,66 +181,100 @@
     };
     const round1 = (x) => Math.round(x * 10) / 10;
     const same = (a, b) => toID(a) === toID(b);
+    const best = (list, better) => list.reduce((m, x) => (!m || better(x, m) ? x : m), null);
+    const fireOf = (r) => r.kills * SCORING.kill + (Number(r.damage_dealt_pct) || 0) / 100 * SCORING.damagePer100;
+    const fantasyOf = (r) => fireOf(r) + r.survived * SCORING.survived + r.won * SCORING.won;
+    // each drafted entry's games, from the rows (a Mega and its base form are the one pick: drafted())
+    const byEntry = new Map();
+    const singles = [];
+    for (const r of rows) {
+      if (!r.brought) continue;
+      const d = drafted(draft, r.player, r.pokemon);
+      if (!d) continue;
+      if (!byEntry.has(d)) byEntry.set(d, []);
+      byEntry.get(d).push(r);
+      singles.push(fireOf(r));
+    }
+    singles.sort((a, b) => a - b);
+    const line = singles.length ? round1(singles[Math.floor(singles.length * 0.9)]) : 0;
     const cards = Object.keys(draft.players).map((name) => {
       const key = playerKey(draft, name), dp = draftPool(draft, name);
-      const mine = fan.filter((f) => playerKey(draft, f.player) === key);
       const picks = dp.pool.map((p) => {
-        const fs = mine.filter((f) => drafted(draft, f.player, f.pokemon) === p.entry);
-        const add = (k) => fs.reduce((t, f) => t + f[k], 0);
-        const cost = pickCost(draft, p.entry), games = add("games"), points = round1(add("points"));
+        const rs = byEntry.get(p.entry) || [];
+        const add = (f) => rs.reduce((t, r) => t + f(r), 0);
+        const cost = pickCost(draft, p.entry), games = rs.length, points = round1(add(fantasyOf));
+        const top = best(rs, (a, b) => fireOf(a) > fireOf(b));
         // traded in after the last week played: no game yet to bring it to
         const inAfter = (dp.trades.filter((t) => t.in.some((m) => same(m, p.entry.pokemon))).pop() || {}).after;
-        const fresh = !!inAfter && weeks.indexOf(inAfter) >= weeks.length - 1;
         return { pokemon: p.entry.pokemon, entry: p.entry, tier: p.entry.tier || "", group: groupOf(p.entry), cost, trade: p.trade,
-          away: !!(p.trade && p.trade.away), fresh, games, wins: add("wins"), kills: add("kills"), points,
-          perCost: cost && games ? round1(points / cost) : null };
+          away: !!(p.trade && p.trade.away), fresh: !!inAfter && weeks.indexOf(inAfter) >= weeks.length - 1, games,
+          wins: add((r) => r.won), kills: add((r) => r.kills), points, perCost: cost && games ? round1(points / cost) : null,
+          fire: add(fireOf), hits: add((r) => r.hits_taken || 0), peak: top ? round1(fireOf(top)) : null, peakGame: top ? top.replay_id : null };
       });
       const games = new Set(rows.filter((r) => playerKey(draft, r.player) === key).map((r) => r.replay_id)).size;
       return { name: dp.name, key, games, spent: dp.spent, picks };
     });
-    // what a pick earns a game: its group's, or the league's for a small or unknown group
+    // what a pick does a game: its group's, or the league's for a small or unknown group
     const brought = cards.flatMap((c) => c.picks.filter((p) => p.games));
-    const rate = (ps) => ps.reduce((t, p) => t + p.points, 0) / ps.reduce((t, p) => t + p.games, 0);
-    const overall = brought.length ? rate(brought) : 0;
-    const byGroup = new Map();
-    for (const p of brought) byGroup.set(p.group, [...(byGroup.get(p.group) || []), p]);
-    const expect = (g) => (g && (byGroup.get(g) || []).length >= 3 ? rate(byGroup.get(g)) : overall);
+    const perGameOf = (f) => {
+      const rate = (ps) => ps.reduce((t, p) => t + p[f], 0) / ps.reduce((t, p) => t + p.games, 0);
+      const overall = brought.length ? rate(brought) : 0;
+      const byGroup = new Map();
+      for (const p of brought) byGroup.set(p.group, [...(byGroup.get(p.group) || []), p]);
+      return (g) => (g && (byGroup.get(g) || []).length >= 3 ? rate(byGroup.get(g)) : overall);
+    };
+    const fireExp = perGameOf("fire"), hitExp = perGameOf("hits");
     for (const c of cards) {
-      for (const p of c.picks) {
-        p.expected = round1(expect(p.group));
-        p.above = p.games ? round1(p.points - expect(p.group) * p.games) : null;
-      }
       const used = c.picks.filter((p) => p.games);
-      c.value = round1(used.reduce((t, p) => t + p.points - expect(p.group) * p.games, 0));
-      c.perGame = c.games ? round1(c.value / c.games) : 0;
-      c.depth = [used.filter((p) => p.above >= 0).length, used.length];
-      const idle = c.picks.filter((p) => !p.games && !p.away && !p.fresh);
-      c.waste = idle.reduce((t, p) => t + (p.cost || 0), 0);
-      c.wasted = idle.map((p) => p.pokemon);
+      for (const p of c.picks) {
+        p.expected = round1(fireExp(p.group));
+        p.above = p.games ? round1(p.fire - fireExp(p.group) * p.games) : null;
+      }
+      const over = (f, exp) => used.reduce((t, p) => t + p[f] - exp(p.group) * p.games, 0);
+      const fire = over("fire", fireExp), bulk = over("hits", hitExp);
+      c.firepower = { value: round1(fire), perGame: c.games ? round1(fire / c.games) : 0 };
+      c.bulk = { value: round1(bulk), perGame: c.games ? round1(bulk / c.games) : 0 };
+      const top = best(used, (a, b) => a.peak > b.peak);
+      c.peaks = { count: used.filter((p) => p.peak >= line).length, of: used.length, line,
+        best: top && { pokemon: top.pokemon, points: top.peak, game: top.peakGame } };
+      const held = c.picks.filter((p) => !p.away && !p.fresh);
+      const mean = held.length ? held.reduce((t, p) => t + p.games, 0) / held.length : 0;
+      const sd = held.length ? Math.sqrt(held.reduce((t, p) => t + (p.games - mean) ** 2, 0) / held.length) : 0;
+      c.even = { spread: mean ? Math.round(sd / mean * 100) / 100 : 0, most: best(held, (a, b) => a.games > b.games),
+        least: best(held, (a, b) => a.games < b.games) };
       // ties: the dearer pick (a bust that cost more hurt more)
-      const better = (a, b) => a.above > b.above || (a.above === b.above && (a.cost || 0) > (b.cost || 0));
-      const worse = (a, b) => a.above < b.above || (a.above === b.above && (a.cost || 0) > (b.cost || 0));
-      c.best = used.reduce((m, p) => (!m || better(p, m) ? p : m), null);
-      const low = used.reduce((m, p) => (!m || worse(p, m) ? p : m), null);
+      c.best = best(used, (a, b) => a.above > b.above || (a.above === b.above && (a.cost || 0) > (b.cost || 0)));
+      const low = best(used, (a, b) => a.above < b.above || (a.above === b.above && (a.cost || 0) > (b.cost || 0)));
       c.bust = low && low.above < 0 ? low : null;
     }
-    // the grade: against the league, players with games only
+    // each part on the curve against the league (players with games only), then the overall from all four
     const graded = cards.filter((c) => c.games);
     const z = (f) => {
       const vs = graded.map(f), m = vs.reduce((t, v) => t + v, 0) / (vs.length || 1);
       const sd = Math.sqrt(vs.reduce((t, v) => t + (v - m) ** 2, 0) / (vs.length || 1)) || 1;
-      return (c) => (f(c) - m) / sd;
+      return (c) => round1((f(c) - m) / sd);
     };
-    const zv = z((c) => c.perGame), zd = z((c) => (c.depth[1] ? c.depth[0] / c.depth[1] : 0)), zw = z((c) => (c.spent ? c.waste / c.spent : 0));
-    for (const c of cards) c.score = c.games ? round1(2 * zv(c) + zd(c) - zw(c)) : null;
-    const out = [...graded].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-    const letters = curve(out.length);
-    // a tie shares the better place and letter
-    out.forEach((c, i) => {
-      const prev = out[i - 1];
-      [c.grade, c.place] = prev && prev.score === c.score ? [prev.grade, prev.place] : [letters[i], i + 1];
-    });
-    for (const c of cards) if (!c.games) { c.grade = ""; c.place = null; out.push(c); }
+    const parts = [["firepower", z((c) => c.firepower.perGame)], ["bulk", z((c) => c.bulk.perGame)],
+      ["peaks", z((c) => (c.peaks.of ? c.peaks.count / c.peaks.of : 0))], ["even", z((c) => -c.even.spread)]];
+    /** [card, letter, place] best first on the curve; a tie shares the better letter and place. */
+    const onCurve = (score) => {
+      const sorted = [...graded].sort((a, b) => score(b) - score(a) || a.name.localeCompare(b.name));
+      const letters = curve(sorted.length), out = [];
+      sorted.forEach((c, i) => {
+        const prev = out[i - 1];
+        out.push(prev && score(prev[0]) === score(c) ? [c, prev[1], prev[2]] : [c, letters[i], i + 1]);
+      });
+      return out;
+    };
+    for (const [part, zf] of parts) for (const [c, g] of onCurve(zf)) c[part].grade = g;
+    for (const c of graded) c.score = round1(parts.reduce((t, [, zf]) => t + zf(c), 0) / parts.length);
+    const out = onCurve((c) => c.score).map(([c, g, place]) => Object.assign(c, { grade: g, place }));
+    for (const c of cards) {
+      if (c.games) continue;
+      Object.assign(c, { score: null, grade: "", place: null });
+      for (const [part] of parts) c[part].grade = "";
+      out.push(c);
+    }
     return out;
   }
 
@@ -350,10 +388,12 @@
     });
   }
 
+  // the formats whose draft report cards are designed: singles (Nat Dex); VGC later, adapted (user 2026-10-29)
+  const CARD_FORMATS = ["gen9nationaldex"];
   // the formats whose bet lines are worked out (docs/BETTING_PROPS.md); a league of another format shows no bets
   const BET_FORMATS = ["gen9nationaldex"];
 
-  const Bet = { SCORING, PROPS, BET_FORMATS, weeklyBets, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy, curve, reportCards };
+  const Bet = { SCORING, PROPS, BET_FORMATS, CARD_FORMATS, weeklyBets, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy, curve, reportCards };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -128,7 +128,7 @@
   // per-stint counters, summed per Pokemon
   const COUNTS = ["direct", "passive", "deaths", "hazardKills", "hazardsSet", "hazardsRemoved",
     "switches", "pivots", "forcedOut", "faintSwitchIns",
-    "crits", "critsTaken", "misses", "dodges", "fullParas", "sleepTurns", "flinched", "confusionHits", "procs",
+    "crits", "critsTaken", "hitsTaken", "misses", "dodges", "fullParas", "sleepTurns", "flinched", "confusionHits", "procs",
     "turnsOnField", "koBeforeMoving", "selfKos", "statusesInflicted"];
   const zeroCounts = () => Object.fromEntries(COUNTS.map((f) => [f, 0]));
   const NO_DAMAGE = { dealt: 0, taken: 0, hazard: 0 };
@@ -283,11 +283,13 @@
       return fallback ? [fallback, "passive"] : [null, "none"];
     }
 
-    /** Record HP lost by a stint; the dealer only when it is an opponent. */
-    function hit(target, source, newHp, hazard = false, move = null) {
+    /** Record HP lost by a stint; the dealer only when it is an opponent. byMove: damage straight from a move (not
+        status, weather, hazards, Leech Seed, items), counted in its hits taken. */
+    function hit(target, source, newHp, hazard = false, move = null, byMove = false) {
       const before = target.hp, lost = Math.round((before - newHp) * 100) / 100;
       target.hp = newHp;
       const dealer = source && source.side !== target.side ? source : null;
+      if (dealer && byMove && lost > 0) target.hitsTaken += 1;
       if (lost > 0) hits.push([dealer, target, lost, hazard && !!dealer, dealer ? move : null, turns, before, newHp]);
     }
 
@@ -787,7 +789,7 @@
           target(key).pendingKo = [killer, k, hazard && killer === source, killer === source ? move : null];
         }
         const hp = hpOf(parts[2]);
-        if (hp !== null) hit(stintOf(parts[1]), source, hp, hazard, move);
+        if (hp !== null) hit(stintOf(parts[1]), source, hp, hazard, move, kind === "direct");
         if (!("from" in tags) && ctx && mover === ctx.actor) moveHit(stintOf(parts[1]), false, parts[2]);
         if (ctx && stintOf(parts[1]) === ctx.actor && hpOf(parts[2]) === 0) ctx.actorFainted = true; // Rocky Helmet...
         if (norm(tags.from || "") === "confusion") {
@@ -1021,6 +1023,8 @@
           rolls: b.rolls, // the whole game's, shared by its rows
           momentum: b.momentum, // the whole game's
           side, // p1 / p2: which line of momentum is this player's
+          // hits it took from the other side's moves (not hazards, status, weather or items): how much it soaked up
+          hits_taken: st.hitsTaken,
           // its game turn by turn ([turn, kind, move or reason], kind in / out / move / cant / faint) for the turn strip
           timeline: key ? b.timeline.filter(([k]) => k === key).map(([, ...e]) => e) : [],
           heals_given: b.heals.filter(([h, t]) => h && h === key && t !== key).map(([, t, pct]) => [t, pct]),
