@@ -19,6 +19,7 @@ the real stylesheet; screenshot it (both themes) next to any new control before 
 | `--wall` | the tiled background behind the panel |
 | `--error`, `--error-bg` | error lists and bad statuses only |
 
+Every theme's text pairs must reach WCAG AA (4.5:1): `python -I tests/test_style.py` checks them all, and that no rule writes a colour outside the tokens.
 No new colours outside these tokens. Mega tag black (`--mark-ink`, `#1c1c1a`), Z tag porcelain, and the Pokémon type colours (`.t-fire`...): those are the only fixed colours.
 
 - **League themes**: `style.css`'s `:root` is the default theme, for any league without its own: three palettes
