@@ -3,6 +3,8 @@
 "use strict";
 
 RS.setLocalOnly(LOCAL);
+// the Discord sign-in in the header (app/account.js), on leagues with a Discord server
+if (ACCT) accountReady();
 // a league without its own theme: the viewer's palette (style.css; the page's first script already applied the saved one)
 if ($("palette")) {
   const buttons = [...$("palette").querySelectorAll("button")];

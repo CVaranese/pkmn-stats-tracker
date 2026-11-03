@@ -1,6 +1,10 @@
 {
-  "_note": "One entry per league. Its files are in site/<id>/ (games/, mock/, img/, theme.css). theme_css: the league's own colours over style.css's default theme (leave it out for the default); theme: the browser bar colour. banner.egg: a hidden link over that box of the banner (% of the image) to the preview of the next version, site_url + next/<id>/. After any change run python -I tools/build_pages.py: it writes site/<id>/index.html and the landing page site/index.html. palette: the default theme's starting palette (blastoise, charizard, venusaur), for a league without theme_css. brackets: the league's Challonge tournaments (name, slug), newest first, shown under Games. best_of: games in a set when the league plays sets every week (3 = best of three; unlabelled games of a week between the same two players are then grouped as one set). Without it, only games labelled with a set (index.json set, add_game.py --set) are grouped. set_points (with best_of): standings points for a set, [won without dropping a game, won, lost taking a game, lost without one]; the standings rank by them first. format: the Showdown format id of the league's games (a best-of-three replay's id adds bo3); every league has one (tests/test_tools.py checks it against the saved replays). pickem: the Pick'em tab (app/pickem.js), only where set: contest (its id in the Supabase store, supabase/migrations/), bracket (the league folder's file from tools/challonge_bracket.py), supabase_url and supabase_key (the publishable key: public by design, row-level security guards the data), server (the Discord server's name, for the sign-in text).",
+  "_note": "One entry per league. Its files are in site/<id>/ (games/, mock/, img/, theme.css). theme_css: the league's own colours over style.css's default theme (leave it out for the default); theme: the browser bar colour. banner.egg: a hidden link over that box of the banner (% of the image) to the preview of the next version, site_url + next/<id>/. After any change run python -I tools/build_pages.py: it writes site/<id>/index.html and the landing page site/index.html. palette: the default theme's starting palette (blastoise, charizard, venusaur), for a league without theme_css. brackets: the league's Challonge tournaments (name, slug), newest first, shown under Games. best_of: games in a set when the league plays sets every week (3 = best of three; unlabelled games of a week between the same two players are then grouped as one set). Without it, only games labelled with a set (index.json set, add_game.py --set) are grouped. set_points (with best_of): standings points for a set, [won without dropping a game, won, lost taking a game, lost without one]; the standings rank by them first. format: the Showdown format id of the league's games (a best-of-three replay's id adds bo3); every league has one (tests/test_tools.py checks it against the saved replays). discord: the league's Discord server, only for leagues that have one: the Discord sign-in in the page header (app/account.js) shows on those only. server (its name, for the sign-in text), guild (its id; the same id as the league's row in the Supabase store's leagues table, supabase/migrations/). pickem: the Pick'em tab (app/pickem.js), only where set, and only with discord: contest (its id in the Supabase store), bracket (the league folder's file from tools/challonge_bracket.py). supabase (site-wide): the store behind the sign-in, url and key (the publishable key: public by design, row-level security guards the data).",
   "site_url": "https://cvaranese.github.io/pkmn-stats-tracker/",
+  "supabase": {
+    "url": "https://djwfayvdytvvdcecsnqa.supabase.co",
+    "key": "sb_publishable_Sf5HjDa6fwjdNWx2oHGNqw_KtH-RKEm"
+  },
   "leagues": [
     {
       "id": "ppppp",
@@ -27,12 +31,13 @@
       },
       "theme": "#1f6f61",
       "theme_css": "theme.css",
+      "discord": {
+        "server": "Pinecord",
+        "guild": "879895025062936576"
+      },
       "pickem": {
         "contest": "ppppp-2026-playoffs",
-        "bracket": "games/playoffs.json",
-        "supabase_url": "https://djwfayvdytvvdcecsnqa.supabase.co",
-        "supabase_key": "sb_publishable_Sf5HjDa6fwjdNWx2oHGNqw_KtH-RKEm",
-        "server": "Pinecord"
+        "bracket": "games/playoffs.json"
       },
       "brackets": [
         {

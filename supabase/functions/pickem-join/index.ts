@@ -1,8 +1,8 @@
-// Pick'em membership check (S-1). The page calls this right after a Discord sign-in with the Discord token Supabase
-// hands it (provider_token, scopes "identify guilds"). It checks the token belongs to the signed-in user, asks Discord
-// which servers they're in, and writes their people row (Discord display name) and, when they're in a contest's
-// server, their guild_members row, with the secret key. The picks write policy needs that row, so the page alone
-// can't let anyone in. Nothing else from Discord is kept (not the token, not the server list).
+// The Discord sign-in's membership check (S-1; site-wide since S-2: site/app/account.js). The page calls this right
+// after a Discord sign-in with the Discord token Supabase hands it (provider_token, scopes "identify guilds"). It
+// checks the token belongs to the signed-in user, asks Discord which servers they're in, and writes their people row
+// (Discord display name) and, when they're in a league's server (table leagues), their guild_members row, with the
+// secret key. The picks write policy needs that row, so the page alone can't let anyone in. Nothing else from Discord is kept (not the token, not the server list).
 //
 // Deployed with verify_jwt off: the new sb_ API keys aren't JWTs, so the user's session is checked here instead
 // (auth.getUser on the Authorization header).
@@ -65,11 +65,11 @@ Deno.serve(async (req) => {
   const { error: pErr } = await admin.from("people").upsert({ id: user.id, discord_id: String(me.id), name });
   if (pErr) return reply(req, 500, { error: pErr.message });
 
-  // the contests' servers this person is in; memberships of servers they've left go
-  const { data: contests, error: cErr } = await admin.from("contests").select("guild_id");
+  // the leagues' servers this person is in; memberships of servers they've left go
+  const { data: leagues, error: cErr } = await admin.from("leagues").select("guild_id");
   if (cErr) return reply(req, 500, { error: cErr.message });
   const theirs = new Set(guilds.map((g) => String(g.id)));
-  const servers = [...new Set((contests ?? []).map((c) => c.guild_id))];
+  const servers = [...new Set((leagues ?? []).map((l) => l.guild_id))];
   const inside = servers.filter((g) => theirs.has(g));
   const outside = servers.filter((g) => !theirs.has(g));
   if (inside.length) {

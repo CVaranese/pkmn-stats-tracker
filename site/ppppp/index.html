@@ -20,7 +20,7 @@
   <meta property="og:image:alt" content="Peter Pikmon&#x27;s Pinecord Pokémon Pissfest banner">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#1f6f61">
-  <script>window.LEAGUE = {"id": "ppppp", "name": "Pinecord Pokémon Pissfest", "short": "Pinecord", "tag": "PPPPP", "format": "gen9nationaldex", "format_name": "Nat Dex singles", "brackets": [{"name": "Playoffs", "slug": "peepeepeepeepisspiss"}, {"name": "Swiss rounds", "slug": "peepeepeepeepiss"}], "best_of": 0, "set_points": null, "pickem": {"contest": "ppppp-2026-playoffs", "bracket": "games/playoffs.json", "supabase_url": "https://djwfayvdytvvdcecsnqa.supabase.co", "supabase_key": "sb_publishable_Sf5HjDa6fwjdNWx2oHGNqw_KtH-RKEm", "server": "Pinecord"}, "palette": ""};</script>
+  <script>window.LEAGUE = {"id": "ppppp", "name": "Pinecord Pokémon Pissfest", "short": "Pinecord", "tag": "PPPPP", "format": "gen9nationaldex", "format_name": "Nat Dex singles", "brackets": [{"name": "Playoffs", "slug": "peepeepeepeepisspiss"}, {"name": "Swiss rounds", "slug": "peepeepeepeepiss"}], "best_of": 0, "set_points": null, "pickem": {"contest": "ppppp-2026-playoffs", "bracket": "games/playoffs.json"}, "discord": {"server": "Pinecord", "guild": "879895025062936576", "supabase": {"url": "https://djwfayvdytvvdcecsnqa.supabase.co", "key": "sb_publishable_Sf5HjDa6fwjdNWx2oHGNqw_KtH-RKEm"}}, "palette": ""};</script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="ppppp/theme.css">
 </head>
@@ -36,6 +36,8 @@
       <h1>The Draftboard</h1>
       <p class="lede">Kills, damage, MVPs and luck from Pinecord&#x27;s Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets. <a href="./">Other leagues</a></p>
       </div>
+      <!-- leagues with discord in site/leagues.json; filled by app/account.js -->
+      <div class="account" id="account" hidden></div>
     </header>
 
     <nav class="modes" aria-label="View">
@@ -302,6 +304,7 @@
   <script src="league.js"></script>
   <!-- the page: plain scripts sharing one scope, in this order; startup.js last -->
   <script src="app/core.js"></script>
+  <script src="app/account.js"></script>
   <script src="app/games.js"></script>
   <script src="app/season.js"></script>
   <script src="app/zoroark.js"></script>

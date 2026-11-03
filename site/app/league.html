@@ -26,6 +26,8 @@
       <h1>{{title}}</h1>
       <p class="lede">{{lede}} <a href="./">Other leagues</a></p>
 {{palette_picker}}      </div>
+      <!-- leagues with discord in site/leagues.json; filled by app/account.js -->
+      <div class="account" id="account" hidden></div>
     </header>
 
     <nav class="modes" aria-label="View">
@@ -292,6 +294,7 @@
   <script src="league.js"></script>
   <!-- the page: plain scripts sharing one scope, in this order; startup.js last -->
   <script src="app/core.js"></script>
+  <script src="app/account.js"></script>
   <script src="app/games.js"></script>
   <script src="app/season.js"></script>
   <script src="app/zoroark.js"></script>
