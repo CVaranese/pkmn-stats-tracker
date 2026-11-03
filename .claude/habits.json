@@ -35,5 +35,8 @@
       "docs": ["docs/REVIEW_QUEUE.md"],
       "message": "This session changed the page's look or layout (site/*.html or *.css) but docs/REVIEW_QUEUE.md has no newer edit. Add what the user should check by eye, or say why nothing needs checking."
     }
-  ]
+  ],
+  "tasks": {"prefix": "S-", "review_since": "2026-11-03"},
+  "trackers": {"lists": ["docs/REVIEW_QUEUE.md", "docs/FEATURES.md"]},
+  "precommit": ["python3 -I tools/tasks.py --check"]
 }
