@@ -44,12 +44,11 @@ page". The control must not hint at betting features (memory "gambling-tease-onl
   Screenshots signed out: dark 1400, light 1400 and 760, 360 phone; Super Champions has no sign-in. Code review on the
   branch against `next`: 5 findings, 3 fixed (header overlap at mid widths, serial store reads, live region); the
   redirect allow list is on the review queue.
-- Not done: the store change. `supabase/migrations/20261103120000_leagues_discord.sql` (table `leagues` with the
-  server id, picks policy reads it) and the `pickem-join` change (servers from `leagues`) are written, not applied /
-  deployed (the apply was refused without the user's OK). The page works without them (membership is read by server
-  id from `guild_members`); they're what makes membership league-level for a league with no contest yet. Order:
-  apply the migration, then deploy the function, then mark the migration file applied. `contests.guild_id` is dropped
-  in a later migration once `next` has this page.
+- 2026-11-02, user OK: `supabase/migrations/20261103120000_leagues_discord.sql` applied (table `leagues` with the
+  server id; the picks policy reads it) and `pickem-join` redeployed (version 2; servers from `leagues`). Checked:
+  `leagues` reads publicly (1 row, ppppp), the function answers 401 unsigned, the existing member can still pick and a
+  made-up user can't (`private.pickem_can_pick`, in a rolled-back transaction). Left: drop `contests.guild_id` in its
+  own migration once `next` has this page (the page on `next` still reads it).
 
 ## Done when
 - Signing in on any tab shows the signed-in state on all tabs after a reload, with one shared client.

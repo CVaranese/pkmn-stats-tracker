@@ -1,8 +1,8 @@
 // The Discord sign-in's membership check (S-1; site-wide since S-2: site/app/account.js). The page calls this right
 // after a Discord sign-in with the Discord token Supabase hands it (provider_token, scopes "identify guilds"). It
 // checks the token belongs to the signed-in user, asks Discord which servers they're in, and writes their people row
-// (Discord display name) and, when they're in a league's server (table leagues), their guild_members row, with the secret key. The picks write policy needs that row, so the page alone
-// can't let anyone in. Nothing else from Discord is kept (not the token, not the server list).
+// (Discord display name) and, when they're in a league's server (table leagues), their guild_members row, with the
+// secret key. The picks write policy needs that row, so the page alone can't let anyone in. Nothing else from Discord is kept (not the token, not the server list).
 //
 // Deployed with verify_jwt off: the new sb_ API keys aren't JWTs, so the user's session is checked here instead
 // (auth.getUser on the Authorization header).

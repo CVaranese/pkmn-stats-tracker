@@ -2,8 +2,8 @@
 -- check (pickem-join) records the servers of every league here, so a member is known on any tab, before the league
 -- has a contest; contests read the server from their league. contests.guild_id stays until the page on `next` no
 -- longer reads it (then drop it in its own migration).
--- NOT APPLIED YET (2026-11-02: waiting on the user's go-ahead); apply through the Supabase MCP server (project
--- djwfayvdytvvdcecsnqa), then deploy supabase/functions/pickem-join (verify_jwt off), then change this line.
+-- Applied 2026-11-02 through the Supabase MCP server (project djwfayvdytvvdcecsnqa), with supabase/functions/pickem-join
+-- redeployed right after (version 2, verify_jwt off); this file is the record.
 
 create table public.leagues (
   id text primary key,            -- the league's id in site/leagues.json
