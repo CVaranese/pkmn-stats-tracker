@@ -26,16 +26,33 @@ Used in: [task S-1](../tasks/S-1-playoff-pickem.md). Research of 2026-11-02.
 - **Decision** (session 2026-11-02, task S-1): use Supabase. Reasons: built-in Discord login on the free plan, and
   Postgres row-level security can enforce the pick lock and keep visitors from writing points.
 
-## Design (not built or tested)
-- **Guess**: the browser uses only the project URL and the publishable/anon key, which are safe to publish because
-  row-level security protects the data. The `service_role` key never goes in the site or the repo. Proposed tables:
-  - `people`: Discord user id, Discord name.
-  - `picks`: person, match, picked winner; a policy allows insert/update only for the signed-in person's own rows
-    and only before the lock time.
-  - `results`: match, winner; written only by the admin (e.g. from Challonge, with a local tool holding the service
-    key outside the repo).
-  - `points`: a view over picks + results, so nobody can edit them. A later points ledger for bets would key to
-    `people`.
+## As built (2026-11-02, branch `pickem`)
+The SQL is in `supabase/migrations/` (applied through the Supabase MCP server; the files are the record), the
+membership function in `supabase/functions/pickem-join/`, the page in `site/app/pickem.js`.
+- Tables: `people` (auth user id, Discord id, display name), `guild_members` (Discord server id, person), `contests`
+  (id, league, server, `lock_at`), `pickem_matches` (round, points, winner seed, where each side comes from),
+  `picks` (person, contest, match, seed). A later points ledger for bets keys to `people`.
+- **Tested** (SQL as made-up users, rolled back): a server member's pick saves; a non-member's is refused by
+  row-level security; nothing saves after `lock_at`; anonymous visitors read 0 picks before the lock and all after;
+  people can't rename themselves (no update grant on `people`); `pickem_leaderboard` is callable signed out.
+- **Tested**: a pick scores only when that player reaches the match through the person's own earlier picks
+  (recursive check in `pickem_leaderboard`, same rule as `League.pickemClean`), so a hedged bracket (seed 9 in round
+  1, seed 8 in the next round) scored 0.
+- **Tested**: the policies' helper checks live in a `private` schema the API doesn't expose; the Supabase security
+  advisor's only warning left is `pickem_leaderboard` being callable signed out, which is on purpose (public
+  leaderboard, user 2026-11-02).
+- **Researched** (supabase.com/docs/guides/getting-started/migrating-to-new-api-keys): the new `sb_publishable_` /
+  `sb_secret_` keys aren't JWTs. An Edge Function's built-in `verify_jwt` only understands the legacy keys, so
+  `pickem-join` is deployed with it off and checks the session itself (`auth.getUser` on the Authorization header).
+  Functions get the secret key as `SUPABASE_SECRET_KEYS` (JSON, `default`).
+- **Tested**: `pickem-join` answers 401 to a call with no session, and its CORS allows the local site. A real Discord
+  sign-in through it is not tested yet (needs a Discord account; review queue).
+- **Tested** (the project's `/auth/v1/authorize`, 2026-11-02): the sign-in asks Discord for `email identify guilds`;
+  Supabase adds `email` itself, so Auth's users list keeps each person's email (our tables don't).
+- **Guess** (supabase-js behaviour): Discord's token (`provider_token`) is in the session only after a fresh sign-in,
+  so the page calls `pickem-join` then, and later visits read the stored membership row.
+- Results: `python -I tools/challonge_bracket.py --sql` writes `site/ppppp/games/playoffs.json` and prints the upsert
+  for `pickem_matches`; run it in the SQL editor or through the MCP server after each round.
 
 ## Setup steps (only the user can do these)
 1. Make a Supabase account and a free project.

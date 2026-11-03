@@ -1,5 +1,5 @@
 {
-  "_note": "One entry per league. Its files are in site/<id>/ (games/, mock/, img/, theme.css). theme_css: the league's own colours over style.css's default theme (leave it out for the default); theme: the browser bar colour. banner.egg: a hidden link over that box of the banner (% of the image) to the preview of the next version, site_url + next/<id>/. After any change run python -I tools/build_pages.py: it writes site/<id>/index.html and the landing page site/index.html. palette: the default theme's starting palette (blastoise, charizard, venusaur), for a league without theme_css. brackets: the league's Challonge tournaments (name, slug), newest first, shown under Games. best_of: games in a set when the league plays sets every week (3 = best of three; unlabelled games of a week between the same two players are then grouped as one set). Without it, only games labelled with a set (index.json set, add_game.py --set) are grouped. set_points (with best_of): standings points for a set, [won without dropping a game, won, lost taking a game, lost without one]; the standings rank by them first. format: the Showdown format id of the league's games (a best-of-three replay's id adds bo3); every league has one (tests/test_tools.py checks it against the saved replays).",
+  "_note": "One entry per league. Its files are in site/<id>/ (games/, mock/, img/, theme.css). theme_css: the league's own colours over style.css's default theme (leave it out for the default); theme: the browser bar colour. banner.egg: a hidden link over that box of the banner (% of the image) to the preview of the next version, site_url + next/<id>/. After any change run python -I tools/build_pages.py: it writes site/<id>/index.html and the landing page site/index.html. palette: the default theme's starting palette (blastoise, charizard, venusaur), for a league without theme_css. brackets: the league's Challonge tournaments (name, slug), newest first, shown under Games. best_of: games in a set when the league plays sets every week (3 = best of three; unlabelled games of a week between the same two players are then grouped as one set). Without it, only games labelled with a set (index.json set, add_game.py --set) are grouped. set_points (with best_of): standings points for a set, [won without dropping a game, won, lost taking a game, lost without one]; the standings rank by them first. format: the Showdown format id of the league's games (a best-of-three replay's id adds bo3); every league has one (tests/test_tools.py checks it against the saved replays). pickem: the Pick'em tab (app/pickem.js), only where set: contest (its id in the Supabase store, supabase/migrations/), bracket (the league folder's file from tools/challonge_bracket.py), supabase_url and supabase_key (the publishable key: public by design, row-level security guards the data), server (the Discord server's name, for the sign-in text).",
   "site_url": "https://cvaranese.github.io/pkmn-stats-tracker/",
   "leagues": [
     {
@@ -27,6 +27,13 @@
       },
       "theme": "#1f6f61",
       "theme_css": "theme.css",
+      "pickem": {
+        "contest": "ppppp-2026-playoffs",
+        "bracket": "games/playoffs.json",
+        "supabase_url": "https://djwfayvdytvvdcecsnqa.supabase.co",
+        "supabase_key": "sb_publishable_Sf5HjDa6fwjdNWx2oHGNqw_KtH-RKEm",
+        "server": "Pinecord"
+      },
       "brackets": [
         {
           "name": "Playoffs",

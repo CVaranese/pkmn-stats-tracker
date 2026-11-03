@@ -183,6 +183,49 @@ class SetIllusion(unittest.TestCase):
             self.assertEqual(g["illusion"], {"p1": [3]}, pick)
 
 
+class ChallongeBracket(unittest.TestCase):
+    """tools/challonge_bracket.py on a 6-player single elimination: two first-round matches, the top two seeds wait."""
+    @staticmethod
+    def tournament(winner_a=None):
+        ps = [{"participant": {"id": 100 + s, "seed": s, "name": f" P{s} "}} for s in range(1, 7)]
+
+        def m(mid, ident, rnd, order, p1=None, p2=None, pre1=None, pre2=None, winner=None):
+            return {"match": {"id": mid, "identifier": ident, "round": rnd, "suggested_play_order": order,
+                              "player1_id": p1, "player2_id": p2, "player1_prereq_match_id": pre1,
+                              "player2_prereq_match_id": pre2, "player1_is_prereq_match_loser": False,
+                              "player2_is_prereq_match_loser": False,
+                              "state": "complete" if winner else "open", "winner_id": winner}}
+        return {"participants": ps, "matches": [
+            m(5, "E", 3, 5, pre1=3, pre2=4), m(1, "A", 1, 1, 104, 105, winner=winner_a), m(2, "B", 1, 2, 103, 106),
+            m(3, "C", 2, 3, p1=101, pre2=1), m(4, "D", 2, 4, p1=102, pre2=2)]}
+
+    def test_bracket(self):
+        cb = load("tools/challonge_bracket.py")
+        b = cb.bracket(self.tournament(winner_a=105), "slug", "ppppp-2026-playoffs")
+        self.assertEqual(cb.settings("ppppp")[1], "ppppp-2026-playoffs", "contest id from site/leagues.json")
+        self.assertTrue(cb.settings("ppppp")[2].replace("\\", "/").endswith("site/ppppp/games/playoffs.json"))
+        self.assertEqual([r["name"] for r in b["rounds"]], ["Quarterfinals", "Semifinals", "Final"])
+        self.assertEqual([r["points"] for r in b["rounds"]], [1, 2, 4])
+        self.assertEqual(b["players"][0], {"seed": 1, "name": "P1"})
+        self.assertEqual([m["id"] for m in b["matches"]], ["A", "B", "C", "D", "E"])
+        a, _, c, _, e = b["matches"]
+        self.assertEqual((a["p1"], a["p2"], a["winner"]), ({"seed": 4}, {"seed": 5}, 5))
+        self.assertEqual((c["p1"], c["p2"], c["winner"]), ({"seed": 1}, {"from": "A"}, None))
+        self.assertEqual((e["p1"], e["p2"]), ({"from": "C"}, {"from": "D"}))
+        self.assertIn("('ppppp-2026-playoffs', 'A', 1, 1, 5, 4, null, 5, null)", cb.sql(b))
+        self.assertIn("('ppppp-2026-playoffs', 'C', 2, 2, null, 1, null, null, 'A')", cb.sql(b))
+        self.assertIn("('ppppp-2026-playoffs', 'E', 3, 4, null, null, 'C', null, 'D')", cb.sql(b))
+
+    def test_saved_bracket_is_complete(self):
+        """site/ppppp/games/playoffs.json: every match has two sides, each from a seed or an earlier match."""
+        b = json.loads((Path(__file__).resolve().parent.parent / "site/ppppp/games/playoffs.json").read_text("utf-8"))
+        ids, seeds = [m["id"] for m in b["matches"]], {p["seed"] for p in b["players"]}
+        for i, m in enumerate(b["matches"]):
+            for side in (m["p1"], m["p2"]):
+                self.assertTrue(side.get("seed") in seeds or side.get("from") in ids[:i], (m["id"], side))
+        self.assertEqual(len(b["matches"]), len(b["players"]) - 1, "single elimination: one match fewer than players")
+
+
 class Releases(unittest.TestCase):
     """The release steps in CLAUDE.md: each version is a CHANGELOG.md heading, a site/releases.json entry and a git tag."""
     ROOT = Path(__file__).resolve().parent.parent

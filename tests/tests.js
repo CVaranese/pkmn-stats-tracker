@@ -731,6 +731,29 @@
       !LG.isPlayoffWeek("Week 1") && !LG.isPlayoffWeek("Week 10") && LG.isPlayoffWeek("Quarterfinals") &&
       LG.isPlayoffWeek("Finals") && LG.isPlayoffWeek("Playoffs Round 1"));
   }
+  // ---- Pick'em: bracket maths and scoring (6 players: A 4v5, B 3v6; seeds 1 and 2 wait in C and D; E the final) ----
+  {
+    const LG = window.League;
+    const mini = (w = {}) => ({
+      rounds: [{ round: 1, points: 1 }, { round: 2, points: 2 }, { round: 3, points: 4 }],
+      matches: [{ id: "A", round: 1, p1: { seed: 4 }, p2: { seed: 5 } }, { id: "B", round: 1, p1: { seed: 3 }, p2: { seed: 6 } },
+        { id: "C", round: 2, p1: { seed: 1 }, p2: { from: "A" } }, { id: "D", round: 2, p1: { seed: 2 }, p2: { from: "B" } },
+        { id: "E", round: 3, p1: { from: "C" }, p2: { from: "D" } }].map((m) => ({ ...m, winner: w[m.id] ?? null })),
+    });
+    check("Pick'em: changing an early pick drops the later picks that followed it",
+      same(LG.pickemClean(mini(), { A: 4, B: 3, C: 5, D: 2, E: 5 }), { A: 4, B: 3, D: 2 }),
+      JSON.stringify(LG.pickemClean(mini(), { A: 4, B: 3, C: 5, D: 2, E: 5 })));
+    const slots = LG.pickemSlots(mini(), { A: 4, B: 3 });
+    check("Pick'em: a match's players follow the picks before it", same(slots, { A: [4, 5], B: [3, 6], C: [1, 4], D: [2, 3], E: [null, null] }),
+      JSON.stringify(slots));
+    const res = mini({ A: 5, B: 6, C: 5 });
+    const s1 = LG.pickemScore(res, { A: 5, B: 3, C: 5, D: 2, E: 5 });
+    check("Pick'em: points by round, and what's still possible", same(s1, { points: 3, right: 2, played: 3, possible: 9, picked: 5 }), JSON.stringify(s1));
+    const s2 = LG.pickemScore(res, { A: 4, B: 6, C: 1, D: 6, E: 1 });
+    check("Pick'em: a knocked-out player's later picks can't score", same(s2, { points: 1, right: 1, played: 3, possible: 3, picked: 5 }), JSON.stringify(s2));
+    const ranks = LG.pickemRanks([{ name: "b", points: 5 }, { name: "a", points: 5 }, { name: "c", points: 9 }, { name: "d", points: 0 }]);
+    check("Pick'em: equal points share a place", ranks.map((e) => e.name + e.place).join(" ") === "c1 a2 b2 d4", JSON.stringify(ranks));
+  }
   // ---- team sheets ----
   const TS = window.TeamSheets;
   const EXPORT = `=== [gen9nationaldex] League ===
