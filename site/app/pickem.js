@@ -1,16 +1,13 @@
 /* Pick'em tab (leagues with pickem in site/leagues.json): the playoff bracket drawn round by round, a winner picked for
-   every match, saved to the Supabase store (supabase/migrations/) after a Discord sign-in, and the leaderboard. Bracket
-   maths in league.js (pickemClean / pickemSlots / pickemScore / pickemRanks). The store enforces who can pick (members
-   of the league's Discord server, checked by supabase/functions/pickem-join) and the lock; everyone's brackets open
-   after the lock. */
+   every match, saved to the Supabase store (supabase/migrations/) after the Discord sign-in (app/account.js: the
+   client, the session, membership), and the leaderboard. Bracket maths in league.js (pickemClean / pickemSlots /
+   pickemScore / pickemRanks). The store enforces who can pick (members of the league's Discord server) and the lock;
+   everyone's brackets open after the lock. */
 "use strict";
 
 const PK = LEAGUE.pickem;
-// supabase-js, pinned with its hash (2.118.0, 2026-10-15); loaded only when the tab opens
-const PK_LIB = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js";
-const PK_LIB_HASH = "sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp";
 const PK_DRAFT_KEY = KEYS + "pickem";  // picks made before signing in (this browser only), saved once signed in
-// { sb, bracket, lockAt, guild, user, name, member, mine, saved, viewing, board, all }
+// { sb, bracket, lockAt, user, name, member, mine, saved, viewing, board, all } (user / name / member: acct's)
 let pk = null;
 let pkStarted = null;
 let pkSaving = Promise.resolve();
@@ -26,80 +23,33 @@ const pkStatus = (text) => { $("pk-status").textContent = text; };
 const pkLocked = () => pk && Date.now() >= pk.lockAt.getTime();
 const pkName = (seed) => (pk.bracket.players.find((p) => p.seed === seed) || { name: "?" }).name;
 
-function pkLoadLib() {
-  if (window.supabase) return Promise.resolve();
-  return new Promise((ok, fail) => {
-    const s = Object.assign(document.createElement("script"), { src: PK_LIB, integrity: PK_LIB_HASH, crossOrigin: "anonymous" });
-    s.onload = ok;
-    s.onerror = () => fail(new Error("The sign-in library didn't load. Reload the page to try again."));
-    document.head.append(s);
-  });
-}
-
 async function pkStart() {
   pkStatus("Loading the bracket…");
+  // who is signed in first: a sign-in coming back from Discord is swapped for a session there
   const [bracket] = await Promise.all([
     fetch(DIR + PK.bracket, { cache: "no-cache" }).then((r) => {
       if (!r.ok) throw new Error("The bracket didn't load.");
       return r.json();
     }),
-    pkLoadLib()]);
-  // PKCE: Discord sends the visitor back with ?code=, which the library swaps for a session on its own
-  const sb = window.supabase.createClient(PK.supabase_url, PK.supabase_key, { auth: { flowType: "pkce" } });
-  pk = { sb, bracket, lockAt: null, guild: "", user: null, name: "", member: false, mine: {}, saved: {}, viewing: null, board: [], all: null };
-  const { data: contest, error } = await sb.from("contests").select("lock_at, guild_id").eq("id", PK.contest).single();
+    accountReady()]);
+  const sb = await accountClient();
+  pk = { sb, bracket, lockAt: null, user: acct.user, name: acct.name, member: acct.member, mine: {}, saved: {}, viewing: null, board: [], all: null };
+  const { data: contest, error } = await sb.from("contests").select("lock_at").eq("id", PK.contest).single();
   if (error) throw new Error("The picks store didn't answer. Reload the page to try again.");
   pk.lockAt = new Date(contest.lock_at);
-  pk.guild = contest.guild_id;
   // winners only from the store, which also scores the leaderboard (the file's are the same once the admin has run
   // tools/challonge_bracket.py --sql; until then the page and the leaderboard must not disagree)
   const { data: results, error: rErr } = await sb.from("pickem_matches").select("match_id, winner").eq("contest_id", PK.contest);
   if (rErr) throw new Error("The picks store didn't answer. Reload the page to try again.");
   const won = Object.fromEntries(results.map((r) => [r.match_id, r.winner]));
   for (const m of bracket.matches) m.winner = won[m.id] ?? null;
-  const { data: { session } } = await sb.auth.getSession();
-  pkDropCode();
-  // a failed Discord check still draws the bracket and the Sign out button (the way to retry)
-  let joinError = "";
-  if (session) await pkJoin(session).catch((e) => { joinError = e.message || String(e); });
   await pkLoadPicks();
   pkIntro();
   pkAccount();
   pkDraw();
-  pkStatus(joinError || pkPickedText());
+  // a failed Discord check still draws the bracket and the Sign out button (the way to retry)
+  pkStatus(acct.error || pkPickedText());
   await pkBoard();
-}
-/** Discord's sign-in comes back with ?code= (already swapped for a session by now): out of the address, so it isn't
-    in links people copy or tried again on a reload. */
-function pkDropCode() {
-  const u = new URL(location.href);
-  if (!u.searchParams.has("code")) return;
-  u.searchParams.delete("code");
-  try { history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) { /* sandboxed frame */ }
-}
-
-/** The signed-in person's name and membership; right after a Discord sign-in (the Discord token is there), the
-    pickem-join function checks the server and writes them in. */
-async function pkJoin(session) {
-  const sb = pk.sb;
-  pk.user = session.user;
-  pk.name = (session.user.user_metadata || {}).full_name || "";  // until the people row says otherwise
-  const [{ data: me }, { data: mem }] = await Promise.all([
-    sb.from("people").select("name").eq("id", pk.user.id).maybeSingle(),
-    sb.from("guild_members").select("guild_id").eq("guild_id", pk.guild)]);
-  if (me) pk.name = me.name;
-  pk.member = !!(mem && mem.length);
-  if ((pk.member && me) || !session.provider_token) return;
-  pkStatus("Checking the Discord server…");
-  const r = await fetch(PK.supabase_url + "/functions/v1/pickem-join", {
-    method: "POST",
-    headers: { apikey: PK.supabase_key, Authorization: "Bearer " + session.access_token, "Content-Type": "application/json" },
-    body: JSON.stringify({ provider_token: session.provider_token }),
-  });
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error("The Discord check didn't work (" + (j.error || r.status) + "). Sign out and sign in again to retry.");
-  pk.name = j.name;
-  pk.member = (j.guilds || []).includes(pk.guild);
 }
 
 async function pkLoadPicks() {
@@ -129,27 +79,26 @@ function pkIntro() {
   $("pk-intro").textContent = pkLocked()
     ? `Picks are locked. A right pick earns ${pts}. Open anyone's bracket from the leaderboard.`
     : `Pick a winner for every playoff match: click a player, and they move on to the next round. A right pick earns ${pts}. ` +
-      `You can change picks until ${lock} Pacific time. Only members of the ${PK.server} Discord server can enter.`;
+      `You can change picks until ${lock} Pacific time. Only members of the ${ACCT.server} Discord server can enter.`;
 }
 
+/** The tab's own sign-in line (the header has the same sign-in; this one says what it means for picks). */
 function pkAccount() {
   const bar = $("pk-account");
   const out = el("button", "small", "Sign out");
   out.type = "button";
-  out.addEventListener("click", async () => { await pk.sb.auth.signOut(); location.reload(); });
+  out.addEventListener("click", accountSignOut);
   if (!pk.user) {
     if (pkLocked()) { bar.replaceChildren(); return; }
     const b = el("button", "primary", "Sign in with Discord");
     b.type = "button";
     b.addEventListener("click", async () => {
       pkStatus("Opening Discord…");
-      const { error } = await pk.sb.auth.signInWithOAuth({ provider: "discord",
-        options: { scopes: "identify guilds", redirectTo: location.origin + location.pathname + "?tab=pickem" } });
-      if (error) pkStatus("Discord sign-in didn't start: " + error.message);
+      pkStatus(await accountSignIn());
     });
     bar.replaceChildren(b, el("span", "muted", "Picks made before signing in stay in this browser until you sign in."));
   } else if (!pk.member) {
-    bar.replaceChildren(el("span", "", `Signed in as ${pk.name || "you"}, but not as a member of the ${PK.server} Discord server, ` +
+    bar.replaceChildren(el("span", "", `Signed in as ${pk.name || "you"}, but not as a member of the ${ACCT.server} Discord server, ` +
       "so picks can't be saved. Just joined it? Sign out and sign in again."), out);
   } else bar.replaceChildren(el("span", "", `Signed in as ${pk.name}.`), out);
 }

@@ -75,6 +75,8 @@ def league_page(template, cfg, lg):
     page_info["best_of"] = lg.get("best_of", 0)
     page_info["set_points"] = lg.get("set_points")
     page_info["pickem"] = lg.get("pickem")
+    # the Discord sign-in (app/account.js): the league's server and the site's store
+    page_info["discord"] = {**lg["discord"], "supabase": cfg["supabase"]} if lg.get("discord") else None
     page_info["palette"] = "" if lg.get("theme_css") else lg.get("palette", PALETTES[0])
     league_json = json.dumps(page_info, ensure_ascii=False).replace("</", "<\\/")
     # the league's own theme (its tokens over style.css's default theme), when it has one

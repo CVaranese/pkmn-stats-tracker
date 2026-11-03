@@ -169,6 +169,14 @@ header:has(.palette-pick) > div:not(.banner-box) { padding-right: 170px; }
   .palette-pick { position: static; margin-top: 8px; }
   header:has(.palette-pick) > div:not(.banner-box) { padding-right: 0; }
 }
+/* the Discord sign-in (app/account.js; leagues with a Discord server): the header's top right, under the palettes when
+   both show; on phones a line of its own above the banner */
+.account { position: absolute; top: 0; right: 0; max-width: 45%; display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: flex-end; gap: 4px 8px; font-size: var(--fs-md); text-align: right; }
+header:has(.palette-pick) .account { top: 60px; }
+@media (max-width: 600px) {
+  .account { position: static; max-width: none; justify-content: flex-start; text-align: left; grid-row: 1; }
+}
 /* landing page: one row per league, its banner as a thumbnail */
 .league-list { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 12px; max-width: 720px; }
 .league-list a { display: flex; align-items: center; gap: 16px; padding: 12px; color: var(--text); text-decoration: none;

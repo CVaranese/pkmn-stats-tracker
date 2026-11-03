@@ -28,9 +28,14 @@ Used in: [task S-1](../tasks/done/S-1-playoff-pickem.md). Research of 2026-11-02
 
 ## As built (2026-11-02, branch `pickem`)
 The SQL is in `supabase/migrations/` (applied through the Supabase MCP server; the files are the record), the
-membership function in `supabase/functions/pickem-join/`, the page in `site/app/pickem.js`.
-- Tables: `people` (auth user id, Discord id, display name), `guild_members` (Discord server id, person), `contests`
-  (id, league, server, `lock_at`), `pickem_matches` (round, points, winner seed, where each side comes from),
+membership function in `supabase/functions/pickem-join/`, the page in `site/app/pickem.js`. Since S-2 (branch
+`signin`) the sign-in is site-wide: `site/app/account.js` owns the client, the session and the membership check, and
+Pick'em reads it; the league's Discord server is `discord.guild` in `site/leagues.json` and a row of `leagues` in the
+store (migration `20261103120000_leagues_discord.sql`, which `pickem-join` and the picks policy read).
+- **Guess** (Supabase docs, not tried with a non-pickem address): `redirectTo` must match the Redirect URLs list;
+  since S-2 the page asks to come back to the address it was on (any `?tab=`), so the list may need `/**` wildcards.
+- Tables: `people` (auth user id, Discord id, display name), `guild_members` (Discord server id, person), `leagues`
+  (id, Discord server id; S-2), `contests` (id, league, `lock_at`; its old `guild_id` column is unused since S-2), `pickem_matches` (round, points, winner seed, where each side comes from),
   `picks` (person, contest, match, seed). A later points ledger for bets keys to `people`.
 - **Tested** (SQL as made-up users, rolled back): a server member's pick saves; a non-member's is refused by
   row-level security; nothing saves after `lock_at`; anonymous visitors read 0 picks before the lock and all after;

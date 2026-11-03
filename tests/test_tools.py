@@ -105,6 +105,32 @@ class LeagueFormats(unittest.TestCase):
             self.assertEqual(wrong, [], f"{lg['id']}: replays of another format than {fmt}")
 
 
+class DiscordSettings(unittest.TestCase):
+    """site/leagues.json: Pick'em needs the league's Discord sign-in (discord: server name, numeric server id), and a
+    league with one needs the site's store (supabase); the page gets them as LEAGUE.discord (app/account.js)."""
+    def test_discord_settings(self):
+        bp = load("tools/build_pages.py")
+        cfg = bp.load_leagues()
+        pages = bp.pages()
+        for lg in cfg["leagues"]:
+            d = lg.get("discord")
+            if lg.get("pickem"):
+                self.assertTrue(d, f"{lg['id']}: pickem without discord")
+            info = json.loads(re.search(r"window\.LEAGUE = (.*);</script>", pages[os.path.join(bp.SITE, lg["id"], "index.html")]).group(1))
+            if not d:
+                self.assertIsNone(info["discord"], f"{lg['id']}: no Discord, no sign-in")
+                continue
+            self.assertTrue(d.get("server"), f"{lg['id']}: discord.server (its name) missing")
+            self.assertRegex(d.get("guild", ""), r"^\d{17,20}$", f"{lg['id']}: discord.guild is a Discord server id")
+            self.assertRegex(cfg["supabase"]["url"], r"^https://[a-z0-9]+\.supabase\.co$")
+            self.assertTrue(cfg["supabase"]["key"].startswith("sb_publishable_"), "only the publishable key goes in the page")
+            self.assertEqual(info["discord"]["guild"], d["guild"])
+            self.assertEqual(info["discord"]["supabase"], cfg["supabase"])
+        self.assertTrue(any(lg.get("discord") for lg in cfg["leagues"]), "Pinecord keeps its sign-in")
+        self.assertFalse(any((lg.get("pickem") or {}).keys() & {"supabase_url", "supabase_key", "server"} for lg in cfg["leagues"]),
+                         "the store and server moved out of pickem")
+
+
 class BannerEgg(unittest.TestCase):
     """tools/build_pages.py: the hidden link to the preview sits only on a league whose banner has an egg."""
     def test_egg_links_to_that_leagues_preview(self):
