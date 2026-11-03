@@ -44,6 +44,9 @@ bets, no per-game props.
   members row using the service key. The picks write policy then requires that row. A page-only check isn't enough,
   because the page can be edited. Fallback if the function proves hard: an allowlist of Discord user ids the admin
   fills in.
+- 2026-11-02, user: everyone can see the leaderboard (Discord names and points); signing in is only needed to pick.
+  Other people's full brackets can be opened only after the lock. The name shown is the Discord global display name
+  (username when there is none). Equal points share a place; no tiebreak.
 
 ## Progress
 - 2026-11-02: the user made the Supabase project (ref `djwfayvdytvvdcecsnqa`, URL
@@ -60,6 +63,12 @@ bets, no per-game props.
   - League Discord server ID (for the membership check): `879895025062936576`
   - Discord application client ID: `1567001265010118787`
   - The client secret is only in the Supabase dashboard, never in the repo.
+- 2026-11-02, session (branch `pickem`): built steps 2-6. `tools/challonge_bracket.py` → `site/ppppp/games/playoffs.json`
+  (tested). `League.pickemClean / pickemSlots / pickemScore / pickemRanks` (5 tests; site tests 347/347). Supabase:
+  3 migrations (`supabase/migrations/`) and the `pickem-join` function, deployed; rules tested in SQL with made-up
+  users (member saves, non-member refused, locked after `lock_at`, picks hidden until the lock, hedged picks score 0).
+  The Pick'em tab (`site/app/pickem.js`), checked by screenshot (dark 1400px, light 360px) and a click run (picks move
+  on, an earlier change drops later picks). Not tested: a real Discord sign-in (review queue). Left: step 7.
 
 ## Steps
 1. Get the remaining answers above; write them under Decisions and drop Needs you.

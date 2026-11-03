@@ -20,7 +20,7 @@
   <meta property="og:image:alt" content="Peter Pikmon&#x27;s Pinecord Pokémon Pissfest banner">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#1f6f61">
-  <script>window.LEAGUE = {"id": "ppppp", "name": "Pinecord Pokémon Pissfest", "short": "Pinecord", "tag": "PPPPP", "format": "gen9nationaldex", "format_name": "Nat Dex singles", "brackets": [{"name": "Playoffs", "slug": "peepeepeepeepisspiss"}, {"name": "Swiss rounds", "slug": "peepeepeepeepiss"}], "best_of": 0, "set_points": null, "palette": ""};</script>
+  <script>window.LEAGUE = {"id": "ppppp", "name": "Pinecord Pokémon Pissfest", "short": "Pinecord", "tag": "PPPPP", "format": "gen9nationaldex", "format_name": "Nat Dex singles", "brackets": [{"name": "Playoffs", "slug": "peepeepeepeepisspiss"}, {"name": "Swiss rounds", "slug": "peepeepeepeepiss"}], "best_of": 0, "set_points": null, "pickem": {"contest": "ppppp-2026-playoffs", "bracket": "games/playoffs.json", "supabase_url": "https://djwfayvdytvvdcecsnqa.supabase.co", "supabase_key": "sb_publishable_Sf5HjDa6fwjdNWx2oHGNqw_KtH-RKEm", "server": "Pinecord"}, "palette": ""};</script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="ppppp/theme.css">
 </head>
@@ -47,7 +47,21 @@
       <button data-mode="draft" type="button">Draft</button>
       <button data-mode="fantasy" type="button">Fantasy</button>
       <button data-mode="gamble" type="button">Gambling</button>
+      <button data-mode="pickem" type="button" hidden>Pick'em</button>
     </nav>
+
+    <!-- leagues with pickem in site/leagues.json; filled by app/pickem.js -->
+    <section id="pickem" class="tab-page" hidden>
+      <h2 class="section-title">Playoff Pick'em</h2>
+      <p class="hint" id="pk-intro"></p>
+      <div class="pl-bar" id="pk-account"></div>
+      <p class="muted" id="pk-status" role="status"></p>
+      <p class="hint" id="pk-viewing" hidden></p>
+      <div class="bracket-wrap" id="pk-bracket"></div>
+      <h2 class="section-title">Leaderboard</h2>
+      <p class="hint" id="pk-board-note"></p>
+      <div class="table-wrap"><table id="pk-board"></table></div>
+    </section>
 
     <section id="gamble" class="tab-page" hidden>
       <div class="soon">
@@ -296,6 +310,7 @@
   <script src="app/awards.js"></script>
   <script src="app/bets.js"></script>
   <script src="app/draft.js"></script>
+  <script src="app/pickem.js"></script>
   <script src="app/sheets.js"></script>
   <script src="app/main.js"></script>
   <script src="app/startup.js"></script>

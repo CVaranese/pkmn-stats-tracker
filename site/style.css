@@ -608,3 +608,25 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 /* Gambling, preview only: a drawn bet's line and how it came out */
 .bet-line { margin: 0 0 8px; font-size: var(--fs-md); color: var(--muted); }
 .bet-result { margin: 0; font-size: var(--fs-md); }
+/* Pick'em: the bracket, a column per round; each match a card with its two players, placed level with the matches
+   feeding it (--pk-y, in rows of --pk-slot); lines (svg.pk-lines) join a match to the slot its winner moves into.
+   Phones scroll it sideways inside its box, a round at a time. */
+.bracket-wrap { overflow-x: auto; scroll-snap-type: x proximity; margin: 8px 0 4px; padding-bottom: 6px; }
+.bracket { --pk-slot: 116px; position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(168px, 1fr);
+  gap: 0 36px; min-width: max-content; }
+.pk-round { scroll-snap-align: start; min-width: 168px; }
+.pk-round h3 { margin: 0; font-size: var(--fs-lg); }
+.pk-round > p { margin: 0 0 8px; font-size: var(--fs-sm); }
+.pk-col { position: relative; height: calc(var(--pk-slot) * var(--pk-rows)); }
+.pk-match { position: absolute; left: 0; right: 0; top: calc(var(--pk-slot) * var(--pk-y) + 8px); z-index: 1;
+  display: flex; flex-direction: column; gap: 4px; padding: 6px; background: var(--surface);
+  border: 2px solid var(--outline); border-radius: var(--radius-md); }
+.pk-side { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 4px 8px; text-align: left;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font-size: var(--fs-md); }
+span.pk-side { border-style: dashed; }
+.pk-side[aria-disabled="true"] { cursor: default; }
+.pk-side[aria-pressed="true"] { background: var(--accent); border: 1px solid var(--accent); color: var(--accent-text); font-weight: 600; }
+.pk-seed { min-width: 1.6em; font-size: var(--fs-xs); font-variant-numeric: tabular-nums; opacity: 0.8; }
+.pk-result { margin: 2px 0 0; font-size: var(--fs-sm); }
+svg.pk-lines { position: absolute; left: 0; top: 0; pointer-events: none; fill: none; stroke: var(--muted); stroke-width: 2; }
+@media (pointer: coarse) { .bracket { --pk-slot: 128px; } .pk-side { min-height: 44px; } }

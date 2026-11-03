@@ -119,7 +119,7 @@ const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], haz
 let mode = "one";
 const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
 // tabs with no link box: their own views over the saved league games (gamble: Gambling, still a "coming soon" page)
-const NO_INPUT_TABS = ["fantasy", "gamble", "games", "players", "mons", "awards", "draft"];
+const NO_INPUT_TABS = ["fantasy", "gamble", "games", "players", "mons", "awards", "draft", ...(LEAGUE.pickem ? ["pickem"] : [])];
 const activeIds = () => (NO_INPUT_TABS.includes(mode) ? [] :
   RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
 function setMode(m, load = true) {
@@ -145,6 +145,7 @@ function setMode(m, load = true) {
   $("mons").hidden = m !== "mons";
   $("awards").hidden = m !== "awards";
   $("draft").hidden = m !== "draft";
+  $("pickem").hidden = m !== "pickem";
   $("library").hidden = m !== "games";
   setCollapsed(false);  // the button lives with the results, which a mode change hides
   $("inputs").hidden = noInputs;
@@ -163,6 +164,7 @@ function setMode(m, load = true) {
   if (m === "awards") renderAwards();
   if (m === "gamble") renderBets();
   if (m === "draft") renderDraft();
+  if (m === "pickem") renderPickem();
 }
 // Back / Forward: each tab, game and Watch panel is a history entry ({ mode, r, watch, pick }), so Back returns to
 // the previous one instead of leaving the site. The address follows (?tab=games, ?r=<id>, ?tab=players&player=<key>,

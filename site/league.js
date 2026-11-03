@@ -424,8 +424,55 @@
     return { r: get("r"), set: get("set"), tab: tabName(get("tab")), player: get("player"), mon: get("mon") };
   }
 
+  // Pick'em: a bracket is site/<league>/games/playoffs.json (tools/challonge_bracket.py; matches in round order, each
+  // side a seed or the match it comes from), picks are { match id: seed of the player picked to win it }
+  /** The picks that still stand: a pick whose player no longer reaches that match (an earlier pick changed) drops. */
+  function pickemClean(bracket, picks) {
+    const out = {};
+    for (const m of bracket.matches) {
+      const [a, b] = pickemSides(m, out);
+      if (picks[m.id] != null && (picks[m.id] === a || picks[m.id] === b)) out[m.id] = picks[m.id];
+    }
+    return out;
+  }
+  /** A match's two players under these (clean) picks: [seed or null, seed or null]. */
+  const pickemSides = (m, picks) => [m.p1, m.p2].map((s) => (s.seed != null ? s.seed : s.from && picks[s.from] != null ? picks[s.from] : null));
+  /** Every match's two players under these picks: { match id: [seed or null, seed or null] }. */
+  function pickemSlots(bracket, picks) {
+    const clean = pickemClean(bracket, picks);
+    return Object.fromEntries(bracket.matches.map((m) => [m.id, pickemSides(m, clean)]));
+  }
+  /** A bracket's score from the matches played so far: { points, right, played, possible (points if every pick still
+      alive wins), picked (matches picked) }. Points per right pick by round (bracket.rounds). */
+  function pickemScore(bracket, picks) {
+    const clean = pickemClean(bracket, picks);
+    const pts = Object.fromEntries(bracket.rounds.map((r) => [r.round, r.points]));
+    const out = new Set();  // seeds who lost a played match
+    for (const m of bracket.matches) {
+      if (m.winner == null) continue;
+      const sides = pickemSides(m, Object.fromEntries(bracket.matches.filter((x) => x.winner != null).map((x) => [x.id, x.winner])));
+      for (const s of sides) if (s != null && s !== m.winner) out.add(s);
+    }
+    const r = { points: 0, right: 0, played: 0, possible: 0, picked: Object.keys(clean).length };
+    for (const m of bracket.matches) {
+      const pick = clean[m.id], p = pts[m.round] || 0;
+      if (m.winner != null) {
+        r.played++;
+        if (pick === m.winner) { r.right++; r.points += p; r.possible += p; }
+      } else if (pick != null && !out.has(pick)) r.possible += p;
+    }
+    return r;
+  }
+  /** Leaderboard places: entries sorted by points (most first), equal points share a place (user 2026-11-02);
+      within a place by name. Each entry gets .place. */
+  function pickemRanks(entries) {
+    const sorted = [...entries].sort((a, b) => b.points - a.points || String(a.name).localeCompare(String(b.name)));
+    return sorted.map((e) => ({ ...e, place: 1 + sorted.filter((x) => x.points > e.points).length }));
+  }
+
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
-    setSlots, setPoints, standings, spreadText, setText, monSets, best, comeback, awards, moreAwards, turnCells, isPlayoffWeek, tabName, navQuery, readNav };
+    setSlots, setPoints, standings, spreadText, setText, monSets, best, comeback, awards, moreAwards, turnCells, isPlayoffWeek, tabName, navQuery, readNav,
+    pickemClean, pickemSlots, pickemScore, pickemRanks };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);
