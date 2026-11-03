@@ -37,6 +37,20 @@ page". The control must not hint at betting features (memory "gambling-tease-onl
 7. CHANGELOG.md line under Unreleased, REVIEW_QUEUE.md entry (a real Discord sign-in can only be checked by the
    user), update FEATURES.md if the login row changes.
 
+## Progress
+- 2026-11-02, branch `signin` (4d26645, cdb76eb): steps 2-7 done. `site/app/account.js` (shared client, session,
+  membership check, header control), `discord` per league + site-wide `supabase` in `site/leagues.json` (checked by
+  `tests/test_tools.py` DiscordSettings), Pick'em reads `acct`. Tests PASS 347/347, test_tools / test_style OK.
+  Screenshots signed out: dark 1400, light 1400 and 760, 360 phone; Super Champions has no sign-in. Code review on the
+  branch against `next`: 5 findings, 3 fixed (header overlap at mid widths, serial store reads, live region); the
+  redirect allow list is on the review queue.
+- Not done: the store change. `supabase/migrations/20261103120000_leagues_discord.sql` (table `leagues` with the
+  server id, picks policy reads it) and the `pickem-join` change (servers from `leagues`) are written, not applied /
+  deployed (the apply was refused without the user's OK). The page works without them (membership is read by server
+  id from `guild_members`); they're what makes membership league-level for a league with no contest yet. Order:
+  apply the migration, then deploy the function, then mark the migration file applied. `contests.guild_id` is dropped
+  in a later migration once `next` has this page.
+
 ## Done when
 - Signing in on any tab shows the signed-in state on all tabs after a reload, with one shared client.
 - Pick'em works unchanged for a signed-in member.
