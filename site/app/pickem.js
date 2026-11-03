@@ -125,6 +125,7 @@ function pkIntro() {
     (/^Round /.test(x.name) ? x.name : "the " + x.name)).join(", ");
   const lock = pk.lockAt.toLocaleString("en-US", { weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles" })
     .replace(":00", "");
+  $("pk-intro").dataset.lock = lock;
   $("pk-intro").textContent = pkLocked()
     ? `Picks are locked. A right pick earns ${pts}. Open anyone's bracket from the leaderboard.`
     : `Pick a winner for every playoff match: click a player, and they move on to the next round. A right pick earns ${pts}. ` +
@@ -261,6 +262,7 @@ function pkDraw() {
   }
   $("pk-bracket").replaceChildren(box);
   pkLines(box);
+  pkSubmitBar();
   const v = $("pk-viewing");
   v.hidden = !pk.viewing;
   if (pk.viewing) {
@@ -269,6 +271,41 @@ function pkDraw() {
     back.addEventListener("click", () => { pk.viewing = null; pkDraw(); });
     v.replaceChildren(`Showing ${pk.viewing.name}'s bracket. `, back);
   }
+}
+/** Under the bracket: Submit picks. Picks already save on each click (nothing is lost if someone never presses it);
+    Submit waits for the last save, reads the picks back from the store and says the bracket is in (user 2026-11-02:
+    people want to know they're done and that it went through). */
+function pkSubmitBar(done) {
+  const bar = $("pk-submit");
+  bar.hidden = pkLocked() || !!pk.viewing;
+  if (bar.hidden) return;
+  const n = Object.keys(pk.mine).length, all = pk.bracket.matches.length;
+  const b = el("button", "primary", "Submit picks");
+  b.type = "button";
+  const can = pk.user && pk.member;
+  b.disabled = !can || n < all;
+  b.addEventListener("click", pkSubmit);
+  const note = !can ? (pk.user ? "Only members of the server can submit." : "Sign in with Discord (above) to submit.")
+    : n < all ? `Pick the other ${all - n} match${all - n === 1 ? "" : "es"} to submit.`
+    : done || "All picked.";
+  bar.replaceChildren(b, el("span", done ? "" : "muted", note));
+}
+async function pkSubmit() {
+  pkStatus("Submitting…");
+  await pkSaving;
+  const { data, error } = await pk.sb.from("picks").select("match_id, pick").eq("contest_id", PK.contest).eq("person_id", pk.user.id);
+  const stored = error ? {} : Object.fromEntries(data.map((r) => [r.match_id, r.pick]));
+  const all = pk.bracket.matches.length;
+  const same = Object.keys(stored).length === all && Object.entries(pk.mine).every(([id, s]) => stored[id] === s);
+  if (!same) {
+    pkStatus("Not all of your picks reached the store. Pick again where needed, then Submit.");
+    pk.saved = stored;  // the next save sends whatever differs
+    pkSubmitBar();
+    return;
+  }
+  const lock = $("pk-intro").dataset.lock;
+  pkStatus("");
+  pkSubmitBar(`Your bracket is in: ${all} of ${all} picks saved. You can still change them until ${lock} Pacific time.`);
 }
 /** Lines from each match's right edge to the player slot its winner moves into, drawn over the laid-out cards. */
 function pkLines(box) {
@@ -331,7 +368,7 @@ async function pkBoard() {
         $("pk-viewing").scrollIntoView({ block: "nearest" });
       });
       return [[String(e.place), "num"], [e.name + (pk.user && e.person_id === pk.user.id ? " (you)" : ""), ""], [String(e.points), "num"],
-        [`${e.picked} of ${all}`, "num"],
+        [e.picked === all ? el("span", "badge win", "Complete") : `${e.picked} of ${all}`, "num"],
         ...(locked ? [[theirs ? String(League.pickemScore(pk.bracket, theirs).possible) : "–", "num"], [theirs ? open : "", ""]] : [])];
     }));
 }
