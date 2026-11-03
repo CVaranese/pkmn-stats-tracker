@@ -33,6 +33,7 @@ Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts k
 - Knowledge: `docs/knowledge/` — replay format facts and kill-rule decisions, marked tested / researched / guess.
 - Review list: `docs/REVIEW_QUEUE.md` — things only the user can check.
 - League replays: `docs/LEAGUE_REPLAYS.md` — every link the user gave, its week, and whether it's in `site/<league>/games/` yet.
+- Tasks: `docs/tasks/` — one file per decided piece of work (`S-<n>-<slug>.md`, closed ones in `done/`; how they work: its README). `Start S-<n>` works one. New tasks, closes and "what's next" go through the `agent-habits:scheduler` agent (`Queue:` / `Close:` / `Next:`), which also writes the generated index; ideas that aren't tasks yet stay in FEATURES.md. After cloning: `git config core.hooksPath .githooks` (hooks are per clone).
 
 ## Rules enforced by `.claude/habits.json`
 - Force-push is blocked unless `--force-with-lease`.
@@ -40,3 +41,4 @@ Static web page (GitHub Pages) that reads Pokémon Showdown replays and counts k
 - Reminder: `site/` edits need a CHANGELOG.md line.
 - Reminder: Showdown/Smogon research needs a note in docs/knowledge/.
 - Reminder: `site/*.html|css` edits need a docs/REVIEW_QUEUE.md entry.
+- Pre-commit (`.githooks/pre-commit`): `tools/tasks.py --check` (task headers, generated index current, closes from 2026-11-03 carry a `Review:` line).
