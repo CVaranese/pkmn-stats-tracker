@@ -1,7 +1,6 @@
 # S-2: Discord sign-in on every tab, not only Pick'em
 
-**Status:** blocked (placement and scope questions for the user)
-**Needs you:** (1) Where does the sign-in / signed-in-as control sit: header top right, or the tab row? (2) Does it show on every league page, or only leagues with Discord (the Super Champions League has no Discord server configured)? (3) Does the Discord membership check stay per contest (Pick'em) or become per league?
+**Status:** open
 **Links:** [S-1 Pick'em](S-1-playoff-pickem.md), [FEATURES.md play-money betting row](../FEATURES.md)
 
 ## Goal
@@ -18,6 +17,12 @@ page". The control must not hint at betting features (memory "gambling-tease-onl
 - Config: `site/leagues.json` `pickem` (`supabase_url`, `supabase_key`). Supabase project `djwfayvdytvvdcecsnqa`.
   Notes: `docs/knowledge/pickem-service.md`.
 - Untracked at the time: `supabase/migrations/20261103030339_pickem_service_role_grants.sql` (S-1's, not this task's).
+
+## Decisions
+- 2026-11-02, user: (1) the control sits in the header, top right (the user answered "yes" to "header top right, or
+  the tab row?"; read as the first option, confirm when it's built). (2) Only on leagues with a Discord server set up
+  (Pinecord now; not the Super Champions League). (3) The membership check is once per league, not per contest: the
+  league's Discord server id belongs to the league's settings, and contests read it from there.
 
 ## Steps
 1. Get the answers to Needs you.

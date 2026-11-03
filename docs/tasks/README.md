@@ -17,7 +17,7 @@ Status: **open** (ready) · **started** · **blocked** (waits on the Needs you a
 | ID | Task | Status | Written | Needs you |
 |---|---|---|---|---|
 | [S-1](S-1-playoff-pickem.md) | Pick'em for Pinecord's playoffs · [FEATURES.md Pick'em row](../FEATURES.md), [BETTING_PROPS.md](../BETTING_PROPS.md), [challonge.md](../knowledge/challonge.md) | open | 2026-11-02 | — |
-| [S-2](S-2-sitewide-discord-signin.md) | Discord sign-in on every tab, not only Pick'em · [S-1 Pick'em](S-1-playoff-pickem.md), [FEATURES.md play-money betting row](../FEATURES.md) | blocked (placement and scope questions for the user) | 2026-11-02 | (1) Where does the sign-in / signed-in-as control sit: header top right, or the tab row? (2) Does it show on every league page, or only leagues with Discord (the Super Champions League has no Discord server configured)? (3) Does the Discord membership check stay per contest (Pick'em) or become per league? |
+| [S-2](S-2-sitewide-discord-signin.md) | Discord sign-in on every tab, not only Pick'em · [S-1 Pick'em](S-1-playoff-pickem.md), [FEATURES.md play-money betting row](../FEATURES.md) | open | 2026-11-02 | — |
 <!-- /board -->
 
 ## Start
