@@ -25,22 +25,21 @@ const pkName = (seed) => (pk.bracket.players.find((p) => p.seed === seed) || { n
 
 async function pkStart() {
   pkStatus("Loading the bracket…");
-  // who is signed in first: a sign-in coming back from Discord is swapped for a session there
-  const [bracket] = await Promise.all([
+  // the contest and results don't depend on who is signed in: read beside the sign-in (which swaps a sign-in coming
+  // back from Discord for a session)
+  const store = accountClient().then((sb) => Promise.all([sb,
+    sb.from("contests").select("lock_at").eq("id", PK.contest).single(),
+    // winners only from the store, which also scores the leaderboard (the file's are the same once the admin has run
+    // tools/challonge_bracket.py --sql; until then the page and the leaderboard must not disagree)
+    sb.from("pickem_matches").select("match_id, winner").eq("contest_id", PK.contest)]));
+  const [bracket, [sb, { data: contest, error }, { data: results, error: rErr }]] = await Promise.all([
     fetch(DIR + PK.bracket, { cache: "no-cache" }).then((r) => {
       if (!r.ok) throw new Error("The bracket didn't load.");
       return r.json();
     }),
-    accountReady()]);
-  const sb = await accountClient();
-  pk = { sb, bracket, lockAt: null, user: acct.user, name: acct.name, member: acct.member, mine: {}, saved: {}, viewing: null, board: [], all: null };
-  const { data: contest, error } = await sb.from("contests").select("lock_at").eq("id", PK.contest).single();
-  if (error) throw new Error("The picks store didn't answer. Reload the page to try again.");
-  pk.lockAt = new Date(contest.lock_at);
-  // winners only from the store, which also scores the leaderboard (the file's are the same once the admin has run
-  // tools/challonge_bracket.py --sql; until then the page and the leaderboard must not disagree)
-  const { data: results, error: rErr } = await sb.from("pickem_matches").select("match_id, winner").eq("contest_id", PK.contest);
-  if (rErr) throw new Error("The picks store didn't answer. Reload the page to try again.");
+    store, accountReady()]);
+  if (error || rErr) throw new Error("The picks store didn't answer. Reload the page to try again.");
+  pk = { sb, bracket, lockAt: new Date(contest.lock_at), user: acct.user, name: acct.name, member: acct.member, mine: {}, saved: {}, viewing: null, board: [], all: null };
   const won = Object.fromEntries(results.map((r) => [r.match_id, r.winner]));
   for (const m of bracket.matches) m.winner = won[m.id] ?? null;
   await pkLoadPicks();

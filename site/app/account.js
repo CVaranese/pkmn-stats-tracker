@@ -105,6 +105,7 @@ function acctDraw(busy) {
     const b = el("button", "small", "Sign in with Discord");
     b.type = "button";
     const note = el("span", "muted", acct.error);
+    note.setAttribute("role", "status");  // read out when the sign-in doesn't start; the box itself isn't live (no reading on every load)
     b.addEventListener("click", async () => {
       note.textContent = "Opening Discord…";
       note.textContent = await accountSignIn();

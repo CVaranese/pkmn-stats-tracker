@@ -164,18 +164,22 @@ header:not(:has(.banner)) { grid-template-columns: 1fr; }
 .palette-pick button[aria-pressed="true"] { border: 2px solid var(--accent); background: var(--surface); }
 @media (hover: hover) { .palette-pick button:hover { border-color: var(--border); } }
 .palette-pick img { image-rendering: pixelated; }
-header:has(.palette-pick) > div:not(.banner-box) { padding-right: 170px; }
+header:has(.palette-pick) > div:not(.banner-box, .account) { padding-right: 170px; }
 @media (max-width: 600px) {
   .palette-pick { position: static; margin-top: 8px; }
-  header:has(.palette-pick) > div:not(.banner-box) { padding-right: 0; }
+  header:has(.palette-pick) > div:not(.banner-box, .account) { padding-right: 0; }
 }
 /* the Discord sign-in (app/account.js; leagues with a Discord server): the header's top right, under the palettes when
    both show; on phones a line of its own above the banner */
 .account { position: absolute; top: 0; right: 0; max-width: 45%; display: flex; flex-wrap: wrap; align-items: center;
   justify-content: flex-end; gap: 4px 8px; font-size: var(--fs-md); text-align: right; }
 header:has(.palette-pick) .account { top: 60px; }
+/* room for it above the title, so a tall text column (a narrow window) doesn't run under it */
+header:has(.account:not([hidden])) > div:not(.banner-box, .account) { padding-top: 44px; }
+header:has(.account:not([hidden])):has(.palette-pick) > div:not(.banner-box, .account) { padding-top: 104px; }
 @media (max-width: 600px) {
   .account { position: static; max-width: none; justify-content: flex-start; text-align: left; grid-row: 1; }
+  header:has(.account:not([hidden])) > div:not(.banner-box, .account) { padding-top: 0; }
 }
 /* landing page: one row per league, its banner as a thumbnail */
 .league-list { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 12px; max-width: 720px; }
