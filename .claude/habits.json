@@ -37,6 +37,6 @@
     }
   ],
   "tasks": {"prefix": "S-", "review_since": "2026-11-03"},
-  "trackers": {"lists": ["docs/REVIEW_QUEUE.md"]},
+  "trackers": {"lists": ["docs/REVIEW_QUEUE.md", "docs/FEATURES.md"]},
   "precommit": ["python3 -I tools/tasks.py --check"]
 }
