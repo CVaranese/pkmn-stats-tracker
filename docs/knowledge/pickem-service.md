@@ -1,6 +1,6 @@
 # Pick'em store: Supabase vs Firebase
 
-Used in: [task S-1](../tasks/S-1-playoff-pickem.md). Research of 2026-11-02.
+Used in: [task S-1](../tasks/done/S-1-playoff-pickem.md). Research of 2026-11-02.
 
 ## Supabase free plan
 - **Researched** (supabase.com/pricing.md, 2026-11-02 search): the free plan gives 50,000 monthly active users, a

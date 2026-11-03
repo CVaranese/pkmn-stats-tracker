@@ -1,7 +1,7 @@
 # S-1: Pick'em for Pinecord's playoffs
 
 **Status:** open
-**Links:** [FEATURES.md Pick'em row](../FEATURES.md), [BETTING_PROPS.md](../BETTING_PROPS.md), [challonge.md](../knowledge/challonge.md)
+**Links:** [FEATURES.md Pick'em row](../../FEATURES.md), [BETTING_PROPS.md](../../BETTING_PROPS.md), [challonge.md](../../knowledge/challonge.md)
 
 ## Goal
 League `ppppp` only. A visitor fills out the whole playoff bracket, a winner for every match, before the playoffs
@@ -90,3 +90,10 @@ bets, no per-game props.
 - Scoring by round matches the decided points, and tests cover it.
 - The best bracket can be seen as decided in step 1.
 - Nothing on the page names betting features.
+
+## Resolution (2026-11-02)
+Done on `next` (the /next/ preview), pushed 2026-11-02; it goes live on `main` with the next release (minor version 1.1, CLAUDE.md release steps; the CHANGELOG.md Unreleased lines cover it). Closed now at the user's request rather than held until the release.
+- Commits (branch `pickem`, merged into `next`): 0aebd58 (Pick'em tab, bracket maths, Supabase store and membership function, Challonge bracket tool), 497ee83 (review fixes), bb3991f (Submit picks; service_role grants, the cause of the first sign-in's 500); merges b06144d and 704d8a7; pushed as 8bf4917.
+- Evidence: site tests PASS 347/347 (5 new: pickemClean, pickemSlots, pickemScore x2, pickemRanks); `tests/test_tools.py` OK (ChallongeBracket); `tests/test_style.py` OK. Database rules tested in SQL with made-up users, rolled back: member saves, non-member refused, nothing saves after lock_at, anon reads no picks before the lock and all after, a hedged bracket scores 0. Supabase security advisor: only pickem_leaderboard callable signed out, on purpose. Real sign-in by the user 2026-11-02: people 1, guild_members 1, picks 11 in the store. Screenshots: dark 1400px, light 1400px with picks, light 360px phone. Migrations in `supabase/migrations/` (4 files), function in `supabase/functions/pickem-join/`.
+- Review: /code-review (high) of next...pickem, 8 findings, all fixed in 497ee83: failed Discord check hid the bracket and Sign out button; a signed-out draft was drawn after the lock; clicks after the lock were silent; non-members who later join weren't told to sign in again; `?code=` stayed in the address; winners came from two sources (now the store only); the bracket tool's settings were duplicated (now read from site/leagues.json); pickemScore rebuilt a map per match. Design critique: no STYLE.md breaches; read-only picks now use aria-pressed + aria-disabled.
+- Still open for others: REVIEW_QUEUE.md Pick'em item (is "Submit" the right word; is the email kept by Supabase Auth OK?); S-2 (site-wide sign-in) builds on this. After each playoff round: `python -I tools/challonge_bracket.py --sql`, then run the printed SQL (CLAUDE.md).

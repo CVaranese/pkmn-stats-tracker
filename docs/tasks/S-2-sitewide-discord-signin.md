@@ -1,7 +1,7 @@
 # S-2: Discord sign-in on every tab, not only Pick'em
 
 **Status:** open
-**Links:** [S-1 Pick'em](S-1-playoff-pickem.md), [FEATURES.md play-money betting row](../FEATURES.md)
+**Links:** [S-1 Pick'em](done/S-1-playoff-pickem.md), [FEATURES.md play-money betting row](../FEATURES.md)
 
 ## Goal
 Sign in with Discord once and be signed in on every tab of a league page. One control on each tab shows "Sign in" or
