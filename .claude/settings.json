@@ -1,0 +1,13 @@
+{
+  "enabledPlugins": {
+    "agent-habits@agent-habits": true
+  },
+  "extraKnownMarketplaces": {
+    "agent-habits": {
+      "source": {
+        "source": "github",
+        "repo": "CVaranese/agent-habits"
+      }
+    }
+  }
+}
