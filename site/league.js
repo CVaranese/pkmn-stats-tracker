@@ -448,10 +448,10 @@
     const clean = pickemClean(bracket, picks);
     const pts = Object.fromEntries(bracket.rounds.map((r) => [r.round, r.points]));
     const out = new Set();  // seeds who lost a played match
+    const won = Object.fromEntries(bracket.matches.filter((x) => x.winner != null).map((x) => [x.id, x.winner]));
     for (const m of bracket.matches) {
       if (m.winner == null) continue;
-      const sides = pickemSides(m, Object.fromEntries(bracket.matches.filter((x) => x.winner != null).map((x) => [x.id, x.winner])));
-      for (const s of sides) if (s != null && s !== m.winner) out.add(s);
+      for (const s of pickemSides(m, won)) if (s != null && s !== m.winner) out.add(s);
     }
     const r = { points: 0, right: 0, played: 0, possible: 0, picked: Object.keys(clean).length };
     for (const m of bracket.matches) {

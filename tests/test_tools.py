@@ -201,7 +201,9 @@ class ChallongeBracket(unittest.TestCase):
 
     def test_bracket(self):
         cb = load("tools/challonge_bracket.py")
-        b = cb.bracket(self.tournament(winner_a=105))
+        b = cb.bracket(self.tournament(winner_a=105), "slug", "ppppp-2026-playoffs")
+        self.assertEqual(cb.settings("ppppp")[1], "ppppp-2026-playoffs", "contest id from site/leagues.json")
+        self.assertTrue(cb.settings("ppppp")[2].replace("\\", "/").endswith("site/ppppp/games/playoffs.json"))
         self.assertEqual([r["name"] for r in b["rounds"]], ["Quarterfinals", "Semifinals", "Final"])
         self.assertEqual([r["points"] for r in b["rounds"]], [1, 2, 4])
         self.assertEqual(b["players"][0], {"seed": 1, "name": "P1"})

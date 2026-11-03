@@ -51,20 +51,31 @@ async function pkStart() {
   if (error) throw new Error("The picks store didn't answer. Reload the page to try again.");
   pk.lockAt = new Date(contest.lock_at);
   pk.guild = contest.guild_id;
-  // winners: the store's (written by the admin) over the bracket file's
-  const { data: results } = await sb.from("pickem_matches").select("match_id, winner").eq("contest_id", PK.contest);
-  for (const r of results || []) {
-    const m = bracket.matches.find((x) => x.id === r.match_id);
-    if (m && r.winner != null) m.winner = r.winner;
-  }
+  // winners only from the store, which also scores the leaderboard (the file's are the same once the admin has run
+  // tools/challonge_bracket.py --sql; until then the page and the leaderboard must not disagree)
+  const { data: results, error: rErr } = await sb.from("pickem_matches").select("match_id, winner").eq("contest_id", PK.contest);
+  if (rErr) throw new Error("The picks store didn't answer. Reload the page to try again.");
+  const won = Object.fromEntries(results.map((r) => [r.match_id, r.winner]));
+  for (const m of bracket.matches) m.winner = won[m.id] ?? null;
   const { data: { session } } = await sb.auth.getSession();
-  if (session) await pkJoin(session);
+  pkDropCode();
+  // a failed Discord check still draws the bracket and the Sign out button (the way to retry)
+  let joinError = "";
+  if (session) await pkJoin(session).catch((e) => { joinError = e.message || String(e); });
   await pkLoadPicks();
   pkIntro();
   pkAccount();
   pkDraw();
-  pkStatus(pkPickedText());
+  pkStatus(joinError || pkPickedText());
   await pkBoard();
+}
+/** Discord's sign-in comes back with ?code= (already swapped for a session by now): out of the address, so it isn't
+    in links people copy or tried again on a reload. */
+function pkDropCode() {
+  const u = new URL(location.href);
+  if (!u.searchParams.has("code")) return;
+  u.searchParams.delete("code");
+  try { history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) { /* sandboxed frame */ }
 }
 
 /** The signed-in person's name and membership; right after a Discord sign-in (the Discord token is there), the
@@ -72,10 +83,11 @@ async function pkStart() {
 async function pkJoin(session) {
   const sb = pk.sb;
   pk.user = session.user;
+  pk.name = (session.user.user_metadata || {}).full_name || "";  // until the people row says otherwise
   const [{ data: me }, { data: mem }] = await Promise.all([
     sb.from("people").select("name").eq("id", pk.user.id).maybeSingle(),
     sb.from("guild_members").select("guild_id").eq("guild_id", pk.guild)]);
-  pk.name = me ? me.name : "";
+  if (me) pk.name = me.name;
   pk.member = !!(mem && mem.length);
   if ((pk.member && me) || !session.provider_token) return;
   pkStatus("Checking the Discord server…");
@@ -85,7 +97,7 @@ async function pkJoin(session) {
     body: JSON.stringify({ provider_token: session.provider_token }),
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error("The Discord check didn't work (" + (j.error || r.status) + "). Sign out and in again to retry.");
+  if (!r.ok) throw new Error("The Discord check didn't work (" + (j.error || r.status) + "). Sign out and sign in again to retry.");
   pk.name = j.name;
   pk.member = (j.guilds || []).includes(pk.guild);
 }
@@ -93,7 +105,8 @@ async function pkJoin(session) {
 async function pkLoadPicks() {
   let draft = {};
   try { draft = JSON.parse(localStorage.getItem(PK_DRAFT_KEY) || "{}"); } catch (e) { /* storage blocked */ }
-  if (!pk.user) { pk.mine = League.pickemClean(pk.bracket, draft); return; }
+  // signed out: the draft in this browser while picks are open; after the lock it never counted, so nothing shows
+  if (!pk.user) { pk.mine = pkLocked() ? {} : League.pickemClean(pk.bracket, draft); return; }
   const { data, error } = await pk.sb.from("picks").select("match_id, pick").eq("contest_id", PK.contest).eq("person_id", pk.user.id);
   if (error) throw new Error("Your picks didn't load. Reload the page to try again.");
   pk.saved = Object.fromEntries(data.map((r) => [r.match_id, r.pick]));
@@ -135,7 +148,8 @@ function pkAccount() {
     });
     bar.replaceChildren(b, el("span", "muted", "Picks made before signing in stay in this browser until you sign in."));
   } else if (!pk.member) {
-    bar.replaceChildren(el("span", "", `Signed in as ${pk.name || "you"}, but not as a member of the ${PK.server} Discord server, so picks can't be saved.`), out);
+    bar.replaceChildren(el("span", "", `Signed in as ${pk.name || "you"}, but not as a member of the ${PK.server} Discord server, ` +
+      "so picks can't be saved. Just joined it? Sign out and sign in again."), out);
   } else bar.replaceChildren(el("span", "", `Signed in as ${pk.name}.`), out);
 }
 
@@ -147,7 +161,17 @@ function pkPickedText() {
 }
 
 function pkPick(matchId, seed) {
-  if (pk.viewing || pkLocked() || pk.mine[matchId] === seed) return;
+  if (pk.viewing || pk.mine[matchId] === seed) return;
+  if (pkLocked()) {  // the lock passed with the page open: redraw it locked (what was saved) and say so
+    pk.mine = pk.user ? League.pickemClean(pk.bracket, pk.saved) : {};
+    pkIntro();
+    pkAccount();
+    pkDraw();
+    pk.all = null;
+    pkBoard();
+    pkStatus("Picks are locked now, so that change wasn't made.");
+    return;
+  }
   pk.mine = League.pickemClean(pk.bracket, { ...pk.mine, [matchId]: seed });
   pkDraw();
   if (pk.user && pk.member) { pkSave(); return; }

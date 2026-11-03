@@ -1,11 +1,12 @@
-"""Write site/ppppp/games/playoffs.json: the playoff bracket from Challonge (players by seed, each match's round and
-where its two players come from, winners once played), for the Pick'em tab.
+"""Write a league's Pick'em bracket file (site/<league>/<pickem.bracket>, e.g. site/ppppp/games/playoffs.json): the
+playoff bracket from Challonge (players by seed, each match's round and where its two players come from, winners once
+played). The league's pickem settings and its newest Challonge bracket (brackets[0]) come from site/leagues.json.
 
 Needs the Challonge API v1 key in ~/.challonge_key. With --sql it also prints the SQL that copies the bracket's
-matches and winners into the Pick'em store (Supabase table pickem_matches), which scores the picks; run that in the
-Supabase SQL editor or through the Supabase MCP server.
+matches and winners into the Pick'em store (Supabase table pickem_matches), which scores the picks and gives the page
+its winners; run that in the Supabase SQL editor or through the Supabase MCP server after each round.
 
-    python -I tools/challonge_bracket.py [--sql]
+    python -I tools/challonge_bracket.py [--league ppppp] [--sql]
 """
 import json
 import os
@@ -13,11 +14,18 @@ import sys
 import urllib.request
 from datetime import date
 
-SLUG = "peepeepeepeepisspiss"
-CONTEST = "ppppp-2026-playoffs"  # the Pick'em store's contest id (pickem_contests.id)
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "site", "ppppp", "games", "playoffs.json")
 POINTS = {1: 1, 2: 2, 3: 4, 4: 8}  # a right pick per round (user 2026-11-02)
+
+
+def settings(league_id):
+    """(Challonge slug, contest id, output path) for a league with pickem in site/leagues.json."""
+    with open(os.path.join(ROOT, "site", "leagues.json"), encoding="utf-8") as f:
+        lg = next((x for x in json.load(f)["leagues"] if x["id"] == league_id), None)
+    if not lg or not lg.get("pickem") or not lg.get("brackets"):
+        sys.exit(f"{league_id}: no pickem / brackets in site/leagues.json")
+    pk = lg["pickem"]
+    return lg["brackets"][0]["slug"], pk["contest"], os.path.join(ROOT, "site", league_id, *pk["bracket"].split("/"))
 
 
 def round_names(last):
@@ -26,7 +34,7 @@ def round_names(last):
     return {r: names.get(r, f"Round {r}") for r in range(1, last + 1)}
 
 
-def bracket(t):
+def bracket(t, slug, contest):
     """The file's contents from the API's tournament (pure, tested)."""
     seed = {p["participant"]["id"]: p["participant"]["seed"] for p in t["participants"]}
     players = sorted(({"seed": p["participant"]["seed"], "name": p["participant"]["name"].strip()}
@@ -50,7 +58,7 @@ def bracket(t):
         done = m["state"] == "complete" and m["winner_id"] in seed
         matches.append({"id": m["identifier"], "round": m["round"], "p1": side(m, 1), "p2": side(m, 2),
                         "winner": seed[m["winner_id"]] if done else None})
-    return {"source": f"https://challonge.com/{SLUG}", "contest": CONTEST, "updated": date.today().isoformat(),
+    return {"source": f"https://challonge.com/{slug}", "contest": contest, "updated": date.today().isoformat(),
             "rounds": [{"round": r, "name": names[r], "points": POINTS.get(r, 0)} for r in range(1, last + 1)],
             "players": players, "matches": matches}
 
@@ -70,20 +78,22 @@ def sql(b):
 
 
 def main():
+    league = sys.argv[sys.argv.index("--league") + 1] if "--league" in sys.argv else "ppppp"
+    slug, contest, out = settings(league)
     with open(os.path.expanduser("~/.challonge_key"), encoding="utf-8") as f:
         key = f.read().strip()
-    url = (f"https://api.challonge.com/v1/tournaments/{SLUG}.json?api_key={key}"
+    url = (f"https://api.challonge.com/v1/tournaments/{slug}.json?api_key={key}"
            "&include_matches=1&include_participants=1")
     req = urllib.request.Request(url, headers={"User-Agent": "replay-stats"})
     with urllib.request.urlopen(req, timeout=30) as r:
-        b = bracket(json.load(r)["tournament"])
-    tmp = OUT + ".tmp"  # written in one step: a crash midway leaves the old file
+        b = bracket(json.load(r)["tournament"], slug, contest)
+    tmp = out + ".tmp"  # written in one step: a crash midway leaves the old file
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
         json.dump(b, f, indent=1, ensure_ascii=False)
         f.write("\n")
-    os.replace(tmp, OUT)
+    os.replace(tmp, out)
     won = sum(m["winner"] is not None for m in b["matches"])
-    print(f"{len(b['matches'])} matches ({won} played), {len(b['players'])} players -> {OUT}")
+    print(f"{len(b['matches'])} matches ({won} played), {len(b['players'])} players -> {out}")
     if "--sql" in sys.argv:
         print(sql(b))
 
