@@ -283,5 +283,20 @@ class Releases(unittest.TestCase):
             self.skipTest(f"v{rel[0]} isn't tagged yet: git tag -a v{rel[0]} -m \"{rel[0]}\" on the release commit, then push it")
 
 
+class PreviewOnly(unittest.TestCase):
+    """Features not released stay behind PREVIEW (app/core.js). Drop a line here when its feature goes live."""
+    def test_held_back_features_are_behind_the_gate(self):
+        app = Path(__file__).resolve().parent.parent / "site/app"
+        for name, wanted in {
+            "core.js": '...(PREVIEW ? ["awards"] : [])',     # Awards: no ?tab=awards or saved tab without it
+            "awards.js": "if (PREVIEW) document.querySelector",  # Awards: the tab's button
+            "league.html": '<button data-mode="awards" type="button" hidden>',
+            "draft.js": "const CARDS_ON = PREVIEW &&",       # report cards
+            "main.js": "if (PREVIEW && loaded.length === 1)",  # reads and misplays
+            "bets.js": "const BETS_ON = PREVIEW &&",         # weekly bets
+        }.items():
+            self.assertIn(wanted, (app / name).read_text("utf-8"), name)
+
+
 if __name__ == "__main__":
     unittest.main()

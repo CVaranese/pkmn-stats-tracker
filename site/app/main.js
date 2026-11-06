@@ -93,9 +93,10 @@ async function run(again) {
     await addMockSheets(ids);
     await applySheets(rs, errors);
     const data = await applyLuck(rs, errors);
-    // reads and misplays (Plays.analyze), on the rows (not exported): shown only with one game, so worked out only then
+    // reads and misplays (Plays.analyze), on the rows (not exported): on the preview only (PREVIEW, app/core.js), and
+    // shown only with one game, so worked out only then
     const loaded = results.filter(Boolean);
-    if (loaded.length === 1) {
+    if (PREVIEW && loaded.length === 1) {
       try {
         const plays = Plays.analyze(loaded[0].log, data);
         for (const r of rs) r.plays = plays;

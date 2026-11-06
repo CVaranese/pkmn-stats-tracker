@@ -5,8 +5,9 @@
 let draftPicked = "";   // the player shown: a name or key, from a sub-tab or ?tab=draft&player=<key>
 let draftRows = null;   // every league game's rows, loaded the first time the tab opens
 let draftCards = [];    // Bet.reportCards over those rows: each player's picks and grade, best first
-// the report card (grade, vs tier column) only for formats it's designed for (Bet.CARD_FORMATS): singles, no VGC yet
-const CARDS_ON = Bet.CARD_FORMATS.includes(LEAGUE.format);
+// the report card (grade, vs tier column) on the preview only (PREVIEW, app/core.js), and only for formats it's
+// designed for (Bet.CARD_FORMATS): singles, no VGC yet
+const CARDS_ON = PREVIEW && Bet.CARD_FORMATS.includes(LEAGUE.format);
 onLeagueChange(() => { draftRows = null; draftCards = []; });
 const draftSort = { col: 2, dir: -1 };  // by cost, dearest first
 async function renderDraft() {
