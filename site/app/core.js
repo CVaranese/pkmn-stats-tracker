@@ -9,12 +9,12 @@ const { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, 
 const $ = (id) => document.getElementById(id);
 // served from this computer: no requests to Showdown at all (replays only from site/games/, move / Pokedex data from
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
-const LOCAL = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname) &&
-  !new URLSearchParams(location.search).has("online");
+const THIS_COMPUTER = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname);
+const LOCAL = THIS_COMPUTER && !new URLSearchParams(location.search).has("online");
 // features not released yet (Awards, report cards, reads and misplays, weekly bets) show on the next branch's preview
 // (/next/ in the address) and on this computer. Add ?live to the address to see what the live site shows.
-const PREVIEW = (["127.0.0.1", "localhost", "[::1]"].includes(location.hostname) || location.pathname.includes("/next/")) &&
-  !new URLSearchParams(location.search).has("live");
+const LIVE_VIEW = new URLSearchParams(location.search).has("live");
+const PREVIEW = (THIS_COMPUTER || location.pathname.includes("/next/")) && !LIVE_VIEW;
 // the league this page is for (site/leagues.json, written into the page by tools/build_pages.py); its files are in
 // site/<id>/ (games, team sheets, trainer sprites), everything shared is one folder up (the page's <base>)
 const LEAGUE = window.LEAGUE || { id: "", name: "", tag: "" };

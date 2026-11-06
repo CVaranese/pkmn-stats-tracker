@@ -287,6 +287,9 @@ class PreviewOnly(unittest.TestCase):
     """Features not released stay behind PREVIEW (app/core.js). Drop a line here when its feature goes live."""
     def test_held_back_features_are_behind_the_gate(self):
         app = Path(__file__).resolve().parent.parent / "site/app"
+        # the gate itself: on only here or on the preview, off for the live view
+        self.assertIn('const PREVIEW = (THIS_COMPUTER || location.pathname.includes("/next/")) && !LIVE_VIEW;',
+                      (app / "core.js").read_text("utf-8"))
         for name, wanted in {
             "core.js": '...(PREVIEW ? ["awards"] : [])',     # Awards: no ?tab=awards or saved tab without it
             "awards.js": "if (PREVIEW) document.querySelector",  # Awards: the tab's button

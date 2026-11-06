@@ -35,7 +35,7 @@ async function renderBets() {
     library.filter((g) => g.week === w).length + missing.filter((m) => m.week === w).length,
     League.isPlayoffWeek(w) ? 0 : pairs)]));
   const counted = (weeks[betWeek] || []).length, due = planned[betWeek] || counted;
-  $("bet-status").textContent = `${betWeek}: ${counted} of ${due} game${due === 1 ? "" : "s"} counted` +
+  $("bet-draw-status").textContent = `${betWeek}: ${counted} of ${due} game${due === 1 ? "" : "s"} counted` +
     (counted < due ? "; a bet settles once the rest can't change it" : "") + ".";
   $("bet-list").replaceChildren(...Bet.weeklyBets(LEAGUE.id, betWeek, weeks, 6, planned).map(betCard));
 }
@@ -46,7 +46,7 @@ function buildBetDraw() {
   bar.append(label);
   $("bet-draw").replaceChildren(el("h2", "section-title", "This week's bets"),
     el("p", "hint", "Six bets drawn for each week, the same for everyone. Over / under lines come from the weeks before. Shown, not yet bettable."),
-    bar, Object.assign(el("p", "hint"), { id: "bet-status" }), Object.assign(el("div", "award-grid"), { id: "bet-list" }));
+    bar, Object.assign(el("p", "hint"), { id: "bet-draw-status" }), Object.assign(el("div", "award-grid"), { id: "bet-list" }));
 }
 /** One bet: what it's on, the line (over / under) or Yes / No, and how it came out once the week's games are in. */
 function betCard(b) {

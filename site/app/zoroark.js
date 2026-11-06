@@ -4,7 +4,7 @@
 // which stays on the field were Zoroark: the league admin's picks in the game library (index.json "illusion",
 // written by tools/set_illusion.py), else the ones illusion.js proves. The admin tries picks out on the local
 // site (served from this computer: Move to / Move back buttons, kept in this browser) before rolling them out.
-const ADMIN = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname);
+const ADMIN = THIS_COMPUTER && !LIVE_VIEW;
 const PICKS_KEY = "rs-illusion";
 function savedPicks() {
   try { return JSON.parse(localStorage.getItem(PICKS_KEY)) || {}; } catch (e) { return {}; }
