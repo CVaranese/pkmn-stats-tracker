@@ -349,7 +349,6 @@ input[type=text].mon-find { max-width: 360px; font-family: inherit; }
 .draft-tabs button { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
 /* wide enough for two even rows, lined up in columns (--cols from app/draft.js) */
 @media (min-width: 1200px) { .draft-tabs { display: grid; grid-template-columns: repeat(var(--cols, 6), auto); } }
-.pk-countdown { font-size: var(--fs-md); font-weight: 600; font-variant-numeric: tabular-nums; margin: 4px 0 10px; }
 /* trainer sprites from the draft sheet: 80px pixel art, shown at 1x / 0.5x (whole steps keep the pixels sharp) */
 img.trainer { image-rendering: pixelated; flex: 0 0 auto; }
 img.trainer.small { width: 40px; height: 40px; margin: -10px -4px -10px -8px; }
@@ -620,9 +619,56 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .award-who .muted { font-size: var(--fs-sm); }
 .award-value { font-size: var(--fs-md); text-align: right; white-space: nowrap; }
 .award-more { margin: 6px 0 0; font-size: var(--fs-sm); cursor: help; }
-/* Gambling, preview only: a drawn bet's line and how it came out */
-.bet-line { margin: 0 0 8px; font-size: var(--fs-md); color: var(--muted); }
-.bet-result { margin: 0; font-size: var(--fs-md); }
+/* Pick'em and Gambling: the countdown between two lines of the header's stripe */
+.lock-band { margin: 16px 0; text-align: center; }
+.lock-band::before, .lock-band::after { content: ""; display: block; height: 10px; border-radius: var(--radius-xs); background: var(--stripe); }
+.lock-band-label { display: block; margin-top: 12px; font-size: var(--fs-md); color: var(--muted); }
+.lock-band-time { display: block; margin-bottom: 12px; font-size: var(--fs-5xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+.bet-note { margin-inline: auto; font-size: var(--fs-md); text-align: center; }
+/* tickets on the left, the slip and the leaderboard on the right, in view as you pick */
+.bet-cols { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; margin-top: 12px; }
+.bet-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr)); grid-auto-rows: 1fr; gap: 10px; }
+.bet-side { position: sticky; top: 12px; }
+/* a ticket: every one the same height, wording and line on top, the sides (Pick'em's .pk-side) and the lock centred at the
+   bottom, the same size and place on each */
+.bet { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.bet.is-lock { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -1px; }
+.bet-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; align-self: stretch; flex: 1; }
+.bet h3 { margin: 0; font-size: var(--fs-md); font-weight: 600; }
+.bet-sub { margin: 0; font-size: var(--fs-sm); color: var(--muted); }
+.bet-lock-tag { margin: 4px 0 0; }
+.bet-line { margin: 0; font-size: var(--fs-xs); color: var(--muted); text-align: right; white-space: nowrap; }
+.bet-num { display: block; font-size: var(--fs-4xl); font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.bet-sides { display: grid; grid-template-columns: 104px 104px; gap: 6px; }
+.bet-sides .pk-side { justify-content: center; }
+/* a shade off the ticket behind them (user 2026-11-06); a pressed one keeps its --accent */
+.bet-sides .pk-side:not([aria-pressed="true"]), button.bet-lock[aria-pressed="false"] { background: var(--row-alt); }
+/* its border is the text colour, not --outline: the near-black outline doesn't show on a dark theme */
+button.bet-lock { width: 214px; padding: 7px 10px; border: 2px solid var(--text); font-size: var(--fs-sm); font-weight: 700; }
+button.bet-lock[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
+.bet-result { margin: 0; font-size: var(--fs-sm); text-align: center; }
+/* the slip */
+.bet-slip { padding: 12px 14px; border: 2px solid var(--outline); border-radius: var(--radius-md); background: var(--surface); }
+.bet-slip h3 { margin: 0 0 8px; font-size: var(--fs-lg); }
+.bet-slip .hint { margin: 0 0 8px; }
+.bet-slip-list { margin: 0; padding: 0; list-style: none; font-size: var(--fs-md); }
+.bet-slip-list li { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; border-top: 1px solid var(--border); }
+.bet-slip-list b { text-align: right; white-space: nowrap; }
+.bet-slip-status { margin: 8px 0 0; font-size: var(--fs-sm); }
+.bet-side .section-title { margin-top: 16px; }
+/* the leaderboard fits the narrow column: tighter cells, a long name wraps */
+.bet-side th, .bet-side td { padding-inline: 6px; }
+.bet-side td:nth-child(2) { white-space: normal; overflow-wrap: anywhere; }
+.bet-side td button.small { padding-inline: 6px; }
+/* narrow: the slip and the leaderboard move under the tickets */
+@media (max-width: 900px) {
+  .bet-cols { grid-template-columns: minmax(0, 1fr); }
+  .bet-side { position: static; }
+  /* the slip is below the tickets here, so what a tap did (saved, not saved, pick first) stays on screen */
+  .bet-slip-status { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; margin: 0; padding: 8px 16px; background: var(--band); border-top: 2px solid var(--outline); color: var(--text); text-align: center; }
+  .bet-slip-status:empty { display: none; }
+  #bet-draw { padding-bottom: 56px; }
+}
 /* Pick'em: the bracket, a column per round; each match a card with its two players, placed level with the matches
    feeding it (--pk-y, in rows of --pk-slot); lines (svg.pk-lines) join a match to the slot its winner moves into.
    Phones scroll it sideways inside its box, a round at a time. */

@@ -278,11 +278,11 @@
     return out;
   }
 
-  // ---------- weekly bets (shown, not yet bettable; the pool and its plans: docs/BETTING_PROPS.md) ----------
+  // ---------- play-money bets (the pool and its plans: docs/BETTING_PROPS.md; the page: app/bets.js) ----------
 
   // the bets the site can settle by itself from game rows (gameRows, one game's rows each). An over / under ("ou")
-  // adds up a number per game (count) and gets a line from other weeks; a yes / no ("yn") looks for one row or game
-  // that makes it Yes (find: [the row or game it found, what it says] or null)
+  // adds up a number per game (count) and gets a line from simulated playoffs (simulateBets); a yes / no ("yn") looks
+  // for one row or game that makes it Yes (find: what it says about the row or game it found, or null)
   const team = (rs, r) => rs.filter((x) => x.player === r.player);
   const anyRow = (test, say) => (games) => {
     for (const rs of games) for (const r of rs) if (test(r, rs)) return say(r, rs);
@@ -349,51 +349,93 @@
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
   }
-  /** The week's bets: n drawn from PROPS by seed (league id + week), in the order drawn. weeks: { week: [game rows of
-      each game] } for the whole league; lines from the earlier weeks (any other week when there are none: week 1),
-      per game, times the games the week has (planned: { week: how many }, else the games in weeks), rounded to the
-      half below (x.5: no push). Each: { id, kind, text, line, result: { value, outcome: "Over" | "Under" | "Yes" |
-      "No" | null, detail, final } (null until the week has games) }. Before all the week's games are in, a bet
-      settles only when no later game can change it (Over passed, a Yes found): else outcome null, final false. */
-  function weeklyBets(seed, week, weeks, n = 6, planned = {}) {
-    const rand = seeded(seed + "|" + week);
-    const pool = PROPS.slice();
-    const picked = [];
-    while (picked.length < n && pool.length) picked.push(pool.splice(Math.floor(rand() * pool.length), 1)[0]);
-    const names = Object.keys(weeks);
-    const at = names.indexOf(week);
-    const earlier = names.slice(0, Math.max(0, at)).filter((w) => weeks[w].length);
-    const base = earlier.length ? earlier : names.filter((w) => w !== week && weeks[w].length);
-    const games = weeks[week] || [];
-    const due = Math.max(games.length, planned[week] || 0);
-    const complete = games.length >= due;
-    return picked.map((p) => {
-      const bet = { id: p.id, kind: p.kind, text: p.text, line: null, result: null };
-      if (p.kind === "ou") {
-        const past = base.flatMap((w) => weeks[w]);
-        const perGame = past.length ? past.reduce((t, rs) => t + p.count(rs), 0) / past.length : 0;
-        bet.line = Math.floor(perGame * Math.max(1, due)) + 0.5;
-        if (games.length) {
-          // counts only go up: Over is final at once, Under once every game is in
-          const value = games.reduce((t, rs) => t + p.count(rs), 0);
-          const outcome = value > bet.line ? "Over" : complete ? "Under" : null;
-          bet.result = { value, outcome, detail: String(value), final: !!outcome };
+  /** Where a bet stands. games: each saved game's rows so far; ended: no more games will come; missing: games played
+      with no saved replay. { outcome: "Over" | "Under" | "Yes" | "No" | "void" | null (not settled yet), detail }.
+      Counts only go up, so Over and Yes are final the moment they happen, even with a replay missing; Under and No need
+      every game, so at the end a missing replay makes them void (stake back, docs/BETTING_PROPS.md). */
+  function settleBet(p, line, games, ended, missing = 0) {
+    const open = (detail) => ({ outcome: !ended ? null : missing ? "void" : p.kind === "ou" ? "Under" : "No", detail });
+    if (p.kind === "ou") {
+      const value = games.reduce((t, rs) => t + p.count(rs), 0);
+      return value > line ? { outcome: "Over", detail: String(value) } : open(String(value));
+    }
+    const hit = p.find(games);
+    return hit ? { outcome: "Yes", detail: hit } : open("");
+  }
+
+  /** How a contest's bets could land, before its games: many made-up runs of `matches` best-of-3 sets (2 games, a third
+      with chance `third`), each game drawn from `league` (each game's rows) with chance `leagueShare`, else from
+      `ladder`. One entry per PROPS bet: { id, kind, line (ou: the median run's total, moved by a small normal step
+      seeded by seed + bet, then x.5 so there's no push; yn: null), rate (how often Over / Yes), league_rate (the same,
+      runs of league games only) }. Rates to 3 places. leagueShare 0.8: the games bet on are league games, and at 0.5
+      the ladder's games put lines far off (tested 2026-11-05: KOs 208.5 landed Over in 91% of league-only runs). */
+  function simulateBets(seed, league, ladder, { matches = 11, third = 0.5, leagueShare = 0.8, runs = 20000, nudge = 0.15 } = {}) {
+    const rate = (n) => Math.round(n / runs * 1000) / 1000;
+    const valueOf = (p, rs) => (p.kind === "ou" ? p.count(rs) : p.find([rs]) ? 1 : 0);
+    return PROPS.map((p) => {
+      const rand = seeded(seed + "|sim|" + p.id);
+      const lv = league.map((rs) => valueOf(p, rs)), av = ladder.length ? ladder.map((rs) => valueOf(p, rs)) : lv;
+      const run = (share) => {
+        const out = new Float64Array(runs);
+        for (let i = 0; i < runs; i++) {
+          let games = 0;
+          for (let m = 0; m < matches; m++) games += rand() < third ? 3 : 2;
+          let t = 0;
+          for (let g = 0; g < games; g++) {
+            const from = rand() < share ? lv : av;
+            t += from[Math.floor(rand() * from.length)];
+          }
+          out[i] = t;
         }
-      } else if (games.length) {
-        const hit = p.find(games);
-        const outcome = hit ? "Yes" : complete ? "No" : null;
-        bet.result = { value: hit ? 1 : 0, outcome, detail: hit || "", final: !!outcome };
+        return out;
+      };
+      const blend = run(leagueShare), own = run(1);
+      if (p.kind === "yn") {
+        const yes = (a) => a.reduce((n, t) => n + (t > 0 ? 1 : 0), 0);
+        return { id: p.id, kind: p.kind, line: null, rate: rate(yes(blend)), league_rate: rate(yes(own)) };
       }
-      return bet;
+      const sorted = Float64Array.from(blend).sort();
+      const mean = blend.reduce((t, v) => t + v, 0) / runs;
+      const sd = Math.sqrt(blend.reduce((t, v) => t + (v - mean) ** 2, 0) / runs);
+      const step = Math.sqrt(-2 * Math.log(1 - rand())) * Math.cos(2 * Math.PI * rand()) * nudge * sd;  // Box-Muller
+      const line = Math.floor(sorted[Math.floor(runs / 2)] + step) + 0.5;
+      const over = (a) => a.reduce((n, t) => n + (t > line ? 1 : 0), 0);
+      return { id: p.id, kind: p.kind, line, rate: rate(over(blend)), league_rate: rate(over(own)) };
     });
+  }
+
+  /** Close enough to 50/50 (docs/BETTING_PROPS.md): about 35-65% Over / Yes in the blended runs and in runs of the
+      league's own games alone. */
+  const nearEven = (b) => [b.rate, b.league_rate].every((r) => r >= 0.35 && r <= 0.65);
+  /** n of the simulated bets that are close enough to 50/50, drawn by seed: the same every time, in the order drawn. */
+  function drawBets(seed, bets, n = 6) {
+    const rand = seeded(seed + "|draw");
+    const pool = bets.filter(nearEven), picked = [];
+    while (picked.length < n && pool.length) picked.push(pool.splice(Math.floor(rand() * pool.length), 1)[0]);
+    return picked;
+  }
+
+  // every bet costs the same; right wins it, wrong loses it, void gives it back, the lock counts double (user
+  // 2026-11-05). The store's bets_leaderboard does the adding up, from its own copy of this number.
+  const BET_STAKE = 10;
+
+  /** How many sets of a best-of-`bestOf` playoff are in: decided by their saved games, or with a game that has no replay
+      (index.json `missing`: its games can't all be counted, whoever won). With every bracket winner known and this many
+      sets as matches, no more games are coming. keyOf: one id per player. */
+  function setsIn(games, missing, keyOf, bestOf = 3) {
+    const LG = root.League || require("./league.js");
+    const pair = (ps) => ps.map(keyOf).sort().join("|");
+    const lost = (s) => missing.filter((m) => m.week === s.week && pair(m.players) === pair(s.players));
+    const sets = LG.sets(games, keyOf, bestOf);
+    const inSets = sets.filter((s) => lost(s).length || LG.setSlots({ ...s, missing: lost(s) }, bestOf, keyOf).score.winner).length;
+    const noGames = missing.filter((m) => !sets.some((s) => s.week === m.week && pair(s.players) === pair(m.players)));
+    return inSets + new Set(noGames.map((m) => m.week + "|" + pair(m.players))).size;
   }
 
   // the formats whose draft report cards are designed: singles (Nat Dex); VGC later, adapted (user 2026-10-29)
   const CARD_FORMATS = ["gen9nationaldex"];
-  // the formats whose bet lines are worked out (docs/BETTING_PROPS.md); a league of another format shows no bets
-  const BET_FORMATS = ["gen9nationaldex"];
 
-  const Bet = { SCORING, PROPS, BET_FORMATS, CARD_FORMATS, weeklyBets, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy, letterFor, reportCards };
+  const Bet = { SCORING, PROPS, BET_STAKE, CARD_FORMATS, settleBet, simulateBets, nearEven, drawBets, setsIn, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy, letterFor, reportCards };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);

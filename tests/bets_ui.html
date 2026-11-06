@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>running</title>
+<style>html, body, iframe { margin: 0; width: 100%; height: 100%; border: 0; } #out { display: none; }</style></head>
+<body>
+<!-- The Gambling tab of the real league page against a store kept in memory: no network, no Discord. Title PASS, FAIL (n)
+     or CRASH, lines in #out. What the store itself refuses is tested in SQL (docs/knowledge/pickem-service.md);
+     this tests what the page shows and sends. ?shot=<scenario> stops there and shows the page, for a screenshot. -->
+<pre id="out"></pre>
+<script>
+"use strict";
+const LOG = [];
+const check = (name, ok, detail) => LOG.push((ok ? "PASS " : "FAIL ") + name + (ok || detail === undefined ? "" : "\n    " + detail));
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+async function until(test, what) {
+  for (let i = 0; i < 300; i++) {
+    const v = test();
+    if (v) return v;
+    await wait(50);
+  }
+  throw new Error("timed out waiting for " + what);
+}
+const HOUR = 3600e3;
+const SLATE = [["crits", "ou", 27.5], ["sleep", "ou", 4.5], ["cleared", "ou", 4.5], ["turns", "ou", 689.5], ["statuses", "ou", 32.5], ["comeback", "yn", null]];
+const ME = "me-id", OTHER = "other-id";
+
+/** A store in memory with supabase-js's calling style, for the calls the page makes. */
+function fakeStore(s) {
+  const db = {
+    contests: [{ id: "ppppp-2026-playoffs", lock_at: new Date(Date.now() + s.lockIn).toISOString() }],
+    bet_props: SLATE.map(([bet_id, kind, line], i) => ({ contest_id: "ppppp-2026-playoffs", bet_id, kind, line, position: i, outcome: null, detail: null, ...(s.outcomes || {})[bet_id] })),
+    bets: s.bets || [], bet_locks: s.locks || [], people: [{ id: ME, name: "Me" }, { id: OTHER, name: "Other" }],
+    guild_members: s.member ? [{ guild_id: "879895025062936576", person_id: ME }] : [], pickem_matches: [], picks: [],
+  };
+  const keys = { bets: ["person_id", "contest_id", "bet_id"], bet_locks: ["person_id", "contest_id"] };
+  const writes = [];
+  const session = s.signedIn ? { user: { id: ME, user_metadata: { full_name: "Me" } }, access_token: "t" } : null;
+  const query = (table) => {
+    const filters = [];
+    let run = () => ({ data: db[table].filter((r) => filters.every((f) => f(r))), error: null });
+    const q = {
+      select: () => q, order: () => q,
+      eq: (k, v) => { filters.push((r) => r[k] === v); return q; },
+      in: (k, vs) => { filters.push((r) => vs.includes(r[k])); return q; },
+      single: () => { const inner = run; run = () => ({ data: inner().data[0], error: null }); return q; },
+      maybeSingle: () => { const inner = run; run = () => ({ data: inner().data[0] || null, error: null }); return q; },
+      upsert: (rows) => {
+        writes.push(["upsert", table, rows]);
+        run = () => {
+          for (const row of [].concat(rows)) {
+            const at = db[table].findIndex((r) => keys[table].every((k) => r[k] === row[k]));
+            if (at >= 0) db[table][at] = row; else db[table].push(row);
+          }
+          return { data: null, error: null };
+        };
+        return q;
+      },
+      delete: () => {
+        run = () => {
+          writes.push(["delete", table]);
+          const gone = db[table].filter((r) => filters.every((f) => f(r)));
+          db[table] = db[table].filter((r) => !gone.includes(r));
+          // the foreign key: a lock goes with its pick
+          if (table === "bets") db.bet_locks = db.bet_locks.filter((l) => !gone.some((b) => b.person_id === l.person_id && b.bet_id === l.bet_id));
+          // the store's rules refusing a delete: no error, no rows
+          return s.refuseDeletes ? { data: [], error: null } : { data: gone, error: null };
+        };
+        return q;
+      },
+      then: (ok, fail) => Promise.resolve().then(run).then(ok, fail),
+    };
+    return q;
+  };
+  const client = {
+    auth: { getSession: async () => ({ data: { session } }), signOut: async () => {}, signInWithOAuth: async () => { writes.push(["signin"]); return { error: null }; } },
+    from: query,
+    rpc: async (name, { c }) => {
+      if (name !== "bets_leaderboard") return { data: [], error: null };
+      const who = [...new Set(db.bets.filter((b) => b.contest_id === c).map((b) => b.person_id))];
+      return { data: who.map((id) => {
+        // as the store's bets_leaderboard adds it up (that function is tested in SQL)
+        const row = { person_id: id, name: db.people.find((p) => p.id === id).name, score: 0, won: 0, lost: 0, voided: 0, open: 0, picked: 0 };
+        const lock = (db.bet_locks.find((l) => l.person_id === id) || {}).bet_id;
+        for (const b of db.bets.filter((x) => x.person_id === id)) {
+          const { outcome } = db.bet_props.find((x) => x.bet_id === b.bet_id);
+          row.picked++;
+          if (!outcome) row.open++;
+          else if (outcome === "void") row.voided++;
+          else {
+            row[outcome === b.pick ? "won" : "lost"]++;
+            row.score += (outcome === b.pick ? 10 : -10) * (lock === b.bet_id ? 2 : 1);
+          }
+        }
+        return row;
+      }), error: null };
+    },
+  };
+  return { db, writes, client };
+}
+
+let frame = null, pageHtml = null;
+/** The league page in a frame, its sign-in library replaced by the fake store, on the Gambling tab. */
+async function open(s) {
+  if (!pageHtml) pageHtml = await (await fetch("../site/ppppp/index.html")).text();
+  const store = fakeStore(s);
+  try {
+    if (s.signedIn) localStorage.setItem("sb-djwfayvdytvvdcecsnqa-auth-token", "x");
+    else localStorage.removeItem("sb-djwfayvdytvvdcecsnqa-auth-token");
+  } catch (e) { /* the page then sees no session */ }
+  if (frame) frame.remove();
+  frame = document.createElement("iframe");
+  document.body.append(frame);
+  window.fakeClient = store.client;
+  const html = pageHtml.replace('<base href="../">', '<base href="../site/"><script>window.supabase = { createClient: () => parent.fakeClient }; window.onerror = (m, f, l) => { parent.check("page error: " + m + " at " + f + ":" + l, false); };<\/script>');
+  const doc = frame.contentDocument;
+  doc.open(); doc.write(html); doc.close();
+  await until(() => frame.contentWindow.document.querySelector('.modes [data-mode="gamble"]') && frame.contentWindow.Bet && frame.contentDocument.readyState === "complete", "the page");
+  await until(() => {
+    // again until it takes: the page's scripts are still loading and wiring the tabs up
+    const shown = !frame.contentDocument.getElementById("gamble").hidden;
+    if (!shown) frame.contentDocument.querySelector('.modes [data-mode="gamble"]').click();
+    return frame.contentDocument.querySelectorAll("#bet-list .bet").length === SLATE.length;
+  }, "the bets");
+  await until(() => frame.contentDocument.getElementById("bet-board-note").textContent, "the leaderboard");
+  return store;
+}
+const $f = (id) => frame.contentDocument.getElementById(id);
+const card = (i) => frame.contentDocument.querySelectorAll("#bet-list .bet")[i];
+const side = (i, name) => [...card(i).querySelectorAll(".pk-side")].find((b) => b.textContent === name);
+const lockBtn = (i) => card(i).querySelector(".bet-lock");
+// a moment first, for the click's save to start and the status to leave what it said before
+const saved = async () => { await wait(50); await until(() => /^(Saved|No bets)/.test($f("bet-status-line").textContent), "the save"); await wait(20); };
+
+const SCENARIOS = {
+  /** A member before the lock: places, moves the lock, takes a pick back. */
+  async member() {
+    const st = await open({ signedIn: true, member: true, lockIn: 48 * HOUR });
+    check("member: the box is gone and six bets show with their lines",
+      $f("bet-draw").hidden === false && frame.contentDocument.querySelector("#gamble .soon").hidden && card(0).textContent.includes("Over / under 27.5"));
+    check("member: the countdown runs", /^Bets lock in 1d 2?3?h?/.test($f("bet-countdown").textContent) || $f("bet-countdown").textContent.startsWith("Bets lock in 2d"), $f("bet-countdown").textContent);
+    check("member: a yes / no bet has Yes and No sides", !!side(5, "Yes") && !!side(5, "No"));
+    lockBtn(0).click();
+    await wait(50);
+    check("member: no lock before there's a pick, and it says why",
+      !st.db.bet_locks.length && !st.writes.length && $f("bet-status-line").textContent.startsWith("Pick Over or Under"), $f("bet-status-line").textContent);
+    side(0, "Over").click();
+    await saved();
+    check("member: a pick is pressed and in the store",
+      side(0, "Over").getAttribute("aria-pressed") === "true" && st.db.bets.length === 1 && st.db.bets[0].pick === "Over" && st.db.bets[0].person_id === ME, JSON.stringify(st.db.bets));
+    check("member: the status says it was saved", /^Saved: 1 of 6 bets placed, no lock set/.test($f("bet-status-line").textContent), $f("bet-status-line").textContent);
+    side(0, "Under").focus();
+    side(0, "Under").click();
+    await saved();
+    check("member: the button pressed keeps the keyboard's focus", frame.contentDocument.activeElement === side(0, "Under"), frame.contentDocument.activeElement.tagName);
+    check("member: changing sides is one row, changed", st.db.bets.length === 1 && st.db.bets[0].pick === "Under", JSON.stringify(st.db.bets));
+    lockBtn(0).click();
+    await wait(50); await saved();
+    check("member: the lock is stored", st.db.bet_locks.length === 1 && st.db.bet_locks[0].bet_id === "crits", JSON.stringify(st.db.bet_locks));
+    check("member: the lock button says so", lockBtn(0).getAttribute("aria-pressed") === "true" && /lock set/.test($f("bet-status-line").textContent));
+    side(1, "Over").click();
+    await wait(50); await saved();
+    lockBtn(1).click();
+    await wait(50); await saved();
+    check("member: moving the lock leaves one row on the new bet", st.db.bet_locks.length === 1 && st.db.bet_locks[0].bet_id === "sleep", JSON.stringify(st.db.bet_locks));
+    side(1, "Over").click();
+    await wait(50); await saved();
+    check("member: taking a pick back drops it and its lock",
+      st.db.bets.length === 1 && st.db.bet_locks.length === 0 && side(1, "Over").getAttribute("aria-pressed") === "false", JSON.stringify([st.db.bets, st.db.bet_locks]));
+    check("member: the leaderboard lists the bet", $f("bet-board").textContent.includes("Me (you)") && $f("bet-board").textContent.includes("1 of 6"), $f("bet-board").textContent);
+    // docs/STYLE.md: fits at 320px without the page scrolling sideways (only the table scrolls, in its wrap)
+    frame.style.width = "320px";
+    await wait(100);
+    const wide = [...frame.contentDocument.querySelectorAll("#bet-draw > *, #bet-list .bet, .bet-sides, .bet-lock, .bet-slip")].filter((n) => n.getBoundingClientRect().right > 320).map((n) => n.id || n.className);
+    check("member: every part of the bets fits a 320px screen", !wide.length, wide.join(", "));
+    lockBtn(4).click();
+    await wait(50);
+    const bar = $f("bet-status-line").getBoundingClientRect();
+    check("member: on a phone the status stays on screen, below the tickets or not",
+      $f("bet-status-line").textContent.startsWith("Pick Over or Under") && bar.bottom <= frame.contentWindow.innerHeight && bar.top >= 0, `${bar.top} ${bar.bottom} of ${frame.contentWindow.innerHeight}`);
+    frame.style.width = "";
+    return st;
+  },
+  /** Saved picks come back on a new visit. */
+  async returning() {
+    const c = "ppppp-2026-playoffs";
+    const st = await open({ signedIn: true, member: true, lockIn: 48 * HOUR, bets: [{ person_id: ME, contest_id: c, bet_id: "turns", pick: "Under" }], locks: [{ person_id: ME, contest_id: c, bet_id: "turns" }] });
+    check("returning: picks and the lock come back from the store",
+      side(3, "Under").getAttribute("aria-pressed") === "true" && lockBtn(3).getAttribute("aria-pressed") === "true");
+    // user 2026-11-06: the buttons look the same and sit in the same place on every ticket, whatever else it holds
+    const boxes = [0, 1, 2, 3, 4, 5].map((i) => {
+      const c = card(i).getBoundingClientRect(), s = card(i).querySelector(".pk-side").getBoundingClientRect(), l = lockBtn(i).getBoundingClientRect();
+      return { cardH: Math.round(c.height), fromBottom: Math.round(c.bottom - s.bottom), inset: Math.round(s.left - c.left), w: Math.round(s.width), h: Math.round(s.height),
+        lockW: Math.round(l.width), lockH: Math.round(l.height), centred: Math.abs((l.left + l.right) / 2 - (c.left + c.right) / 2) < 1 };
+    });
+    check("returning: every ticket is the same height, its buttons the same size and place, centred",
+      boxes.every((b) => JSON.stringify(b) === JSON.stringify(boxes[0])) && boxes[0].centred, JSON.stringify(boxes));
+    const slipText = $f("bet-slip-list").textContent;
+    check("returning: the slip lists the pick with its line and the lock", slipText.includes("Turns played (lock)") && slipText.includes("Under 689.5"), slipText);
+    const sideBox = frame.contentDocument.querySelector(".bet-side").getBoundingClientRect(), listBox = $f("bet-list").getBoundingClientRect();
+    check("returning: on a wide screen the slip sits to the right of the tickets", innerWidth < 900 || sideBox.left >= listBox.right, `${sideBox.left} ${listBox.right}`);
+    const title = [...frame.contentDocument.querySelectorAll("#bet-list h3")].map((h) => h.textContent);
+    check("returning: wording in brackets goes on the smaller line", title.includes("Turns played") && card(3).querySelector(".bet-sub").textContent === "all games added up", title.join(", "));
+    return st;
+  },
+  async signedout() {
+    const st = await open({ signedIn: false, lockIn: 48 * HOUR });
+    check("signed out: the bets show, read-only, saying to sign in, with no second button (the header has it)",
+      side(0, "Over").getAttribute("aria-disabled") === "true" && !lockBtn(0) && $f("bet-account").textContent.includes("Sign in with Discord") &&
+      !$f("bet-account").querySelector("button") && $f("account").querySelector("button").textContent === "Sign in with Discord");
+    side(0, "Over").click();
+    await wait(100);
+    check("signed out: a click sends nothing", st.db.bets.length === 0 && !st.writes.length, JSON.stringify(st.writes));
+    return st;
+  },
+  async nonmember() {
+    const st = await open({ signedIn: true, member: false, lockIn: 48 * HOUR });
+    check("not a member: says why, read-only", $f("bet-account").textContent.includes("not as a member") && side(0, "Over").getAttribute("aria-disabled") === "true");
+    side(0, "Over").click();
+    await wait(100);
+    check("not a member: a click sends nothing", st.db.bets.length === 0 && !st.writes.length, JSON.stringify(st.writes));
+    return st;
+  },
+  /** After the lock, partly settled: my slip (+20 lock, -10, void), the house, someone else's slip. */
+  async settled() {
+    const c = "ppppp-2026-playoffs", row = (person_id, bet_id, pick) => ({ person_id, contest_id: c, bet_id, pick });
+    const st = await open({ signedIn: true, member: true, lockIn: -HOUR,
+      outcomes: { crits: { outcome: "Over", detail: "31" }, sleep: { outcome: "Under", detail: "3" }, cleared: { outcome: "void", detail: "2" }, turns: { outcome: null, detail: "410" } },
+      bets: [row(ME, "crits", "Over"), row(ME, "sleep", "Over"), row(ME, "cleared", "Under"), row(ME, "turns", "Under"),
+        row(OTHER, "crits", "Under"), row(OTHER, "sleep", "Under")],
+      locks: [{ person_id: ME, contest_id: c, bet_id: "crits" }] });
+    check("settled: no countdown and no way to change a pick", $f("bet-countdown").hidden && side(0, "Over").getAttribute("aria-disabled") === "true" && !lockBtn(0));
+    check("settled: the lock's win pays double", card(0).textContent.includes("Right, +20") && card(0).textContent.includes("Lock: counts double"), card(0).textContent);
+    check("settled: a wrong pick loses the stake", card(1).textContent.includes("Wrong, -10"), card(1).textContent);
+    check("settled: a void bet says so", card(2).textContent.includes("Void"), card(2).textContent);
+    check("settled: an open bet shows the count so far", card(3).textContent.includes("410 so far"), card(3).textContent);
+    // me +20 -10 = +10; Other: wrong on crits -10, right on sleep +10 = 0; the house is down 10
+    check("settled: the house's total", $f("bet-board-note").textContent.includes("The house is down 10"), $f("bet-board-note").textContent);
+    const slipText = $f("bet-slip-list").textContent;
+    check("settled: the slip shows what each scored", slipText.includes("Over 27.5, +20") && slipText.includes("Over 4.5, -10") && slipText.includes("Under 4.5, void"), slipText);
+    const rows = [...$f("bet-board").querySelectorAll("tr")].slice(1);
+    check("settled: places by score, Me first", rows[0].textContent.startsWith("1Me (you)+10") && rows[1].textContent.startsWith("2Other0"), rows.map((r) => r.textContent).join(" | "));
+    const boardWrap = $f("bet-board").parentNode;
+    check("settled: the leaderboard fits its column, the Slip button not cut off", boardWrap.scrollWidth <= boardWrap.clientWidth, `${boardWrap.scrollWidth} > ${boardWrap.clientWidth}`);
+    rows[1].querySelector("button").click();
+    await until(() => !$f("bet-viewing").hidden, "the slip");
+    check("settled: someone's slip opens, with their picks", $f("bet-viewing").textContent.includes("Other's slip") &&
+      side(0, "Under").getAttribute("aria-pressed") === "true" && card(0).textContent.includes("Wrong, -10") && !card(0).textContent.includes("Lock"), card(0).textContent);
+    $f("bet-viewing").querySelector("button").click();
+    check("settled: back to mine, with the keyboard's focus on the slip", $f("bet-viewing").hidden && frame.contentDocument.activeElement === $f("bet-slip-title"), frame.contentDocument.activeElement.tagName);
+    rows[1].querySelector("button").click();
+    return st;
+  },
+  /** The store's rules refuse a delete (a slow clock, past the real lock): no error, nothing removed. */
+  async refused() {
+    const c = "ppppp-2026-playoffs";
+    const st = await open({ signedIn: true, member: true, lockIn: 48 * HOUR, refuseDeletes: true, bets: [{ person_id: ME, contest_id: c, bet_id: "turns", pick: "Under" }] });
+    side(3, "Under").click();
+    await until(() => $f("bet-status-line").textContent.startsWith("Not saved"), "the refusal");
+    check("refused: the page doesn't say Saved when nothing was removed", $f("bet-status-line").textContent.includes("the store kept it"), $f("bet-status-line").textContent);
+    return st;
+  },
+  /** The lock passes with the page open. */
+  async lockpasses() {
+    const st = await open({ signedIn: true, member: true, lockIn: 1500 });
+    side(0, "Over").click();
+    await wait(50); await saved();
+    await until(() => $f("bet-status-line").textContent === "Bets are locked now.", "the lock");
+    check("lock passes: the page goes read-only, the pick kept",
+      side(0, "Over").getAttribute("aria-disabled") === "true" && side(0, "Over").getAttribute("aria-pressed") === "true" && $f("bet-countdown").hidden);
+    return st;
+  },
+};
+
+(async () => {
+  const shot = new URLSearchParams(location.search).get("shot");
+  if (shot) {
+    await SCENARIOS[shot]();
+    document.title = "SHOT";
+    return;
+  }
+  for (const name of Object.keys(SCENARIOS)) await SCENARIOS[name]();
+  if (frame) frame.remove();
+  const failed = LOG.filter((l) => l.startsWith("FAIL")).length;
+  document.getElementById("out").textContent = `${LOG.length - failed}/${LOG.length} passed\n` + LOG.join("\n");
+  document.title = failed ? `FAIL (${failed})` : "PASS";
+})().catch((e) => {
+  const status = frame && frame.contentDocument.getElementById("bet-status-line");
+  document.getElementById("out").textContent = "CRASH " + (e.stack || e) + "\nThe page says: " + (status ? status.textContent : "(no bets block)") + "\n" + LOG.join("\n");
+  document.title = "CRASH";
+});
+</script></body></html>

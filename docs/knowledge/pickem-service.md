@@ -59,6 +59,26 @@ store (migration `20261103120000_leagues_discord.sql`, which `pickem-join` and t
 - Results: `python -I tools/challonge_bracket.py --sql` writes `site/ppppp/games/playoffs.json` and prints the upsert
   for `pickem_matches`; run it in the SQL editor or through the MCP server after each round.
 
+## Play-money bets (S-3, 2026-11-06, branch `betting`)
+- **Tested** (migration `supabase/migrations/20261106000000_bets.sql`, applied to project `djwfayvdytvvdcecsnqa`;
+  SQL run as made-up users in one DO block ending in `raise exception`, so it rolled back: afterwards 0 test people,
+  0 bets): a member's bet saves. Refused with 42501: a Yes on an over / under, betting for another person, a
+  non-member's bet or lock, anon writes, member or anon writing `bet_props` outcomes. A lock on a bet with no pick is
+  refused by the foreign key (23503); moving the lock leaves one row; dropping the locked pick drops the lock.
+  Before the lock, anon and other people read 0 bets and 0 locks; a member reads their own; anon reads the slate and
+  calls `bets_leaderboard`. After the lock (`contests.lock_at` moved back inside the transaction): placing and moving
+  a lock are refused, changing and dropping affect 0 rows, anon reads all bets and locks.
+- **Tested** (same run): `bets_leaderboard` scored a locked right pick +20, a wrong pick -10, a void 0 and an
+  unsettled 0: total +10, right 1, wrong 1, void 1, open 1, placed 4.
+- **Tested**: Supabase security advisor after the migration: the only new warnings are `bets_leaderboard` callable
+  signed out and by signed-in users, on purpose (public leaderboard), the same as `pickem_leaderboard`.
+- **Tested** (way to test rules safely on the live store): a plpgsql helper `pg_temp.attempt(role, uid, sql)` sets
+  `request.jwt.claims` and `set local role`, and returns `'ok <row_count>'` or `'refused <sqlstate>'`. Call it from a
+  DO block whose last line is `raise exception` with the collected results: everything rolls back and the results
+  come back in the error text.
+- **Tested**: headless Edge launched from Git Bash (directly or via a python subprocess) exits in about 0.4 s with no
+  output; the same command from the PowerShell tool works. Run `tools/bets.py` from PowerShell.
+
 ## Setup steps (only the user can do these)
 1. Make a Supabase account and a free project.
 2. Discord Developer Portal: New Application, then OAuth2, add the redirect from above, copy the Client ID and

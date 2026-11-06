@@ -574,42 +574,72 @@
       .map(LG.spriteId).join(" ") === "hooh urshifu-rapidstrike zamazenta tapukoko charizard-megax ironvaliant kommoo",
       ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"].map(LG.spriteId).join(" "));
   }
-  // ---- weekly bets (Bet.weeklyBets): seeded draw, lines from earlier weeks, settled from rows ----
+  // ---- play-money bets (Bet.settleBet, simulateBets, drawBets, slipScore); the page: tests/bets_ui.html ----
   {
     const B = window.Bet;
+    const prop = (id) => B.PROPS.find((x) => x.id === id);
     const g = (crits, extra = {}) => [{ player: "A", opponent: "B", crits, won: 1, end_reason: "normal", brought: 1, mon_key: "p1: X",
       pokemon: "X", kills: 0, deaths: 0, turns: 20, momentum: [], ...extra }];
-    // Week 1: 2 games, 3 and 5 crits; Week 2: 1 game, 9 crits and a 4-KO Pokémon; Week 3: no games yet
-    const weeks = { "Week 1": [g(3), g(5)], "Week 2": [g(9, { kills: 4, pokemon: "Garchomp" })], "Week 3": [] };
-    const one = (id, week) => {
-      const keep = B.PROPS;
-      const p = keep.find((x) => x.id === id);
-      // force the draw to this prop: a one-prop pool through the same code
-      const saved = keep.splice(0, keep.length, p);
-      try { return B.weeklyBets("t", week, weeks, 1)[0]; } finally { keep.splice(0, keep.length, ...saved); }
-    };
-    const w2 = one("crits", "Week 2"), w1 = one("crits", "Week 1"), w3 = one("crits", "Week 3");
-    check("bets: over / under line from earlier weeks per game (Week 2: 4 a game x 1 = 4.5), settled Over at 9",
-      w2.line === 4.5 && w2.result.outcome === "Over" && w2.result.value === 9, JSON.stringify(w2));
-    check("bets: week 1 has no earlier week, so the line comes from the other weeks (9 a game x 2 = 18.5), Under at 8",
-      w1.line === 18.5 && w1.result.outcome === "Under" && w1.result.value === 8, JSON.stringify(w1));
-    check("bets: a week with no games has a line but no result yet", w3.result === null && typeof w3.line === "number", JSON.stringify(w3));
-    const y2 = one("fourko", "Week 2"), y1 = one("fourko", "Week 1");
-    check("bets: yes / no settles Yes with what did it, else No",
-      y2.result.outcome === "Yes" && y2.result.detail === "Garchomp (A), 4 KOs" && y1.result.outcome === "No", JSON.stringify([y2, y1]));
-    const d1 = B.weeklyBets("ppppp", "Week 8", weeks), d2 = B.weeklyBets("ppppp", "Week 8", weeks), d3 = B.weeklyBets("ppppp", "Week 7", weeks);
-    check("bets: the same draw every time for a league and week, 6 different bets, another week another draw",
-      same(d1.map((b) => b.id), d2.map((b) => b.id)) && new Set(d1.map((b) => b.id)).size === 6 &&
-      !same(d1.map((b) => b.id), d3.map((b) => b.id)), JSON.stringify([d1.map((b) => b.id), d3.map((b) => b.id)]));
-    // Week 2 of 3 planned games: the line is for 3 (4 a game: 12.5); 9 crits so far isn't Under yet; a Yes is final
-    const part = (id) => {
-      const keep = B.PROPS, p = keep.find((x) => x.id === id), saved = keep.splice(0, keep.length, p);
-      try { return B.weeklyBets("t", "Week 2", weeks, 1, { "Week 2": 3 })[0]; } finally { keep.splice(0, keep.length, ...saved); }
-    };
-    const pc = part("crits"), pk = part("fourko"), pn = part("kobm1");
-    check("bets: before the week's games are all in, the line is for the whole week and only a sure result settles",
-      pc.line === 12.5 && pc.result.outcome === null && !pc.result.final && pc.result.value === 9 &&
-      pk.result.outcome === "Yes" && pk.result.final && pn.result.outcome === null, JSON.stringify([pc, pk, pn]));
+    const crits = prop("crits"), fourko = prop("fourko");
+    const settled = (p, line, games, ended, missing) => B.settleBet(p, line, games, ended, missing);
+    check("bets: counts only go up, so Over is final as soon as it's passed, even with games to come or a replay missing",
+      same(settled(crits, 7.5, [g(3), g(5)], false, 0), { outcome: "Over", detail: "8" }) &&
+      same(settled(crits, 7.5, [g(3), g(5)], true, 2), { outcome: "Over", detail: "8" }));
+    check("bets: under the line stays open with the count so far until the games are over, then Under",
+      same(settled(crits, 8.5, [g(3), g(5)], false, 0), { outcome: null, detail: "8" }) &&
+      same(settled(crits, 8.5, [g(3), g(5)], true, 0), { outcome: "Under", detail: "8" }));
+    check("bets: under the line at the end with a replay missing is void: that game could have passed it",
+      same(settled(crits, 8.5, [g(3), g(5)], true, 1), { outcome: "void", detail: "8" }));
+    const big = g(0, { kills: 4, pokemon: "Garchomp" });
+    check("bets: a Yes is final with what did it, No needs every game, and no replay at the end voids a No",
+      same(settled(fourko, null, [g(0), big], false, 0), { outcome: "Yes", detail: "Garchomp (A), 4 KOs" }) &&
+      same(settled(fourko, null, [g(0)], false, 0), { outcome: null, detail: "" }) &&
+      same(settled(fourko, null, [g(0)], true, 0), { outcome: "No", detail: "" }) &&
+      same(settled(fourko, null, [g(0)], true, 1), { outcome: "void", detail: "" }));
+
+    // 11 best-of-3 sets are 22 to 33 games: games of exactly 1 crit put the total there, and half of them have a 4-KO
+    // Pokémon, so a Yes is a sure thing; the line sits within the range, x.5
+    const pool = Array.from({ length: 10 }, (_, i) => g(1, i % 2 ? { kills: 4 } : {}));
+    const sim = B.simulateBets("t", pool, [], { runs: 2000 });
+    const simCrits = sim.find((b) => b.id === "crits"), simKo = sim.find((b) => b.id === "fourko");
+    check("bets: simulated playoffs give a line between 22 and 33 games' worth, x.5, near 50/50",
+      simCrits.line >= 22 && simCrits.line <= 33 && simCrits.line % 1 === 0.5 && simCrits.rate > 0.3 && simCrits.rate < 0.7, JSON.stringify(simCrits));
+    check("bets: a yes / no has no line, and its rate is how often it happened in the simulated runs",
+      simKo.line === null && simKo.rate === 1, JSON.stringify(simKo));
+    check("bets: the simulation is the same every time for a seed",
+      same(sim, B.simulateBets("t", pool, [], { runs: 2000 })));
+    const rare = Array.from({ length: 200 }, (_, i) => g(0, i % 75 === 0 ? { kills: 4 } : {}));  // 3 in 200 games
+    const rareRate = B.simulateBets("t", rare, [], { runs: 5000 }).find((b) => b.id === "fourko").rate;
+    check("bets: a 1.5%-a-game event over about 27.5 games lands about 34% of the time (1 - 0.985^27.5)",
+      Math.abs(rareRate - 0.34) < 0.03, String(rareRate));
+
+    check("bets: near 50/50 needs both the blended runs and the league's own in 35-65%",
+      B.nearEven({ rate: 0.35, league_rate: 0.65 }) && !B.nearEven({ rate: 0.34, league_rate: 0.5 }) && !B.nearEven({ rate: 0.5, league_rate: 0.66 }));
+    const bets = Array.from({ length: 10 }, (_, i) => ({ id: "b" + i, rate: 0.5, league_rate: 0.5 }));
+    bets.push({ id: "lopsided", rate: 1, league_rate: 1 });
+    const d1 = B.drawBets("ppppp", bets), d2 = B.drawBets("ppppp", bets), d3 = B.drawBets("other", bets);
+    check("bets: the same six every time for a seed, never a lopsided one, another seed another draw",
+      same(d1, d2) && new Set(d1.map((b) => b.id)).size === 6 && !d1.some((b) => b.id === "lopsided") && !same(d1, d3), JSON.stringify(d1));
+
+    // best of 3: game(week, winner, players); names go through keyOf, so case doesn't split a set
+    const key = (s) => s.toLowerCase();
+    let gid = 0;
+    const game = (week, winner, players = ["Ann", "Bo"]) => ({ id: "g" + gid++, week, winner, players });
+    const lostGame = (week, winner = null, players = ["Ann", "Bo"]) => ({ week, game: null, winner, players });
+    check("bets: a 2-0 and a 2-1 are in, a 1-0 and a 1-1 aren't",
+      B.setsIn([game("R1", "Ann"), game("R1", "ann")], [], key) === 1 &&
+      B.setsIn([game("R1", "Ann"), game("R1", "Bo"), game("R1", "Bo")], [], key) === 1 &&
+      B.setsIn([game("R1", "Ann")], [], key) === 0 && B.setsIn([game("R1", "Ann"), game("R1", "Bo")], [], key) === 0);
+    check("bets: a set with a game that has no replay is in, whoever won, and counts once",
+      B.setsIn([game("R1", "Ann")], [lostGame("R1")], key) === 1 && B.setsIn([], [lostGame("R1"), lostGame("R1", "Bo")], key) === 1);
+    check("bets: sets are told apart by week and players; a rematch in a later round is its own set",
+      B.setsIn([game("R1", "Ann"), game("R1", "Ann"), game("Final", "Bo"), game("Final", "Bo"), game("R1", "Cy", ["Cy", "Di"]), game("R1", "Cy", ["Cy", "Di"])],
+        [lostGame("Semis", null, ["Cy", "Di"])], key) === 4);
+
+    const slate = await (await fetch("../site/ppppp/games/playoff_bets.json")).json();
+    check("bets: every bet on the league's slate has its wording and settling in Bet.PROPS, of the same kind",
+      slate.bets.length === 6 && slate.bets.every((b) => prop(b.id) && prop(b.id).kind === b.kind), JSON.stringify(slate.bets));
+
     // a win with one Pokémon left: standing at the end, a revived one counts (fainted once, survived)
     const lm = B.PROPS.find((x) => x.id === "lastmon");
     const side = (o) => ({ player: "A", opponent: "B", won: 1, end_reason: "normal", brought: 1, ...o });

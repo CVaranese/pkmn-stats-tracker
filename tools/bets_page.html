@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Bets tool</title></head>
+<body>
+<!-- Runs parser.js and bet.js over saved games for tools/bets.py, which reads the result out of #out as JSON.
+     ?mode=simulate (the bets' lines and rates) or ?mode=settle (where the contest's bets stand). -->
+<pre id="out">running</pre>
+<script src="../site/parser.js"></script>
+<script src="../site/teams.js"></script>
+<script src="../site/illusion.js"></script>
+<script src="../site/league.js"></script>
+<script src="../site/bet.js"></script>
+<script>
+"use strict";
+const SITE = "../site/";
+const get = async (path) => {
+  const r = await fetch(path, { cache: "no-store" });
+  if (!r.ok) throw new Error(path + ": HTTP " + r.status);
+  return r.json();
+};
+/** A game's rows the way app/zoroark.js counts them (the admin's saved hidden-Zoroark picks), brought Pokémon only. */
+function rowsOf(replay, g, learn, dex) {
+  const RS = window.ReplayStats, IL = window.Illusion;
+  const b = RS.parseBattle(replay.log);
+  if (IL.hiddenSides(b).length) replay.illusion = IL.picks(b, (g && g.illusion) || {}, learn, dex).illusion;
+  return RS.gameRows(replay);
+}
+async function simulate(league, seed, learn, dex) {
+  const index = await get(`${SITE}${league}/games/index.json`);
+  const games = index.games.filter((g) => !League.isPlayoffWeek(g.week));
+  const own = await Promise.all(games.map(async (g) => rowsOf(await get(`${SITE}${league}/games/${g.id}.json`), g, learn, dex)));
+  const names = await get("/__sample");
+  const ladder = [];
+  for (const n of names) {
+    try { ladder.push(rowsOf(await get("/tests/corpus/" + n), null, learn, dex)); } catch (e) { /* a file that isn't a replay */ }
+  }
+  const bets = Bet.simulateBets(seed, own, ladder);
+  return { league_games: own.length, ladder_games: ladder.length, bets: bets.map((b) => ({ ...b, near_even: Bet.nearEven(b) })),
+    slate: Bet.drawBets(seed, bets) };
+}
+async function settle(league, seed, learn, dex) {
+  const lg = (await get(SITE + "leagues.json")).leagues.find((x) => x.id === league);
+  const [index, slate, bracket, draft] = await Promise.all([get(`${SITE}${league}/games/index.json`),
+    get(`${SITE}${league}/${lg.bets.slate}`), get(`${SITE}${league}/${lg.pickem.bracket}`), get(`${SITE}${league}/games/draft.json`)]);
+  const games = index.games.filter((g) => League.isPlayoffWeek(g.week));
+  const missing = (index.missing || []).filter((m) => League.isPlayoffWeek(m.week));
+  const rows = await Promise.all(games.map(async (g) => rowsOf(await get(`${SITE}${league}/games/${g.id}.json`), g, learn, dex)));
+  const keyOf = (name) => Bet.playerKey(draft, name);
+  // over only when Challonge has every winner and the library has every set
+  const need = bracket.matches.length, decided = Bet.setsIn(games, missing, keyOf);
+  const bracketDone = bracket.matches.every((m) => m.winner != null);
+  const ended = bracketDone && decided >= need;
+  const bets = slate.bets.map((b) => {
+    const p = Bet.PROPS.find((x) => x.id === b.id);
+    if (!p) throw new Error("bet " + b.id + " isn't in Bet.PROPS");
+    return { id: b.id, ...Bet.settleBet(p, b.line, rows, ended, missing.length) };
+  });
+  return { contest: slate.contest, games: games.length, missing: missing.length, sets_decided: decided, sets_needed: need, bracket_done: bracketDone, ended, bets };
+}
+(async () => {
+  const q = new URLSearchParams(location.search), league = q.get("league"), seed = q.get("seed") || league;
+  const [learn, dex] = await Promise.all([window.Illusion.loadLearnsets(SITE + "data/learnsets.json"), get(SITE + "data/pokedex.json")]);
+  const result = await (q.get("mode") === "settle" ? settle : simulate)(league, seed, learn, dex);
+  document.getElementById("out").textContent = JSON.stringify(result);
+  document.title = "DONE";
+})().catch((e) => { document.getElementById("out").textContent = JSON.stringify({ crash: e.stack || String(e) }); document.title = "CRASH"; });
+</script></body></html>

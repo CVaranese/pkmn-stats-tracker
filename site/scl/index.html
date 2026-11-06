@@ -16,7 +16,7 @@
   <meta property="og:url" content="https://cvaranese.github.io/pkmn-stats-tracker/scl/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#2f5d9e">
-  <script>window.LEAGUE = {"id": "scl", "name": "Super Champions League", "short": "Super Champions", "tag": "SCL", "format": "gen9championsvgc2026regmb", "format_name": "Pokémon Champions VGC doubles", "brackets": [], "best_of": 3, "set_points": [3, 2, 1, 0], "pickem": null, "discord": null, "palette": "blastoise"};</script>
+  <script>window.LEAGUE = {"id": "scl", "name": "Super Champions League", "short": "Super Champions", "tag": "SCL", "format": "gen9championsvgc2026regmb", "format_name": "Pokémon Champions VGC doubles", "brackets": [], "best_of": 3, "set_points": [3, 2, 1, 0], "pickem": null, "bets": null, "discord": null, "palette": "blastoise"};</script>
   <script>try { const p = new URLSearchParams(location.search).get("palette") || localStorage.getItem("replay-kill-tracker.scl.palette") || window.LEAGUE.palette; if (p) document.documentElement.dataset.palette = p; } catch (e) { document.documentElement.dataset.palette = window.LEAGUE.palette; }</script>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -47,8 +47,8 @@
     <!-- leagues with pickem in site/leagues.json; filled by app/pickem.js -->
     <section id="pickem" class="tab-page" hidden>
       <h2 class="section-title">Playoff Pick'em</h2>
+      <div class="lock-band" id="pk-countdown" hidden></div>
       <p class="hint" id="pk-intro"></p>
-      <p class="pk-countdown" id="pk-countdown" hidden></p>
       <div class="pl-bar" id="pk-account"></div>
       <p class="muted" id="pk-status" role="status"></p>
       <p class="hint" id="pk-viewing" hidden></p>
@@ -67,12 +67,12 @@
         <p>Something is being set up for the playoffs. Bring a hunch about the bracket. Maybe a feeling about crits.</p>
         <p class="muted">Fantasy points and draft costs moved to the Fantasy tab.</p>
       </div>
-      <!-- filled by app/bets.js where it shows; empty in the page itself -->
+      <!-- leagues with bets in site/leagues.json: filled by app/bets.js, which hides the box above -->
       <div id="bet-draw" hidden></div>
     </section>
 
     <section id="fantasy" class="tab-page" hidden>
-      <p class="hint">Fantasy points from every league game so far, so this tab gives results away. Nothing here takes real bets.</p>
+      <p class="hint">Fantasy points from every league game so far, so this tab gives results away.</p>
       <h2 class="section-title">Fantasy points</h2>
       <p class="hint" id="bet-scoring"></p>
       <p class="hint">Not exact yet: most games have no team sheets, so damage is a share of each Pokémon's HP, not real HP. Fantasy points will be counted better once we have the sheets.</p>

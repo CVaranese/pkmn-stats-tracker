@@ -1,8 +1,7 @@
 # Weekly bet pool (draft, 2026-10-29)
 
 A large pool of props; each week a few are drawn at random (from the week's name, so everyone sees the same ones).
-Not on the site: the Gambling tab only teases until betting is built (play money, a shared store and a login are
-still undecided: `docs/FEATURES.md`, "Betting with play money"). Every prop settles from what the parser already
+What 1.2 actually built is under "As built for 1.2" below. Every prop settles from what the parser already
 counts, named in the last column (row fields from `parser.js` `gameRows`, summed over the week's saved games unless it
 says otherwise). Lines (the "3.5" in over / under) would come from the season so far, so they move week to week;
 the numbers below are placeholders.
@@ -159,6 +158,26 @@ More stats only make variants of the props above (the same count with another li
 | Every player brings a Mega at least once | Y/N | `mega` |
 | A Pokémon reaches 15 season KOs | Y/N | `kills` |
 | Total hazard KOs in the season: over / under 6.5 | O/U | `hazard_kills` |
+
+## As built for 1.2 (user, 2026-11-05; task S-3)
+These replace the planning notes below where they differ.
+- **One slate for the whole playoffs**, not a slate per round or week: six bets, every game of every round added up,
+  locking with Pick'em (2026-11-09 05:00 UTC). Every match is best of 3, so 22 to 33 games.
+- **Stake:** fixed, 10 points a bet. Right +10, wrong -10, void 0. **One lock**, counting double won or lost. Long-shot
+  payouts and the parlay box are not in 1.2. Points are kept in the Supabase store, after the Discord sign-in.
+- **Leaderboard:** place, name, score, right / wrong / void, the house's total; slips open to everyone after the lock.
+- **Lines and the draw** (`python -I tools/bets.py simulate`): 20,000 made-up playoffs per bet, a third game in each
+  set with chance 0.5 (a guess: the league has played no best of 3), each game drawn 80% from the league's 48 games and
+  20% from 408 recent Nat Dex replays. **Tested 2026-11-05:** the 50/50 split first tried put the lines far off for
+  league games (KOs 208.5 landed Over in 91% of league-only runs), so the league's share went up. A bet can be drawn
+  only if Over / Yes lands 35-65% both blended and on league games alone: 10 of 29 qualified, 9 over / unders and
+  "a comeback from 30% or more behind". Most yes / no bets are near-certain over 27 games (15 of 16 lopsided).
+- **The slate** (`site/ppppp/games/playoff_bets.json`, seeded): Turns asleep 4.5, Critical hits 27.5, Hazards cleared
+  4.5, Turns played 689.5, Statuses 32.5, Secondary effects 10.5.
+- **Guess, derived, not simulated:** totals over the same playoffs lean the same way, since more games raise them all.
+  A run with many sweeps favours Unders together; about half a KO total's spread would come from the game count, far
+  less for rarer counts.
+- **Void:** an Over or a Yes already reached stands; at the end, a played game with no replay voids an Under or a No.
 
 ## Decided so far (user, 2026-10-29, planning)
 - **Against the house, even money.** Pool betting dropped: about 10 people will bet, too few for a pot.
