@@ -620,8 +620,13 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .award-who .muted { font-size: var(--fs-sm); }
 .award-value { font-size: var(--fs-md); text-align: right; white-space: nowrap; }
 .award-more { margin: 6px 0 0; font-size: var(--fs-sm); cursor: help; }
-/* Gambling, preview only: a drawn bet's line and how it came out */
+/* Gambling: a bet's line, its two sides (Pick'em's .pk-side), the lock button and how it came out */
+.bet h3 { cursor: auto; }
 .bet-line { margin: 0 0 8px; font-size: var(--fs-md); color: var(--muted); }
+.bet-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+.bet-sides .pk-side { justify-content: center; }
+.bet-lock { display: block; margin-bottom: 8px; }
+.bet-lock[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
 .bet-result { margin: 0; font-size: var(--fs-md); }
 /* Pick'em: the bracket, a column per round; each match a card with its two players, placed level with the matches
    feeding it (--pk-y, in rows of --pk-slot); lines (svg.pk-lines) join a match to the slot its winner moves into.

@@ -9,20 +9,23 @@ param(
   [string]$Page = "site/ppppp/", # path under the repo root, e.g. "site/" (league list), "site/scl/", "tests/"
   [string]$Query = "",            # extra query string, e.g. "online"
   [string]$Name = "shot",
-  [string]$OutDir = "$env:TEMP\rs-shots"
+  [string]$OutDir = "$env:TEMP\rs-shots",
+  [int]$Port = 8765               # another worktree's server may hold 8765: pass a free port
 )
 $ErrorActionPreference = "Stop"
 $root = (Resolve-Path "$PSScriptRoot\..\..\..").Path
-$base = "http://127.0.0.1:8765"
+$base = "http://127.0.0.1:$Port"
 
 function Test-Server {
   try { Invoke-WebRequest "$base/site/" -UseBasicParsing -TimeoutSec 2 | Out-Null; $true } catch { $false }
 }
 if (-not (Test-Server)) {
-  Start-Process python -ArgumentList "-m", "http.server", "8765", "--bind", "127.0.0.1" -WorkingDirectory $root -WindowStyle Hidden
+  Start-Process python -ArgumentList "-m", "http.server", "$Port", "--bind", "127.0.0.1" -WorkingDirectory $root -WindowStyle Hidden
   for ($i = 0; $i -lt 20 -and -not (Test-Server); $i++) { Start-Sleep -Milliseconds 250 }
-  if (-not (Test-Server)) { throw "Local server didn't start on 8765" }
+  if (-not (Test-Server)) { throw "Local server didn't start on $Port" }
 }
+$served = (Invoke-WebRequest "$base/site/bet.js" -UseBasicParsing).RawContentStream.ToArray()
+if ([Convert]::ToBase64String($served) -ne [Convert]::ToBase64String([IO.File]::ReadAllBytes("$root\site\bet.js"))) { throw "Port $Port serves another checkout. Run again with a free -Port." }
 
 $qs = @()
 if ($Replays) { $qs += "r=$Replays" }

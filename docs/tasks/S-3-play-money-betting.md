@@ -1,7 +1,7 @@
 # S-3: Real play-money betting on the Gambling tab (release 1.2)
 
-**Status:** blocked (waiting on the user's five decisions)
-**Needs you:** Answer in docs/BETTING_PROPS.md terms: (1) stake and allowance (leaning one fixed stake per bet, not settled), and which of long-shot payouts, weekly lock, parlay box are in 1.2; (2) bet on the six drawn only, or more; (3) which playoff rounds, and each round's lock time; (4) lines for a playoff round, which has fewer games than a regular week; (5) what the leaderboard shows.
+**Status:** started (branch `betting`)
+**Needs you:** OK to apply the store migration when it's ready, then a check on the preview before the release.
 **Links:** [BETTING_PROPS.md](../BETTING_PROPS.md), [FEATURES.md "Betting with play money"](../FEATURES.md), [S-2 sign-in](done/S-2-sitewide-discord-signin.md), [S-1 Pick'em](done/S-1-playoff-pickem.md)
 
 ## Goal
@@ -26,7 +26,18 @@ Sunday". Target: live before the Pick'em lock, 2026-11-08 9 PM Pacific = 2026-11
   carry over as they are.
 
 ## Decisions
-None yet. Open questions are in Needs you; the earlier ones are in BETTING_PROPS.md "Decided so far".
+User, 2026-11-05 (the earlier ones are in BETTING_PROPS.md "Decided so far"):
+1. **Stake:** one fixed stake, 10 points a bet, with an allowance that covers every bet. Right +10, wrong -10, void 0.
+2. **Extras:** one lock, counting double won or lost. Long-shot payouts and the parlay box are not in 1.2.
+3. **Bets:** the six drawn only.
+4. **Rounds:** one slate for the whole playoffs, all rounds together, not a slate per round: "All of the rounds
+   together, for the entire playoffs. Same lock as pickems. Bets may have to be rebalanced." So one lock pick in all,
+   at the contest's `lock_at` (2026-11-09 05:00 UTC).
+5. **Match length:** every playoff match is best of 3, so 22 to 33 games over the 11 matches.
+6. **Rebalancing:** over / under lines scale to the playoff game count; simulate playoffs from the saved league games
+   and the Nat Dex replay sample, and keep only bets landing about 35-65% either way. The six are drawn from those.
+7. **Leaderboard:** place, name, score, right-wrong-void and the house's running total. Slips open to everyone after
+   the lock, as Pick'em's brackets do.
 
 ## Steps
 1. Get the answers to Needs you; write them dated under Decisions and update BETTING_PROPS.md "Decided so far".

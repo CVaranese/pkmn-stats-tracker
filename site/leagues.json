@@ -39,6 +39,10 @@
         "contest": "ppppp-2026-playoffs",
         "bracket": "games/playoffs.json"
       },
+      "bets": {
+        "contest": "ppppp-2026-playoffs",
+        "slate": "games/playoff_bets.json"
+      },
       "brackets": [
         {
           "name": "Playoffs",

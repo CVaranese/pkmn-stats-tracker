@@ -283,6 +283,57 @@ class Releases(unittest.TestCase):
             self.skipTest(f"v{rel[0]} isn't tagged yet: git tag -a v{rel[0]} -m \"{rel[0]}\" on the release commit, then push it")
 
 
+class BetsTool(unittest.TestCase):
+    """tools/bets.py's pure parts, and its settings and slate against the store's migration."""
+    ROOT = Path(__file__).resolve().parent.parent
+
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("bets_tool", self.ROOT / "tools/bets.py")
+        self.tool = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.tool)
+
+    def test_settle_sql(self):
+        sql = self.tool.settle_sql({"contest": "c1", "bets": [
+            {"id": "crits", "outcome": "Over", "detail": "31"},
+            {"id": "comeback", "outcome": None, "detail": ""},
+            {"id": "x", "outcome": "Yes", "detail": "Farfetch'd (A)"}]})
+        self.assertEqual(sql.split("\n"), [
+            "update public.bet_props set outcome = 'Over', detail = '31' where contest_id = 'c1' and bet_id = 'crits';",
+            "update public.bet_props set outcome = null, detail = null where contest_id = 'c1' and bet_id = 'comeback';",
+            "update public.bet_props set outcome = 'Yes', detail = 'Farfetch''d (A)' where contest_id = 'c1' and bet_id = 'x';"])
+
+    def test_slate_sql_leaves_outcomes_and_drops_old_bets(self):
+        sql = self.tool.slate_sql({"contest": "c1", "bets": [
+            {"id": "crits", "kind": "ou", "line": 27.5}, {"id": "comeback", "kind": "yn", "line": None}]})
+        self.assertIn("('c1', 'crits', 0, 'ou', 27.5)", sql)
+        self.assertIn("('c1', 'comeback', 1, 'yn', null)", sql)
+        self.assertIn("bet_id not in ('crits', 'comeback')", sql)
+        self.assertNotIn("outcome", sql)
+
+    def test_dom_result_unescapes(self):
+        self.assertEqual(self.tool.dom_result('<pre id="out">{"a":"b &amp; c"}</pre>'), {"a": "b & c"})
+
+    def test_league_settings_and_slate(self):
+        leagues = json.loads((self.ROOT / "site/leagues.json").read_text("utf-8"))["leagues"]
+        with_bets = [lg for lg in leagues if lg.get("bets")]
+        self.assertTrue(with_bets)
+        for lg in with_bets:
+            # the bets share the Pick'em contest's lock, and the store's sign-in
+            self.assertEqual(lg["bets"]["contest"], lg["pickem"]["contest"], lg["id"])
+            slate = json.loads((self.ROOT / "site" / lg["id"] / lg["bets"]["slate"]).read_text("utf-8"))
+            self.assertEqual(slate["contest"], lg["bets"]["contest"])
+            self.assertEqual(len({b["id"] for b in slate["bets"]}), self.tool.SLATE_SIZE)
+            for b in slate["bets"]:
+                self.assertTrue(0.35 <= b["rate"] <= 0.65 and 0.35 <= b["league_rate"] <= 0.65, b["id"])
+                if b["kind"] == "ou":
+                    self.assertEqual(b["line"] % 1, 0.5, b["id"])  # no push
+
+    def test_stake_matches_the_store(self):
+        stake = int(re.search(r"const BET_STAKE = (\d+);", (self.ROOT / "site/bet.js").read_text("utf-8")).group(1))
+        migration = (self.ROOT / "supabase/migrations/20261106000000_bets.sql").read_text("utf-8")
+        self.assertIn(f"when x.outcome = b.pick then {stake} else -{stake} end", migration)
+
+
 class PreviewOnly(unittest.TestCase):
     """Features not released stay behind PREVIEW (app/core.js). Drop a line here when its feature goes live."""
     def test_held_back_features_are_behind_the_gate(self):
@@ -295,7 +346,6 @@ class PreviewOnly(unittest.TestCase):
             ("core.js", '...(PREVIEW ? ["awards"] : [])'),     # Awards: no ?tab=awards or saved tab without it
             ("awards.js", "if (PREVIEW) document.querySelector"),  # Awards: the tab's button
             ("league.html", '<button data-mode="awards" type="button" hidden>'),
-            ("bets.js", "const BETS_ON = PREVIEW &&"),         # weekly bets
             ("draft.js", "const CARDS_ON = SHOW_HELD &&"),     # report cards
             ("main.js", "if (SHOW_HELD && loaded.length === 1)"),  # reads and misplays
         ]:

@@ -1,0 +1,49 @@
+{
+ "contest": "ppppp-2026-playoffs",
+ "league_games": 48,
+ "ladder_games": 408,
+ "bets": [
+  {
+   "id": "sleep",
+   "kind": "ou",
+   "line": 4.5,
+   "rate": 0.521,
+   "league_rate": 0.521
+  },
+  {
+   "id": "crits",
+   "kind": "ou",
+   "line": 27.5,
+   "rate": 0.581,
+   "league_rate": 0.415
+  },
+  {
+   "id": "cleared",
+   "kind": "ou",
+   "line": 4.5,
+   "rate": 0.623,
+   "league_rate": 0.382
+  },
+  {
+   "id": "turns",
+   "kind": "ou",
+   "line": 689.5,
+   "rate": 0.479,
+   "league_rate": 0.586
+  },
+  {
+   "id": "statuses",
+   "kind": "ou",
+   "line": 32.5,
+   "rate": 0.541,
+   "league_rate": 0.457
+  },
+  {
+   "id": "procs",
+   "kind": "ou",
+   "line": 10.5,
+   "rate": 0.597,
+   "league_rate": 0.453
+  }
+ ]
+}
