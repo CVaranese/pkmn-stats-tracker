@@ -18,6 +18,8 @@ DARK = "prefers-color-scheme: dark"
 TEXT_PAIRS = [(fg, bg, 4.5) for fg in ("--text", "--muted", "--accent") for bg in ("--bg", "--surface", "--row-alt", "--band")]
 PAIRS = TEXT_PAIRS + [
     ("--accent-text", "--accent", 4.5),   # primary button, selected sub-tab, Won badge
+    ("--mark-ink", "--porcelain", 4.5),   # a bet ticket's lock stub
+    ("--bg", "--text", 4.5),              # a bet ticket's lock stub, pressed
     ("--error", "--error-bg", 4.5),       # error lists
     ("--error", "--surface", 4.5),
     ("--outline", "--bg", 3),             # the black pixel outline around panels and tables

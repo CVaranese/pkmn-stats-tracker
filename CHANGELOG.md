@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Gambling: bet cards redrawn as tickets: black outline, a stripe along the top, the line large between Over and Under, and the lock button a tear-off stub at the foot of the card, porcelain until pressed.
 
 ## 1.2 (2026-11-06)
 - Gambling tab on Pinecord: real play-money bets. Six over / under bets on the whole playoffs (every game of every round added up), the same lock as Pick'em. 10 points a bet: right +10, wrong -10, a bet that can't be settled gives its 10 back, and one bet marked as your lock counts double, won or lost. Members of the Discord server sign in to bet and can change their bets until the lock; after it anyone's slip opens from the leaderboard (place, score, right / wrong / void, and the house's total). Replaces the weekly draw the preview showed. Super Champions keeps the Under construction box.

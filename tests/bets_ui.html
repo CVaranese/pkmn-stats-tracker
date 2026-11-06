@@ -4,7 +4,7 @@
 <body>
 <!-- The Gambling tab of the real league page against a store kept in memory: no network, no Discord. Title PASS, FAIL (n)
      or CRASH, lines in #out. What the store itself refuses is tested in SQL (docs/knowledge/pickem-service.md);
-     this tests what the page shows and sends. ?shot=<scenario> stops there and shows the page, for a screenshot. -->
+     this tests what the page shows and sends. ?shot=<scenario> stops there and shows the page, for a screenshot; &w=<px> shows it that wide (headless Edge can't make a window phone-narrow). -->
 <pre id="out"></pre>
 <script>
 "use strict";
@@ -271,9 +271,10 @@ const SCENARIOS = {
 };
 
 (async () => {
-  const shot = new URLSearchParams(location.search).get("shot");
+  const params = new URLSearchParams(location.search), shot = params.get("shot");
   if (shot) {
     await SCENARIOS[shot]();
+    if (params.get("w")) frame.style.width = params.get("w") + "px";
     document.title = "SHOT";
     return;
   }

@@ -160,41 +160,42 @@ function btSlipRow(x, slip) {
   return li;
 }
 
-/** One ticket: the bet's wording and line on top, then at the bottom the two sides (read-only on someone else's slip,
-    signed out, or after the lock) and the lock button or how it came out. */
+/** One ticket: the stripe (style.css) and the bet's wording, then the line between its two sides (read-only on someone
+    else's slip, signed out, or after the lock), and at the foot the lock as a tear-off stub or how it came out. */
 function btCard(x) {
   const prop = btProp(x.bet_id);
   const slip = bt.viewing || bt;
   const pick = slip.mine[x.bet_id];
   const fixed = !!bt.viewing || !btCan();
   const isLock = slip.lock === x.bet_id;
-  const card = el("article", "bet" + (isLock ? " is-lock" : ""));
+  const card = el("article", "bet");
   const [title, note] = btWording(x);
   const top = el("div", "bet-top");
-  const name = el("div", "bet-name");
-  name.append(el("h3", "", title));
-  if (note) name.append(el("p", "bet-sub", note));
+  top.append(el("h3", "", title));
+  if (note) top.append(el("p", "bet-sub", note));
   if (isLock) {
     const tag = el("p", "bet-lock-tag");
     tag.append(el("span", "badge win", "Lock: counts double"));
-    name.append(tag);
+    top.append(tag);
   }
-  const line = el("p", "bet-line", x.kind === "ou" ? "Over / under " : "Yes or no");
-  if (x.kind === "ou") line.append(el("span", "bet-num", String(Number(x.line))));
-  top.append(name, line);
   card.append(top);
   const sides = el("div", "bet-sides");
   sides.setAttribute("role", "group");
   sides.setAttribute("aria-label", prop ? prop.text : x.bet_id);
-  for (const side of x.kind === "ou" ? ["Over", "Under"] : ["Yes", "No"]) {
+  const sideButton = (side) => {
     const b = el("button", "pk-side", side);
     b.type = "button";
     b.dataset.focus = x.bet_id + "|" + side;
     b.setAttribute("aria-pressed", String(pick === side));
     if (fixed) b.setAttribute("aria-disabled", "true");
     else b.addEventListener("click", () => btPick(x.bet_id, side));
-    sides.append(b);
-  }
+    return b;
+  };
+  // the buttons around the number say what it is, so "Over / under" is only for screen readers
+  const ou = x.kind === "ou";
+  const mid = ou ? el("span", "bet-num") : el("span", "bet-or", "or");
+  if (ou) mid.append(el("span", "sr-only", "Over / under "), String(Number(x.line)));
+  sides.append(sideButton(ou ? "Over" : "Yes"), mid, sideButton(ou ? "Under" : "No"));
   card.append(sides);
   if (!fixed) {
     const b = el("button", "small bet-lock", isLock ? "Remove my lock" : "Make this my lock");
