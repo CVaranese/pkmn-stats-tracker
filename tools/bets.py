@@ -45,12 +45,15 @@ def text(v):
 
 
 def slate_sql(slate):
-    """Upsert of the six bets into bet_props, leaving any outcome alone; bets no longer on the slate go."""
+    """Upsert of the six bets into bet_props, leaving any outcome alone; bets no longer on the slate go. Stops if anyone
+    has bet: a removed bet takes its picks with it, and a new line would change what people bet on."""
     c = slate["contest"]
+    guard = (f"do $$ begin if exists (select 1 from public.bets where contest_id = {text(c)}) then "
+             "raise exception 'People have bet on this slate: it can''t change now.'; end if; end $$;\n")
     rows = ",\n  ".join(f"({text(c)}, {text(b['id'])}, {i}, {text(b['kind'])}, {'null' if b['line'] is None else b['line']})"
                         for i, b in enumerate(slate["bets"]))
     ids = ", ".join(text(b["id"]) for b in slate["bets"])
-    return (f"delete from public.bet_props where contest_id = {text(c)} and bet_id not in ({ids});\n"
+    return (guard + f"delete from public.bet_props where contest_id = {text(c)} and bet_id not in ({ids});\n"
             "insert into public.bet_props (contest_id, bet_id, position, kind, line) values\n  " + rows +
             "\non conflict (contest_id, bet_id) do update set position = excluded.position, kind = excluded.kind, line = excluded.line;")
 
@@ -103,7 +106,11 @@ def run_page(mode, league):
                 dom = f.read()
     finally:
         server.shutdown()
-    result = dom_result(dom)
+    try:
+        result = dom_result(dom)
+    except ValueError:
+        sys.exit("No result from the page. Run this from PowerShell (from Git Bash, Edge exits at once with no output); "
+                 f"if it was, the page ran out of time or never loaded: {url}")
     if "crash" in result:
         sys.exit("The page crashed: " + result["crash"])
     return result

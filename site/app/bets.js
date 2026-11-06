@@ -125,7 +125,13 @@ function btDraw() {
     back.addEventListener("click", () => { bt.viewing = null; btDraw(); });
     v.replaceChildren(`Showing ${bt.viewing.name}'s slip. `, back);
   }
+  // the cards are rebuilt: a keyboard user stays on the button they pressed
+  const focused = document.activeElement && document.activeElement.dataset.focus;
   $("bet-list").replaceChildren(...bt.props.map(btCard));
+  if (focused) {
+    const again = [...$("bet-list").querySelectorAll("button")].find((b) => b.dataset.focus === focused);
+    if (again) again.focus();
+  }
 }
 
 /** One bet: its wording and line, the two sides (read-only on someone else's slip, signed out, or after the lock), the
@@ -145,6 +151,7 @@ function btCard(x) {
   for (const side of x.kind === "ou" ? ["Over", "Under"] : ["Yes", "No"]) {
     const b = el("button", "pk-side", side);
     b.type = "button";
+    b.dataset.focus = x.bet_id + "|" + side;
     b.setAttribute("aria-pressed", String(pick === side));
     if (fixed) b.setAttribute("aria-disabled", "true");
     else b.addEventListener("click", () => btPick(x.bet_id, side));
@@ -154,6 +161,7 @@ function btCard(x) {
   if (!fixed) {
     const b = el("button", "small bet-lock", isLock ? "Remove my lock (counts double)" : "Make this my lock");
     b.type = "button";
+    b.dataset.focus = x.bet_id + "|lock";
     b.setAttribute("aria-pressed", String(isLock));
     b.disabled = !pick;
     b.addEventListener("click", () => btSetLock(isLock ? null : x.bet_id));
@@ -209,16 +217,19 @@ function btSave() {
       const { error } = await bt.sb.from("bets").upsert(up);
       if (error) throw error;
     }
+    // a delete the store's rules refuse removes nothing and gives no error, so count what came back
     if (gone.length) {
-      const { error } = await bt.sb.from("bets").delete().eq("contest_id", BT.contest).eq("person_id", bt.user.id).in("bet_id", gone);
+      const { data, error } = await bt.sb.from("bets").delete().eq("contest_id", BT.contest).eq("person_id", bt.user.id).in("bet_id", gone).select("bet_id");
       if (error) throw error;
+      if (data.length !== gone.length) throw new Error("the store kept it; reload the page");
     }
     if (wantLock && wantLock !== bt.savedLock) {
       const { error } = await bt.sb.from("bet_locks").upsert({ ...key, bet_id: wantLock });
       if (error) throw error;
-    } else if (!wantLock && bt.savedLock) {
-      const { error } = await bt.sb.from("bet_locks").delete().eq("contest_id", BT.contest).eq("person_id", bt.user.id);
+    } else if (!wantLock && bt.savedLock && !gone.includes(bt.savedLock)) {  // else it went with its pick
+      const { data, error } = await bt.sb.from("bet_locks").delete().eq("contest_id", BT.contest).eq("person_id", bt.user.id).select("bet_id");
       if (error) throw error;
+      if (!data.length) throw new Error("the store kept it; reload the page");
     }
     bt.saved = want;
     bt.savedLock = wantLock;
@@ -254,7 +265,8 @@ async function btBoard() {
   const { data, error } = await bt.sb.rpc("bets_leaderboard", { c: BT.contest });
   if (error) { $("bet-board-note").textContent = "The leaderboard didn't load."; return; }
   const locked = btLocked();
-  if (locked && !bt.slips) bt.slips = await btLoadSlips();
+  // again while someone's is missing: a clock a little fast asks before the store has locked, and gets only your own
+  if (locked && (!bt.slips || data.some((e) => !bt.slips[e.person_id]))) bt.slips = await btLoadSlips();
   const ranks = League.pickemRanks(data.map((e) => ({ ...e, points: e.score })));
   $("bet-board").parentNode.hidden = !ranks.length;
   $("bet-board-note").textContent = !ranks.length ? "Nobody has bet yet."

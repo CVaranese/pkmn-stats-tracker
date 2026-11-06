@@ -309,6 +309,9 @@ class BetsTool(unittest.TestCase):
         self.assertIn("('c1', 'comeback', 1, 'yn', null)", sql)
         self.assertIn("bet_id not in ('crits', 'comeback')", sql)
         self.assertNotIn("outcome", sql)
+        # the guard comes first: nothing changes once anyone has bet
+        self.assertLess(sql.index("raise exception"), sql.index("delete from public.bet_props"))
+        self.assertIn("select 1 from public.bets where contest_id = 'c1'", sql)
 
     def test_dom_result_unescapes(self):
         self.assertEqual(self.tool.dom_result('<pre id="out">{"a":"b &amp; c"}</pre>'), {"a": "b & c"})

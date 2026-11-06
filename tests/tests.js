@@ -621,14 +621,20 @@
     check("bets: the same six every time for a seed, never a lopsided one, another seed another draw",
       same(d1, d2) && new Set(d1.map((b) => b.id)).size === 6 && !d1.some((b) => b.id === "lopsided") && !same(d1, d3), JSON.stringify(d1));
 
-    const out = [{ bet_id: "a", outcome: "Over" }, { bet_id: "b", outcome: "No" }, { bet_id: "c", outcome: "void" },
-      { bet_id: "d", outcome: null }, { bet_id: "e", outcome: "Under" }];
-    check("bets: right +10, wrong -10, void and unsettled 0, a bet not placed doesn't count",
-      same(B.slipScore(out, { a: "Over", b: "Yes", c: "Over", d: "Under" }, null), { score: 0, right: 1, wrong: 1, void: 1, open: 1 }));
-    check("bets: the lock doubles a win", B.slipScore(out, { a: "Over", b: "Yes" }, "a").score === 10);
-    check("bets: the lock doubles a loss", B.slipScore(out, { a: "Over", b: "Yes" }, "b").score === -10);
-    check("bets: a lock on a void or unsettled bet adds nothing",
-      B.slipScore(out, { a: "Over", c: "Over" }, "c").score === 10 && B.slipScore(out, { a: "Over", d: "Over" }, "d").score === 10);
+    // best of 3: game(week, winner, players); names go through keyOf, so case doesn't split a set
+    const key = (s) => s.toLowerCase();
+    let gid = 0;
+    const game = (week, winner, players = ["Ann", "Bo"]) => ({ id: "g" + gid++, week, winner, players });
+    const lostGame = (week, winner = null, players = ["Ann", "Bo"]) => ({ week, game: null, winner, players });
+    check("bets: a 2-0 and a 2-1 are in, a 1-0 and a 1-1 aren't",
+      B.setsIn([game("R1", "Ann"), game("R1", "ann")], [], key) === 1 &&
+      B.setsIn([game("R1", "Ann"), game("R1", "Bo"), game("R1", "Bo")], [], key) === 1 &&
+      B.setsIn([game("R1", "Ann")], [], key) === 0 && B.setsIn([game("R1", "Ann"), game("R1", "Bo")], [], key) === 0);
+    check("bets: a set with a game that has no replay is in, whoever won, and counts once",
+      B.setsIn([game("R1", "Ann")], [lostGame("R1")], key) === 1 && B.setsIn([], [lostGame("R1"), lostGame("R1", "Bo")], key) === 1);
+    check("bets: sets are told apart by week and players; a rematch in a later round is its own set",
+      B.setsIn([game("R1", "Ann"), game("R1", "Ann"), game("Final", "Bo"), game("Final", "Bo"), game("R1", "Cy", ["Cy", "Di"]), game("R1", "Cy", ["Cy", "Di"])],
+        [lostGame("Semis", null, ["Cy", "Di"])], key) === 4);
 
     const slate = await (await fetch("../site/ppppp/games/playoff_bets.json")).json();
     check("bets: every bet on the league's slate has its wording and settling in Bet.PROPS, of the same kind",

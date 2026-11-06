@@ -416,29 +416,26 @@
   }
 
   // every bet costs the same; right wins it, wrong loses it, void gives it back, the lock counts double (user
-  // 2026-11-05). The store's bets_leaderboard adds up scores the same way, from its own copy of this number.
+  // 2026-11-05). The store's bets_leaderboard does the adding up, from its own copy of this number.
   const BET_STAKE = 10;
-  /** One person's slip against the outcomes. props: [{ bet_id, outcome }]; picks: { bet id: pick }; lock: a bet id or
-      null. { score, right, wrong, void: n, open }, bets not picked left out. */
-  function slipScore(props, picks, lock) {
-    const out = { score: 0, right: 0, wrong: 0, void: 0, open: 0 };
-    for (const { bet_id: id, outcome } of props) {
-      if (!picks[id]) continue;
-      if (!outcome) out.open++;
-      else if (outcome === "void") out.void++;
-      else {
-        const right = picks[id] === outcome;
-        out[right ? "right" : "wrong"]++;
-        out.score += (right ? BET_STAKE : -BET_STAKE) * (lock === id ? 2 : 1);
-      }
-    }
-    return out;
+
+  /** How many sets of a best-of-`bestOf` playoff are in: decided by their saved games, or with a game that has no replay
+      (index.json `missing`: its games can't all be counted, whoever won). With every bracket winner known and this many
+      sets as matches, no more games are coming. keyOf: one id per player. */
+  function setsIn(games, missing, keyOf, bestOf = 3) {
+    const LG = root.League || require("./league.js");
+    const pair = (ps) => ps.map(keyOf).sort().join("|");
+    const lost = (s) => missing.filter((m) => m.week === s.week && pair(m.players) === pair(s.players));
+    const sets = LG.sets(games, keyOf, bestOf);
+    const inSets = sets.filter((s) => lost(s).length || LG.setSlots({ ...s, missing: lost(s) }, bestOf, keyOf).score.winner).length;
+    const noGames = missing.filter((m) => !sets.some((s) => s.week === m.week && pair(s.players) === pair(m.players)));
+    return inSets + new Set(noGames.map((m) => m.week + "|" + pair(m.players))).size;
   }
 
   // the formats whose draft report cards are designed: singles (Nat Dex); VGC later, adapted (user 2026-10-29)
   const CARD_FORMATS = ["gen9nationaldex"];
 
-  const Bet = { SCORING, PROPS, BET_STAKE, CARD_FORMATS, settleBet, simulateBets, nearEven, drawBets, slipScore, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy, letterFor, reportCards };
+  const Bet = { SCORING, PROPS, BET_STAKE, CARD_FORMATS, settleBet, simulateBets, nearEven, drawBets, setsIn, playerKey, records, drafted, trades, draftPool, pickCost, hasTiers, megaName, fantasy, letterFor, reportCards };
   if (typeof module !== "undefined" && module.exports) module.exports = Bet;
   else root.Bet = Bet;
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -11,7 +11,7 @@ const $ = (id) => document.getElementById(id);
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
 const THIS_COMPUTER = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname);
 const LOCAL = THIS_COMPUTER && !new URLSearchParams(location.search).has("online");
-// features not released yet (Awards, weekly bets) show on the next branch's preview
+// features not released yet (Awards) show on the next branch's preview
 // (/next/ in the address) and on this computer. Add ?live to the address to see what the live site shows.
 const LIVE_VIEW = new URLSearchParams(location.search).has("live");
 const PREVIEW = (THIS_COMPUTER || location.pathname.includes("/next/")) && !LIVE_VIEW;

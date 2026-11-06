@@ -45,15 +45,8 @@ async function settle(league, seed, learn, dex) {
   const missing = (index.missing || []).filter((m) => League.isPlayoffWeek(m.week));
   const rows = await Promise.all(games.map(async (g) => rowsOf(await get(`${SITE}${league}/games/${g.id}.json`), g, learn, dex)));
   const keyOf = (name) => Bet.playerKey(draft, name);
-  // over only when Challonge has every winner and the library has every set: each decided by its saved games, or one
-  // with a missing game (its games can't all be counted, whoever won)
-  const need = bracket.matches.length, sets = League.sets(games, keyOf, 3);
-  const pair = (ps) => ps.map(keyOf).sort().join("|");
-  const lost = missing.filter((m) => !sets.some((s) => s.week === m.week && pair(s.players) === pair(m.players)));
-  const decided = sets.filter((s) => {
-    const own = missing.filter((m) => m.week === s.week && pair(m.players) === pair(s.players));
-    return own.length || League.setSlots({ ...s, missing: own }, 3, keyOf).score.winner;
-  }).length + new Set(lost.map((m) => m.week + "|" + pair(m.players))).size;
+  // over only when Challonge has every winner and the library has every set
+  const need = bracket.matches.length, decided = Bet.setsIn(games, missing, keyOf);
   const bracketDone = bracket.matches.every((m) => m.winner != null);
   const ended = bracketDone && decided >= need;
   const bets = slate.bets.map((b) => {
