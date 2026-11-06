@@ -1,8 +1,7 @@
 # S-3: Real play-money betting on the Gambling tab (release 1.2)
 
-**Status:** started (branch `betting`)
-**Needs you:** OK to apply the store migration when it's ready, then a check on the preview before the release.
-**Links:** [BETTING_PROPS.md](../BETTING_PROPS.md), [FEATURES.md "Betting with play money"](../FEATURES.md), [S-2 sign-in](done/S-2-sitewide-discord-signin.md), [S-1 Pick'em](done/S-1-playoff-pickem.md)
+**Status:** done
+**Links:** [BETTING_PROPS.md](../../BETTING_PROPS.md), [FEATURES.md "Betting with play money"](../../FEATURES.md), [S-2 sign-in](S-2-sitewide-discord-signin.md), [S-1 Pick'em](S-1-playoff-pickem.md)
 
 ## Goal
 Signed-in Pinecord members bet play money on playoff rounds from the existing six-bet weekly draw. Picks are kept in
@@ -61,3 +60,10 @@ User, 2026-11-05 (the earlier ones are in BETTING_PROPS.md "Decided so far"):
   visitor cannot (checked in a rolled-back transaction, as for Pick'em).
 - Bets settle from the replays/bracket by the tool; the leaderboard shows what the user decided.
 - Tests pass, the code review has no open findings, and 1.2 is live before 2026-11-09 05:00 UTC.
+
+## Resolution (2026-11-05)
+Done: released as 1.2 (tag v1.2): one six-bet play-money slate on the whole playoffs on Pinecord's Gambling tab, same lock as Pick'em (2026-11-09 05:00 UTC), side-by-side layout chosen by the user.
+- Commits: fa5becf..6ac7f21 on `betting` / main (release commit 6ac7f21).
+- Evidence: tests/index.html 356/356, tests/bets_ui.html 37/37, `tests/test_tools.py` and `tests/test_style.py` exit 0; store rules tested as made-up users in a rolled-back transaction, 31 results as expected; migration `20261106000000_bets.sql` applied.
+- Review: /code-review twice. First: 9 findings, 8 fixed, 1 skipped (countdown / sign-in repeated Pick'em's, later partly shared via drawLockBand). Second: 4 findings, all fixed. The last commit, 085b3c4 (Pick'em countdown matches Gambling's), had no code review.
+- Not verified: a real Discord sign-in and bet by a member of the server; settling with real playoff games (parts tested, tool only run with 0 games). Both are in docs/REVIEW_QUEUE.md or this task's notes.
