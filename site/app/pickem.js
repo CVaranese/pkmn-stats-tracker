@@ -103,8 +103,8 @@ function pkLockNow(message) {
   pkAccount();
   pkDraw();
   pk.all = null;
-  pkBoard();
   pkStatus(message);
+  pkBoard().catch((e) => pkStatus(e.message || String(e)));
 }
 
 /** The tab's own sign-in line (the header has the same sign-in; this one says what it means for picks). */
