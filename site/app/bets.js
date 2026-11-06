@@ -61,9 +61,9 @@ function btBuild() {
   const wrap = el("div", "table-wrap");
   wrap.hidden = true;
   wrap.append(part("table", "", "bet-board"));
-  $("bet-draw").replaceChildren(el("h2", "section-title", "Playoff bets"), part("p", "hint", "bet-intro"),
-    part("div", "bet-band", "bet-countdown"), part("div", "bet-note", "bet-account"), status,
-    part("p", "hint bet-note", "bet-viewing"), part("div", "award-grid", "bet-list"),
+  $("bet-draw").replaceChildren(el("h2", "section-title", "Playoff bets"), part("div", "bet-band", "bet-countdown"),
+    part("p", "hint bet-note", "bet-intro"), part("div", "bet-note", "bet-account"), status,
+    part("p", "hint bet-note", "bet-viewing"), part("div", "bet-slip", "bet-list"),
     el("h2", "section-title", "Leaderboard"), part("p", "hint", "bet-board-note"), wrap);
 }
 
@@ -106,7 +106,7 @@ function btDraw() {
   const s = Bet.BET_STAKE;
   $("bet-intro").textContent = (btLocked() ? "Bets are locked: anyone's slip opens from the leaderboard. " : "") +
     `These bets cover the whole playoffs, every game of every round added up. Play money, ${s} points a bet: right +${s}, wrong -${s}, ` +
-    `and a bet that can't be settled gives its ${s} back. Your lock counts double, won or lost.`;
+    `and a void bet gives its ${s} back. Your lock counts double, won or lost.`;
   const bar = $("bet-account");
   if (btLocked() || (bt.user && bt.member)) bar.replaceChildren();
   else if (bt.user) {
@@ -132,26 +132,28 @@ function btDraw() {
   }
 }
 
-/** One bet, every card the same shape: wording and line at the top, how it came out, then at the bottom the two sides
-    (read-only on someone else's slip, signed out, or after the lock) and the lock button. */
+/** One row of the slip: the bet's wording (anything in brackets on a smaller line under it), its line, the two sides
+    (read-only on someone else's slip, signed out, or after the lock), then the lock button or how it came out. */
 function btCard(x) {
   const prop = btProp(x.bet_id);
   const slip = bt.viewing || bt;
   const pick = slip.mine[x.bet_id];
   const fixed = !!bt.viewing || !btCan();
   const isLock = slip.lock === x.bet_id;
-  const card = el("article", "award bet" + (isLock ? " is-lock" : ""));
-  card.append(el("h3", "", prop ? prop.text : x.bet_id));
-  const line = el("p", "bet-line", x.kind === "ou" ? "Over / under " : "Yes or no");
-  if (x.kind === "ou") line.append(el("span", "bet-num", String(Number(x.line))));
-  card.append(line);
+  const card = el("article", "bet" + (isLock ? " is-lock" : ""));
+  const [, title, note] = (prop ? prop.text : x.bet_id).match(/^(.*?)(?: \((.*)\))?$/);
+  const name = el("div", "bet-name");
+  name.append(el("h3", "", title));
+  if (note) name.append(el("p", "bet-sub", note));
   if (isLock) {
     const tag = el("p", "bet-lock-tag");
     tag.append(el("span", "badge win", "Lock: counts double"));
-    card.append(tag);
+    name.append(tag);
   }
-  // nothing to say before the lock: no game counts yet
-  if (x.outcome || x.detail || btLocked()) card.append(btResult(x, pick, isLock));
+  card.append(name);
+  const line = el("p", "bet-line", x.kind === "ou" ? "Over / under " : "Yes or no");
+  if (x.kind === "ou") line.append(el("span", "bet-num", String(Number(x.line))));
+  card.append(line);
   const sides = el("div", "bet-sides");
   sides.setAttribute("role", "group");
   sides.setAttribute("aria-label", prop ? prop.text : x.bet_id);
@@ -176,7 +178,7 @@ function btCard(x) {
       else btStatus(`Pick ${x.kind === "ou" ? "Over or Under" : "Yes or No"} on that bet first, then make it your lock.`);
     });
     card.append(b);
-  }
+  } else if (x.outcome || x.detail || btLocked()) card.append(btResult(x, pick, isLock));
   return card;
 }
 
@@ -187,7 +189,7 @@ function btResult(x, pick, isLock) {
     return out;
   }
   if (x.outcome === "void") {
-    out.append(el("span", "badge", "Void"), " A game has no saved replay, so the stake goes back.");
+    out.append(el("span", "badge", "Void"), " A game has no replay: stake back.");
     return out;
   }
   const worth = Bet.BET_STAKE * (isLock ? 2 : 1);

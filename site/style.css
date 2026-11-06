@@ -625,20 +625,28 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .bet-band::before, .bet-band::after { content: ""; display: block; height: 10px; border-radius: var(--radius-xs); background: var(--stripe); }
 .bet-band-label { display: block; margin-top: 12px; font-size: var(--fs-md); color: var(--muted); }
 .bet-band-time { display: block; margin-bottom: 12px; font-size: var(--fs-5xl); font-weight: 700; font-variant-numeric: tabular-nums; }
-.bet-note { margin-inline: auto; text-align: center; }
-/* a bet: every card the same shape, wording and line on top, the sides (Pick'em's .pk-side) and the lock at the bottom,
-   the same size and place on every card whatever the wording's length */
-.bet { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.bet h3 { min-height: 2.6em; margin-bottom: 4px; line-height: 1.3; cursor: auto; }
-.bet-line { margin: 0 0 10px; font-size: var(--fs-md); color: var(--muted); }
-.bet-num { display: block; font-size: var(--fs-5xl); font-weight: 700; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; }
-.bet-lock-tag { margin: 0 0 10px; }
-.bet-result { margin: 0 0 10px; font-size: var(--fs-md); }
-.bet-sides { display: grid; grid-template-columns: 104px 104px; gap: 6px; margin-top: auto; }
+.bet-note { margin-inline: auto; font-size: var(--fs-md); text-align: center; }
+/* the slip: one list, a row per bet, in lined-up columns (wording, line, the sides as Pick'em's .pk-side, lock or result) */
+.bet-slip { margin-top: 12px; border: 2px solid var(--outline); border-radius: var(--radius-md); background: var(--surface); overflow: hidden; }
+.bet { display: grid; grid-template-columns: minmax(0, 1fr) 90px 214px 170px; align-items: center; gap: 14px; padding: 10px 16px; border-top: 1px solid var(--border); }
+.bet:first-child { border-top: 0; }
+.bet:nth-child(even) { background: var(--row-alt); }
+.bet.is-lock { outline: 2px solid var(--accent); outline-offset: -2px; }
+.bet h3 { margin: 0; font-size: var(--fs-lg); font-weight: 600; }
+.bet-sub { margin: 0; font-size: var(--fs-sm); color: var(--muted); }
+.bet-lock-tag { margin: 2px 0 0; }
+.bet-line { margin: 0; font-size: var(--fs-xs); color: var(--muted); text-align: center; }
+.bet-num { display: block; font-size: var(--fs-3xl); font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.bet-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .bet-sides .pk-side { justify-content: center; }
-button.bet-lock { width: 214px; margin-top: 8px; padding: 7px 10px; border: 2px solid var(--outline); font-size: var(--fs-md); font-weight: 700; }
-button.bet-lock[aria-pressed="true"] { background: var(--accent); border-color: var(--outline); color: var(--accent-text); }
-.bet.is-lock { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -1px; }
+button.bet-lock { width: 100%; padding: 7px 10px; border: 2px solid var(--outline); font-size: var(--fs-sm); font-weight: 700; }
+button.bet-lock[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
+.bet-result { margin: 0; font-size: var(--fs-sm); }
+/* narrow: each row stacks into wording beside line, then the sides, then the lock */
+@media (max-width: 800px) {
+  .bet { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 10px 12px; }
+  .bet-sides, button.bet-lock, .bet-result { grid-column: 1 / -1; }
+}
 /* Pick'em: the bracket, a column per round; each match a card with its two players, placed level with the matches
    feeding it (--pk-y, in rows of --pk-slot); lines (svg.pk-lines) join a match to the slot its winner moves into.
    Phones scroll it sideways inside its box, a round at a time. */

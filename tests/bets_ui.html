@@ -180,16 +180,15 @@ const SCENARIOS = {
     const st = await open({ signedIn: true, member: true, lockIn: 48 * HOUR, bets: [{ person_id: ME, contest_id: c, bet_id: "turns", pick: "Under" }], locks: [{ person_id: ME, contest_id: c, bet_id: "turns" }] });
     check("returning: picks and the lock come back from the store",
       side(3, "Under").getAttribute("aria-pressed") === "true" && lockBtn(3).getAttribute("aria-pressed") === "true");
-    // user 2026-11-06: the buttons look the same and sit in the same place on every card, whatever else the card holds
+    // user 2026-11-06: the buttons look the same and line up from row to row, whatever else the row holds
     const boxes = [0, 1, 2, 3, 4, 5].map((i) => {
-      const c = card(i).getBoundingClientRect(), s = card(i).querySelector(".pk-side").getBoundingClientRect(), l = lockBtn(i).getBoundingClientRect();
-      return { fromBottom: Math.round(c.bottom - s.bottom), inset: Math.round(s.left - c.left), w: Math.round(s.width), h: Math.round(s.height), lockW: Math.round(l.width), lockH: Math.round(l.height) };
+      const s = card(i).querySelector(".pk-side").getBoundingClientRect(), l = lockBtn(i).getBoundingClientRect();
+      return { left: Math.round(s.left), w: Math.round(s.width), h: Math.round(s.height), lockLeft: Math.round(l.left), lockW: Math.round(l.width), lockH: Math.round(l.height) };
     });
-    check("returning: every card's buttons are the same size, the same distance from its bottom, and centred",
+    check("returning: every row's buttons are the same size and in the same columns",
       boxes.every((b) => JSON.stringify(b) === JSON.stringify(boxes[0])), JSON.stringify(boxes));
-    const row = frame.contentDocument.querySelector("#bet-list").getBoundingClientRect();
-    check("returning: cards in a row are the same height",
-      card(0).getBoundingClientRect().height === card(1).getBoundingClientRect().height || row.width < 600, String(row.width));
+    const title = [...frame.contentDocument.querySelectorAll("#bet-list h3")].map((h) => h.textContent);
+    check("returning: wording in brackets goes on the smaller line", title.includes("Turns played") && card(3).querySelector(".bet-sub").textContent === "all games added up", title.join(", "));
     return st;
   },
   async signedout() {
