@@ -15,7 +15,8 @@ the real stylesheet; screenshot it (both themes) next to any new control before 
 | `--accent`, `--accent-text` | the one highlight colour: primary button, selected sub-tab, Won badge, links, MVP label |
 | `--row-alt` | every other table row, sprite backgrounds |
 | `--band` | full-width bands that set a block apart (team summary, team totals) |
-| `--porcelain` | the urinal colour; Z-move tag only |
+| `--porcelain` | the urinal colour; Z-move tag and a bet ticket's lock stub only |
+| `--ticket-top` | the band along the top of a bet ticket; `--accent` unless a league's theme sets it |
 | `--wall` | the tiled background behind the panel |
 | `--error`, `--error-bg` | error lists and bad statuses only |
 
@@ -63,7 +64,7 @@ onto them with no visible change, checked pixel by pixel on 15 views).
   sortable headers with ▲▼, `title` on headers for explanations. A sortable header's label, and the first cell of a
   row that opens details below the table, sit in a `button.cell-btn` (looks like the text, focus ring for the
   keyboard); the selected row has `aria-current`.
-- **Bets** (Gambling; user picked this layout of three, 2026-11-06): `.bet` tickets on the left, the `.bet-slip` (what you've picked) and the leaderboard on the right, staying in view; under 900px they move below the tickets and the status line becomes a bar along the bottom of the screen, so what a tap did stays visible. Tickets are all one height: wording (anything in brackets on a smaller line under it) beside the line, then centred at the bottom, same size and place on each, two `.pk-side` buttons (`aria-pressed`, filled with `--accent`, or `aria-disabled` when read-only) and the lock, an on/off `button.small.bet-lock` with a thick `--text` border (`--outline` doesn't show on a dark theme), full strength even with no pick (a click then says to pick first), or the result once it can't change. A locked ticket has an `--accent` outline and a "Lock: counts double" badge. The countdown (`.lock-band`, `drawLockBand`, the same on Pick'em) sits large and centred between two lines of `--stripe`, under the tab's heading (user 2026-11-06).
+- **Bets** (Gambling; user picked this layout of three, 2026-11-06): `.bet` tickets on the left, the `.bet-slip` (what you've picked) and the leaderboard on the right, staying in view; under 900px they move below the tickets and the status line becomes a bar along the bottom of the screen, so what a tap did stays visible. Tickets (user's pick of four, 2026-11-06) are all one height, in the 2px `--outline` with a solid `--ticket-top` band on top (a stripe clashed with the countdown's, user 2026-11-06): the wording centred (anything in brackets on a smaller line under it), then the line large between its two `.pk-side` buttons (`aria-pressed`, filled with `--accent`, or `aria-disabled` when read-only; a yes / no bet has "or" there), same size and place on each. At the foot, along a dashed line, the lock as a tear-off stub, an on/off `button.small.bet-lock` in `--porcelain`, `--text` once pressed, full strength even with no pick (a click then says to pick first), or the result once it can't change. A locked ticket has a "Lock: counts double" badge. The countdown (`.lock-band`, `drawLockBand`, the same on Pick'em) sits large and centred between two lines of `--stripe`, under the tab's heading (user 2026-11-06).
 - **Badge**: `.badge` (Lost) / `.badge.win` (Won): small, square-ish (3px radius), next to a name.
 - **Mega / Z tag**: `.mark.mega`, `.mark.z`, on the bottom edge of a sprite.
 - **Move type tag**: `.type-chip.t-<type>` before a move's name in move lists: the type's first three letters
