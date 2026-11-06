@@ -54,8 +54,9 @@ onto them with no visible change, checked pixel by pixel on 15 views).
   boxed tabs looked "too standard and AI generated").
 - **Sub-tabs** (`.tabs`): small joined buttons, selected one filled with `--accent`. For switching a table's view.
   Regular season / Playoffs / Both (`.tabs.stage-pick`) sits before each week picker.
-- **Player picker** (`.draft-tabs`, Draft): separate buttons with a 6px gap, the picked one filled with `--accent`; they wrap on
-  a computer and become one sideways-scrolling row on phones (faded on the right like the main tabs). Joined sub-tabs
+- **Player picker** (`.draft-tabs`, Draft): separate buttons with a 6px gap, the picked one filled with `--accent`; two even,
+  centred rows in lined-up columns on a wide screen, centred wrapping when narrower, and one sideways-scrolling row on phones
+  (faded on the right like the main tabs). Joined sub-tabs
   looked bad once they wrapped (user, 2026-10-28).
 - **Select**: plain `select` inside `label.inline` ("Player [Everyone ▾]").
 - **Table**: inside `.table-wrap` (2px outline, 8px radius), striped rows, numbers right-aligned in tabular figures,

@@ -5,9 +5,9 @@
 let draftPicked = "";   // the player shown: a name or key, from a sub-tab or ?tab=draft&player=<key>
 let draftRows = null;   // every league game's rows, loaded the first time the tab opens
 let draftCards = [];    // Bet.reportCards over those rows: each player's picks and grade, best first
-// the report card (grade, vs tier column) on the preview only (PREVIEW, app/core.js), and only for formats it's
+// the report card (grade, vs tier column) is off the page for now (SHOW_HELD, app/core.js), and only for formats it's
 // designed for (Bet.CARD_FORMATS): singles, no VGC yet
-const CARDS_ON = PREVIEW && Bet.CARD_FORMATS.includes(LEAGUE.format);
+const CARDS_ON = SHOW_HELD && Bet.CARD_FORMATS.includes(LEAGUE.format);
 onLeagueChange(() => { draftRows = null; draftCards = []; });
 const draftSort = { col: 2, dir: -1 };  // by cost, dearest first
 async function renderDraft() {
@@ -26,6 +26,7 @@ async function renderDraft() {
   const games = new Set(draftRows.map((r) => r.replay_id)).size;
   $("dr-status").textContent = games < library.length ? `Counted ${games} of ${library.length} games (the rest didn't load).` : "";
   const names = Object.keys(draft.players).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+  $("dr-players").style.setProperty("--cols", Math.ceil(names.length / 2));  // two even rows on a computer
   $("dr-players").replaceChildren(...names.map((name) => {
     const b = Object.assign(el("button"), { type: "button" });
     b.dataset.key = playerKey(name);

@@ -753,6 +753,8 @@
     check("Pick'em: a knocked-out player's later picks can't score", same(s2, { points: 1, right: 1, played: 3, possible: 3, picked: 5 }), JSON.stringify(s2));
     const ranks = LG.pickemRanks([{ name: "b", points: 5 }, { name: "a", points: 5 }, { name: "c", points: 9 }, { name: "d", points: 0 }]);
     check("Pick'em: equal points share a place", ranks.map((e) => e.name + e.place).join(" ") === "c1 a2 b2 d4", JSON.stringify(ranks));
+    const left = [90061000, 3600000, 61000, 999, 0, -5000].map(LG.countdown);
+    check("Pick'em: countdown from the largest unit, a part of a second counts", same(left, ["1d 1h 1m 1s", "1h 0m 0s", "1m 1s", "1s", "0s", "0s"]), JSON.stringify(left));
   }
   // ---- team sheets ----
   const TS = window.TeamSheets;

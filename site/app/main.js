@@ -93,10 +93,10 @@ async function run(again) {
     await addMockSheets(ids);
     await applySheets(rs, errors);
     const data = await applyLuck(rs, errors);
-    // reads and misplays (Plays.analyze), on the rows (not exported): on the preview only (PREVIEW, app/core.js), and
+    // reads and misplays (Plays.analyze), on the rows (not exported): off the page for now (SHOW_HELD, app/core.js), and
     // shown only with one game, so worked out only then
     const loaded = results.filter(Boolean);
-    if (PREVIEW && loaded.length === 1) {
+    if (SHOW_HELD && loaded.length === 1) {
       try {
         const plays = Plays.analyze(loaded[0].log, data);
         for (const r of rs) r.plays = plays;
@@ -164,7 +164,7 @@ function renderTeams() {
   box.replaceChildren(el("h2", "section-title", "This game"), head, errs, el("div", "team-grid"));
   box.lastChild.append(...cards);
   if ((g.momentum || []).length > 1) box.appendChild(momentumChart(g.momentum, players, rows));
-  if (rows[0] && (rows[0].key_moments || []).length) box.appendChild(keyMomentsList(rows[0].key_moments, rows));
+  if (SHOW_HELD && rows[0] && (rows[0].key_moments || []).length) box.appendChild(keyMomentsList(rows[0].key_moments, rows));
   if (rows[0] && rows[0].plays) box.appendChild(playsList(rows[0].plays));
 }
 /** Reads and misplays (Plays.analyze): each player's count, then every one by turn. A trial (user 2026-10-29: checked
@@ -219,7 +219,7 @@ function gameTime(g) {
  * chart says the numbers for the turn under the pointer (or picked with the arrow keys), the last turn by default.
  */
 function momentumChart(points, players, rs) {
-  const moments = (rs[0] && rs[0].key_moments) || [];
+  const moments = (SHOW_HELD && rs[0] && rs[0].key_moments) || [];  // its marks go with the Key moments list
   const sideOf = Object.fromEntries(players.map((p) => [p, rs.find((r) => r.player === p).side]));
   const H = 200, L = 40, R = 12, T = 10, B = 26;
   let W = 600;                      // the chart's real width in pixels, so text stays 12px (redrawn on resize)

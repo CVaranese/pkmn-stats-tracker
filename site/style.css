@@ -345,8 +345,11 @@ input[type=text].mon-find { max-width: 360px; font-family: inherit; }
 .tabs button { border: 0; border-radius: 0; }
 .tabs button[aria-current="true"] { background: var(--accent); color: var(--accent-text); }
 /* Draft: a button per player (12), apart rather than joined; they wrap here and scroll sideways on phones */
-.draft-tabs { position: relative; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
-.draft-tabs button { white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.draft-tabs { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 4px 0 14px; }
+.draft-tabs button { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+/* wide enough for two even rows, lined up in columns (--cols from app/draft.js) */
+@media (min-width: 1200px) { .draft-tabs { display: grid; grid-template-columns: repeat(var(--cols, 6), auto); } }
+.pk-countdown { font-size: var(--fs-md); font-weight: 600; font-variant-numeric: tabular-nums; margin: 4px 0 10px; }
 /* trainer sprites from the draft sheet: 80px pixel art, shown at 1x / 0.5x (whole steps keep the pixels sharp) */
 img.trainer { image-rendering: pixelated; flex: 0 0 auto; }
 img.trainer.small { width: 40px; height: 40px; margin: -10px -4px -10px -8px; }
@@ -542,7 +545,7 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
     mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
   .modes::-webkit-scrollbar { display: none; }
   /* Draft's player buttons: one row that scrolls sideways, faded on the right like the main tabs */
-  .draft-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-right: 28px;
+  .draft-tabs { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-right: 28px;
     -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
     mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
   .draft-tabs::-webkit-scrollbar { display: none; }

@@ -288,16 +288,19 @@ class PreviewOnly(unittest.TestCase):
     def test_held_back_features_are_behind_the_gate(self):
         app = Path(__file__).resolve().parent.parent / "site/app"
         # the gate itself: on only here or on the preview, off for the live view
-        self.assertIn('const PREVIEW = (THIS_COMPUTER || location.pathname.includes("/next/")) && !LIVE_VIEW;',
-                      (app / "core.js").read_text("utf-8"))
-        for name, wanted in {
-            "core.js": '...(PREVIEW ? ["awards"] : [])',     # Awards: no ?tab=awards or saved tab without it
-            "awards.js": "if (PREVIEW) document.querySelector",  # Awards: the tab's button
-            "league.html": '<button data-mode="awards" type="button" hidden>',
-            "draft.js": "const CARDS_ON = PREVIEW &&",       # report cards
-            "main.js": "if (PREVIEW && loaded.length === 1)",  # reads and misplays
-            "bets.js": "const BETS_ON = PREVIEW &&",         # weekly bets
-        }.items():
+        core = (app / "core.js").read_text("utf-8")
+        self.assertIn('const PREVIEW = (THIS_COMPUTER || location.pathname.includes("/next/")) && !LIVE_VIEW;', core)
+        self.assertIn('const SHOW_HELD = PREVIEW && new URLSearchParams(location.search).has("held");', core)
+        for name, wanted in [
+            ("core.js", '...(PREVIEW ? ["awards"] : [])'),     # Awards: no ?tab=awards or saved tab without it
+            ("awards.js", "if (PREVIEW) document.querySelector"),  # Awards: the tab's button
+            ("league.html", '<button data-mode="awards" type="button" hidden>'),
+            ("bets.js", "const BETS_ON = PREVIEW &&"),         # weekly bets
+            ("draft.js", "const CARDS_ON = SHOW_HELD &&"),     # report cards
+            ("main.js", "if (SHOW_HELD && loaded.length === 1)"),  # reads and misplays
+            ("main.js", "if (SHOW_HELD && rows[0] && (rows[0].key_moments"),  # Key moments list
+            ("main.js", "(SHOW_HELD && rs[0] && rs[0].key_moments)"),  # Key moments' marks on the chart
+        ]:
             self.assertIn(wanted, (app / name).read_text("utf-8"), name)
 
 
