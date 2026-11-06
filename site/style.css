@@ -628,7 +628,7 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .bet-note { margin-inline: auto; font-size: var(--fs-md); text-align: center; }
 /* tickets on the left, the slip and the leaderboard on the right, in view as you pick */
 .bet-cols { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; margin-top: 12px; }
-.bet-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); grid-auto-rows: 1fr; gap: 10px; }
+.bet-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr)); grid-auto-rows: 1fr; gap: 10px; }
 .bet-side { position: sticky; top: 12px; }
 /* a ticket: every one the same height, wording and line on top, the sides (Pick'em's .pk-side) and the lock centred at the
    bottom, the same size and place on each */
@@ -665,6 +665,10 @@ button.bet-lock[aria-pressed="true"] { background: var(--accent); color: var(--a
 @media (max-width: 900px) {
   .bet-cols { grid-template-columns: minmax(0, 1fr); }
   .bet-side { position: static; }
+  /* the slip is below the tickets here, so what a tap did (saved, not saved, pick first) stays on screen */
+  .bet-slip-status { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; margin: 0; padding: 8px 16px; background: var(--band); border-top: 2px solid var(--outline); color: var(--text); text-align: center; }
+  .bet-slip-status:empty { display: none; }
+  #bet-draw { padding-bottom: 56px; }
 }
 /* Pick'em: the bracket, a column per round; each match a card with its two players, placed level with the matches
    feeding it (--pk-y, in rows of --pk-slot); lines (svg.pk-lines) join a match to the slot its winner moves into.

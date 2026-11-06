@@ -125,7 +125,13 @@ function btDraw() {
   if (bt.viewing) {
     const back = el("button", "small", bt.user ? "Back to mine" : "Close");
     back.type = "button";
-    back.addEventListener("click", () => { bt.viewing = null; btDraw(); });
+    back.addEventListener("click", () => {
+      bt.viewing = null;
+      btDraw();
+      // the button just went: on to the slip it came back to
+      $("bet-slip-title").tabIndex = -1;
+      $("bet-slip-title").focus();
+    });
     v.replaceChildren(`Showing ${bt.viewing.name}'s slip. `, back);
   }
   $("bet-slip-title").textContent = "Your slip";

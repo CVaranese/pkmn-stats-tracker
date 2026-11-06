@@ -171,6 +171,11 @@ const SCENARIOS = {
     await wait(100);
     const wide = [...frame.contentDocument.querySelectorAll("#bet-draw > *, #bet-list .bet, .bet-sides, .bet-lock, .bet-slip")].filter((n) => n.getBoundingClientRect().right > 320).map((n) => n.id || n.className);
     check("member: every part of the bets fits a 320px screen", !wide.length, wide.join(", "));
+    lockBtn(4).click();
+    await wait(50);
+    const bar = $f("bet-status-line").getBoundingClientRect();
+    check("member: on a phone the status stays on screen, below the tickets or not",
+      $f("bet-status-line").textContent.startsWith("Pick Over or Under") && bar.bottom <= frame.contentWindow.innerHeight && bar.top >= 0, `${bar.top} ${bar.bottom} of ${frame.contentWindow.innerHeight}`);
     frame.style.width = "";
     return st;
   },
@@ -239,6 +244,9 @@ const SCENARIOS = {
     await until(() => !$f("bet-viewing").hidden, "the slip");
     check("settled: someone's slip opens, with their picks", $f("bet-viewing").textContent.includes("Other's slip") &&
       side(0, "Under").getAttribute("aria-pressed") === "true" && card(0).textContent.includes("Wrong, -10") && !card(0).textContent.includes("Lock"), card(0).textContent);
+    $f("bet-viewing").querySelector("button").click();
+    check("settled: back to mine, with the keyboard's focus on the slip", $f("bet-viewing").hidden && frame.contentDocument.activeElement === $f("bet-slip-title"), frame.contentDocument.activeElement.tagName);
+    rows[1].querySelector("button").click();
     return st;
   },
   /** The store's rules refuse a delete (a slow clock, past the real lock): no error, nothing removed. */
