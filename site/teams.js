@@ -136,9 +136,9 @@
 
   /**
    * Pair each replay species with a distinct set: exact names first, then formes.
-   * Returns an array of sets (same order as species) or null if any species has no set.
+   * Returns an array of sets (same order as species), null where a species has no set.
    */
-  function pairSets(species, sets) {
+  function pairEach(species, sets) {
     const out = new Array(species.length).fill(null);
     const used = new Set();
     for (const want of [2, 1]) {
@@ -148,31 +148,67 @@
         if (j >= 0) { out[i] = sets[j]; used.add(j); }
       });
     }
+    return out;
+  }
+
+  /** pairEach, but all or nothing: null if any species has no set. */
+  function pairSets(species, sets) {
+    const out = pairEach(species, sets);
     return out.every(Boolean) ? out : null;
   }
 
-  /**
-   * Attach sets to game rows (from ReplayStats.gameRows). A sheet applies to a player's side in a
-   * game when every Pokemon on that side (all 6 from team preview) pairs with one of its sets.
-   * The first sheet that fits wins. Sets row.set; returns, per sheet, the [replay_id, player] it matched.
-   * sheets: [{ sets }] (entries without sets are skipped).
-   */
-  function attachSheets(rows, sheets) {
+  /** Rows by side of a game (replay_id + player), in row order. */
+  function sides(rows) {
     const groups = new Map();
     for (const r of rows) {
       const k = r.replay_id + "\u0000" + r.player;
       if (!groups.has(k)) groups.set(k, []);
       groups.get(k).push(r);
     }
+    return [...groups.values()];
+  }
+
+  /**
+   * Sets for games whose sheets are known by game and player (the library: index.json "sheets" and
+   * "fixes"), one Pokemon at a time: a paste with a Pokemon the game didn't have still gives the
+   * other five their sets. sources: [{ gameId, player, sets, from }], in order (hand-made sets before
+   * the paste, so they win); from: "sheet" (the player's paste) or "pieced" (put together by hand).
+   * Only fills rows with no set yet. Sets row.set and row.set_from; returns, per source, the sides
+   * it gave sets to: [{ replay_id, player, paired, of }].
+   */
+  function attachSets(rows, sources) {
+    const used = sources.map(() => []);
+    for (const group of sides(rows)) {
+      const { replay_id, player } = group[0];
+      sources.forEach((src, i) => {
+        if (src.gameId !== replay_id || toID(src.player) !== toID(player) || !src.sets || !src.sets.length) return;
+        const open = group.filter((r) => !r.set);
+        const paired = pairEach(open.map((r) => r.pokemon), src.sets);
+        open.forEach((r, j) => { if (paired[j]) { r.set = paired[j]; r.set_from = src.from || "sheet"; } });
+        const n = paired.filter(Boolean).length;
+        if (n) used[i].push({ replay_id, player, paired: n, of: group.length });
+      });
+    }
+    return used;
+  }
+
+  /**
+   * Attach sets to game rows (from ReplayStats.gameRows) from sheets pasted into Main viewer, where the
+   * side isn't known: a sheet applies to a player's side in a game when every Pokemon on that side
+   * (all 6 from team preview) pairs with one of its sets.
+   * The first sheet that fits wins. Sets row.set; returns, per sheet, the [replay_id, player] it matched.
+   * sheets: [{ sets }] (entries without sets are skipped).
+   */
+  function attachSheets(rows, sheets) {
     const matches = sheets.map(() => []);
-    for (const group of groups.values()) {
-      for (const r of group) delete r.set;
+    for (const group of sides(rows)) {
+      for (const r of group) { delete r.set; delete r.set_from; }
       const species = group.map((r) => r.pokemon);
       for (let i = 0; i < sheets.length; i++) {
         if (!sheets[i] || !sheets[i].sets || !sheets[i].sets.length) continue;
         const paired = pairSets(species, sheets[i].sets);
         if (!paired) continue;
-        group.forEach((r, j) => { r.set = paired[j]; });
+        group.forEach((r, j) => { r.set = paired[j]; r.set_from = "sheet"; });
         matches[i].push([group[0].replay_id, group[0].player]);
         break;
       }
@@ -214,7 +250,7 @@
   }
 
   const api = {
-    PASTE_HOST, DEX_URL, toID, pokepasteIdFrom, parseTeam, maxHp, guessMaxHp, speciesFit, pairSets, attachSheets,
+    PASTE_HOST, DEX_URL, toID, pokepasteIdFrom, parseTeam, maxHp, guessMaxHp, speciesFit, pairEach, pairSets, attachSets, attachSheets,
     fetchPokepaste, loadDex, loadSmogonHp,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

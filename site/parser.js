@@ -128,7 +128,7 @@
   // per-stint counters, summed per Pokemon
   const COUNTS = ["direct", "passive", "deaths", "hazardKills", "hazardsSet", "hazardsRemoved",
     "switches", "pivots", "forcedOut", "faintSwitchIns",
-    "crits", "critsTaken", "misses", "dodges", "fullParas", "sleepTurns", "flinched", "confusionHits", "procs",
+    "crits", "critsTaken", "hitsTaken", "misses", "dodges", "fullParas", "sleepTurns", "flinched", "confusionHits", "procs",
     "turnsOnField", "koBeforeMoving", "selfKos", "statusesInflicted"];
   const zeroCounts = () => Object.fromEntries(COUNTS.map((f) => [f, 0]));
   const NO_DAMAGE = { dealt: 0, taken: 0, hazard: 0 };
@@ -172,6 +172,7 @@
     // Credit goes to stints, so an Illusion reveal can re-assign one stint without touching
     // the copied Pokemon's other stints. Stats are summed per key at the end.
     const stints = [];
+    const timeline = [];                // [stint, turn, 'in' | 'out' | 'move' | 'cant' | 'faint', move or reason]: each one's game turn by turn
     const slots = {};                   // 'p1a' -> stint currently in that position
     const latestByKey = new Map();      // mon key -> its most recent stint
     const switchCount = { p1: 0, p2: 0 }; // stints per side so far (stint.n)
@@ -231,8 +232,9 @@
     let ejected = null;                 // stint whose Eject Button / Eject Pack just went off
     let prevFrom = "";                  // [from] of the previous line (what a [silent] heal follows)
     const kills = [];                   // [killer stint or null, kind, victim stint]
-    const hits = [];                    // [dealer stint or null, target stint, % of max HP lost, by hazard, move or null]
-    const heals = [];                   // [healer stint, target stint, % of max HP restored]
+    // hits / heals also carry the turn (0 = before turn 1) and the target's HP % before and after
+    const hits = [];                    // [dealer stint or null, target stint, % of max HP lost, by hazard, move or null, turn, HP before, HP after]
+    const heals = [];                   // [healer stint, target stint, % of max HP restored, turn, HP before, HP after]
 
     // Luck: every random roll the log shows, with what luck.js needs to work out its odds.
     const rolls = [];                   // {kind: acc / hit / par / slp / frz / conf, actor, target?, ...}
@@ -248,6 +250,9 @@
     let prevParts = [];
     let turnStarters = null;            // stints on the field when the current turn began, until it gets played
     let zPending = null;                // stint whose |-zpower| line came just before its Z-move
+
+    // fainted now: its latest stay ended in a faint and Revival Blessing hasn't brought it back since
+    const isDown = (st) => st.deaths > 0 && !st.revived;
 
     function newStint(key, sp) {
       const s = { key, side: sideOf(key), species: sp, hp: 100, ...zeroCounts(), prev: latestByKey.get(key), moves: new Map(),
@@ -278,19 +283,21 @@
       return fallback ? [fallback, "passive"] : [null, "none"];
     }
 
-    /** Record HP lost by a stint; the dealer only when it is an opponent. */
-    function hit(target, source, newHp, hazard = false, move = null) {
-      const lost = Math.round((target.hp - newHp) * 100) / 100;
+    /** Record HP lost by a stint; the dealer only when it is an opponent. byMove: damage straight from a move (not
+        status, weather, hazards, Leech Seed, items), counted in its hits taken. */
+    function hit(target, source, newHp, hazard = false, move = null, byMove = false) {
+      const before = target.hp, lost = Math.round((before - newHp) * 100) / 100;
       target.hp = newHp;
       const dealer = source && source.side !== target.side ? source : null;
-      if (lost > 0) hits.push([dealer, target, lost, hazard && !!dealer, dealer ? move : null]);
+      if (dealer && byMove && lost > 0) target.hitsTaken += 1;
+      if (lost > 0) hits.push([dealer, target, lost, hazard && !!dealer, dealer ? move : null, turns, before, newHp]);
     }
 
     /** Record HP restored to a stint; a healer from the other side doesn't count (heals itself). */
     function heal(target, healer, newHp) {
-      const gained = Math.round((newHp - target.hp) * 100) / 100;
+      const before = target.hp, gained = Math.round((newHp - before) * 100) / 100;
       target.hp = newHp;
-      if (gained > 0) heals.push([healer && healer.side === target.side ? healer : target, target, gained]);
+      if (gained > 0) heals.push([healer && healer.side === target.side ? healer : target, target, gained, turns, before, newHp]);
     }
 
     /** At the end of a turn: each player with an entry hazard on the opponent's side gets a turn. */
@@ -311,8 +318,8 @@
         // a misread name in a rebuilt video log ("The opposing") makes a Pokemon that never switched in (no
         // species) and never faints: left out, or the line stays high. Still capped, in case one did switch in.
         const mine = [...latestByKey].filter(([k, st]) => sideOf(k) === side && st.species);
-        const fainted = mine.filter(([, st]) => st.deaths).length;
-        const hp = mine.reduce((t, [, st]) => t + (st.deaths ? 0 : st.hp), 0) + 100 * Math.max(0, size - mine.length);
+        const fainted = mine.filter(([, st]) => isDown(st)).length;
+        const hp = mine.reduce((t, [, st]) => t + (isDown(st) ? 0 : st.hp), 0) + 100 * Math.max(0, size - mine.length);
         point[side] = { left: Math.max(0, size - fainted), hp: Math.round(Math.min(100, hp / size) * 10) / 10 };
       }
       if (momentum.length && momentum[momentum.length - 1].turn === turn) momentum.pop();
@@ -488,6 +495,7 @@
         const passed = ctx && ctx.actor === out && ctx.move === "batonpass";
         endMove();
         leave(out);
+        if (out && !out.deaths) timeline.push([out, turns, "out"]);
         const s = newStint(monKey(parts[1]), baseSpecies(parts[2]));
         s.form = parts[2].split(",")[0].trim();
         s.hp = hpOf(parts[3]) ?? 100;
@@ -496,6 +504,7 @@
         s.n = ++switchCount[s.side];
         [s.shown, s.lineIn, s.turnIn, s.hpIn, s.statusIn] = [s.species, lineNo, turns, s.hp, st ? st[1] : ""];
         if (passed) { s.boosts = { ...out.boosts }; s.critBoost = out.critBoost; }
+        timeline.push([s, turns, "in"]);
         s.entryState = targetState(s.key);
         // how the Pokemon in this slot left (nothing there for a lead)
         if (out) {
@@ -546,6 +555,7 @@
         if (zPending === mover) used.z = true;
         mover.moves.set(moveName, used);
         zPending = null;
+        timeline.push([mover, turns, "move", moveName]);
         const move = norm(parts[2]);
         // moves it chose (not called by Sleep Talk, Metronome...), for illusion.js's learnset check
         if (!tags.from || norm(tags.from) === "lockedmove") (mover.chosen = mover.chosen || new Set()).add(parts[2]);
@@ -612,6 +622,7 @@
         turnPlayed();
         const s = stintOf(parts[1]), reason = parts[2] || "";
         acted(s, reason);
+        timeline.push([s, turns, "cant", reason]);
         if (reason === "par") { rolls.push({ kind: "par", ...self(s), fullPara: true }); s.fullParas += 1; }
         else if (reason === "frz") rolls.push({ kind: "frz", ...self(s), thawed: false });
         else if (reason === "flinch") s.flinched += 1;
@@ -745,6 +756,8 @@
             : frm || "silent" in tags ? target  // items, abilities (Water Absorb), drain, terrain, Rest, Leech Seed
             : mover;                            // a move: Recover, or Heal Pulse on an ally
           heal(target, healer, hp);
+          // back from a faint on the bench: alive again though its last stay on the field ended in one
+          if (frm === "revivalblessing") target.revived = true;
         }
       } else if (cmd === "-sethp") {
         // Pain Split: HP going down is damage by the move's user
@@ -776,7 +789,7 @@
           target(key).pendingKo = [killer, k, hazard && killer === source, killer === source ? move : null];
         }
         const hp = hpOf(parts[2]);
-        if (hp !== null) hit(stintOf(parts[1]), source, hp, hazard, move);
+        if (hp !== null) hit(stintOf(parts[1]), source, hp, hazard, move, kind === "direct");
         if (!("from" in tags) && ctx && mover === ctx.actor) moveHit(stintOf(parts[1]), false, parts[2]);
         if (ctx && stintOf(parts[1]) === ctx.actor && hpOf(parts[2]) === 0) ctx.actorFainted = true; // Rocky Helmet...
         if (norm(tags.from || "") === "confusion") {
@@ -786,6 +799,7 @@
       } else if (cmd === "faint") {
         const victim = stintOf(parts[1]);
         victim.deaths += 1;
+        timeline.push([victim, turns, "faint"]);
         if (!victim.acted) victim.koBeforeMoving += 1;
         statusOf.delete(victim.key);
         let killer, kind, byHazard = false, move = null;
@@ -922,12 +936,13 @@
     const gameSeconds = firstT !== null && lastT > firstT ? lastT - firstT : null;
     return {
       gameSeconds, momentum, timerBy,
-      // alive at the end: its latest stay on the field didn't end in a faint (Revival Blessing brings one back)
-      alive: new Set([...latestByKey].filter(([, st]) => !st.deaths).map(([k]) => k)),
+      // alive at the end: its latest stay on the field didn't end in a faint, or Revival Blessing brought it back
+      alive: new Set([...latestByKey].filter(([, st]) => !isDown(st)).map(([k]) => k)),
       players, preview, teamSize, species, stats, seenSet, damage, healing, moves, winner, forfeited, endReason, turns, hazardTurns, hiddenZoroark, illusion,
       kills: kills.map(([k, kind, v]) => [keyOf(k), kind, keyOf(v)]),
-      hits: hits.map(([d, t, pct, hz, mv]) => [keyOf(d), keyOf(t), pct, hz, mv]),
-      heals: heals.map(([h, t, pct]) => [keyOf(h), keyOf(t), pct]),
+      hits: hits.map(([d, t, ...rest]) => [keyOf(d), keyOf(t), ...rest]),
+      heals: heals.map(([h, t, ...rest]) => [keyOf(h), keyOf(t), ...rest]),
+      timeline: timeline.map(([s, ...rest]) => [keyOf(s), ...rest]),
       rolls: rolls.map((r) => ({ ...r, actor: keyOf(r.actor), ...(r.target ? { target: keyOf(r.target) } : {}) })),
     };
   }
@@ -949,9 +964,12 @@
 
   const round2 = (x) => Math.round(x * 100) / 100;
 
-  /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. */
-  function gameRows(replay) {
-    const b = parseBattle(replay.log, { illusion: replay.illusion });
+  /** One row per Pokemon per game: all 6 from team preview (brought or not), else every one seen. parsed: the
+      caller's own parseBattle of this log with no Zoroark picks, to skip reading it again (used only when the replay
+      has no picks; pass a fresh one each call, as the rows share its arrays). */
+  function gameRows(replay, parsed = null) {
+    const picked = Object.values(replay.illusion || {}).some((ns) => ns && ns.length);
+    const b = (!picked && parsed) || parseBattle(replay.log, { illusion: replay.illusion });
     const rid = replay.id;
     // the game day in Pacific time (league games are Sunday 9pm Pacific, already Monday in UTC); en-CA writes YYYY-MM-DD
     const date = replay.uploadtime ? new Date(replay.uploadtime * 1000).toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" }) : "";
@@ -1005,6 +1023,10 @@
           rolls: b.rolls, // the whole game's, shared by its rows
           momentum: b.momentum, // the whole game's
           side, // p1 / p2: which line of momentum is this player's
+          // hits it took from the other side's moves (not hazards, status, weather or items): how much it soaked up
+          hits_taken: st.hitsTaken,
+          // its game turn by turn ([turn, kind, move or reason], kind in / out / move / cant / faint) for the turn strip
+          timeline: key ? b.timeline.filter(([k]) => k === key).map(([, ...e]) => e) : [],
           heals_given: b.heals.filter(([h, t]) => h && h === key && t !== key).map(([, t, pct]) => [t, pct]),
           // the mon keys of the Pokemon it KO'd (direct or passive, as counted in kills): who KO'd whom
           kos_dealt: b.kills.filter(([k, kind, v]) => k && k === key && v && (kind === "direct" || kind === "passive")).map(([, , v]) => v),

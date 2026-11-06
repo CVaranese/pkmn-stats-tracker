@@ -4,7 +4,7 @@
 // which stays on the field were Zoroark: the league admin's picks in the game library (index.json "illusion",
 // written by tools/set_illusion.py), else the ones illusion.js proves. The admin tries picks out on the local
 // site (served from this computer: Move to / Move back buttons, kept in this browser) before rolling them out.
-const ADMIN = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname);
+const ADMIN = THIS_COMPUTER && !LIVE_VIEW;
 const PICKS_KEY = "rs-illusion";
 function savedPicks() {
   try { return JSON.parse(localStorage.getItem(PICKS_KEY)) || {}; } catch (e) { return {}; }
@@ -14,13 +14,14 @@ function savePicks(id, side, ns) {
   if (ns === null) { if (all[id]) delete all[id][side]; } else all[id] = { ...(all[id] || {}), [side]: ns };
   try { localStorage.setItem(PICKS_KEY, JSON.stringify(all)); } catch (e) { /* private window: this page view only */ }
 }
-/** Sets replay.illusion (what gameRows counts as Zoroark) and replay.zoroarks (for the notice). */
+/** Sets replay.illusion (what gameRows counts as Zoroark) and replay.zoroarks (for the notice). Returns the parse it
+    made (no picks), for RS.gameRows to take instead of reading the log again; nothing when it had already run. */
 async function prepareIllusion(replay) {
-  if (!replay || replay.zoroarks) return;
+  if (!replay || replay.zoroarks) return null;
   const b = RS.parseBattle(replay.log);
   replay.zoroarks = {};
   delete replay.illusionNote;
-  if (!Illusion.hiddenSides(b).length) return;
+  if (!Illusion.hiddenSides(b).length) return b;
   let learn = null, dex = null;
   try { [learn, dex] = await Promise.all([Illusion.loadLearnsets(), TS.loadDex()]); } catch (e) {
     replay.illusionNote = `the move / Pokédex data for the hidden Zoroark check didn't load (${e.message || e}), so fewer stays are ruled out`;
@@ -33,6 +34,7 @@ async function prepareIllusion(replay) {
     const from = side in mine ? "you" : side in lib ? "library" : "proven";
     replay.zoroarks[side] = { ...a, player: b.players[side] || side, from };
   }
+  return b;
 }
 /** Change one side's picks and count the game again. */
 function pickZoroark(replay, side, ns) {

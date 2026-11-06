@@ -16,7 +16,7 @@
   <meta property="og:url" content="https://cvaranese.github.io/pkmn-stats-tracker/scl/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#2f5d9e">
-  <script>window.LEAGUE = {"id": "scl", "name": "Super Champions League", "short": "Super Champions", "tag": "SCL", "format": "", "format_name": "Pokémon Champions VGC doubles", "brackets": [], "best_of": 3, "palette": "blastoise"};</script>
+  <script>window.LEAGUE = {"id": "scl", "name": "Super Champions League", "short": "Super Champions", "tag": "SCL", "format": "gen9championsvgc2026regmb", "format_name": "Pokémon Champions VGC doubles", "brackets": [], "best_of": 3, "set_points": [3, 2, 1, 0], "pickem": null, "discord": null, "palette": "blastoise"};</script>
   <script>try { const p = new URLSearchParams(location.search).get("palette") || localStorage.getItem("replay-kill-tracker.scl.palette") || window.LEAGUE.palette; if (p) document.documentElement.dataset.palette = p; } catch (e) { document.documentElement.dataset.palette = window.LEAGUE.palette; }</script>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -28,6 +28,8 @@
       <p class="lede">Kills, damage, MVPs and luck from the Super Champions League&#x27;s Showdown replays. Find a league game under Games, or paste any replay link below. Tables copy straight into Google Sheets. <a href="./">Other leagues</a></p>
       <div class="palette-pick" id="palette" role="group" aria-label="Theme"><button type="button" data-palette="blastoise" aria-pressed="false" title="Blastoise theme"><img src="sprites/gen5/blastoise.png" width="48" height="48" alt="Blastoise"></button><button type="button" data-palette="charizard" aria-pressed="false" title="Charizard theme"><img src="sprites/gen5/charizard.png" width="48" height="48" alt="Charizard"></button><button type="button" data-palette="venusaur" aria-pressed="false" title="Venusaur theme"><img src="sprites/gen5/venusaur.png" width="48" height="48" alt="Venusaur"></button></div>
       </div>
+      <!-- leagues with discord in site/leagues.json; filled by app/account.js -->
+      <div class="account" id="account" hidden></div>
     </header>
 
     <nav class="modes" aria-label="View">
@@ -35,10 +37,27 @@
       <button data-mode="games" type="button">Games</button>
       <button data-mode="players" type="button">Players</button>
       <button data-mode="mons" type="button">Pokémon</button>
+      <button data-mode="awards" type="button" hidden>Awards</button>
       <button data-mode="draft" type="button">Draft</button>
       <button data-mode="fantasy" type="button">Fantasy</button>
       <button data-mode="gamble" type="button">Gambling</button>
+      <button data-mode="pickem" type="button" hidden>Pick'em</button>
     </nav>
+
+    <!-- leagues with pickem in site/leagues.json; filled by app/pickem.js -->
+    <section id="pickem" class="tab-page" hidden>
+      <h2 class="section-title">Playoff Pick'em</h2>
+      <p class="hint" id="pk-intro"></p>
+      <p class="pk-countdown" id="pk-countdown" hidden></p>
+      <div class="pl-bar" id="pk-account"></div>
+      <p class="muted" id="pk-status" role="status"></p>
+      <p class="hint" id="pk-viewing" hidden></p>
+      <div class="bracket-wrap" id="pk-bracket"></div>
+      <div class="pl-bar" id="pk-submit" hidden></div>
+      <h2 class="section-title">Leaderboard</h2>
+      <p class="hint" id="pk-board-note"></p>
+      <div class="table-wrap"><table id="pk-board"></table></div>
+    </section>
 
     <section id="gamble" class="tab-page" hidden>
       <div class="soon">
@@ -48,6 +67,8 @@
         <p>Something is being set up for the playoffs. Bring a hunch about the bracket. Maybe a feeling about crits.</p>
         <p class="muted">Fantasy points and draft costs moved to the Fantasy tab.</p>
       </div>
+      <!-- filled by app/bets.js where it shows; empty in the page itself -->
+      <div id="bet-draw" hidden></div>
     </section>
 
     <section id="fantasy" class="tab-page" hidden>
@@ -62,6 +83,16 @@
       <div class="table-wrap bet-table"><table id="bet-ranks"></table></div>
     </section>
 
+    <section id="awards" class="tab-page" hidden>
+      <p class="hint">The week's standouts from the league games saved here, so this tab gives results away. Pick All weeks for the season so far. Hover an award's name for how it's picked.</p>
+      <div class="pl-bar">
+        <div class="tabs stage-pick" hidden></div>
+        <label class="inline">Weeks <select id="aw-week"><option value="">All weeks</option></select></label>
+      </div>
+      <p class="hint" id="aw-status"></p>
+      <div class="award-grid" id="aw-list"></div>
+      <p class="hint" id="aw-none"></p>
+    </section>
     <section id="mons" class="tab-page" hidden>
       <p class="hint">Every Pokémon brought in the league games saved here, added up over the season, so this tab gives results away. Find one by name or player, or click a column name to sort and a Pokémon in the list to show its moves and games here.</p>
       <div class="pl-bar">
@@ -86,6 +117,9 @@
           </div>
           <figure id="mon-art" class="mon-art"></figure>
         </div>
+        <h2 class="section-title">Its sets</h2>
+        <p class="hint" id="mon-sets-note"></p>
+        <div class="table-wrap" id="mon-sets-wrap"><table id="mon-sets"></table></div>
         <h2 class="section-title">Its games</h2>
         <div class="table-wrap"><table id="mon-games"></table></div>
       </div>
@@ -98,6 +132,11 @@
       <div class="draft-tabs" id="dr-players" aria-label="Player"></div>
       <p class="muted" id="dr-status"></p>
       <div id="dr-head"></div>
+      <div id="dr-card" hidden>
+        <h3 id="dr-grade"></h3>
+        <div class="table-wrap"><table id="dr-card-table"></table></div>
+        <p class="hint" id="dr-card-how"></p>
+      </div>
       <div class="table-wrap"><table id="dr-table" class="sortable"></table></div>
       <p class="hint" id="dr-extra"></p>
     </section>
@@ -254,16 +293,21 @@
   <script src="luck.js"></script>
   <script src="illusion.js"></script>
   <script src="bet.js"></script>
+  <script src="plays.js"></script>
   <script src="league.js"></script>
   <!-- the page: plain scripts sharing one scope, in this order; startup.js last -->
   <script src="app/core.js"></script>
+  <script src="app/account.js"></script>
   <script src="app/games.js"></script>
   <script src="app/season.js"></script>
   <script src="app/zoroark.js"></script>
   <script src="app/fantasy.js"></script>
   <script src="app/players.js"></script>
   <script src="app/mons.js"></script>
+  <script src="app/awards.js"></script>
+  <script src="app/bets.js"></script>
   <script src="app/draft.js"></script>
+  <script src="app/pickem.js"></script>
   <script src="app/sheets.js"></script>
   <script src="app/main.js"></script>
   <script src="app/startup.js"></script>

@@ -25,7 +25,7 @@ const STAGE_KEY = KEYS + "stage";
 const STAGES = [["regular", "Regular season"], ["playoffs", "Playoffs"], ["both", "Both"]];
 let stage = "regular";
 try { stage = STAGES.some(([v]) => v === localStorage.getItem(STAGE_KEY)) ? localStorage.getItem(STAGE_KEY) : "regular"; } catch (e) { /* storage blocked */ }
-const isPlayoffWeek = (w) => !/^Week [0-9]/.test(w);
+const isPlayoffWeek = League.isPlayoffWeek;
 const hasStages = () => library.some((g) => isPlayoffWeek(g.week)) && library.some((g) => !isPlayoffWeek(g.week));
 const inStage = (w) => !hasStages() || stage === "both" || (stage === "playoffs") === isPlayoffWeek(w);
 /** A week picker's options: "All weeks", then the weeks of the picked stage; a picked week outside it goes back to all. */
@@ -51,7 +51,7 @@ function setStage(v) {
   stage = v;
   try { localStorage.setItem(STAGE_KEY, v); } catch (e) { /* storage blocked */ }
   fillStagePicks();
-  for (const id of ["lib-week", "pl-week", "mon-week"]) fillWeekOptions($(id));
+  for (const id of ["lib-week", "pl-week", "mon-week", "aw-week"]) fillWeekOptions($(id));
   plWeek = $("pl-week").value;
   monWeek = $("mon-week").value;
   renderLibrary();
@@ -59,6 +59,8 @@ function setStage(v) {
   mons = null;
   if (mode === "players") renderPlayers();
   if (mode === "mons") renderMons();
+  awardsShown = false;
+  if (mode === "awards") renderAwards();
 }
 /** The library's sets (League.sets: games labelled with a set, else, in a league that plays sets, a week's games
     between the same two players), players matched through the draft's aliases. */
@@ -83,30 +85,8 @@ function setsWithMissing(games, lost) {
   }
   return sets;
 }
-/** A set's game slots in a league that plays sets (best_of): its saved games, its missing ones at their game number,
-    and "not played" up to best_of, so a 2–0 shows as many rows as a 2–1 until "Show results". Each slot: {n, game}
-    (a saved game) or {n, kind: "missing" | "unplayed", winner}. Also the set score with the missing games' winners
-    and how many missing games have no known winner. */
-function setSlots(s) {
-  const bestOf = LEAGUE.best_of || 0;
-  const lost = s.missing || [];
-  const total = Math.max(bestOf, s.games.length + lost.length);
-  const slots = [];
-  for (const m of lost) if (m.game) slots[m.game - 1] = { n: m.game, kind: "missing", winner: m.winner };
-  const unknownSet = lost.some((m) => !m.game);   // a set with no replay at all: how many games isn't known
-  let next = 0;
-  for (const g of s.games) {
-    while (slots[next]) next++;
-    slots[next] = { n: next + 1, game: g };
-  }
-  for (let i = 0; i < total; i++) if (!slots[i]) slots[i] = { n: i + 1, kind: unknownSet ? "missing" : "unplayed", winner: null };
-  const wins = s.players.map((p) => slots.filter((sl) => (sl.game ? sl.game.winner : sl.winner) &&
-    playerKey(sl.game ? sl.game.winner : sl.winner) === playerKey(p)).length);
-  const w = wins.findIndex((n) => n > bestOf / 2);
-  const unknown = slots.filter((sl) => sl.kind === "missing" && !sl.winner).length;
-  return { slots, score: { ...s, wins, winner: w >= 0 ? s.players[w] : "" }, unknown, unknownSet,
-    played: slots.filter((sl) => sl.game || sl.kind === "missing").length };
-}
+/** A set's game slots and score with its missing games (League.setSlots), for this league's best_of. */
+const setSlots = (s) => window.League.setSlots(s, LEAGUE.best_of || 0, playerKey);
 /** Games grouped by week, the latest week first (weeks in the order they were added); a set of two or more games
     under its own line (score with "Show results", Set stats), its games in the order played. */
 function renderLibrary() {
@@ -232,7 +212,7 @@ function libraryRow(g, n = 0) {
     if (i) match.append(el("span", "lib-vs", "vs"));
     const side = el("div", "lib-side");
     const name = el("div", "lib-name", p);
-    if (results && p === g.winner) name.append(" ", el("span", "badge win", "Won"));
+    if (results && g.winner && playerKey(p) === playerKey(g.winner)) name.append(" ", el("span", "badge win", "Won"));
     const team = el("div", "lib-team");
     team.append(...((g.teams || [])[i] || []).map((mon) => sprite(mon, ["gen5/"], "tiny", true)));
     side.append(name, team);

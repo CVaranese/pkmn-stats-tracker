@@ -9,8 +9,15 @@ const { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, 
 const $ = (id) => document.getElementById(id);
 // served from this computer: no requests to Showdown at all (replays only from site/games/, move / Pokedex data from
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
-const LOCAL = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname) &&
-  !new URLSearchParams(location.search).has("online");
+const THIS_COMPUTER = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname);
+const LOCAL = THIS_COMPUTER && !new URLSearchParams(location.search).has("online");
+// features not released yet (Awards, weekly bets) show on the next branch's preview
+// (/next/ in the address) and on this computer. Add ?live to the address to see what the live site shows.
+const LIVE_VIEW = new URLSearchParams(location.search).has("live");
+const PREVIEW = (THIS_COMPUTER || location.pathname.includes("/next/")) && !LIVE_VIEW;
+// taken off the page for now (report cards, reads and misplays; user 2026-11-05): off on the preview too;
+// add ?held to a preview or local address to see them
+const SHOW_HELD = PREVIEW && new URLSearchParams(location.search).has("held");
 // the league this page is for (site/leagues.json, written into the page by tools/build_pages.py); its files are in
 // site/<id>/ (games, team sheets, trainer sprites), everything shared is one folder up (the page's <base>)
 const LEAGUE = window.LEAGUE || { id: "", name: "", tag: "" };
@@ -119,12 +126,13 @@ const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], haz
 let mode = "one";
 const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
 // tabs with no link box: their own views over the saved league games (gamble: Gambling, still a "coming soon" page)
-const NO_INPUT_TABS = ["fantasy", "gamble", "games", "players", "mons", "draft"];
+const NO_INPUT_TABS = ["fantasy", "gamble", "games", "players", "mons", ...(PREVIEW ? ["awards"] : []), "draft", ...(LEAGUE.pickem ? ["pickem"] : [])];
 const activeIds = () => (NO_INPUT_TABS.includes(mode) ? [] :
   RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
 function setMode(m, load = true) {
   mode = m;
   openedSet = null;
+  shownSet = null;
   $("set-head").hidden = true;
   try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* storage blocked */ }
   for (const tab of document.querySelectorAll(".modes [data-mode]")) markCurrent(tab, tab.dataset.mode === m);
@@ -142,7 +150,9 @@ function setMode(m, load = true) {
   $("gamble").hidden = m !== "gamble";
   $("players").hidden = m !== "players";
   $("mons").hidden = m !== "mons";
+  $("awards").hidden = m !== "awards";
   $("draft").hidden = m !== "draft";
+  $("pickem").hidden = m !== "pickem";
   $("library").hidden = m !== "games";
   setCollapsed(false);  // the button lives with the results, which a mode change hides
   $("inputs").hidden = noInputs;
@@ -158,7 +168,10 @@ function setMode(m, load = true) {
   if (m === "fantasy") renderFantasy();
   if (m === "players") renderPlayers();
   if (m === "mons") renderMons();
+  if (m === "awards") renderAwards();
+  if (m === "gamble") renderBets();
   if (m === "draft") renderDraft();
+  if (m === "pickem") renderPickem();
 }
 // Back / Forward: each tab, game and Watch panel is a history entry ({ mode, r, watch, pick }), so Back returns to
 // the previous one instead of leaving the site. The address follows (?tab=games, ?r=<id>, ?tab=players&player=<key>,
@@ -167,17 +180,7 @@ const navPick = () => (mode === "players" ? (playerWanted && playerKey(playerWan
   mode === "mons" ? monWanted || monPicked : mode === "draft" ? draftPicked && playerKey(draftPicked) : "");
 const navState = () => ({ mode, r: mode === "one" ? activeIds()[0] || "" : "", watch: $("lib-watch").hidden ? "" : watching,
   pick: navPick(), set: openedSet ? openedSet.join(",") : "" });
-const PICK_PARAM = { players: "player", mons: "mon", draft: "player" };
-function navUrl(st) {
-  const q = new URLSearchParams(location.search);
-  q.delete("r"); q.delete("tab"); q.delete("player"); q.delete("mon"); q.delete("set");
-  if (st.set) q.set("set", st.set);
-  else if (st.r) q.set("r", st.r);
-  else if (st.mode !== "one") q.set("tab", st.mode);
-  if (!st.r && st.pick && PICK_PARAM[st.mode]) q.set(PICK_PARAM[st.mode], st.pick);
-  const s = q.toString().replace(/%2C/g, ",");
-  return location.pathname + (s ? "?" + s : "");
-}
+const navUrl = (st) => location.pathname + League.navQuery(location.search, st);
 function pushNav() {
   const st = navState();
   if (JSON.stringify(st) === JSON.stringify(history.state)) return;
@@ -262,21 +265,53 @@ function openSet(ids, push = true) {
 function setHead(s) {
   const lost = missing.filter((m) => m.week === s.week && pairKey(m.players) === pairKey(s.players));
   const score = LEAGUE.best_of ? setSlots({ ...s, missing: lost }).score : s;
-  const line = el("p", "game-line", `${s.week} · ${setScore(score)} · `);
-  s.games.forEach((g, i) => {
-    const a = Object.assign(el("a", "", `Game ${i + 1}`), { href: navUrl({ mode: "one", r: g.id }) });
-    a.addEventListener("click", (e) => {
-      if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
-      e.preventDefault();
-      openGame(g.id);
-    });
-    line.append(...(i ? [" · ", a] : [a]));
-  });
+  // each game opens alone from the game-by-game table (setGames), numbered as played
+  const line = el("p", "game-line", `${s.week} · ${setScore(score)}`);
   const note = lost.length ? el("p", "hint", `${lost.length} game${lost.length > 1 ? "s" : ""} of this set had no ` +
     `replay saved, so ${lost.length > 1 ? "they aren't" : "it isn't"} in these numbers.`) : "";
-  $("set-head").replaceChildren(el("h2", "section-title", `Set stats: ${s.players.join(" vs ")}`), line, note,
-    el("p", "hint", "Every saved game of the set, added up."));
+  const games = el("div", "table-wrap");
+  games.id = "set-games";
+  $("set-head").replaceChildren(el("h2", "section-title", `Set stats: ${s.players.join(" vs ")}`), line, note, games,
+    el("p", "hint", "Every saved game of the set, added up below."));
   $("set-head").hidden = false;
+  shownSet = { ...s, missing: lost };
+  // the rows already shown, only when they're this set's (else run() draws it once the set's games are in)
+  const ids = new Set(s.games.map((g) => g.id));
+  if (rows.length && rows.every((r) => ids.has(r.replay_id))) setGames(rows);
+}
+let shownSet = null;  // the set setHead shows (with its missing games), for setGames once the rows are in
+/** The opened set game by game, above its totals: winner, turns, each side's MVP and KOs, Stats / Watch; a game
+    played with no replay or never played (the set already won) says so. rs: the loaded rows (the set's games). */
+function setGames(rs) {
+  const box = $("set-games");
+  if (!box || !shownSet) return;
+  const s = shownSet;
+  const slots = LEAGUE.best_of ? setSlots(s).slots : s.games.map((g, i) => ({ n: i + 1, game: g }));
+  const side = (g, p) => rs.filter((r) => r.replay_id === g.id && playerKey(r.player) === playerKey(p));
+  const mvp = (g, p) => (side(g, p).find((r) => r.mvp) || {}).pokemon || "–";
+  const table = el("table");
+  // Stats / Watch next to the game number: on a phone the table scrolls sideways, and they stay in view
+  simpleTable(table, [["Game", ""], ["", ""], ["Winner", ""], ["Turns", "num"], ...s.players.map((p) => [`${p}'s MVP`, ""]),
+    ["KOs", "num", `KOs: ${s.players.join(" – ")}`]],
+    slots.map((sl) => {
+      const g = sl.game;
+      if (!g) {
+        const what = sl.kind === "unplayed" ? "Not played" : "No replay";
+        return [[`Game ${sl.n}`, ""], [el("span", "muted", what), ""], [sl.winner || "–", ""], ["–", "num"],
+          ...s.players.map(() => ["", ""]), ["", "num"]];
+      }
+      const loaded = rs.some((r) => r.replay_id === g.id);
+      const kos = s.players.map((p) => sum(side(g, p), "kills")).join("–");
+      const stats = Object.assign(el("button", "small", "Stats"), { type: "button", title: "This game on its own (Main viewer)" });
+      stats.addEventListener("click", () => openGame(g.id));
+      const watch = Object.assign(el("button", "small", "Watch"), { type: "button", title: "Play the replay" });
+      watch.addEventListener("click", () => watchHere(g));
+      const acts = el("span", "row");
+      acts.append(stats, watch);
+      return [[`Game ${sl.n}`, ""], [acts, ""], [g.winner || "–", ""], [String(g.turns ?? "–"), "num"],
+        ...s.players.map((p) => [loaded ? mvp(g, p) : "–", ""]), [loaded ? kos : "–", "num"]];
+    }));
+  box.replaceChildren(table);
 }
 /** Open a player's season (tab "players", their name or key) or a Pokémon's ("mons", its name as the Pokémon tab
     shows it), picked and scrolled into view; Back returns here. */

@@ -25,8 +25,8 @@ function loadLeague() {
     const loaded = await Promise.all(library.map(async (g) => {
       try {
         if (!cache.has(g.id)) cache.set(g.id, await RS.fetchReplay(g.id));
-        await prepareIllusion(cache.get(g.id));
-        return RS.gameRows(cache.get(g.id));
+        const parsed = await prepareIllusion(cache.get(g.id));
+        return RS.gameRows(cache.get(g.id), parsed);
       } catch (e) { return []; }  // a game that won't load just isn't counted
     }));
     let dex = null;
@@ -34,7 +34,7 @@ function loadLeague() {
     const [smogon, pool] = await Promise.all([TS.loadSmogonHp("data/smogon_hp.json"), loadMockPool()]);
     const all = [];
     for (const rows of loaded) {
-      if (rows.length) TS.attachSheets(rows, mockSheets.filter((s) => s.gameId === rows[0].replay_id));
+      attachSaved(rows);  // saved sheets, per Pokémon
       fillMaxHp(rows, dex, smogon, pool);
       all.push(...rows);
     }
@@ -46,13 +46,15 @@ function loadLeague() {
     return all;
   })());
 }
-/** Forget everything counted from the league games (a Zoroark pick changed one), so Fantasy, Players and
-    Pokémon count again on their next visit. Every cache built from loadLeague goes here. */
+/** The resets of every cache built from loadLeague: each tab's file registers its own (onLeagueChange) next to
+    its state, so a new tab can't be left out. */
+const leagueCaches = [];
+const onLeagueChange = (reset) => leagueCaches.push(reset);
+/** Forget everything counted from the league games (a Zoroark pick changed one), so the tabs built on them count
+    again on their next visit. */
 function invalidateLeague() {
   leagueRows = null;
-  fantasyRows = null;
-  players = null;
-  mons = null;
+  for (const reset of leagueCaches) reset();
 }
 /** Damage dealt for some rows: in HP when every row has it (~ when a guessed max HP went in), else in %. */
 const rowsDealt = (rs) => amount(rs, ["damage_dealt_pct"]).text;

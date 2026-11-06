@@ -16,3 +16,7 @@ It starts the local server if needed. First line is the page title (`PASS`, `FAI
 - On FAIL: read the failing test in `tests/tests.js` and the code it covers before changing anything. Never change
   an expected value to make a test pass unless the user agrees the old expectation was wrong.
 - "NO TITLE" means the page didn't load: check the server answers on 8765.
+- "library snapshot" FAIL: a saved league game counts differently than when `tests/snapshot.json` was written.
+  If it comes from a rule change the user agreed to, check a few of the listed numbers against the replay, then
+  `& .claude/skills/test/write-snapshot.ps1` and show the user `git diff tests/snapshot.json` before committing.
+  Otherwise it's a bug. Games added since the snapshot don't fail; the add-game skill rewrites it.

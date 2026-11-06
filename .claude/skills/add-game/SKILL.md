@@ -21,4 +21,6 @@ python -I tools/add_game.py <link> --league <id> --week "Week 3" [--set "QF Karm
 - Showdown down: the script falls back to a copy in `site/<league>/mock/` or `tests/fixtures/`, else stops with a message;
   `--file <saved.json>` uses a copy the user downloaded.
 - Check each printed line (players, winner, turns) looks right, run the `test` skill and `.claude/skills/test/run-audit.ps1 -League <id>` (every saved game of that league, ppppp by default: PASS, or FAIL lines to fix before committing; with `-All` the lines worth a look, e.g. a stream game's misread HP), take a `screenshot` with
-  `-Query tab=games`, then commit `site/<league>/games/` and `site/index.html` (game count on the league list) with a message listing the games added.
+  `-Query tab=games`, then `& .claude/skills/test/write-snapshot.ps1` (adds the new games to `tests/snapshot.json`; its diff should only add
+  their lines: a changed line for an older game is a parser change to look into, not this game), then commit `site/<league>/games/`,
+  `tests/snapshot.json` and `site/index.html` (game count on the league list) with a message listing the games added.

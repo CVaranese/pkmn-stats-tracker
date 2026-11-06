@@ -73,6 +73,10 @@ def league_page(template, cfg, lg):
     page_info = {k: lg.get(k, "") for k in ("id", "name", "short", "tag", "format", "format_name")}
     page_info["brackets"] = lg.get("brackets", [])
     page_info["best_of"] = lg.get("best_of", 0)
+    page_info["set_points"] = lg.get("set_points")
+    page_info["pickem"] = lg.get("pickem")
+    # the Discord sign-in (app/account.js): the league's server and the site's store
+    page_info["discord"] = {**lg["discord"], "supabase": cfg["supabase"]} if lg.get("discord") else None
     page_info["palette"] = "" if lg.get("theme_css") else lg.get("palette", PALETTES[0])
     league_json = json.dumps(page_info, ensure_ascii=False).replace("</", "<\\/")
     # the league's own theme (its tokens over style.css's default theme), when it has one
@@ -118,7 +122,9 @@ def landing_page(template, cfg):
 def pages():
     """{path: text} for every page this writes."""
     cfg = load_leagues()
-    read = lambda name: open(os.path.join(SITE, "app", name), encoding="utf-8").read()
+    def read(name):
+        with open(os.path.join(SITE, "app", name), encoding="utf-8") as f:
+            return f.read()
     league_tpl = read("league.html")
     out = {os.path.join(SITE, "index.html"): landing_page(read("landing.html"), cfg)}
     for lg in cfg["leagues"]:
@@ -131,7 +137,8 @@ def main(argv):
     for path, text in pages().items():
         try:
             with open(path, encoding="utf-8", newline="") as f:
-                same = f.read() == text
+                # line endings don't count: a git checkout on Windows writes CRLF where this writes LF
+                same = f.read().replace("\r\n", "\n") == text
         except FileNotFoundError:
             same = False
         if same:

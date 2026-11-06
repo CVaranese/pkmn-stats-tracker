@@ -51,6 +51,10 @@
     "tier": "RU"
    },
    {
+    "pokemon": "Marowak-Alola",
+    "tier": "RU"
+   },
+   {
     "pokemon": "Tentacruel",
     "tier": "RU"
    },
@@ -102,6 +106,10 @@
     "tier": "RU"
    },
    {
+    "pokemon": "Ribombee",
+    "tier": "RU"
+   },
+   {
     "pokemon": "Skeledirge",
     "tier": "RU"
    },
@@ -125,6 +133,10 @@
    },
    {
     "pokemon": "Alomomola",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Terapagos-Terastal",
     "tier": "OU"
    },
    {
@@ -171,6 +183,10 @@
    },
    {
     "pokemon": "Zapdos",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Melmetal",
     "tier": "OU"
    },
    {
@@ -232,6 +248,10 @@
     "tier": "UU"
    },
    {
+    "pokemon": "Gastrodon",
+    "tier": "RU"
+   },
+   {
     "pokemon": "Keldeo-Resolute",
     "tier": "UU"
    },
@@ -263,6 +283,10 @@
   "DEJIME": [
    {
     "pokemon": "Kingambit",
+    "tier": "OU"
+   },
+   {
+    "pokemon": "Tornadus-Therian",
     "tier": "OU"
    },
    {
@@ -332,6 +356,10 @@
     "tier": "UU"
    },
    {
+    "pokemon": "Hydreigon",
+    "tier": "UU"
+   },
+   {
     "pokemon": "Mimikyu",
     "tier": "RU"
    },
@@ -382,6 +410,10 @@
     "tier": "UUBL"
    },
    {
+    "pokemon": "Thundurus-Therian",
+    "tier": "UUBL"
+   },
+   {
     "pokemon": "Goodra-Hisui",
     "tier": "UU"
    },
@@ -423,6 +455,10 @@
    }
   ],
   "FingerStripes": [
+   {
+    "pokemon": "Iron Leaves",
+    "tier": "RUBL"
+   },
    {
     "pokemon": "Tapu Koko",
     "tier": "OU"
@@ -532,6 +568,10 @@
     "tier": "UUBL"
    },
    {
+    "pokemon": "Kartana",
+    "tier": "UUBL"
+   },
+   {
     "pokemon": "Weavile",
     "tier": "UUBL"
    },
@@ -578,6 +618,10 @@
     "tier": "UUBL"
    },
    {
+    "pokemon": "Gyarados",
+    "tier": "UUBL"
+   },
+   {
     "pokemon": "Slowbro",
     "tier": "UU"
    },
@@ -616,12 +660,17 @@
   ]
  },
  "trades": {
-  "_note": "After Week 4 each player could trade one Pokemon for a 3-point-or-less one. The full list from the league (2026-10-29), one trade each. out = traded away, in = what came in.",
+  "_note": "After Week 4 each player could trade one Pokemon for a 3-point-or-less one (the full list from the league, 2026-10-29, one trade each). After Week 8, before the playoffs, a second round of swaps (the full list from the user, 2026-11-04; Zololab had none): the Pokemon coming in are on the player's sheet with the tier the list gave. out = traded away, in = what came in.",
   "Nezergy": [
    {
     "out": "Aron",
     "in": "Glimmet",
     "after": "Week 4"
+   },
+   {
+    "out": "Volcanion",
+    "in": "Marowak-Alola",
+    "after": "Week 8"
    }
   ],
   "PeterPikmon": [
@@ -629,6 +678,11 @@
     "out": "Brambleghast",
     "in": "Fezandipiti",
     "after": "Week 4"
+   },
+   {
+    "out": "Golisopod",
+    "in": "Ribombee",
+    "after": "Week 8"
    }
   ],
   "chicken parm karm": [
@@ -636,6 +690,11 @@
     "out": "Copperajah",
     "in": "Deoxys-Defense",
     "after": "Week 4"
+   },
+   {
+    "out": "Alomomola",
+    "in": "Terapagos-Terastal",
+    "after": "Week 8"
    }
   ],
   "azpmCloudburst": [
@@ -643,6 +702,11 @@
     "out": "Togekiss",
     "in": "Cresselia",
     "after": "Week 4"
+   },
+   {
+    "out": "Zapdos",
+    "in": "Melmetal",
+    "after": "Week 8"
    }
   ],
   "ElkG Big Large": [
@@ -650,6 +714,11 @@
     "out": "Toxicroak",
     "in": "Cloyster",
     "after": "Week 4"
+   },
+   {
+    "out": "Slowking",
+    "in": "Gastrodon",
+    "after": "Week 8"
    }
   ],
   "DEJIME": [
@@ -657,6 +726,11 @@
     "out": "Pikachu",
     "in": "Munkidori",
     "after": "Week 4"
+   },
+   {
+    "out": "Kingambit",
+    "in": "Tornadus-Therian",
+    "after": "Week 8"
    }
   ],
   "weedinmyhonda": [
@@ -664,6 +738,11 @@
     "out": "Spiritomb",
     "in": "Magnezone",
     "after": "Week 4"
+   },
+   {
+    "out": "Blissey",
+    "in": "Hydreigon",
+    "after": "Week 8"
    }
   ],
   "potatoesareyum": [
@@ -671,6 +750,11 @@
     "out": "Pincurchin",
     "in": "Azelf",
     "after": "Week 4"
+   },
+   {
+    "out": "Iron Hands",
+    "in": "Thundurus-Therian",
+    "after": "Week 8"
    }
   ],
   "FingerStripes": [
@@ -678,6 +762,11 @@
     "out": "Suicune",
     "in": "Zygarde-10%",
     "after": "Week 4"
+   },
+   {
+    "out": "Hydreigon",
+    "in": "Iron Leaves",
+    "after": "Week 8"
    }
   ],
   "Zololab": [
@@ -692,6 +781,11 @@
     "out": "Armarouge",
     "in": "Sableye",
     "after": "Week 4"
+   },
+   {
+    "out": "Kommo-o",
+    "in": "Kartana",
+    "after": "Week 8"
    }
   ],
   "doxsego": [
@@ -699,6 +793,11 @@
     "out": "Falinks",
     "in": "Shuckle",
     "after": "Week 4"
+   },
+   {
+    "out": "Xurkitree",
+    "in": "Gyarados",
+    "after": "Week 8"
    }
   ]
  }

@@ -2,6 +2,7 @@
 "use strict";
 
 let mons = null;  // [summary fields + { rows, players, moves, best }], most games first
+onLeagueChange(() => { mons = null; });
 let monPicked = "";
 let monKos = [];  // koPairs over the season: who KO'd whom
 let monWeek = "";  // "" = every week, else only that week's games ("Week 3")
@@ -116,6 +117,35 @@ function koLine(label, others, m) {
   }
   return line;
 }
+/** The sets it was used with over the season (team sheets), one row per player and set. */
+function showMonSets(m) {
+  const weekOf = (r) => (library.find((g) => g.id === r.replay_id) || {}).week || "";
+  const found = League.monSets(m.rows, playerKey, weekOf);
+  const missing = m.rows.filter((r) => !r.set).length;
+  $("mon-sets-wrap").hidden = !found.length;
+  $("mon-sets-note").textContent = !found.length ? "No team sheet for any of its games yet."
+    : missing ? `No team sheet for ${missing} of its ${m.rows.length} games: those sets aren't known.` : "";
+  // the Copy button first: the table is wider than a phone (and than the panel), so it scrolls sideways
+  simpleTable($("mon-sets"), [["", ""], ["Player", ""], ["Weeks", ""], ["Games", "num"], ["Item", ""], ["Ability", ""], ["Moves", ""],
+    ["Nature and EVs", ""]],
+    found.map((s) => [[copySetButton(s.set, m.nameOf(s.player)), ""], [m.nameOf(s.player), ""], [s.weeks.join(", "), ""],
+      [String(s.games), "num"], [s.set.item || "–", ""], [s.set.ability || "–", ""], [s.set.moves.join(" / ") || "–", ""],
+      [League.spreadText(s.set) || "–", ""]]));
+}
+/** Copies the set as Showdown's teambuilder imports it (Import from text). */
+function copySetButton(set, owner) {
+  const b = Object.assign(el("button", "small", "Copy set"), { type: "button",
+    title: `Copies ${owner}'s ${set.species} for Showdown's teambuilder (Import from text)` });
+  b.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(League.setText(set) + "\n");
+      flash(b, "Copied!");
+    } catch {
+      flash(b, "Copy failed");
+    }
+  });
+  return b;
+}
 /** One Pokémon's season moves and its games (player, opponent, result, kills, damage), under the Pokémon table. */
 function showMon(name) {
   const m = mons.find((x) => x.pokemon === name);
@@ -130,6 +160,7 @@ function showMon(name) {
   $("mon-art").replaceChildren(sprite(m.pokemon, ["ani/", "dex/", "gen5/"], "art"));
   $("mon-kos").replaceChildren(koLine("Knocked out", monKos.filter((k) => k.killer.pokemon === name).map((k) => k.victim), m),
     koLine("Knocked out by", monKos.filter((k) => k.victim.pokemon === name).map((k) => k.killer), m));
+  showMonSets(m);
   simpleTable($("mon-games"), [["Week", ""], ["Player", ""], ["Opponent", ""], ["Result", ""], ["Kills", "num", DESCRIPTIONS.kills],
     ["Dealt", "num", DESCRIPTIONS.damage_dealt_hp], ["Taken", "num", DESCRIPTIONS.damage_taken_hp], ["Survived", "", "Still standing at the end."],
     ["Best move", "", "The move that did the most damage that game (ties: more KOs)."], ["", ""]],

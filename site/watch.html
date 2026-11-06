@@ -29,7 +29,8 @@
       // the league's folder (site/<league>/games/), from the league page's Watch button
       const league = /^[a-z0-9-]+$/.test(q.get("league") || "") ? q.get("league") + "/" : "";
       document.querySelector("input[name=replayid]").value = id;
-      const ok = /^[a-z0-9]+-\d+(-[a-z0-9]+pw)?$/.test(id);
+      // as parser.js replayIdFrom: a format with hyphens too (Smogon Tours: smogtours-gen9ou-12345)
+      const ok = /^[a-z0-9]+(-[a-z0-9]+)*-\d+(-[a-z0-9]+pw)?$/.test(id);
       const get = (url) => fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))));
       const replay = !ok ? Promise.reject(new Error("no replay id")) :
         get(league + "games/" + id + ".json")

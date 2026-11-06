@@ -74,15 +74,17 @@ async function run(again) {
     }
 
     const rs = [];  // this run's rows; they replace the shown ones only if no newer run started meanwhile
-    await Promise.all(results.map((r) => prepareIllusion(r).catch((e) => {
+    // each one's parse (no picks), for gameRows to take instead of reading the log again
+    const parses = await Promise.all(results.map((r) => prepareIllusion(r).catch((e) => {
       delete r.zoroarks;  // try again on the next run
       errors.push(`${r.id}: the hidden Zoroark check failed (${e.message || e}), so whatever it did is counted on the Pokémon it copied.`);
+      return null;
     })));
     for (const r of results) if (r && r.illusionNote) errors.push(`${r.id}: ${r.illusionNote}.`);
-    for (const replay of results) {
+    for (const [i, replay] of results.entries()) {
       if (!replay) continue;
       try {
-        rs.push(...RS.gameRows(replay));
+        rs.push(...RS.gameRows(replay, parses[i]));
       } catch (e) {
         errors.push(`${replay.id}: could not read the battle log (${e.message || e})`);
       }
@@ -90,7 +92,18 @@ async function run(again) {
     await loadDraft();  // before the sheets: draft aliases (DEJIME17 -> DEJIME) for the player's other sheets
     await addMockSheets(ids);
     await applySheets(rs, errors);
-    await applyLuck(rs, errors);
+    const data = await applyLuck(rs, errors);
+    // reads and misplays (Plays.analyze), on the rows (not exported): off the page for now (SHOW_HELD, app/core.js), and
+    // shown only with one game, so worked out only then
+    const loaded = results.filter(Boolean);
+    if (SHOW_HELD && loaded.length === 1) {
+      try {
+        const plays = Plays.analyze(loaded[0].log, data);
+        for (const r of rs) r.plays = plays;
+      } catch (e) {
+        errors.push(`${loaded[0].id}: could not find the reads and misplays (${e.message || e})`);
+      }
+    }
     if (stale()) return;
     megaNames(rs);
     rows = rs;
@@ -108,6 +121,7 @@ async function run(again) {
 
     $("results").hidden = !rows.length;
     renderTeams();
+    if (openedSet) setGames(rows);
     updateWatch();
     render();
   } finally {
@@ -147,10 +161,34 @@ function renderTeams() {
   const cards = players.map((p) => teamCard(p, rows.filter((r) => r.player === p)));
   // a stream video's lines the screen reading got wrong (index.json known_errors), so numbers off by them are explained
   const errs = lib && lib.known_errors ? el("p", "hint", "Rebuilt from the stream video, with errors: " + lib.known_errors) : "";
-  box.replaceChildren(el("h2", "section-title", "This game"), head, errs, videoButtons(g.replay_id), el("div", "team-grid"));
+  box.replaceChildren(el("h2", "section-title", "This game"), head, errs, el("div", "team-grid"));
   box.lastChild.append(...cards);
   if ((g.momentum || []).length > 1) box.appendChild(momentumChart(g.momentum, players, rows));
   if (rows[0] && (rows[0].key_moments || []).length) box.appendChild(keyMomentsList(rows[0].key_moments, rows));
+  if (rows[0] && rows[0].plays) box.appendChild(playsList(rows[0].plays));
+}
+/** Reads and misplays (Plays.analyze): each player's count, then every one by turn. A trial (user 2026-10-29: checked
+    by hand before it stays). */
+function playsList(pl) {
+  const count = (s) => `${pl[s].name}: ${pl[s].good} good read${pl[s].good === 1 ? "" : "s"}, ` +
+    `${pl[s].brilliant} brilliant play${pl[s].brilliant === 1 ? "" : "s"}, ${pl[s].bad} misplay${pl[s].bad === 1 ? "" : "s"}`;
+  const list = el("ol", "moments");
+  for (const e of pl.events) {
+    // a brilliant play is told apart by its label; its border is a good read's
+    const li = el("li", e.good ? "lucky" : "unlucky");
+    li.append(el("span", "moment-turn", "Turn " + e.turn), el("span", "moment-who", e.brilliant ? "Brilliant" : e.good ? "Good read" : "Misplay"),
+      el("span", "muted", ` (${pl[e.side].name})`), " " + e.text);
+    list.appendChild(li);
+  }
+  const wrap = el("section", "momentum key-moments");
+  wrap.append(el("h3", "", "Reads and misplays"), el("p", "", count("p1") + " · " + count("p2")),
+    el("p", "hint", "From the log alone: switching in on a hit that does nothing or is resisted, or that's super effective; " +
+      "hitting the Pokémon switching in harder than the one leaving; a move into something it can't affect; a move that fails. " +
+      "Brilliant: a rare play that paid off in the log (Destiny Bond, Counter, Pursuit on a switch, Encore, Taunt, Haze or " +
+      "phazing away boosts, Trick with a Choice item, Perish Song, a KO after Focus Sash or Sturdy). " +
+      "It can't tell a deliberate sacrifice or a double switch from a mistake."),
+    pl.events.length ? list : el("p", "muted", "None found in this game."));
+  return wrap;
 }
 /** Key moments (Luck.keyMoments): the unlikely rolls, by turn, each with whose Pokémon and how likely it was. */
 function keyMomentsList(moments, rows) {
@@ -279,33 +317,6 @@ function momentumChart(points, players, rs) {
   wrap.append(el("h3", "", "Momentum"), legend, svg, read);
   return wrap;
 }
-/** Copy buttons for the league's videos: a YouTube title, and the names + MVPs for the thumbnail. */
-function videoButtons(id) {
-  const g = library.find((x) => x.id === id);
-  // the library's player order when it's a stored game, else the order the replay lists them
-  const players = g ? g.players : [...new Set(rows.map((r) => r.player))];
-  const copyBtn = (label, title, text) => {
-    const b = Object.assign(el("button", "small", label), { type: "button", title });
-    b.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(text());
-        flash(b, "Copied!");
-      } catch {
-        flash(b, "Copy failed");
-      }
-    });
-    return b;
-  };
-  const title = () => [g && LEAGUE.tag, g && g.week, players.join(" Vs ")].filter(Boolean).join(" ");
-  const thumb = () => [players.join(" vs "), ...players.map((p) => {
-    const mvp = rows.find((r) => r.player === p && r.mvp);
-    return `${p} MVP: ${mvp ? mvp.pokemon : "none"}`;
-  })].join("\n");
-  const bar = el("div", "row video-copy");
-  bar.append(copyBtn("Copy YouTube title", "Copies a video title: league, week, players", title),
-    copyBtn("Copy thumbnail info", "Copies the player names and each team's MVP, one per line", thumb));
-  return bar;
-}
 function megaZ(r) {
   if (r.mega) return `Mega Evolved on turn ${r.mega_turn}`;
   if (r.z_move) return `Used ${r.z_move} (Z-move) on turn ${r.z_turn}`;
@@ -320,7 +331,10 @@ function teamCard(player, rs) {
   const h = el("h3", "team-name");
   const name = inLeague(rs[0].replay_id) ? seasonLink(player, "players", player) : el("span", "", player);
   if (name.href) name.title = "Their season on Players";
-  h.append(name, el("span", rs[0].won ? "badge win" : "badge loss", rs[0].won ? "Won" : "Lost"));
+  // a tie or an unfinished game has no winner: neither side Lost
+  const end = rs[0].end_reason, open = !rs[0].won && (end === "tie" || end === "unfinished");
+  h.append(name, open ? el("span", "badge", end === "tie" ? "Tie" : "Unfinished")
+    : el("span", rs[0].won ? "badge win" : "badge loss", rs[0].won ? "Won" : "Lost"));
   card.appendChild(h);
 
   // the team: brought ones are buttons that show their stats below (Team MVP first)
@@ -415,7 +429,33 @@ function monDetail(r) {
     box.appendChild(pic);
     pic = box;
   }
-  return [pic, who, mark, grid, adv(moveList(r, best)), luck, more];
+  return [pic, who, mark, grid, adv(moveList(r, best)), adv(turnStrip(r)), luck, more];
+}
+/** Its game turn by turn: a square per turn (League.turnCells), the turn and its move on hover / tap; a number under
+    turn 1 and every 5th. Brought ones only (a benched one's strip would be all bench). */
+function turnStrip(r) {
+  const box = el("div", "turn-strip");
+  if (!r.brought || !r.turns) return box;
+  box.append(el("h4", "", "Turn by turn"));
+  const cells = League.turnCells(r.timeline, r.turns);
+  // each turn a column (square, then its number) so a long game wraps onto more lines and the numbers stay put
+  const row = el("div", "ts-cells");
+  cells.forEach((c, i) => {
+    const col = el("span", "ts-col");
+    col.title = c.text;
+    col.append(el("i", "ts-" + c.kind, c.kind === "faint" ? "✕" : ""), el("span", "", i === 0 || (i + 1) % 5 === 0 ? String(i + 1) : ""));
+    row.append(col);
+  });
+  const legend = el("p", "ts-legend");
+  for (const [kind, label] of [["move", "moved"], ["on", "on the field, didn't act"], ["cant", "couldn't move"],
+    ["faint", "fainted"], ["off", "on the bench"]]) {
+    const item = el("span");
+    item.append(el("i", "ts-" + kind, kind === "faint" ? "✕" : ""), label);
+    legend.append(item);
+  }
+  box.append(row, legend);
+
+  return box;
 }
 // simple view (name, best move, kills, damage, survived) or detailed (+ turns, healing, damage sources, luck);
 // cards side by side (wide screen) switch together so their rows line up; stacked (phone) only the tapped card
@@ -615,7 +655,8 @@ async function copyShareLink() {
     flash($("share"), "Copy failed");
   }
 }
-/** Luck score columns: need Showdown's move data (and the Pokedex for types); blank if they don't load. */
+/** Luck score columns: need Showdown's move data (and the Pokedex for types); blank if they don't load. Returns
+    that data ({ moves, dex }, or null) for the reads and misplays. */
 async function applyLuck(rows, errors) {
   let data = null;
   if (rows.length) {
@@ -628,4 +669,5 @@ async function applyLuck(rows, errors) {
     }
   }
   LK.addLuck(rows, data);
+  return data;
 }

@@ -1,0 +1,200 @@
+{
+ "source": "https://challonge.com/peepeepeepeepisspiss",
+ "contest": "ppppp-2026-playoffs",
+ "updated": "2026-11-02",
+ "rounds": [
+  {
+   "round": 1,
+   "name": "Round 1",
+   "points": 1
+  },
+  {
+   "round": 2,
+   "name": "Quarterfinals",
+   "points": 2
+  },
+  {
+   "round": 3,
+   "name": "Semifinals",
+   "points": 4
+  },
+  {
+   "round": 4,
+   "name": "Final",
+   "points": 8
+  }
+ ],
+ "players": [
+  {
+   "seed": 1,
+   "name": "Karm"
+  },
+  {
+   "seed": 2,
+   "name": "Jake"
+  },
+  {
+   "seed": 3,
+   "name": "Peter"
+  },
+  {
+   "seed": 4,
+   "name": "Joey"
+  },
+  {
+   "seed": 5,
+   "name": "Sean"
+  },
+  {
+   "seed": 6,
+   "name": "Zolo"
+  },
+  {
+   "seed": 7,
+   "name": "Fingy"
+  },
+  {
+   "seed": 8,
+   "name": "Dox"
+  },
+  {
+   "seed": 9,
+   "name": "Robert"
+  },
+  {
+   "seed": 10,
+   "name": "Eric"
+  },
+  {
+   "seed": 11,
+   "name": "Matt"
+  },
+  {
+   "seed": 12,
+   "name": "Booey"
+  }
+ ],
+ "matches": [
+  {
+   "id": "A",
+   "round": 1,
+   "p1": {
+    "seed": 8
+   },
+   "p2": {
+    "seed": 9
+   },
+   "winner": null
+  },
+  {
+   "id": "B",
+   "round": 1,
+   "p1": {
+    "seed": 5
+   },
+   "p2": {
+    "seed": 12
+   },
+   "winner": null
+  },
+  {
+   "id": "C",
+   "round": 1,
+   "p1": {
+    "seed": 7
+   },
+   "p2": {
+    "seed": 10
+   },
+   "winner": null
+  },
+  {
+   "id": "D",
+   "round": 1,
+   "p1": {
+    "seed": 6
+   },
+   "p2": {
+    "seed": 11
+   },
+   "winner": null
+  },
+  {
+   "id": "E",
+   "round": 2,
+   "p1": {
+    "seed": 1
+   },
+   "p2": {
+    "from": "A"
+   },
+   "winner": null
+  },
+  {
+   "id": "F",
+   "round": 2,
+   "p1": {
+    "seed": 4
+   },
+   "p2": {
+    "from": "B"
+   },
+   "winner": null
+  },
+  {
+   "id": "G",
+   "round": 2,
+   "p1": {
+    "seed": 2
+   },
+   "p2": {
+    "from": "C"
+   },
+   "winner": null
+  },
+  {
+   "id": "H",
+   "round": 2,
+   "p1": {
+    "seed": 3
+   },
+   "p2": {
+    "from": "D"
+   },
+   "winner": null
+  },
+  {
+   "id": "I",
+   "round": 3,
+   "p1": {
+    "from": "E"
+   },
+   "p2": {
+    "from": "F"
+   },
+   "winner": null
+  },
+  {
+   "id": "J",
+   "round": 3,
+   "p1": {
+    "from": "G"
+   },
+   "p2": {
+    "from": "H"
+   },
+   "winner": null
+  },
+  {
+   "id": "K",
+   "round": 4,
+   "p1": {
+    "from": "I"
+   },
+   "p2": {
+    "from": "J"
+   },
+   "winner": null
+  }
+ ]
+}

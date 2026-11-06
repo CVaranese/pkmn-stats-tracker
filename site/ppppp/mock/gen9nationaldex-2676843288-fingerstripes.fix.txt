@@ -1,0 +1,6 @@
+Nightwing (Suicune) @ Leftovers
+Ability: Pressure
+Shiny: Yes
+- Calm Mind
+- Substitute
+- Ice Beam

@@ -143,6 +143,65 @@
       JSON.stringify([guessed.map((s) => s.unclear), labelled.map((s) => s.wins)]));
   }
   {
+    // set slots: saved games fill the numbers the missing games (no replay) leave free; their winners count
+    const g = (id, winner) => ({ id, winner });
+    const slots = (s) => window.League.setSlots(s, 3);
+    const a = slots({ players: ["Fayz", "Kirbyhat"], games: [g("x", "kirbyhat")], missing: [{ game: 1, winner: "Fayz" }, { game: 3, winner: "FAYZ" }] });
+    check("setSlots: missing games at their number, saved ones in the gaps, all winners in the score",
+      a.slots.map((sl) => (sl.game ? sl.game.id : sl.kind)).join() === "missing,x,missing" && same(a.score.wins, [2, 1]) &&
+      a.score.winner === "Fayz" && a.unknown === 0 && a.played === 3 && !a.unknownSet, JSON.stringify(a));
+    const b = slots({ players: ["Fayz", "Leaf"], games: [g("x", "Leaf"), g("y", "Leaf")] });
+    check("setSlots: a 2–0 has a third slot, not played", b.slots.map((sl) => sl.kind || "game").join() === "game,game,unplayed" &&
+      b.score.winner === "Leaf" && b.played === 2, JSON.stringify(b.slots));
+    const c = slots({ players: ["Dox", "Leaf"], games: [], missing: [{ game: null, winner: null }] });
+    check("setSlots: a set with no replay and no game number: every slot missing, winners not known",
+      c.unknownSet && c.slots.length === 3 && c.slots.every((sl) => sl.kind === "missing") && c.unknown === 3 && c.score.winner === "",
+      JSON.stringify(c));
+    const d = slots({ players: ["Dox", "Leaf"], games: [g("x", "Leaf")], missing: [{ game: null, winner: "leaf" }] });
+    check("setSlots: a missing game with no number still counts its known winner",
+      d.slots[0].game && d.slots[1].kind === "missing" && d.slots[1].winner === "leaf" && same(d.score.wins, [0, 2]) &&
+      d.score.winner === "Leaf", JSON.stringify(d));
+  }
+  {
+    // standings (playoff seeding builds on them): a league that plays sets, then one that counts games
+    const rows = (kills, deaths) => [{ kills, deaths }];
+    const pl = (name, setWins, setLosses, wins, losses, kd = [0, 0]) =>
+      ({ key: name.toLowerCase(), name, setWins, setLosses, wins, losses, rows: rows(...kd) });
+    const set = (p1, p2, winner) => ({ players: [p1, p2], winner });
+    const order = (list, sets, bestOf = 3) => window.League.standings(list, sets, undefined, bestOf).map((p) => p.name).join();
+    check("standings: sets won, then fewer sets lost, then game difference, then games won",
+      order([pl("Dee", 2, 1, 5, 3), pl("Ann", 2, 0, 4, 1), pl("Bo", 2, 1, 4, 2), pl("Cy", 2, 1, 5, 4), pl("Eve", 3, 1, 6, 4)], []) ===
+      "Eve,Ann,Dee,Bo,Cy");
+    // Ann and Bo level on everything above: Bo beat Ann. Cy and Dee level, no set between them: KOs minus Pokémon lost.
+    check("standings: head to head among the tied, then KOs minus Pokémon lost, then name",
+      order([pl("Ann", 2, 1, 5, 3, [9, 9]), pl("Bo", 2, 1, 5, 3), pl("Cy", 1, 2, 3, 5, [5, 6]), pl("Dee", 1, 2, 3, 5, [7, 6]),
+        pl("Fay", 0, 3, 1, 6), pl("Eli", 0, 3, 1, 6)],
+        [set("Ann", "bo", "BO"), set("Cy", "Ann", "Ann"), set("Fay", "Eli", "")]) === "Bo,Ann,Dee,Cy,Eli,Fay");
+    // three level players who beat each other once round: head to head can't split them, so KOs minus lost does
+    check("standings: a head-to-head circle falls through to KOs minus Pokémon lost",
+      order([pl("Ann", 2, 1, 4, 3, [8, 8]), pl("Bo", 2, 1, 4, 3, [8, 6]), pl("Cy", 2, 1, 4, 3, [8, 7]), pl("Dee", 2, 1, 5, 2)],
+        [set("Ann", "Bo", "Ann"), set("Bo", "Cy", "Bo"), set("Cy", "Ann", "Cy"), set("Dee", "Ann", "Ann")]) === "Dee,Bo,Cy,Ann");
+    // head to head counts only sets between the tied players: Ann's win over Dee (not tied) doesn't lift her over Bo
+    check("standings: head to head counts only sets among the tied players",
+      order([pl("Ann", 2, 1, 4, 3, [0, 1]), pl("Bo", 2, 1, 4, 3), pl("Dee", 0, 3, 1, 6)], [set("Ann", "Dee", "Ann")]) === "Bo,Ann,Dee");
+    // set points (Super Champions: 2–0 = 3, 2–1 = 2, 1–2 = 1, 0–2 = 0)
+    const SCALE = [3, 2, 1, 0], sp = (wins, winner) => window.League.setPoints({ players: ["Ann", "Bo"], wins, winner }, SCALE);
+    check("set points: 2–0, 2–1, 1–2, 0–2; none while undecided",
+      same([sp([2, 0], "Ann"), sp([2, 1], "Ann"), sp([1, 2], "Bo"), sp([0, 2], "Bo"), sp([1, 1], ""), sp([2, 0], "Ann").length],
+        [[3, 0], [2, 1], [1, 2], [0, 3], [0, 0], 2]) && same(window.League.setPoints({ players: ["A", "B"], wins: [2, 0], winner: "A" }), [0, 0]),
+      JSON.stringify([sp([2, 0], "Ann"), sp([2, 1], "Ann"), sp([1, 2], "Bo"), sp([0, 2], "Bo")]));
+    // Ann won the most sets but has fewer points (6) than Bo and Cy (7); Bo and Cy level on points and sets: game difference
+    const withPts = (p, points) => ({ ...p, points });
+    const byPts = (list, sets) => window.League.standings(list, sets, undefined, 3, true).map((p) => p.name).join();
+    check("standings by points: points first, then sets won and the rest",
+      byPts([withPts(pl("Ann", 3, 0, 6, 3), 6), withPts(pl("Bo", 2, 1, 5, 2), 7), withPts(pl("Cy", 2, 1, 4, 3), 7)], []) === "Bo,Cy,Ann" &&
+      order([withPts(pl("Ann", 3, 0, 6, 3), 6), withPts(pl("Bo", 2, 1, 5, 2), 7)], []) === "Ann,Bo",
+      byPts([withPts(pl("Ann", 3, 0, 6, 3), 6), withPts(pl("Bo", 2, 1, 5, 2), 7), withPts(pl("Cy", 2, 1, 4, 3), 7)], []));
+    check("standings (no sets): games won, then fewer lost, then KOs, then name",
+      order([pl("Ann", 0, 0, 3, 2, [10, 0]), pl("Bo", 0, 0, 4, 3), pl("Cy", 0, 0, 3, 1), pl("Dee", 0, 0, 3, 2, [12, 0]), pl("Al", 0, 0, 3, 2, [10, 0])],
+        [], 0) === "Bo,Cy,Dee,Al,Ann");
+  }
+  {
     const b = RS.parseBattle(`|player|p1|Alice|
 |player|p2|Bob|
 |switch|p1a: Burner|Sableye, L50|100/100
@@ -406,6 +465,19 @@
     const got = RS.parseBattle(HEAD + body.replace(/^\n/, "")).hits.map((h) => h.slice(0, 3)); // [dealer, target, %]
     check(`damage: ${name}`, same(got, expected), `expected ${JSON.stringify(expected)}\ngot      ${JSON.stringify(got)}`);
   }
+  // hits / heals carry the turn and the target's HP before / after (for a turn by turn view)
+  {
+    const b = RS.parseBattle(HEAD + `|move|p1a: Burner|Knock Off|p2a: Victim
+|-damage|p2a: Victim|70/100
+|turn|2
+|move|p1a: Burner|Knock Off|p2a: Victim
+|-damage|p2a: Victim|25/100
+|-heal|p2a: Victim|31/100|[from] item: Leftovers
+|turn|3`);
+    check("hits / heals: turn, HP before and after", same(b.hits, [["p1: Burner", "p2: Victim", 30, false, "Knock Off", 1, 100, 70],
+      ["p1: Burner", "p2: Victim", 45, false, "Knock Off", 2, 70, 25]]) && same(b.heals, [["p2: Victim", "p2: Victim", 6, 2, 25, 31]]),
+      JSON.stringify([b.hits, b.heals]));
+  }
 
   // ---- Illusion: a disguised stint moves to Zoroark, the real Pokemon keeps its own stints ----
   {
@@ -501,6 +573,188 @@
     check("league: spriteId", ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"]
       .map(LG.spriteId).join(" ") === "hooh urshifu-rapidstrike zamazenta tapukoko charizard-megax ironvaliant kommoo",
       ["Ho-Oh", "Urshifu-Rapid-Strike", "Zamazenta-*", "Tapu Koko", "Charizard-Mega-X", "Iron Valiant", "Kommo-o"].map(LG.spriteId).join(" "));
+  }
+  // ---- weekly bets (Bet.weeklyBets): seeded draw, lines from earlier weeks, settled from rows ----
+  {
+    const B = window.Bet;
+    const g = (crits, extra = {}) => [{ player: "A", opponent: "B", crits, won: 1, end_reason: "normal", brought: 1, mon_key: "p1: X",
+      pokemon: "X", kills: 0, deaths: 0, turns: 20, momentum: [], ...extra }];
+    // Week 1: 2 games, 3 and 5 crits; Week 2: 1 game, 9 crits and a 4-KO Pokémon; Week 3: no games yet
+    const weeks = { "Week 1": [g(3), g(5)], "Week 2": [g(9, { kills: 4, pokemon: "Garchomp" })], "Week 3": [] };
+    const one = (id, week) => {
+      const keep = B.PROPS;
+      const p = keep.find((x) => x.id === id);
+      // force the draw to this prop: a one-prop pool through the same code
+      const saved = keep.splice(0, keep.length, p);
+      try { return B.weeklyBets("t", week, weeks, 1)[0]; } finally { keep.splice(0, keep.length, ...saved); }
+    };
+    const w2 = one("crits", "Week 2"), w1 = one("crits", "Week 1"), w3 = one("crits", "Week 3");
+    check("bets: over / under line from earlier weeks per game (Week 2: 4 a game x 1 = 4.5), settled Over at 9",
+      w2.line === 4.5 && w2.result.outcome === "Over" && w2.result.value === 9, JSON.stringify(w2));
+    check("bets: week 1 has no earlier week, so the line comes from the other weeks (9 a game x 2 = 18.5), Under at 8",
+      w1.line === 18.5 && w1.result.outcome === "Under" && w1.result.value === 8, JSON.stringify(w1));
+    check("bets: a week with no games has a line but no result yet", w3.result === null && typeof w3.line === "number", JSON.stringify(w3));
+    const y2 = one("fourko", "Week 2"), y1 = one("fourko", "Week 1");
+    check("bets: yes / no settles Yes with what did it, else No",
+      y2.result.outcome === "Yes" && y2.result.detail === "Garchomp (A), 4 KOs" && y1.result.outcome === "No", JSON.stringify([y2, y1]));
+    const d1 = B.weeklyBets("ppppp", "Week 8", weeks), d2 = B.weeklyBets("ppppp", "Week 8", weeks), d3 = B.weeklyBets("ppppp", "Week 7", weeks);
+    check("bets: the same draw every time for a league and week, 6 different bets, another week another draw",
+      same(d1.map((b) => b.id), d2.map((b) => b.id)) && new Set(d1.map((b) => b.id)).size === 6 &&
+      !same(d1.map((b) => b.id), d3.map((b) => b.id)), JSON.stringify([d1.map((b) => b.id), d3.map((b) => b.id)]));
+    // Week 2 of 3 planned games: the line is for 3 (4 a game: 12.5); 9 crits so far isn't Under yet; a Yes is final
+    const part = (id) => {
+      const keep = B.PROPS, p = keep.find((x) => x.id === id), saved = keep.splice(0, keep.length, p);
+      try { return B.weeklyBets("t", "Week 2", weeks, 1, { "Week 2": 3 })[0]; } finally { keep.splice(0, keep.length, ...saved); }
+    };
+    const pc = part("crits"), pk = part("fourko"), pn = part("kobm1");
+    check("bets: before the week's games are all in, the line is for the whole week and only a sure result settles",
+      pc.line === 12.5 && pc.result.outcome === null && !pc.result.final && pc.result.value === 9 &&
+      pk.result.outcome === "Yes" && pk.result.final && pn.result.outcome === null, JSON.stringify([pc, pk, pn]));
+    // a win with one Pokémon left: standing at the end, a revived one counts (fainted once, survived)
+    const lm = B.PROPS.find((x) => x.id === "lastmon");
+    const side = (o) => ({ player: "A", opponent: "B", won: 1, end_reason: "normal", brought: 1, ...o });
+    check("bets: one Pokémon left counts those standing, a Revival Blessing one included",
+      lm.find([[side({ deaths: 1, survived: 1 }), side({ deaths: 0, survived: 1 }), side({ deaths: 1, survived: 0 })]]) === null &&
+      lm.find([[side({ deaths: 1, survived: 0 }), side({ deaths: 0, survived: 1 })]]) === "A over B");
+  }
+  // ---- weekly awards (League.awards) ----
+  {
+    const LG = window.League;
+    const mom = (pts) => pts.map(([turn, a, b]) => ({ turn, p1: { hp: a }, p2: { hp: b } }));
+    // game g1: Ann (p1) beat Bo in 20 turns from 40% behind on turn 6; game g2: Cy (p1) beat Dee in 8 turns, never behind;
+    // game g3: Eve won by forfeit in 3 turns (not a quickest win)
+    const m1 = mom([[0, 100, 100], [6, 30, 70], [20, 20, 0]]), m2 = mom([[0, 100, 100], [8, 60, 0]]);
+    const row = (o) => ({ brought: 1, kills: 0, damage_dealt_pct: 0, damage_taken_pct: 0, survived: 0, mvp_score: 0, won: 0,
+      end_reason: "normal", player_luck: "", ...o });
+    const rows = [
+      row({ replay_id: "g1", player: "Ann", side: "p1", pokemon: "Garchomp", kills: 3, damage_dealt_pct: 250, mvp_score: 5.5, won: 1, turns: 20, momentum: m1, player_luck: 1, player_luck_var: 1 }),
+      row({ replay_id: "g1", player: "Ann", side: "p1", pokemon: "Blissey", damage_taken_pct: 180, survived: 1, mvp_score: 1, won: 1, turns: 20, momentum: m1, player_luck: 1, player_luck_var: 1 }),
+      row({ replay_id: "g1", player: "Bo", side: "p2", pokemon: "Kingambit", kills: 3, damage_dealt_pct: 120, mvp_score: 4.7, turns: 20, momentum: m1, player_luck: -2, player_luck_var: 1 }),
+      row({ replay_id: "g2", player: "Cy", side: "p1", pokemon: "Dragapult", kills: 2, damage_dealt_pct: 300, mvp_score: 5.5, won: 1, turns: 8, momentum: m2, player_luck: 0.5, player_luck_var: 4 }),
+      row({ replay_id: "g2", player: "Dee", side: "p2", pokemon: "Toxapex", damage_taken_pct: 400, mvp_score: 0.5, turns: 8, momentum: m2 }),
+      row({ replay_id: "g3", player: "Eve", side: "p1", pokemon: "Pelipper", won: 1, turns: 3, end_reason: "forfeit", momentum: [] }),
+      row({ replay_id: "g3", player: "Fay", side: "p2", pokemon: "Zapdos", brought: 0, mvp_score: 9, turns: 3, momentum: [] }),
+    ];
+    const got = Object.fromEntries(LG.awards(rows).map((a) => [a.id, a.winners.map((w) => [w.player, w.pokemon || "", w.value].join(" / "))]));
+    const want = {
+      top: ["Ann / Garchomp / Performance 5.5", "Cy / Dragapult / Performance 5.5"],  // a tie lists both; Fay's Zapdos wasn't brought
+      kos: ["Ann / Garchomp / 3 KOs", "Bo / Kingambit / 3 KOs"],
+      damage: ["Cy / Dragapult / 300%"],
+      wall: ["Ann / Blissey / 180% taken"],  // Toxapex took more but fainted
+      comeback: ["Ann /  / won from 40% behind (turn 6)"],
+      quick: ["Cy /  / 8 turns"],  // Eve's 3-turn forfeit doesn't count
+    };
+    check("awards: each award's winners, ties, who qualifies", same(got, want), JSON.stringify(got));
+    check("awards: none left out when nothing qualifies, in a fixed order",
+      LG.awards([]).length === 0 && LG.awards(rows).map((a) => a.id).join() === "top,kos,damage,wall,comeback,quick");
+    // the more awards: every one returned (empty ones too, for the page to name), over the real fixtures every value readable
+    const real = [];
+    for (const id of Object.keys(REAL)) real.push(...RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json()));
+    const more = LG.moreAwards(real);
+    const odd = more.flatMap((a) => a.winners.filter((w) => /NaN|undefined|null/.test(w.value)).map((w) => `${a.title}: ${w.value}`));
+    check("more awards: all 23, each once, values readable, Marathon and Iron man found; none won with no games",
+      more.length === 23 && new Set(more.map((a) => a.id)).size === 23 && !odd.length &&
+      more.find((a) => a.id === "marathon").winners.length > 0 && more.find((a) => a.id === "ironman").winners.length > 0 &&
+      LG.moreAwards([]).every((a) => !a.winners.length), odd.join("\n") || more.map((a) => a.id).join());
+  }
+  // ---- turn strip (League.turnCells over a row's timeline) ----
+  {
+    const LG = window.League;
+    // lead, moves turns 1-2, switched out turn 3 (before acting), back in turn 5 (no action), paralyzed turn 6,
+    // U-turn out turn 7, back in after a KO at the end of turn 8, Close Combat then fainted turn 9
+    const tl = [[0, "in"], [1, "move", "Thunderbolt"], [2, "move", "Dazzling Gleam"], [3, "out"], [5, "in"], [6, "cant", "par"],
+      [7, "move", "U-turn"], [7, "out"], [8, "in"], [9, "move", "Close Combat"], [9, "faint"]];
+    const cells = LG.turnCells(tl, 10);
+    check("turn strip: one cell per turn, each kind", cells.map((c) => c.kind).join() ===
+      "move,move,off,off,on,cant,move,on,faint,off", cells.map((c) => c.kind).join());
+    check("turn strip: the text for each", cells[0].text === "Turn 1: Thunderbolt" && cells[2].text === "Turn 3: switched out" &&
+      cells[3].text === "Turn 4: on the bench" && cells[4].text === "Turn 5: switched in" && cells[5].text === "Turn 6: fully paralyzed" &&
+      cells[8].text === "Turn 9: Close Combat, then fainted", JSON.stringify(cells.map((c) => c.text)));
+    check("turn strip: no timeline, all bench", LG.turnCells([], 3).every((c) => c.kind === "off") && LG.turnCells(undefined, 0).length === 0);
+    // real games: one ✕ per death, as many moves as the move list counts, a cell for every turn
+    const bad = [];
+    for (const id of Object.keys(REAL)) {
+      const rs = RS.gameRows(await (await fetch(`fixtures/${id}.json`)).json());
+      for (const r of rs.filter((x) => x.brought && x.mon_key)) {
+        const cs = LG.turnCells(r.timeline, r.turns);
+        const moved = r.timeline.filter((e) => e[1] === "move").length;
+        const uses = r.move_stats.reduce((t, m) => t + (m.uses || 0), 0);
+        if (cs.length !== r.turns || cs.filter((c) => c.kind === "faint").length !== r.deaths || moved !== uses) {
+          bad.push(`${id} ${r.pokemon}: ${cs.filter((c) => c.kind === "faint").length} ✕ vs ${r.deaths} deaths, ${moved} moves vs ${uses}`);
+        }
+      }
+    }
+    check("turn strip, real fixtures: ✕ = deaths, moves = the move list's uses", !bad.length, bad.join("\n"));
+  }
+  // ---- Copy set (League.setText): Showdown's import format, read back the same by teams.js ----
+  {
+    const LG = window.League, TS = window.TeamSheets;
+    const paste = "Zarude @ Choice Scarf\nAbility: Leaf Guard\nLevel: 50\nEVs: 4 HP / 252 Atk / 252 Spe\nJolly Nature\n" +
+      "IVs: 0 SpA\n- Power Whip\n- Knock Off\n- U-turn\n- Close Combat";
+    const set = TS.parseTeam("Monke (Zarude) (M) @ Choice Scarf\n" + paste.split("\n").slice(1).join("\n"))[0];
+    const text = LG.setText(set);
+    check("Copy set: the export, gender kept, nickname left out", text === paste.replace("Zarude @", "Zarude (M) @"), text);
+    const back = TS.parseTeam(text)[0];
+    check("Copy set: read back the same", same({ ...back, nickname: "Monke" }, set), JSON.stringify(back));
+    const pieced = { species: "Scrafty", item: "", ability: "Intimidate", level: 100, nature: "", evs: {}, evsListed: false,
+      ivs: {}, moves: ["Fake Out"], gender: "" };
+    check("Copy set: a hand-made set has no EVs / nature / level lines", LG.setText(pieced) === "Scrafty\nAbility: Intimidate\n- Fake Out",
+      LG.setText(pieced));
+  }
+  // ---- share links (League.navQuery / readNav) and the stage picker: links posted on Discord keep opening the same view ----
+  {
+    const LG = window.League;
+    const q = (st, search = "") => LG.navQuery(search, st);
+    const links = [
+      [{ mode: "one", r: "", pick: "", set: "" }, ""],
+      [{ mode: "games", r: "", pick: "", set: "" }, "?tab=games"],
+      [{ mode: "one", r: "gen9nationaldex-123", pick: "", set: "" }, "?r=gen9nationaldex-123"],
+      [{ mode: "one", r: "x-1", pick: "", set: "gen9nationaldex-1,gen9nationaldex-2" }, "?set=gen9nationaldex-1,gen9nationaldex-2"],
+      [{ mode: "players", r: "", pick: "nezergy", set: "" }, "?tab=players&player=nezergy"],
+      [{ mode: "mons", r: "", pick: "Iron Valiant", set: "" }, "?tab=mons&mon=Iron+Valiant"],
+      [{ mode: "draft", r: "", pick: "zolo", set: "" }, "?tab=draft&player=zolo"],
+      [{ mode: "games", r: "", pick: "nezergy", set: "" }, "?tab=games"],  // no pick on a tab without one
+    ];
+    const bad = links.filter(([st, want]) => q(st) !== want).map(([st, want]) => `${JSON.stringify(st)}: ${q(st)} (want ${want})`);
+    check("share links: each view's address", !bad.length, bad.join("\n"));
+    check("share links: other params stay, the old view's go", q({ mode: "mons", r: "", pick: "Kingambit" },
+      "?online&results&tab=players&player=zolo&r=a-1&set=a-1,a-2") === "?online=&results=&tab=mons&mon=Kingambit",
+      q({ mode: "mons", r: "", pick: "Kingambit" }, "?online&results&tab=players&player=zolo&r=a-1&set=a-1,a-2"));
+    const back = (st) => LG.readNav(q(st));
+    check("share links: read back the same", same(back(links[4][0]), { r: "", set: "", tab: "players", player: "nezergy", mon: "" }) &&
+      back(links[5][0]).mon === "Iron Valiant" && back(links[3][0]).set === "gen9nationaldex-1,gen9nationaldex-2" &&
+      back(links[2][0]).r === "gen9nationaldex-123" && back(links[6][0]).player === "zolo",
+      JSON.stringify(links.map(([st]) => back(st))));
+    check("share links: ?tab=bet (old name) opens Fantasy; nothing asked: all blank",
+      LG.readNav("?tab=bet").tab === "fantasy" && same(LG.readNav(""), { r: "", set: "", tab: "", player: "", mon: "" }));
+    check("stage picker: Week <n> is the regular season, any other label playoffs",
+      !LG.isPlayoffWeek("Week 1") && !LG.isPlayoffWeek("Week 10") && LG.isPlayoffWeek("Quarterfinals") &&
+      LG.isPlayoffWeek("Finals") && LG.isPlayoffWeek("Playoffs Round 1"));
+  }
+  // ---- Pick'em: bracket maths and scoring (6 players: A 4v5, B 3v6; seeds 1 and 2 wait in C and D; E the final) ----
+  {
+    const LG = window.League;
+    const mini = (w = {}) => ({
+      rounds: [{ round: 1, points: 1 }, { round: 2, points: 2 }, { round: 3, points: 4 }],
+      matches: [{ id: "A", round: 1, p1: { seed: 4 }, p2: { seed: 5 } }, { id: "B", round: 1, p1: { seed: 3 }, p2: { seed: 6 } },
+        { id: "C", round: 2, p1: { seed: 1 }, p2: { from: "A" } }, { id: "D", round: 2, p1: { seed: 2 }, p2: { from: "B" } },
+        { id: "E", round: 3, p1: { from: "C" }, p2: { from: "D" } }].map((m) => ({ ...m, winner: w[m.id] ?? null })),
+    });
+    check("Pick'em: changing an early pick drops the later picks that followed it",
+      same(LG.pickemClean(mini(), { A: 4, B: 3, C: 5, D: 2, E: 5 }), { A: 4, B: 3, D: 2 }),
+      JSON.stringify(LG.pickemClean(mini(), { A: 4, B: 3, C: 5, D: 2, E: 5 })));
+    const slots = LG.pickemSlots(mini(), { A: 4, B: 3 });
+    check("Pick'em: a match's players follow the picks before it", same(slots, { A: [4, 5], B: [3, 6], C: [1, 4], D: [2, 3], E: [null, null] }),
+      JSON.stringify(slots));
+    const res = mini({ A: 5, B: 6, C: 5 });
+    const s1 = LG.pickemScore(res, { A: 5, B: 3, C: 5, D: 2, E: 5 });
+    check("Pick'em: points by round, and what's still possible", same(s1, { points: 3, right: 2, played: 3, possible: 9, picked: 5 }), JSON.stringify(s1));
+    const s2 = LG.pickemScore(res, { A: 4, B: 6, C: 1, D: 6, E: 1 });
+    check("Pick'em: a knocked-out player's later picks can't score", same(s2, { points: 1, right: 1, played: 3, possible: 3, picked: 5 }), JSON.stringify(s2));
+    const ranks = LG.pickemRanks([{ name: "b", points: 5 }, { name: "a", points: 5 }, { name: "c", points: 9 }, { name: "d", points: 0 }]);
+    check("Pick'em: equal points share a place", ranks.map((e) => e.name + e.place).join(" ") === "c1 a2 b2 d4", JSON.stringify(ranks));
+    const left = [90061000, 3600000, 61000, 999, 0, -5000].map(LG.countdown);
+    check("Pick'em: countdown from the largest unit, a part of a second counts", same(left, ["1d 1h 1m 1s", "1h 0m 0s", "1m 1s", "1s", "0s", "0s"]), JSON.stringify(left));
   }
   // ---- team sheets ----
   const TS = window.TeamSheets;
@@ -656,7 +910,73 @@ Ability: Screen Cleaner
       JSON.stringify(matches));
     const item = (p, sp) => { const r = rows.find((x) => x.player === p && x.pokemon === sp); return r.set ? r.set.item : null; };
     check("attach: each row gets its own set", item("jinrachi", "Zoroark-Hisui") === "Choice Specs" &&
-      item("jinrachi", "Gardevoir") === "Choice Scarf" && item("flomarV2", "Primarina") === null);
+      item("jinrachi", "Gardevoir") === "Choice Scarf" && item("flomarV2", "Primarina") === null &&
+      rows.find((x) => x.pokemon === "Gardevoir").set_from === "sheet");
+
+    // library games, per Pokémon: the side is known, so a paste with one wrong Pokémon still gives the other five
+    // their sets; a hand-made set (read first) fills the gap and wins over the paste
+    const pairs = TS.pairEach(["Garchomp", "Mew", "Latios"], TS.parseTeam("Latios\n\nGarchomp"));
+    check("pair each: a species with no set gets null, the rest still pair", same(pairs.map((s) => s && s.species), ["Garchomp", null, "Latios"]));
+    const wrong = TS.parseTeam("Kingambit @ Black Glasses\n\nZoroark-Hisui @ Choice Specs\n\nGarchomp\n\nVolcarona\n\nMamoswine\n\nVaporeon @ Leftovers");
+    const fix = TS.parseTeam("Gardevoir @ Choice Scarf\nAbility: Trace\n- Moonblast");
+    const id = "gen9nationaldex-2705111047";
+    const src = (from, sets, player = "jinrachi") => ({ gameId: id, player, sets, from });
+    for (const r of rows) { delete r.set; delete r.set_from; }
+    const used = TS.attachSets(rows, [src("sheet", wrong)]);
+    const got = rows.filter((r) => r.player === "jinrachi" && r.set).map((r) => r.pokemon);
+    check("attach sets: 5 of 6 from a paste with one wrong Pokémon, Gardevoir none", got.length === 5 && !got.includes("Gardevoir") &&
+      same(used, [[{ replay_id: id, player: "jinrachi", paired: 5, of: 6 }]]) && rows.every((r) => r.player === "jinrachi" || !r.set),
+      JSON.stringify(used));
+    for (const r of rows) { delete r.set; delete r.set_from; }
+    const other = TS.parseTeam("Gardevoir @ Life Orb");  // flomarV2's sheet: never applies to jinrachi's Gardevoir
+    TS.attachSets(rows, [src("sheet", other, "flomarV2"), src("pieced", fix), src("sheet", wrong, "Jin Rachi")]);
+    const gard = rows.find((r) => r.pokemon === "Gardevoir");
+    check("attach sets: the hand-made set fills the gap, marked pieced; the player matches by Showdown ID",
+      gard.set.item === "Choice Scarf" && gard.set_from === "pieced" &&
+      rows.find((r) => r.pokemon === "Zoroark-Hisui").set_from === "sheet", JSON.stringify([gard.set, gard.set_from]));
+    const before = TS.attachSets(rows, [src("sheet", TS.parseTeam("Kingambit @ Leftovers"))]);
+    check("attach sets: rows that have a set keep it", rows.find((r) => r.pokemon === "Kingambit").set.item === "Black Glasses" &&
+      same(before, [[]]));
+  }
+
+  {
+    // every saved Pinecord sheet, as the site reads them (index.json "fixes" before "sheets"): each side with a
+    // sheet gets a set for all its Pokémon. Week 1: Zololab's paste has Vaporeon (game: Scrafty), FingerStripes'
+    // Jirachi (game: Suicune); those two come from the hand-made files.
+    const index = await (await fetch("../site/ppppp/games/index.json")).json();
+    const withSheets = index.games.filter((g) => (g.sheets || []).length);
+    let sides = 0, full = 0;
+    const pieced = [];
+    for (const g of withSheets) {
+      const rows = RS.gameRows({ ...(await (await fetch(`../site/ppppp/games/${g.id}.json`)).json()), illusion: g.illusion });
+      const files = [...(g.fixes || []).map((p) => [p, ".fix", "pieced"]), ...g.sheets.map((p) => [p, "", "sheet"])];
+      const sources = await Promise.all(files.map(async ([player, ext, from]) =>
+        ({ gameId: g.id, player, from, sets: TS.parseTeam(await (await fetch(`../site/ppppp/mock/${g.id}-${player}${ext}.txt`)).text()) })));
+      TS.attachSets(rows, sources);
+      for (const player of g.sheets) {
+        const side = rows.filter((r) => TS.toID(r.player) === TS.toID(player));
+        sides++;
+        if (side.length && side.every((r) => r.set)) full++;
+        pieced.push(...side.filter((r) => r.set_from === "pieced").map((r) => r.pokemon));
+      }
+    }
+    check("library sheets: all 41 sides get a set for every Pokémon", sides === 41 && full === 41, `${full} of ${sides}`);
+    check("library sheets: the hand-made sets are Week 1's Scrafty and Suicune", same(pieced.sort(), ["Scrafty", "Suicune"]), JSON.stringify(pieced));
+  }
+
+  {
+    // the Pokémon tab's season sets: one per player and set, moves in any order, most games first
+    const S = (t) => TS.parseTeam(t)[0];
+    const a = S("Latios @ Choice Scarf\nAbility: Levitate\nEVs: 4 HP / 252 SpA / 252 Spe\nTimid Nature\n- Draco Meteor\n- Ice Beam");
+    const a2 = S("Latios @ Choice Scarf\nAbility: Levitate\nEVs: 4 HP / 252 SpA / 252 Spe\nTimid Nature\n- Ice Beam\n- Draco Meteor");
+    const b = S("Latios @ Choice Specs\nAbility: Levitate\n- Draco Meteor");
+    const rs = [{ player: "Zolo", set: b, set_from: "pieced", replay_id: "w1" }, { player: "zolo", set: a, replay_id: "w2" },
+      { player: "Zolo", set: a2, replay_id: "w3" }, { player: "Other", set: a, replay_id: "w3" }, { player: "Zolo", replay_id: "w4" }];
+    const got = window.League.monSets(rs, TS.toID, (r) => r.replay_id.replace("w", "Week "));
+    check("season sets: grouped by player and set, moves in any order, most games first", same(got.map((s) => [s.player, s.games, s.weeks, s.from]),
+      [["zolo", 2, ["Week 2", "Week 3"], "sheet"], ["Zolo", 1, ["Week 1"], "pieced"], ["Other", 1, ["Week 3"], "sheet"]]), JSON.stringify(got));
+    check("spread text: nature and EVs; nothing for a set with no EVs line", window.League.spreadText(a) === "Timid, 4 HP / 252 SpA / 252 Spe" &&
+      window.League.spreadText(b) === "", window.League.spreadText(a));
   }
 
   // ---- link parsing ----
@@ -1255,6 +1575,58 @@ ${switchIn}`).hiddenZoroark;
     check("mvp: exactly one brought MVP per team in every real replay", !bad.length, bad.join("\n"));
   }
 
+  // ---- Revival Blessing: a fainted Pokemon brought back on the bench (|-heal|<it>|..|[from] move: Revival Blessing)
+  // is alive at the end and counts in momentum again. Real: DEJIME's Pawmot (Pinkachu) in two stream-video games, where
+  // each revived one came back in and fainted again; synthetic: one that stays on the bench to the end ----
+  for (const [id, before, after, revived] of [["video-yj0pgvbcbli", 19, 20, 1], ["video-xcoo3lljspm", 12, 14, 2]]) {
+    const replay = await (await fetch(`../site/ppppp/games/${id}.json`)).json();
+    const m = RS.parseBattle(replay.log).momentum;
+    const left = (t) => (m.find((p) => p.turn === t) || {}).p1;
+    check(`Revival Blessing, ${id}: Pokemon left goes up by ${revived} when revived`,
+      left(before) && left(after) && left(after).left === left(before).left + revived,
+      JSON.stringify([left(before), left(after)]));
+  }
+  {
+    const rows = RS.gameRows(await (await fetch("../site/ppppp/games/video-yj0pgvbcbli.json")).json());
+    const gambit = rows.find((r) => r.pokemon === "Kingambit");
+    check("Revival Blessing, video-yj0pgvbcbli: Kingambit fainted twice, not alive at the end",
+      gambit && gambit.deaths === 2 && gambit.survived === 0, JSON.stringify(gambit && [gambit.deaths, gambit.survived]));
+  }
+  {
+    const log = "|poke|p1|Pelipper|\n|poke|p1|Pawmot|\n|poke|p2|Garchomp|\n" + lhead() +
+      "|move|p2a: B|Earthquake|p1a: A\n|-damage|p1a: A|0 fnt\n|faint|p1a: A\n|switch|p1a: C|Pawmot, L50|100/100\n|turn|2\n" +
+      "|move|p1a: C|Revival Blessing|p1a: C\n|-heal|p1: A|50/100|[from] move: Revival Blessing\n|turn|3\n|win|Bob";
+    const got = Object.fromEntries(RS.gameRows({ id: "test-revive", log }).map((r) => [r.pokemon, [r.deaths, r.survived]]));
+    check("Revival Blessing: revived on the bench is alive at the end, its faint still counted",
+      same(got, { Pelipper: [1, 1], Pawmot: [0, 1], Garchomp: [0, 1] }), JSON.stringify(got));
+    const m = RS.parseBattle(log).momentum;
+    const last = m[m.length - 1].p1;
+    check("Revival Blessing: momentum has both Pokemon left, the revived one at its HP", last.left === 2 && last.hp === 75,
+      JSON.stringify(m));
+  }
+
+  // ---- hits taken: damage straight from the other side's moves, not a burn tick (report cards' Bulk) ----
+  {
+    const log = "|poke|p1|Pelipper|\n|poke|p2|Garchomp|\n" + lhead() + "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|60/100\n" +
+      "|move|p2a: B|Earthquake|p1a: A\n|-immune|p1a: A\n|-status|p2a: B|brn\n|-damage|p2a: B|54/100 brn|[from] brn\n|turn|2\n" +
+      "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|10/100 brn\n|win|Alice";
+    const got = Object.fromEntries(RS.gameRows({ id: "test-hits", log }).map((r) => [r.pokemon, r.hits_taken]));
+    check("hits taken: two Hurricanes count, the burn tick and a miss don't", same(got, { Pelipper: 0, Garchomp: 2 }), JSON.stringify(got));
+  }
+
+  // ---- gameRows takes the caller's plain parse (prepareIllusion's), only with no Zoroark picks ----
+  {
+    const log = "|poke|p1|Pelipper|\n|poke|p2|Garchomp|\n" + lhead() + "|move|p1a: A|Hurricane|p2a: B\n|-damage|p2a: B|60/100\n|win|Alice";
+    const replay = { id: "test-parsed", log };
+    const plain = RS.parseBattle(log);
+    plain.turns = 99;  // marked: rows from this parse say 99 turns
+    const turnsOf = (rs) => rs[0].turns;
+    check("gameRows: uses the parse it's given, else reads the log", turnsOf(RS.gameRows(replay, plain)) === 99 &&
+      turnsOf(RS.gameRows(replay)) === 1 && !("parsed" in replay), `${turnsOf(RS.gameRows(replay, plain))} ${turnsOf(RS.gameRows(replay))}`);
+    const picked = { id: "test-parsed", log, illusion: { p1: [1] } };
+    check("gameRows: with Zoroark picks the log is read again", turnsOf(RS.gameRows(picked, plain)) !== 99);
+  }
+
   // ---- survival, Mega Evolution, Z-moves ----
   {
     const log = "|poke|p1|Pelipper|\n|poke|p1|Blissey|\n|poke|p2|Garchomp|\n|poke|p2|Dragonite|\n" + lhead() +
@@ -1375,6 +1747,17 @@ ${switchIn}`).hiddenZoroark;
     check("momentum: 0 left means 0% HP in every saved game", !off.length, off.slice(0, 10).join("\n"));
   }
 
+  // ---- library snapshot (snapshot.js): every saved league game counts as it did when tests/snapshot.json was written.
+  // "Unchanged", not "right". A changed number after a rule change: check it, then write-snapshot.ps1 and review the diff.
+  // Games added since the snapshot only show in the name, so adding a game never stops a deploy.
+  {
+    const stored = await (await fetch("snapshot.json")).json();
+    const { changed, added, removed } = LibrarySnapshot.diff(stored, await LibrarySnapshot.compute());
+    const extra = [added.length && `${added.length} new, not in it yet`, removed.length && `${removed.length} in it no longer saved`].filter(Boolean);
+    check(`library snapshot: ${Object.keys(stored.games).length - removed.length} games unchanged` + (extra.length ? ` (${extra.join(", ")})` : ""),
+      !changed.length, changed.length + " numbers changed:\n" + changed.slice(0, 30).join("\n") + (changed.length > 30 ? "\n..." : ""));
+  }
+
   // ---- fetching: time limit and "site is down" errors (fake fetch functions, 50 ms limit) ----
   {
     const fail = async (fetchFn) => {
@@ -1431,6 +1814,198 @@ ${switchIn}`).hiddenZoroark;
     JSON.stringify(aliasFan));
   check("bet: playerKey, the draft name's ID for an alias, else the name's own",
     Bet.playerKey(forms, "ANN17") === "ann" && Bet.playerKey(forms, "Bob B") === "bobb" && Bet.playerKey(null, "Ann 17") === "ann17");
+  {
+    // trades (Draft tab): Ann's sheet still lists Aron (traded away) but no longer Copperajah; Bob's free-agent move
+    // names several Pokémon; Cy's Xatu came in and later went out
+    const td = { costs: { UU: 10, PU: 3, ZU: 1 }, aliases: { ANN17: "Ann" },
+      players: { Ann: [{ pokemon: "Swampert-Mega", tier: "UU" }, { pokemon: "Glimmet", tier: "PU" }, { pokemon: "Aron", tier: "ZU" }],
+        Bob: [{ pokemon: "Toxapex", cost: 4 }, { pokemon: "Mimikyu", cost: 5 }], Cy: [{ pokemon: "Zapdos", tier: "UU" }], Dee: [] },
+      trades: { _note: "after Week 4", ann: [{ out: "Copperajah", in: "Glimmet", after: "Week 4" }, { out: "Aron", in: "", after: "Week 5" }],
+        Bob: [{ out: "Ferrothorn, Skarmory", in: "Toxapex, Mimikyu", after: "Week 1" }],
+        Cy: [{ out: "Natu", in: "Xatu", after: "Week 1" }, { out: "Xatu", in: "Zapdos", after: "Week 2" }] } };
+    const view = (player) => {
+      const dp = Bet.draftPool(td, player);
+      return dp && { name: dp.name, spent: dp.spent, pool: dp.pool.map((p) => [p.entry.pokemon, p.trade ? p.trade.label : "", p.trade ? p.trade.title : ""]) };
+    };
+    const ann = view("ANN17");
+    check("draftPool: the sheet's Pokémon, then a traded-away one it no longer lists, each with its trade (alias, trades keyed in any case)",
+      same(ann, { name: "Ann", spent: 13, pool: [["Swampert-Mega", "", ""], ["Glimmet", "Traded in", "Came in for Copperajah after Week 4"],
+        ["Aron", "Traded away", "Traded for (not known yet) after Week 5"], ["Copperajah", "Traded away", "Traded for Glimmet after Week 4"]] }),
+      JSON.stringify(ann));
+    const bob = view("Bob");
+    check("draftPool: a trade naming several Pokémon gives each its own row; points spent only on the ones still held",
+      same(bob, { name: "Bob", spent: 9, pool: [["Toxapex", "Traded in", "Came in for Ferrothorn, Skarmory after Week 1"],
+        ["Mimikyu", "Traded in", "Came in for Ferrothorn, Skarmory after Week 1"],
+        ["Ferrothorn", "Traded away", "Traded for Toxapex, Mimikyu after Week 1"], ["Skarmory", "Traded away", "Traded for Toxapex, Mimikyu after Week 1"]] }),
+      JSON.stringify(bob));
+    const cy = view("Cy");
+    check("draftPool: traded in, then away: the last trade wins", cy.pool.map((p) => p[0] + ":" + p[1]).join() ===
+      "Zapdos:Traded in,Natu:Traded away,Xatu:Traded away" && cy.spent === 10, JSON.stringify(cy));
+    check("draftPool: no trades, no badges; no pool, null", same(view("Dee"), { name: "Dee", spent: 0, pool: [] }) &&
+      Bet.draftPool(td, "Nobody") === null && Bet.trades(td, "Dee").length === 0);
+    const typed = { ...td, players: { Eve: [{ pokemon: "Great Tusk", tier: "UU" }, { pokemon: "Glimmet", tier: "PU" }] },
+      trades: { Eve: [{ out: "great tusk", in: "GLIMMET", after: "Week 3" }] } };
+    const eve = Bet.draftPool(typed, "Eve");
+    check("draftPool: trade names match the sheet ignoring case and spaces (no extra row, the badge on the sheet's row)",
+      eve.pool.map((p) => p.entry.pokemon + ":" + (p.trade ? p.trade.label : "")).join() === "Great Tusk:Traded away,Glimmet:Traded in" &&
+      eve.spent === 3, JSON.stringify(eve.pool));
+    // a traded-away Pokémon's games before the trade count for its row (the same entry draftPool lists), not as "not on the sheet"
+    const cop = Bet.draftPool(td, "Ann").pool.find((p) => p.entry.pokemon === "Copperajah").entry;
+    check("drafted: a traded-away Pokémon the sheet no longer lists is still theirs, as draftPool's entry",
+      Bet.drafted(td, "Ann", "Copperajah") === cop && Bet.drafted(td, "Bob", "Skarmory").pokemon === "Skarmory" &&
+      Bet.drafted(td, "Bob", "Copperajah") === null);
+    const tf = Bet.fantasy([{ player: "Ann", pokemon: "Copperajah", brought: 1, kills: 1, damage_dealt_pct: 50, survived: 0, won: 1 }], td);
+    check("fantasy: a traded-away Pokémon has no tier or cost", tf[0].tier === "" && tf[0].cost === null && tf[0].perCost === null, JSON.stringify(tf));
+  }
+  {
+    // draft report cards (Bet.reportCards): one game, Ann beat Bo. Firepower = 3 a KO + 1 per 100% damage. RU has 3
+    // picks brought (Toxapex 0, Clefable 0.5, Pikachu 0: 1/6 a game; hits 5, 3, 0: 8/3); OU only 2, so it's held to the
+    // league's average pick (firepower 11 / 5 = 2.2, hits 11 / 5 = 2.2). Top-10% game: 7 (the 5th of 5 sorted).
+    const rd = { costs: { OU: 7, RU: 3 }, players: {
+      Ann: [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Toxapex", tier: "RU" }, { pokemon: "Hattrem", tier: "RU" }],
+      Bo: [{ pokemon: "Kingambit", tier: "OU" }, { pokemon: "Clefable", tier: "RU" }, { pokemon: "Pikachu", tier: "RU" }],
+      Cy: [{ pokemon: "Mew", tier: "OU" }] } };
+    const rr = (player, pokemon, kills, dmg, hits, won = 0) => ({ replay_id: "g1", player, pokemon, brought: 1, kills,
+      damage_dealt_pct: dmg, hits_taken: hits, survived: 1, won });
+    const cards = Bet.reportCards(rd, [rr("Ann", "Garchomp", 2, 100, 1, 1), rr("Ann", "Toxapex", 0, 0, 5, 1),
+      { replay_id: "g1", player: "Ann", pokemon: "Hattrem", brought: 0 },
+      rr("Bo", "Kingambit", 1, 50, 2), rr("Bo", "Clefable", 0, 50, 3), rr("Bo", "Pikachu", 0, 0, 0)]);
+    const card = (c) => [c.name, c.grade, c.firepower.grade + c.bulk.grade + c.peaks.grade + c.even.grade, c.firepower.perGame,
+      c.bulk.perGame, `${c.peaks.count}/${c.peaks.of}`, c.even.spread, c.best && c.best.pokemon, c.bust && c.bust.pokemon].join(" ");
+    check("report cards: firepower and bulk against the tier (a small tier against the league), peaks, even use, each graded, then overall",
+      cards.map(card).join(" | ") === "Ann A AAAD 4.6 1.1 1/2 0.71 Garchomp Toxapex | Bo D DDDA 1.5 -2.5 0/3 0 Kingambit Pikachu | Cy   0 0 0/0 0  ",
+      cards.map(card).join(" | "));
+    const ann = cards[0].picks;
+    check("report cards: each pick's expected firepower a game, what it did above that, its hits and best game",
+      same(ann.map((p) => [p.pokemon, p.group, p.expected, p.above, p.hits, p.peak]),
+        [["Garchomp", "OU", 2.2, 4.8, 1, 7], ["Toxapex", "RU", 0.2, -0.2, 5, 0], ["Hattrem", "RU", 0.2, null, 0, null]]) &&
+      cards[0].peaks.line === 7 && ann[0].points === 9, JSON.stringify(ann));
+    // priced per Pokémon (no tiers): bands of 5
+    const priced = Bet.reportCards({ costs: {}, players: { Dee: [{ pokemon: "Mew", cost: 12 }, { pokemon: "Eevee", cost: 1 }, { pokemon: "Ditto" }] } }, []);
+    check("report cards: a league priced per Pokémon groups picks in price bands of 5", same(priced[0].picks.map((p) => p.group), ["11–15", "1–5", ""]) &&
+      priced[0].grade === "" && priced[0].bulk.grade === "", JSON.stringify(priced[0]));
+    // letters from distance to the league's average in its spread, no set number each: 5 drafts well above 7 others
+    // (z about +1.2 against -0.8) are 5 As
+    const cuts = [1, 0.99, 0.35, 0.34, -0.35, -0.36, -1, -1.01].map(Bet.letterFor).join("");
+    check("report cards: A from +1, B from +0.35, C from -0.35, D from -1, else F", cuts === "ABBCCDDF", cuts);
+    // a tie shares the place (and, from the same numbers, the letter): Ann and Bo with the same game; a pick traded in after the last week played is left
+    // out of even use (Ann's Mew, no game yet)
+    const tie = { costs: { OU: 7 }, players: { Ann: [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Mew", tier: "OU" }],
+      Bo: [{ pokemon: "Kingambit", tier: "OU" }] }, trades: { Ann: [{ out: "Clefable", in: "Mew", after: "Week 1" }] } };
+    const tc = Bet.reportCards(tie, [rr("Ann", "Garchomp", 1, 0, 2), rr("Bo", "Kingambit", 1, 0, 2)], ["Week 1"]);
+    check("report cards: tied drafts share the place and letter; a pick traded in after the last week isn't held against even use",
+      tc.map((c) => c.grade + c.place + c.even.grade).join() === "C1C,C1C" && tc.find((c) => c.name === "Ann").even.spread === 0,
+      JSON.stringify(tc.map((c) => [c.name, c.grade, c.place, c.score, c.even])));
+    // the cut-offs are exact, not on a rounded z: firepower a game +3, +2, 0, -5 against the league is z 0.97, 0.65,
+    // 0, -1.62: B (not A), B, C, F
+    const four = { costs: { OU: 7 }, players: Object.fromEntries(["Ann", "Bo", "Cy", "Di"].map((p, i) => [p, [{ pokemon: ["Garchomp", "Kingambit", "Mew", "Clefable"][i], tier: "OU" }]])) };
+    const fr = (player, pokemon, kills, dmg, id) => ({ replay_id: id, player, pokemon, brought: 1, kills, damage_dealt_pct: dmg, hits_taken: 0, survived: 1, won: 0 });
+    const fc = Bet.reportCards(four, [fr("Ann", "Garchomp", 2, 200, "a"), fr("Bo", "Kingambit", 2, 100, "b"), fr("Cy", "Mew", 1, 200, "c"), fr("Di", "Clefable", 0, 0, "d")]);
+    const fg = fc.map((c) => c.name + c.firepower.grade).join();
+    check("report cards: a part's letter from the exact z (0.97 is a B, A only from 1)", fg === "AnnB,BoB,CyC,DiF", fg);
+    // a league with nothing in it yet has no top-10% games
+    const flat = Bet.reportCards(four, [fr("Ann", "Garchomp", 0, 0, "a"), fr("Bo", "Kingambit", 0, 0, "b")]);
+    check("report cards: a game with no KOs or damage is no peak", flat.every((c) => c.peaks.count === 0), JSON.stringify(flat.map((c) => c.peaks)));
+    // a pick traded in after Week 2 of 4, brought in both weeks since, is used as evenly as one brought every week
+    const mid = { costs: { OU: 7 }, players: { Ann: [{ pokemon: "Garchomp", tier: "OU" }, { pokemon: "Mew", tier: "OU" }] },
+      trades: { Ann: [{ out: "Clefable", in: "Mew", after: "Week 2" }] } };
+    const mr = ["g1", "g2", "g3", "g4"].map((id) => fr("Ann", "Garchomp", 0, 0, id)).concat(["g3", "g4"].map((id) => fr("Ann", "Mew", 0, 0, id)));
+    const mc = Bet.reportCards(mid, mr, ["Week 1", "Week 2", "Week 3", "Week 4"])[0];
+    check("report cards: a mid-season trade-in's even use counts the weeks since it came in", mc.even.spread === 0 && mc.picks.find((p) => p.pokemon === "Mew").weeksHeld === 2,
+      JSON.stringify([mc.even.spread, mc.picks.map((p) => [p.pokemon, p.games, p.weeksHeld])]));
+  }
+  {
+    // reads and misplays (Plays.analyze), a real game checked by hand (Week 1, Nezergy vs potatoesareyum): T2 Tapu Fini in on
+    // Close Combat (resisted), T5 Donphan's Earthquake into Enamorus-Therian (on the field), T8 Tyranitar in on Moonblast
+    // (super effective; Houndstone, Ghost, wouldn't have been), T10 Corviknight in on Play Rough, T11 Great Tusk in on U-turn
+    const [dex, moves, rp] = await Promise.all(["../site/data/pokedex.json", "../site/data/moves.json",
+      "../site/ppppp/games/gen9nationaldex-2677227914.json"].map((u) => fetch(u).then((r) => r.json())));
+    const pa = Plays.analyze(rp.log, { dex, moves });
+    const got = pa.events.map((e) => [e.turn, e.side, e.kind].join(" "));
+    check("plays: a real game's reads and misplays, by turn", same(got, ["2 p1 switch-resisted", "5 p1 immune", "8 p2 switch-weak", "8 p1 predicted",
+      "10 p1 switch-resisted", "11 p2 switch-resisted"]) && pa.p1.name === "Nezergy" && pa.p1.good === 3 && pa.p1.bad === 1, JSON.stringify(pa.events));
+    // made up: Encore makes the move not a choice; an ability immunity counts once that ability has been seen; a
+    // replacement after a faint isn't a switch by choice; a locked Outrage isn't a choice; a stat drop blocked by an ability isn't a misplay
+    const head = "|player|p1|Alice|\n|player|p2|Bob|\n|switch|p1a: A|Raging Bolt|100/100\n|switch|p2a: B|Heatran|100/100\n|turn|1\n";
+    const log = head +
+      "|move|p1a: A|Fire Blast|p2a: B\n|-immune|p2a: B|[from] ability: Flash Fire\n|move|p2a: B|Encore|p1a: A\n|-start|p1a: A|Encore\n|upkeep\n|turn|2\n" +
+      "|move|p1a: A|Fire Blast|p2a: B\n|-immune|p2a: B|[from] ability: Flash Fire\n|-end|p1a: A|Encore\n|upkeep\n|turn|3\n" +
+      "|move|p1a: A|Fire Blast|p2a: B\n|-immune|p2a: B|[from] ability: Flash Fire\n|move|p2a: B|Earth Power|p1a: A\n|-damage|p1a: A|0 fnt\n|faint|p1a: A\n|upkeep\n" +
+      "|switch|p1a: C|Garchomp|100/100\n|turn|4\n|move|p1a: C|Outrage|p2a: B|[from]lockedmove\n|-fail|p1a: C\n" +
+      "|move|p2a: B|Parting Shot|p1a: C\n|-fail|p1a: C|unboost|[from] ability: Clear Body|[of] p1a: C\n|upkeep\n|turn|5\n" +
+      "|move|p2a: B|Ice Beam|p1a: C\n|-supereffective|p1a: C\n|-damage|p1a: C|10/100\n|upkeep\n|win|Bob";
+    const syn = Plays.analyze(log).events.map((e) => [e.turn, e.side, e.kind].join(" "));
+    check("plays: Encore, an ability not seen yet, a replacement, a locked move and a blocked stat drop aren't counted",
+      same(syn, ["3 p1 immune"]), JSON.stringify(syn));
+
+    // brilliant plays, a real game checked by hand (Week 4, Nezergy's p2): T11 Donphan (Champlin) lives on Sturdy at 1%
+    // and KOs Nidoking with Ice Spinner; T17 Iron Valiant (DeFalco) uses Destiny Bond and takes Gholdengo down with it
+    const [rb] = await Promise.all(["../site/ppppp/games/gen9nationaldex-2689027321.json"].map((u) => fetch(u).then((r) => r.json())));
+    const pb = Plays.analyze(rb.log, { dex, moves });
+    const bril = pb.events.filter((e) => e.brilliant).map((e) => [e.turn, e.side, e.kind, e.mon].join(" "));
+    check("plays: a real game's brilliant plays (Sturdy then a KO, Destiny Bond)", same(bril, ["11 p2 survived Donphan", "17 p2 destinybond Iron Valiant"]) &&
+      pb.p2.brilliant === 2 && pb.p1.brilliant === 0 && pb.events.filter((e) => e.brilliant).every((e) => e.good), JSON.stringify(pb.events.filter((e) => e.brilliant)));
+    // made up, one log per pattern: [name, turns after the leads (p1 Alice's A, p2 Bob's B, Bob's C in the back), calls]
+    const bh = "|player|p1|Alice|\n|player|p2|Bob|\n|switch|p1a: A|Gengar|100/100\n|switch|p2a: B|Garchomp|100/100\n|turn|1\n";
+    const ko = (who) => `|-damage|${who}|0 fnt\n|faint|${who}\n`;
+    const T = (n) => `|upkeep\n|turn|${n}\n`;
+    const sd = "|move|p2a: B|Swords Dance|p2a: B\n|-boost|p2a: B|atk|2\n";
+    const cases = [
+      ["Destiny Bond takes the attacker down", "|move|p1a: A|Destiny Bond|p1a: A\n|move|p2a: B|Earthquake|p1a: A\n" + ko("p1a: A") +
+        "|-activate|p1a: A|move: Destiny Bond\n|faint|p2a: B\n", ["destinybond p1 Gengar"]],
+      ["Destiny Bond the attacker lives through", "|move|p1a: A|Destiny Bond|p1a: A\n|move|p2a: B|Earthquake|p1a: A\n|-damage|p1a: A|20/100\n", []],
+      ["Counter KOs", "|move|p2a: B|Shadow Ball|p1a: A\n|-damage|p1a: A|50/100\n|move|p1a: A|Mirror Coat|p2a: B\n" + ko("p2a: B"), ["counter p1 Gengar"]],
+      ["Counter that doesn't KO", "|move|p2a: B|Shadow Ball|p1a: A\n|-damage|p1a: A|50/100\n|move|p1a: A|Mirror Coat|p2a: B\n|-damage|p2a: B|10/100\n", []],
+      ["Pursuit KOs a switch", "|-activate|p2a: B|move: Pursuit\n|move|p1a: A|Pursuit|p2a: B|[from] move: Pursuit\n" + ko("p2a: B"), ["pursuit p1 Gengar"]],
+      ["Pursuit KOs a Pokémon staying in", "|move|p1a: A|Pursuit|p2a: B\n" + ko("p2a: B"), []],
+      ["Encore on a setup move, used again", sd + T(2) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + sd, ["encore p1 Gengar"]],
+      ["Encore on a setup move, then a switch", sd + T(2) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + T(3) + "|switch|p2a: C|Toxapex|100/100\n", ["encore p1 Gengar"]],
+      ["Encore on an attack that worked, used again", "|move|p2a: B|Earthquake|p1a: A\n|-immune|p1a: A\n" + T(2) +
+        "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n|move|p2a: B|Earthquake|p1a: A\n", []],
+      ["Encore on a setup move, then dragged out", sd + T(2) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + T(3) +
+        "|move|p1a: A|Roar|p2a: B\n|drag|p2a: C|Toxapex|100/100\n", ["phaze p1 Gengar"]],
+      ["Taunt stops a status move (once)", "|move|p1a: A|Taunt|p2a: B\n|-start|p2a: B|move: Taunt\n" + T(2) + "|cant|p2a: B|move: Taunt|Stealth Rock\n" + T(3) +
+        "|cant|p2a: B|move: Taunt|Spikes\n", ["taunt p1 Gengar"]],
+      ["Taunt, then an attack", "|move|p1a: A|Taunt|p2a: B\n|-start|p2a: B|move: Taunt\n" + T(2) + "|move|p2a: B|Earthquake|p1a: A\n|-immune|p1a: A\n", []],
+      ["Haze wipes +2", sd + T(2) + "|move|p1a: A|Haze|p1a: A\n|-clearallboost\n", ["haze p1 Gengar"]],
+      ["Haze on +1, and on its own boosts", "|move|p2a: B|Hone Claws|p2a: B\n|-boost|p2a: B|atk|1\n|move|p1a: A|Nasty Plot|p1a: A\n|-boost|p1a: A|spa|2\n" + T(2) +
+        "|move|p1a: A|Haze|p1a: A\n|-clearallboost\n", []],
+      ["Clear Smog wipes +2", sd + T(2) + "|move|p1a: A|Clear Smog|p2a: B\n|-damage|p2a: B|80/100\n|-clearboost|p2a: B\n", ["haze p1 Gengar"]],
+      ["Roar on +2", sd + T(2) + "|move|p1a: A|Roar|p2a: B\n|drag|p2a: C|Toxapex|100/100\n", ["phaze p1 Gengar"]],
+      ["Roar after the boosted one switched out and back", sd + T(2) + "|switch|p2a: C|Toxapex|100/100\n" + T(3) + "|switch|p2a: B|Garchomp|100/100\n" + T(4) +
+        "|move|p1a: A|Roar|p2a: B\n|drag|p2a: C|Toxapex|100/100\n", []],
+      ["Trick a Choice Scarf, then a status move", "|move|p1a: A|Trick|p2a: B\n|-activate|p1a: A|move: Trick|[of] p2a: B\n|-item|p2a: B|Choice Scarf|[from] move: Trick\n" +
+        "|-item|p1a: A|Leftovers|[from] move: Trick\n" + T(2) + "|move|p2a: B|Stealth Rock|p1a: A\n", ["trick p1 Gengar"]],
+      ["Trick a Choice Scarf, then an attack, then a status move", "|move|p1a: A|Trick|p2a: B\n|-item|p2a: B|Choice Scarf|[from] move: Trick\n" + T(2) +
+        "|move|p2a: B|Earthquake|p1a: A\n|-immune|p1a: A\n" + T(3) + "|move|p2a: B|Stealth Rock|p1a: A\n", []],
+      ["Trick a Leftovers, then a switch", "|move|p1a: A|Trick|p2a: B\n|-item|p2a: B|Leftovers|[from] move: Trick\n" + T(2) + "|switch|p2a: C|Toxapex|100/100\n", []],
+      ["Perish Song KOs a foe, not its own", "|move|p1a: A|Perish Song|p1a: A\n|-fieldstart|move: Perish Song\n" + T(2) + T(3) + T(4) +
+        "|-start|p1a: A|perish0\n|-start|p2a: B|perish0\n|faint|p1a: A\n|faint|p2a: B\n", ["perishsong p1 Gengar"]],
+      ["Focus Sash, then a KO", "|move|p2a: B|Earthquake|p1a: A\n|-enditem|p1a: A|Focus Sash\n|-damage|p1a: A|1/100\n|move|p1a: A|Shadow Ball|p2a: B\n" + ko("p2a: B"), ["survived p1 Gengar"]],
+      ["Focus Sash, then down with no KO; a Sash knocked off", "|move|p2a: B|Earthquake|p1a: A\n|-enditem|p1a: A|Focus Sash\n|-damage|p1a: A|1/100\n" +
+        "|move|p1a: A|Shadow Ball|p2a: B\n|-damage|p2a: B|50/100\n" + T(2) + "|move|p2a: B|Earthquake|p1a: A\n" + ko("p1a: A") +
+        "|switch|p1a: D|Weavile|100/100\n" + T(3) + "|move|p2a: B|Knock Off|p1a: D\n|-enditem|p1a: D|Focus Sash|[from] move: Knock Off|[of] p2a: B\n" +
+        "|move|p1a: D|Ice Shard|p2a: B\n" + ko("p2a: B"), []],
+      ["Focus Sash or Mirror Coat, then the foe faints to sand, not the move", "|move|p2a: B|Earthquake|p1a: A\n|-enditem|p1a: A|Focus Sash\n|-damage|p1a: A|1/100\n" +
+        "|move|p1a: A|Mirror Coat|p2a: B\n|-damage|p2a: B|5/100\n|-weather|Sandstorm|[upkeep]\n|-damage|p2a: B|0 fnt|[from] Sandstorm\n|faint|p2a: B\n", []],
+      ["Both sides sing: the foe's count is the first singer's", "|move|p1a: A|Perish Song|p1a: A\n|-fieldstart|move: Perish Song\n" + T(2) +
+        "|switch|p1a: D|Weavile|100/100\n|move|p2a: B|Perish Song|p2a: B\n" + T(3) + T(4) + "|-start|p2a: B|perish0\n|faint|p2a: B\n", ["perishsong p1 Gengar"]],
+    ];
+    const wrong = [];
+    for (const [name, body, want] of cases) {
+      const got = Plays.analyze(bh + body + "|upkeep\n|win|Bob", { dex, moves }).events.filter((e) => e.brilliant).map((e) => [e.kind, e.side, e.mon].join(" "));
+      if (!same(got, want)) wrong.push(`${name}: ${JSON.stringify(got)}, wanted ${JSON.stringify(want)}`);
+    }
+    check(`plays: brilliant plays count only with their payoff (${cases.length} made-up logs)`, !wrong.length, wrong.join("\n"));
+    // without move data an Encore counts only on a move that had failed, a Trick only on a switch
+    const nod = Plays.analyze(bh + sd + T(2) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + sd + T(3) +
+      "|move|p2a: B|Sucker Punch|p1a: A\n|-fail|p2a: B\n" + T(4) + "|move|p1a: A|Encore|p2a: B\n|-start|p2a: B|Encore\n" + T(5) +
+      "|move|p2a: B|Sucker Punch|p1a: A\n|-fail|p2a: B\n|upkeep\n|win|Bob").events.filter((e) => e.brilliant).map((e) => e.turn + " " + e.kind);
+    check("plays: with no move data, Encore counts on a move that failed only", same(nod, ["5 encore"]), JSON.stringify(nod));
+    let ffa = null;
+    try { ffa = Plays.analyze("|player|p1|Alice|\n|player|p3|Cy|\n|turn|1\n").p1.name; } catch (e) { ffa = String(e); }
+    check("plays: a third player's line (free-for-all) doesn't throw", ffa === "Alice", ffa);
+  }
   // Megas are their own Pokémon: Latios (Bob's) and Latios-Mega (Ann's) never merge
   const megas = { costs: {}, players: { Ann: [{ pokemon: "Latios-Mega" }, { pokemon: "Charizard-Mega-X" }], Bob: [{ pokemon: "Latios" }],
     Cy: [{ pokemon: "Gyarados" }, { pokemon: "Gyarados-Mega" }] } };

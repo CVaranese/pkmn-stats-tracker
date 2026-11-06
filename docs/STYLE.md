@@ -19,7 +19,8 @@ the real stylesheet; screenshot it (both themes) next to any new control before 
 | `--wall` | the tiled background behind the panel |
 | `--error`, `--error-bg` | error lists and bad statuses only |
 
-No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain: those are the only fixed colours.
+Every theme's text pairs must reach WCAG AA (4.5:1): `python -I tests/test_style.py` checks them all, and that no rule writes a colour outside the tokens.
+No new colours outside these tokens. Mega tag black (`--mark-ink`, `#1c1c1a`), Z tag porcelain, and the Pokémon type colours (`.t-fire`...): those are the only fixed colours.
 
 - **League themes**: `style.css`'s `:root` is the default theme, for any league without its own: three palettes
   after starters on `html[data-palette]` (Blastoise = plain `:root`, Charizard, Venusaur; `PALETTES` in
@@ -29,6 +30,18 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
   `site/leagues.json`), redefining the same tokens, light and dark; `--stripe` / `--stripe-box` are the line under the
   header and along the Gambling box. Pinecord's (`site/ppppp/theme.css`) is the banner's mint tiles and striped floor.
   Never use a colour in a rule that a theme can't change: add a token.
+
+## Sizes (tokens at the top of `style.css`, the same in every theme)
+Every font size and corner radius in `style.css` is a variable, so the look is retuned in one place (2026-10-29: moved
+onto them with no visible change, checked pixel by pixel on 15 views).
+- **Font sizes**: `--fs-3xs` (10px, turn numbers) up to `--fs-5xl` (32px); `--fs-body` 15px is body text, `--fs-md`
+  14px tables and most card text, `--fs-2xl` 18px section titles. The comment beside each says where it's used.
+  `--fs-input` stays 16px or more (iOS zooms the page on a smaller input). No px font size in a rule: use or add one.
+- **Corners**: `--radius-xs` 3px (chips, turn squares), `--radius-sm` 4px, `--radius` 6px (buttons, inputs),
+  `--radius-md` 8px (cards, tables, boxes), `--radius-lg` 12px (the page panel). `50%` (circles), `0` and the 2px
+  focus ring stay literal.
+- **The Pokémon card** (`.mon-detail`, Main viewer) is a two-column grid where only the sprite and the name block sit
+  side by side; every other part spans the card by default, so a new part needs no grid rule.
 
 ## Controls (use these; add a new one only when none fits, and add it to `tests/style.html`)
 - **Button**: plain `button` (surface, 1px border, 6px radius). `button.primary` once per form, for the main action
@@ -41,8 +54,9 @@ No new colours outside these tokens. Mega tag black (`#1c1c1a`), Z tag porcelain
   boxed tabs looked "too standard and AI generated").
 - **Sub-tabs** (`.tabs`): small joined buttons, selected one filled with `--accent`. For switching a table's view.
   Regular season / Playoffs / Both (`.tabs.stage-pick`) sits before each week picker.
-- **Player picker** (`.draft-tabs`, Draft): separate buttons with a 6px gap, the picked one filled with `--accent`; they wrap on
-  a computer and become one sideways-scrolling row on phones (faded on the right like the main tabs). Joined sub-tabs
+- **Player picker** (`.draft-tabs`, Draft): separate buttons with a 6px gap, the picked one filled with `--accent`; two even,
+  centred rows in lined-up columns on a wide screen, centred wrapping when narrower, and one sideways-scrolling row on phones
+  (faded on the right like the main tabs). Joined sub-tabs
   looked bad once they wrapped (user, 2026-10-28).
 - **Select**: plain `select` inside `label.inline` ("Player [Everyone ▾]").
 - **Table**: inside `.table-wrap` (2px outline, 8px radius), striped rows, numbers right-aligned in tabular figures,
