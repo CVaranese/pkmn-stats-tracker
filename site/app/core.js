@@ -9,8 +9,12 @@ const { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, 
 const $ = (id) => document.getElementById(id);
 // served from this computer: no requests to Showdown at all (replays only from site/games/, move / Pokedex data from
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
-const LOCAL = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname) &&
-  !new URLSearchParams(location.search).has("online");
+const THIS_COMPUTER = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname);
+const LOCAL = THIS_COMPUTER && !new URLSearchParams(location.search).has("online");
+// features not released yet (Awards, report cards, reads and misplays, weekly bets) show on the next branch's preview
+// (/next/ in the address) and on this computer. Add ?live to the address to see what the live site shows.
+const LIVE_VIEW = new URLSearchParams(location.search).has("live");
+const PREVIEW = (THIS_COMPUTER || location.pathname.includes("/next/")) && !LIVE_VIEW;
 // the league this page is for (site/leagues.json, written into the page by tools/build_pages.py); its files are in
 // site/<id>/ (games, team sheets, trainer sprites), everything shared is one folder up (the page's <base>)
 const LEAGUE = window.LEAGUE || { id: "", name: "", tag: "" };
@@ -119,7 +123,7 @@ const HP_AFTER = { damage_taken_pct: ["damage_dealt_hp", "damage_taken_hp"], haz
 let mode = "one";
 const activeInput = () => (mode === "one" ? $("one-link") : $("links"));
 // tabs with no link box: their own views over the saved league games (gamble: Gambling, still a "coming soon" page)
-const NO_INPUT_TABS = ["fantasy", "gamble", "games", "players", "mons", "awards", "draft", ...(LEAGUE.pickem ? ["pickem"] : [])];
+const NO_INPUT_TABS = ["fantasy", "gamble", "games", "players", "mons", ...(PREVIEW ? ["awards"] : []), "draft", ...(LEAGUE.pickem ? ["pickem"] : [])];
 const activeIds = () => (NO_INPUT_TABS.includes(mode) ? [] :
   RS.replayIdsFromText(activeInput().value).slice(0, mode === "one" ? 1 : Infinity));
 function setMode(m, load = true) {

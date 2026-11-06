@@ -1,6 +1,7 @@
 /* Awards tab: the standouts (League.awards, then League.moreAwards) of one week's saved league games, or all weeks. */
 "use strict";
 
+if (PREVIEW) document.querySelector('.modes [data-mode="awards"]').hidden = false;
 let awardsShown = false;  // the tab is drawn for the picked week; a new game or a stage change draws it again
 onLeagueChange(() => { awardsShown = false; });
 let awWeek = null;  // null: not picked yet (opens on the latest week); "" = all weeks, else "Week 3"
