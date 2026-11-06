@@ -125,7 +125,7 @@ function pkAccount() {
   } else if (!pk.member) {
     bar.replaceChildren(el("span", "", `Signed in as ${pk.name || "you"}, but not as a member of this league's Discord server, ` +
       "so picks can't be saved. Just joined it? Sign out and sign in again."), out);
-  } else bar.replaceChildren(el("span", "", `Signed in as ${pk.name}.`), out);
+  } else bar.replaceChildren();  // a member: the header says who's signed in and has Sign out
 }
 
 function pkPickedText() {

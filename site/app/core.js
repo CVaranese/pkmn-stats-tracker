@@ -15,7 +15,7 @@ const LOCAL = THIS_COMPUTER && !new URLSearchParams(location.search).has("online
 // (/next/ in the address) and on this computer. Add ?live to the address to see what the live site shows.
 const LIVE_VIEW = new URLSearchParams(location.search).has("live");
 const PREVIEW = (THIS_COMPUTER || location.pathname.includes("/next/")) && !LIVE_VIEW;
-// taken off the page for now (report cards, reads and misplays, Key moments; user 2026-11-05): off on the preview too;
+// taken off the page for now (report cards, reads and misplays; user 2026-11-05): off on the preview too;
 // add ?held to a preview or local address to see them
 const SHOW_HELD = PREVIEW && new URLSearchParams(location.search).has("held");
 // the league this page is for (site/leagues.json, written into the page by tools/build_pages.py); its files are in

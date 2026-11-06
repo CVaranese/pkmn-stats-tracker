@@ -298,8 +298,6 @@ class PreviewOnly(unittest.TestCase):
             ("bets.js", "const BETS_ON = PREVIEW &&"),         # weekly bets
             ("draft.js", "const CARDS_ON = SHOW_HELD &&"),     # report cards
             ("main.js", "if (SHOW_HELD && loaded.length === 1)"),  # reads and misplays
-            ("main.js", "if (SHOW_HELD && rows[0] && (rows[0].key_moments"),  # Key moments list
-            ("main.js", "(SHOW_HELD && rs[0] && rs[0].key_moments)"),  # Key moments' marks on the chart
         ]:
             self.assertIn(wanted, (app / name).read_text("utf-8"), name)
 
