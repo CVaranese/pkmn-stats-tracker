@@ -642,7 +642,8 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .bet-num { display: block; font-size: var(--fs-4xl); font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
 .bet-sides { display: grid; grid-template-columns: 104px 104px; gap: 6px; }
 .bet-sides .pk-side { justify-content: center; }
-button.bet-lock { width: 214px; padding: 7px 10px; border: 2px solid var(--outline); font-size: var(--fs-sm); font-weight: 700; }
+/* its border is the text colour, not --outline: the near-black outline doesn't show on a dark theme */
+button.bet-lock { width: 214px; padding: 7px 10px; border: 2px solid var(--text); font-size: var(--fs-sm); font-weight: 700; }
 button.bet-lock[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
 .bet-result { margin: 0; font-size: var(--fs-sm); text-align: center; }
 /* the slip */
