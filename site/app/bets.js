@@ -192,9 +192,10 @@ function btCard(x) {
     return b;
   };
   // the buttons around the number say what it is, so "Over / under" is only for screen readers
-  const mid = el("span", x.kind === "ou" ? "bet-num" : "bet-or", x.kind === "ou" ? "" : "or");
-  if (x.kind === "ou") mid.append(el("span", "sr-only", "Over / under "), String(Number(x.line)));
-  sides.append(...(x.kind === "ou" ? [sideButton("Over"), mid, sideButton("Under")] : [sideButton("Yes"), mid, sideButton("No")]));
+  const ou = x.kind === "ou";
+  const mid = ou ? el("span", "bet-num") : el("span", "bet-or", "or");
+  if (ou) mid.append(el("span", "sr-only", "Over / under "), String(Number(x.line)));
+  sides.append(sideButton(ou ? "Over" : "Yes"), mid, sideButton(ou ? "Under" : "No"));
   card.append(sides);
   if (!fixed) {
     const b = el("button", "small bet-lock", isLock ? "Remove my lock" : "Make this my lock");

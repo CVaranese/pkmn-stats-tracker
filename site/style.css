@@ -643,7 +643,12 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .bet-num { font-size: var(--fs-4xl); font-weight: 700; font-variant-numeric: tabular-nums; }
 .bet-or { font-size: var(--fs-md); color: var(--muted); }
 .bet-sides .pk-side { justify-content: center; min-height: 40px; border: 2px solid var(--outline); font-weight: 600; }
+.bet-sides .pk-side[aria-pressed="true"] { border: 2px solid var(--outline); }
 @media (pointer: coarse) { .bet-sides .pk-side { min-height: 44px; } }
+@media (hover: hover) {
+  .bet-sides .pk-side:not([aria-disabled="true"]):hover { border-color: var(--muted); }
+  button.bet-lock:hover { border-top-style: solid; }
+}
 /* the stub: the foot of the card, its edges clipped by the card's corners, so the focus ring sits inside it */
 button.bet-lock { padding: 9px 10px; border: 0; border-top: 2px dashed var(--mark-ink); border-radius: 0; background: var(--porcelain); color: var(--mark-ink); font-size: var(--fs-sm); font-weight: 700; }
 button.bet-lock:focus-visible { outline-color: var(--mark-ink); outline-offset: -4px; }
