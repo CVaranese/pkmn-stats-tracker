@@ -63,6 +63,7 @@ onto them with no visible change, checked pixel by pixel on 15 views).
   sortable headers with ▲▼, `title` on headers for explanations. A sortable header's label, and the first cell of a
   row that opens details below the table, sit in a `button.cell-btn` (looks like the text, focus ring for the
   keyboard); the selected row has `aria-current`.
+- **Bet** (`.award.bet`, Gambling): the two sides are Pick'em's `.pk-side` buttons (`aria-pressed`, filled with `--accent`, or `aria-disabled` when read-only) in an even `.bet-sides` row; the lock is an on/off `button.small.bet-lock`, off until the bet has a pick.
 - **Badge**: `.badge` (Lost) / `.badge.win` (Won): small, square-ish (3px radius), next to a name.
 - **Mega / Z tag**: `.mark.mega`, `.mark.z`, on the bottom edge of a sprite.
 - **Move type tag**: `.type-chip.t-<type>` before a move's name in move lists: the type's first three letters

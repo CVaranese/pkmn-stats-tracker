@@ -138,6 +138,25 @@
       <ul><li>Rules and explanations go in a list like this.</li></ul>
     </details>
     <section class="sample">
+      <h2>Bet (.award.bet, Gambling: two .pk-side sides, the lock's on/off button)</h2>
+      <div class="award-grid">
+        <article class="award bet">
+          <h3>Critical hits</h3>
+          <p class="bet-line">Over / under 27.5</p>
+          <div class="bet-sides"><button class="pk-side" type="button" aria-pressed="true">Over</button><button class="pk-side" type="button" aria-pressed="false">Under</button></div>
+          <button class="small bet-lock" type="button" aria-pressed="true">Remove my lock (counts double)</button>
+          <p class="bet-result"><span class="badge win">Right, +20</span> Over: 31</p>
+        </article>
+        <article class="award bet">
+          <h3>Turns spent asleep</h3>
+          <p class="bet-line">Over / under 4.5</p>
+          <div class="bet-sides"><button class="pk-side" type="button" aria-pressed="false">Over</button><button class="pk-side" type="button" aria-pressed="false">Under</button></div>
+          <button class="small bet-lock" type="button" aria-pressed="false" disabled>Make this my lock</button>
+          <p class="bet-result"><span class="muted">Not settled yet</span></p>
+        </article>
+      </div>
+    </section>
+    <section class="sample">
       <h2>Tap tip (.tap-tip, phones only: a tapped element's title)</h2>
       <div style="position: relative; height: 70px;">
         <div class="tap-tip" style="left: 0; top: 0;">Kills: direct + passive. See "How each column is counted".</div>

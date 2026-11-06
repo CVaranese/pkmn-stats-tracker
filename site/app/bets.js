@@ -152,7 +152,7 @@ function btCard(x) {
   }
   card.append(sides);
   if (!fixed) {
-    const b = el("button", "small bet-lock", isLock ? "Your lock: counts double" : "Make this my lock");
+    const b = el("button", "small bet-lock", isLock ? "Remove my lock (counts double)" : "Make this my lock");
     b.type = "button";
     b.setAttribute("aria-pressed", String(isLock));
     b.disabled = !pick;

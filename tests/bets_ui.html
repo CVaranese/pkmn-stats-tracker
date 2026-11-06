@@ -150,6 +150,12 @@ const SCENARIOS = {
     check("member: taking a pick back drops it and its lock",
       st.db.bets.length === 1 && st.db.bet_locks.length === 0 && side(1, "Over").getAttribute("aria-pressed") === "false", JSON.stringify([st.db.bets, st.db.bet_locks]));
     check("member: the leaderboard lists the bet", $f("bet-board").textContent.includes("Me (you)") && $f("bet-board").textContent.includes("1 of 6"), $f("bet-board").textContent);
+    // docs/STYLE.md: fits at 320px without the page scrolling sideways (only the table scrolls, in its wrap)
+    frame.style.width = "320px";
+    await wait(100);
+    const wide = [...frame.contentDocument.querySelectorAll("#bet-draw > *, #bet-list .bet, .bet-sides, .bet-lock")].filter((n) => n.getBoundingClientRect().right > 320).map((n) => n.id || n.className);
+    check("member: every part of the bets fits a 320px screen", !wide.length, wide.join(", "));
+    frame.style.width = "";
     return st;
   },
   /** Saved picks come back on a new visit. */
