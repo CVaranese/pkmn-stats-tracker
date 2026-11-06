@@ -115,13 +115,8 @@ function pkAccount() {
   out.addEventListener("click", accountSignOut);
   if (!pk.user) {
     if (pkLocked()) { bar.replaceChildren(); return; }
-    const b = el("button", "primary", "Sign in with Discord");
-    b.type = "button";
-    b.addEventListener("click", async () => {
-      pkStatus("Opening Discord…");
-      pkStatus(await accountSignIn());
-    });
-    bar.replaceChildren(b, el("span", "muted", "Picks made before signing in stay in this browser until you sign in."));
+    // the button is the header's (user 2026-11-06: one sign-in button, not two)
+    bar.replaceChildren(el("span", "muted", "Sign in with Discord at the top of the page to save your picks. Picks made before then stay in this browser until you do."));
   } else if (!pk.member) {
     bar.replaceChildren(el("span", "", `Signed in as ${pk.name || "you"}, but not as a member of this league's Discord server, ` +
       "so picks can't be saved. Just joined it? Sign out and sign in again."), out);
@@ -253,7 +248,7 @@ function pkSubmitBar(done) {
   const can = pk.user && pk.member;
   b.disabled = !can || n < all;
   b.addEventListener("click", pkSubmit);
-  const note = !can ? (pk.user ? "Only members of the server can submit." : "Sign in with Discord (above) to submit.")
+  const note = !can ? (pk.user ? "Only members of the server can submit." : "Sign in with Discord at the top of the page to submit.")
     : n < all ? `Pick the other ${all - n} match${all - n === 1 ? "" : "es"} to submit.`
     : done || "All picked.";
   bar.replaceChildren(b, el("span", done ? "" : "muted", note));

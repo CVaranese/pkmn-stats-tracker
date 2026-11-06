@@ -181,8 +181,9 @@ const SCENARIOS = {
   },
   async signedout() {
     const st = await open({ signedIn: false, lockIn: 48 * HOUR });
-    check("signed out: the bets show, read-only, with a sign-in button",
-      side(0, "Over").getAttribute("aria-disabled") === "true" && !lockBtn(0) && $f("bet-account").textContent.includes("Sign in with Discord"));
+    check("signed out: the bets show, read-only, saying to sign in, with no second button (the header has it)",
+      side(0, "Over").getAttribute("aria-disabled") === "true" && !lockBtn(0) && $f("bet-account").textContent.includes("Sign in with Discord") &&
+      !$f("bet-account").querySelector("button") && $f("account").querySelector("button").textContent === "Sign in with Discord");
     side(0, "Over").click();
     await wait(100);
     check("signed out: a click sends nothing", st.db.bets.length === 0 && !st.writes.length, JSON.stringify(st.writes));

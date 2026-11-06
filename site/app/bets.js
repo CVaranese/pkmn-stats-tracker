@@ -109,13 +109,8 @@ function btDraw() {
   else if (bt.user) {
     bar.replaceChildren(el("span", "", "Signed in, but not as a member of this league's Discord server, so bets can't be saved. Just joined it? Sign out and sign in again."));
   } else {
-    const b = el("button", "primary", "Sign in with Discord");
-    b.type = "button";
-    b.addEventListener("click", async () => {
-      btStatus("Opening Discord…");
-      btStatus(await accountSignIn());
-    });
-    bar.replaceChildren(b, el("span", "muted", "Bets are for members of this league's Discord server."));
+    // the button is the header's (user 2026-11-06: one sign-in button, not two)
+    bar.replaceChildren(el("span", "muted", "Sign in with Discord at the top of the page to bet. Bets are for members of this league's Discord server."));
   }
   const v = $("bet-viewing");
   v.hidden = !bt.viewing;
