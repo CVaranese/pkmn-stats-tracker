@@ -68,7 +68,7 @@ function btBuild() {
   side.append(slip, el("h2", "section-title", "Leaderboard"), part("p", "hint", "bet-board-note"), wrap);
   const cols = el("div", "bet-cols");
   cols.append(part("div", "bet-cards", "bet-list"), side);
-  $("bet-draw").replaceChildren(el("h2", "section-title", "Playoff bets"), part("div", "bet-band", "bet-countdown"),
+  $("bet-draw").replaceChildren(el("h2", "section-title", "Playoff bets"), part("div", "lock-band", "bet-countdown"),
     part("p", "hint bet-note", "bet-intro"), part("div", "bet-note", "bet-account"), cols);
 }
 
@@ -79,10 +79,7 @@ function btCountdown() {
   box.hidden = btLocked();
   if (box.hidden) return;
   const tick = () => {
-    if (!btLocked()) {
-      box.replaceChildren(el("span", "bet-band-label", "Bets lock in "), el("span", "bet-band-time", League.countdown(bt.lockAt.getTime() - Date.now())));
-      return;
-    }
+    if (!btLocked()) { drawLockBand(box, "Bets lock in", bt.lockAt); return; }
     clearInterval(btTimer);
     box.hidden = true;
     btLockNow("Bets are locked now.");

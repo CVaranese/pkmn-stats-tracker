@@ -349,7 +349,6 @@ input[type=text].mon-find { max-width: 360px; font-family: inherit; }
 .draft-tabs button { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
 /* wide enough for two even rows, lined up in columns (--cols from app/draft.js) */
 @media (min-width: 1200px) { .draft-tabs { display: grid; grid-template-columns: repeat(var(--cols, 6), auto); } }
-.pk-countdown { font-size: var(--fs-md); font-weight: 600; font-variant-numeric: tabular-nums; margin: 4px 0 10px; }
 /* trainer sprites from the draft sheet: 80px pixel art, shown at 1x / 0.5x (whole steps keep the pixels sharp) */
 img.trainer { image-rendering: pixelated; flex: 0 0 auto; }
 img.trainer.small { width: 40px; height: 40px; margin: -10px -4px -10px -8px; }
@@ -620,11 +619,11 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .award-who .muted { font-size: var(--fs-sm); }
 .award-value { font-size: var(--fs-md); text-align: right; white-space: nowrap; }
 .award-more { margin: 6px 0 0; font-size: var(--fs-sm); cursor: help; }
-/* Gambling: the countdown between two lines of the header's stripe */
-.bet-band { margin: 16px 0; text-align: center; }
-.bet-band::before, .bet-band::after { content: ""; display: block; height: 10px; border-radius: var(--radius-xs); background: var(--stripe); }
-.bet-band-label { display: block; margin-top: 12px; font-size: var(--fs-md); color: var(--muted); }
-.bet-band-time { display: block; margin-bottom: 12px; font-size: var(--fs-5xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+/* Pick'em and Gambling: the countdown between two lines of the header's stripe */
+.lock-band { margin: 16px 0; text-align: center; }
+.lock-band::before, .lock-band::after { content: ""; display: block; height: 10px; border-radius: var(--radius-xs); background: var(--stripe); }
+.lock-band-label { display: block; margin-top: 12px; font-size: var(--fs-md); color: var(--muted); }
+.lock-band-time { display: block; margin-bottom: 12px; font-size: var(--fs-5xl); font-weight: 700; font-variant-numeric: tabular-nums; }
 .bet-note { margin-inline: auto; font-size: var(--fs-md); text-align: center; }
 /* tickets on the left, the slip and the leaderboard on the right, in view as you pick */
 .bet-cols { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; margin-top: 12px; }

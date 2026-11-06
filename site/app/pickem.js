@@ -86,7 +86,7 @@ function pkCountdown() {
   box.hidden = pkLocked();
   if (box.hidden) return;
   const tick = () => {
-    if (!pkLocked()) { box.textContent = "Picks lock in " + League.countdown(pk.lockAt.getTime() - Date.now()); return; }
+    if (!pkLocked()) { drawLockBand(box, "Picks lock in", pk.lockAt); return; }
     clearInterval(pkTimer);
     box.hidden = true;
     pkLockNow("Picks are locked now.");

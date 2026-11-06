@@ -395,6 +395,10 @@ function el(tag, cls, text) {
   if (text !== undefined) e.textContent = text;
   return e;
 }
+/** Pick'em's and Gambling's countdown, large between two lines of the stripe: the time left until lockAt. */
+function drawLockBand(box, label, lockAt) {
+  box.replaceChildren(el("span", "lock-band-label", label + " "), el("span", "lock-band-time", League.countdown(lockAt.getTime() - Date.now())));
+}
 function stat(label, value, field) {
   const d = el("div", "stat");
   d.append(el("span", "stat-value", String(value)), el("span", "stat-label", label));
