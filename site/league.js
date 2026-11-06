@@ -465,6 +465,13 @@
   }
   /** Leaderboard places: entries sorted by points (most first), equal points share a place (user 2026-11-02);
       within a place by name. Each entry gets .place. */
+  /** Time left as "3d 1h 57m 12s", from the largest unit that isn't zero; a part of a second counts as a second. */
+  function countdown(ms) {
+    const s = Math.max(0, Math.ceil(ms / 1000));
+    const parts = [[Math.floor(s / 86400), "d"], [Math.floor(s / 3600) % 24, "h"], [Math.floor(s / 60) % 60, "m"], [s % 60, "s"]];
+    const first = parts.findIndex(([n]) => n > 0);
+    return parts.slice(first < 0 ? 3 : first).map(([n, unit]) => n + unit).join(" ");
+  }
   function pickemRanks(entries) {
     const sorted = [...entries].sort((a, b) => b.points - a.points || String(a.name).localeCompare(String(b.name)));
     return sorted.map((e) => ({ ...e, place: 1 + sorted.filter((x) => x.points > e.points).length }));
@@ -472,7 +479,7 @@
 
   const League = { PCT_TO_HP, pct, sum, amount, moveDealt, seasonLuck, normalCdf, koPairs, seasonMoves, dealtKey, bestMove, spriteId, sets,
     setSlots, setPoints, standings, spreadText, setText, monSets, best, comeback, awards, moreAwards, turnCells, isPlayoffWeek, tabName, navQuery, readNav,
-    pickemClean, pickemSlots, pickemScore, pickemRanks };
+    pickemClean, pickemSlots, pickemScore, pickemRanks, countdown };
   if (typeof module !== "undefined" && module.exports) module.exports = League;
   else root.League = League;
 })(typeof globalThis !== "undefined" ? globalThis : this);

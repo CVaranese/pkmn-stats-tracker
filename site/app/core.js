@@ -11,10 +11,13 @@ const $ = (id) => document.getElementById(id);
 // site/data/, no sprites). Add ?online to the address to use Showdown as the live site does.
 const THIS_COMPUTER = ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname);
 const LOCAL = THIS_COMPUTER && !new URLSearchParams(location.search).has("online");
-// features not released yet (Awards, report cards, reads and misplays, weekly bets) show on the next branch's preview
+// features not released yet (Awards, weekly bets) show on the next branch's preview
 // (/next/ in the address) and on this computer. Add ?live to the address to see what the live site shows.
 const LIVE_VIEW = new URLSearchParams(location.search).has("live");
 const PREVIEW = (THIS_COMPUTER || location.pathname.includes("/next/")) && !LIVE_VIEW;
+// taken off the page for now (report cards, reads and misplays, Key moments; user 2026-11-05): off on the preview too;
+// add ?held to a preview or local address to see them
+const SHOW_HELD = PREVIEW && new URLSearchParams(location.search).has("held");
 // the league this page is for (site/leagues.json, written into the page by tools/build_pages.py); its files are in
 // site/<id>/ (games, team sheets, trainer sprites), everything shared is one folder up (the page's <base>)
 const LEAGUE = window.LEAGUE || { id: "", name: "", tag: "" };

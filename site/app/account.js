@@ -118,6 +118,6 @@ function acctDraw(busy) {
   out.addEventListener("click", accountSignOut);
   const who = el("span", "", `Signed in as ${acct.name || "you"}`);
   box.replaceChildren(who, out);
-  const why = acct.error || (acct.member ? "" : `Not a member of the ${ACCT.server} server`);
+  const why = acct.error || (acct.member ? "" : "Not a member of this league's server");
   if (why) box.insertBefore(el("span", "muted", why), out);
 }

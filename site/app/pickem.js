@@ -21,6 +21,7 @@ async function renderPickem() {
 }
 const pkStatus = (text) => { $("pk-status").textContent = text; };
 const pkLocked = () => pk && Date.now() >= pk.lockAt.getTime();
+let pkTimer = null;  // the countdown's ticking
 const pkName = (seed) => (pk.bracket.players.find((p) => p.seed === seed) || { name: "?" }).name;
 
 async function pkStart() {
@@ -44,6 +45,7 @@ async function pkStart() {
   for (const m of bracket.matches) m.winner = won[m.id] ?? null;
   await pkLoadPicks();
   pkIntro();
+  pkCountdown();
   pkAccount();
   pkDraw();
   // a failed Discord check still draws the bracket and the Sign out button (the way to retry)
@@ -68,17 +70,41 @@ async function pkLoadPicks() {
 }
 
 function pkIntro() {
-  const r = pk.bracket.rounds;
-  // "1 point in Round 1, 2 points in the Quarterfinals, ... and 8 in the Final"
-  const pts = r.map((x, i) => `${i === r.length - 1 ? "and " : ""}${x.points} point${x.points === 1 ? "" : "s"} in ` +
-    (/^Round /.test(x.name) ? x.name : "the " + x.name)).join(", ");
-  const lock = pk.lockAt.toLocaleString("en-US", { weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles" })
-    .replace(":00", "");
-  $("pk-intro").dataset.lock = lock;
+  // "1, 2, 4 or 8 points"
+  const p = pk.bracket.rounds.map((x) => x.points);
+  const pts = `${p.slice(0, -1).join(", ")} or ${p[p.length - 1]} points`;
   $("pk-intro").textContent = pkLocked()
-    ? `Picks are locked. A right pick earns ${pts}. Open anyone's bracket from the leaderboard.`
-    : `Pick a winner for every playoff match: click a player, and they move on to the next round. A right pick earns ${pts}. ` +
-      `You can change picks until ${lock} Pacific time. Only members of the ${ACCT.server} Discord server can enter.`;
+    ? `Picks are locked: a right pick earns ${pts} by round, and anyone's bracket opens from the leaderboard.`
+    : `Pick the winner of every playoff match: a right pick earns ${pts} by round.`;
+}
+
+/** The time left until picks lock. It counts down to one moment (the store's lock_at), so it's right in any timezone;
+    it reads the visitor's own clock, and the store enforces the lock whatever that says. */
+function pkCountdown() {
+  const box = $("pk-countdown");
+  clearInterval(pkTimer);
+  box.hidden = pkLocked();
+  if (box.hidden) return;
+  const tick = () => {
+    if (!pkLocked()) { box.textContent = "Picks lock in " + League.countdown(pk.lockAt.getTime() - Date.now()); return; }
+    clearInterval(pkTimer);
+    box.hidden = true;
+    pkLockNow("Picks are locked now.");
+  };
+  tick();
+  pkTimer = setInterval(tick, 1000);
+}
+
+/** The lock passed with the page open: redraw it locked (what was saved) and say so. */
+function pkLockNow(message) {
+  pk.mine = pk.user ? League.pickemClean(pk.bracket, pk.saved) : {};
+  pk.viewing = null;
+  pkIntro();
+  pkAccount();
+  pkDraw();
+  pk.all = null;
+  pkBoard();
+  pkStatus(message);
 }
 
 /** The tab's own sign-in line (the header has the same sign-in; this one says what it means for picks). */
@@ -97,7 +123,7 @@ function pkAccount() {
     });
     bar.replaceChildren(b, el("span", "muted", "Picks made before signing in stay in this browser until you sign in."));
   } else if (!pk.member) {
-    bar.replaceChildren(el("span", "", `Signed in as ${pk.name || "you"}, but not as a member of the ${ACCT.server} Discord server, ` +
+    bar.replaceChildren(el("span", "", `Signed in as ${pk.name || "you"}, but not as a member of this league's Discord server, ` +
       "so picks can't be saved. Just joined it? Sign out and sign in again."), out);
   } else bar.replaceChildren(el("span", "", `Signed in as ${pk.name}.`), out);
 }
@@ -111,14 +137,8 @@ function pkPickedText() {
 
 function pkPick(matchId, seed) {
   if (pk.viewing || pk.mine[matchId] === seed) return;
-  if (pkLocked()) {  // the lock passed with the page open: redraw it locked (what was saved) and say so
-    pk.mine = pk.user ? League.pickemClean(pk.bracket, pk.saved) : {};
-    pkIntro();
-    pkAccount();
-    pkDraw();
-    pk.all = null;
-    pkBoard();
-    pkStatus("Picks are locked now, so that change wasn't made.");
+  if (pkLocked()) {
+    pkLockNow("Picks are locked now, so that change wasn't made.");
     return;
   }
   pk.mine = League.pickemClean(pk.bracket, { ...pk.mine, [matchId]: seed });
@@ -251,9 +271,8 @@ async function pkSubmit() {
     pkSubmitBar();
     return;
   }
-  const lock = $("pk-intro").dataset.lock;
   pkStatus("");
-  pkSubmitBar(`Your bracket is in: ${all} of ${all} picks saved. You can still change them until ${lock} Pacific time.`);
+  pkSubmitBar(`Your bracket is in: ${all} of ${all} picks saved. You can still change them until picks lock.`);
 }
 /** Lines from each match's right edge to the player slot its winner moves into, drawn over the laid-out cards. */
 function pkLines(box) {
