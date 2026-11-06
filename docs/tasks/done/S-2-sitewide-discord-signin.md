@@ -1,7 +1,7 @@
 # S-2: Discord sign-in on every tab, not only Pick'em
 
 **Status:** open
-**Links:** [S-1 Pick'em](done/S-1-playoff-pickem.md), [FEATURES.md play-money betting row](../FEATURES.md)
+**Links:** [S-1 Pick'em](S-1-playoff-pickem.md), [FEATURES.md play-money betting row](../../FEATURES.md)
 
 ## Goal
 Sign in with Discord once and be signed in on every tab of a league page. One control on each tab shows "Sign in" or
@@ -55,3 +55,10 @@ page". The control must not hint at betting features (memory "gambling-tease-onl
 - Pick'em works unchanged for a signed-in member.
 - Leagues without Discord behave as decided (no broken control).
 - Tests pass and the code review on the branch against `next` has no open findings.
+
+## Resolution (2026-11-05)
+Done, shipped in release 1.1 (2026-11-05, tag v1.1, commit a284125): the Discord sign-in sits in the header on every tab of leagues with a Discord server, one shared session in `site/app/account.js` that Pick'em reads.
+- Commits (branch `signin`): 4d26645, cdb76eb, 19bae39; merge 40852d7.
+- Evidence: user confirmed 2026-11-05 "Discord sign in works" on the preview. Tests on the release commit: site tests PASS 348/348, `tests/test_tools.py` OK, `tests/test_style.py` OK. Not checked: a Discord sign-in on the live address itself after the release.
+- Review: code review on branch `signin` against `next`, 5 findings, 3 fixed (header overlap at mid widths, serial store reads, live region); the redirect allow list went to the review queue, and the user's preview sign-in has since passed.
+- Left over, not part of this close: drop `contests.guild_id` in its own migration now that the page no longer reads it. It changes the live store, so it needs the user's OK first.

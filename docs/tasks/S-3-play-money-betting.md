@@ -2,7 +2,7 @@
 
 **Status:** blocked (waiting on the user's five decisions)
 **Needs you:** Answer in docs/BETTING_PROPS.md terms: (1) stake and allowance (leaning one fixed stake per bet, not settled), and which of long-shot payouts, weekly lock, parlay box are in 1.2; (2) bet on the six drawn only, or more; (3) which playoff rounds, and each round's lock time; (4) lines for a playoff round, which has fewer games than a regular week; (5) what the leaderboard shows.
-**Links:** [BETTING_PROPS.md](../BETTING_PROPS.md), [FEATURES.md "Betting with play money"](../FEATURES.md), [S-2 sign-in](S-2-sitewide-discord-signin.md), [S-1 Pick'em](done/S-1-playoff-pickem.md)
+**Links:** [BETTING_PROPS.md](../BETTING_PROPS.md), [FEATURES.md "Betting with play money"](../FEATURES.md), [S-2 sign-in](done/S-2-sitewide-discord-signin.md), [S-1 Pick'em](done/S-1-playoff-pickem.md)
 
 ## Goal
 Signed-in Pinecord members bet play money on playoff rounds from the existing six-bet weekly draw. Picks are kept in
