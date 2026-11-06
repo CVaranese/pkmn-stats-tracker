@@ -56,15 +56,20 @@ async function btLoadMine() {
 /** The parts of the block, made here: the page itself is the same for leagues with no bets. */
 function btBuild() {
   const part = (tag, cls, id) => Object.assign(el(tag, cls), { id });
-  const status = part("p", "muted bet-note", "bet-status-line");
+  const status = part("p", "muted bet-slip-status", "bet-status-line");
   status.setAttribute("role", "status");
   const wrap = el("div", "table-wrap");
   wrap.hidden = true;
   wrap.append(part("table", "", "bet-board"));
+  // the tickets on the left; on the right the slip they fill in, and the leaderboard
+  const slip = el("section", "bet-slip");
+  slip.append(part("h3", "", "bet-slip-title"), part("p", "hint", "bet-viewing"), part("ul", "bet-slip-list", "bet-slip-list"), status);
+  const side = el("aside", "bet-side");
+  side.append(slip, el("h2", "section-title", "Leaderboard"), part("p", "hint", "bet-board-note"), wrap);
+  const cols = el("div", "bet-cols");
+  cols.append(part("div", "bet-cards", "bet-list"), side);
   $("bet-draw").replaceChildren(el("h2", "section-title", "Playoff bets"), part("div", "bet-band", "bet-countdown"),
-    part("p", "hint bet-note", "bet-intro"), part("div", "bet-note", "bet-account"), status,
-    part("p", "hint bet-note", "bet-viewing"), part("div", "bet-slip", "bet-list"),
-    el("h2", "section-title", "Leaderboard"), part("p", "hint", "bet-board-note"), wrap);
+    part("p", "hint bet-note", "bet-intro"), part("div", "bet-note", "bet-account"), cols);
 }
 
 /** The time left until bets lock; the store enforces the lock whatever the visitor's clock says. */
@@ -123,6 +128,10 @@ function btDraw() {
     back.addEventListener("click", () => { bt.viewing = null; btDraw(); });
     v.replaceChildren(`Showing ${bt.viewing.name}'s slip. `, back);
   }
+  $("bet-slip-title").textContent = "Your slip";
+  $("bet-slip-title").hidden = !!bt.viewing;
+  const slip = bt.viewing || bt, placed = bt.props.filter((x) => slip.mine[x.bet_id]);
+  $("bet-slip-list").replaceChildren(...(placed.length ? placed.map((x) => btSlipRow(x, slip)) : [el("li", "muted", "Nothing picked yet.")]));
   // the cards are rebuilt: a keyboard user stays on the button they pressed
   const focused = document.activeElement && document.activeElement.dataset.focus;
   $("bet-list").replaceChildren(...bt.props.map(btCard));
@@ -132,8 +141,24 @@ function btDraw() {
   }
 }
 
-/** One row of the slip: the bet's wording (anything in brackets on a smaller line under it), its line, the two sides
-    (read-only on someone else's slip, signed out, or after the lock), then the lock button or how it came out. */
+/** A bet's wording as [name, what's in brackets (a smaller line under it)]. */
+function btWording(x) {
+  const prop = btProp(x.bet_id);
+  return (prop ? prop.text : x.bet_id).match(/^(.*?)(?: \((.*)\))?$/).slice(1);
+}
+/** One line of the slip: the bet, the pick and, once settled, what it scored. */
+function btSlipRow(x, slip) {
+  const pick = slip.mine[x.bet_id], isLock = slip.lock === x.bet_id;
+  const li = el("li");
+  li.append(el("span", "", btWording(x)[0] + (isLock ? " (lock)" : "")));
+  const worth = Bet.BET_STAKE * (isLock ? 2 : 1);
+  const scored = !x.outcome ? "" : x.outcome === "void" ? ", void" : `, ${btPoints(pick === x.outcome ? worth : -worth)}`;
+  li.append(el("b", "", pick + (x.kind === "ou" ? ` ${Number(x.line)}` : "") + scored));
+  return li;
+}
+
+/** One ticket: the bet's wording and line on top, then at the bottom the two sides (read-only on someone else's slip,
+    signed out, or after the lock) and the lock button or how it came out. */
 function btCard(x) {
   const prop = btProp(x.bet_id);
   const slip = bt.viewing || bt;
@@ -141,7 +166,8 @@ function btCard(x) {
   const fixed = !!bt.viewing || !btCan();
   const isLock = slip.lock === x.bet_id;
   const card = el("article", "bet" + (isLock ? " is-lock" : ""));
-  const [, title, note] = (prop ? prop.text : x.bet_id).match(/^(.*?)(?: \((.*)\))?$/);
+  const [title, note] = btWording(x);
+  const top = el("div", "bet-top");
   const name = el("div", "bet-name");
   name.append(el("h3", "", title));
   if (note) name.append(el("p", "bet-sub", note));
@@ -150,10 +176,10 @@ function btCard(x) {
     tag.append(el("span", "badge win", "Lock: counts double"));
     name.append(tag);
   }
-  card.append(name);
   const line = el("p", "bet-line", x.kind === "ou" ? "Over / under " : "Yes or no");
   if (x.kind === "ou") line.append(el("span", "bet-num", String(Number(x.line))));
-  card.append(line);
+  top.append(name, line);
+  card.append(top);
   const sides = el("div", "bet-sides");
   sides.setAttribute("role", "group");
   sides.setAttribute("aria-label", prop ? prop.text : x.bet_id);
@@ -281,10 +307,15 @@ async function btBoard() {
   const ranks = League.pickemRanks(data.map((e) => ({ ...e, points: e.score })));
   $("bet-board").parentNode.hidden = !ranks.length;
   $("bet-board-note").textContent = !ranks.length ? "Nobody has bet yet."
-    : btHouseText(data) + (locked ? "Equal scores share a place." : "Everyone who has bet so far. Slips open to everyone when bets lock.");
+    : btHouseText(data) + (locked ? "Record is right-wrong-void. Equal scores share a place." : "Everyone who has bet so far. Slips open to everyone when bets lock.");
   const all = bt.props.length;
-  simpleTable($("bet-board"), [["Place", "num"], ["Player", ""], ["Score", "num"], ["Right", "num"], ["Wrong", "num"], ["Void", "num"], ["Placed", "num"],
-    ...(locked ? [["", ""]] : [])],
+  const you = (e) => e.name + (bt.user && e.person_id === bt.user.id ? " (you)" : "");
+  // a narrow column: before the lock nobody has a score yet, so who has bet and how many
+  if (!locked) {
+    simpleTable($("bet-board"), [["Player", ""], ["Placed", "num"]], ranks.map((e) => [[you(e), ""], [`${e.picked} of ${all}`, "num"]]));
+    return;
+  }
+  simpleTable($("bet-board"), [["Place", "num"], ["Player", ""], ["Score", "num"], ["Record", "num"], ["", ""]],
     ranks.map((e) => {
       const theirs = bt.slips && bt.slips[e.person_id];
       const open = el("button", "small", "Slip");
@@ -294,8 +325,6 @@ async function btBoard() {
         btDraw();
         $("bet-viewing").scrollIntoView({ block: "nearest" });
       });
-      return [[String(e.place), "num"], [e.name + (bt.user && e.person_id === bt.user.id ? " (you)" : ""), ""], [btPoints(e.score), "num"],
-        [String(e.won), "num"], [String(e.lost), "num"], [String(e.voided), "num"], [`${e.picked} of ${all}`, "num"],
-        ...(locked ? [[theirs ? open : "", ""]] : [])];
+      return [[String(e.place), "num"], [you(e), ""], [btPoints(e.score), "num"], [`${e.won}-${e.lost}-${e.voided}`, "num"], [theirs ? open : "", ""]];
     }));
 }

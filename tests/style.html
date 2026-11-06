@@ -138,26 +138,31 @@
       <ul><li>Rules and explanations go in a list like this.</li></ul>
     </details>
     <section class="sample">
-      <h2>Bet slip (.bet-slip, Gambling: a .bet row, two .pk-side sides, the lock's on/off button or the result)</h2>
-      <div class="bet-slip">
-        <article class="bet is-lock">
-          <div class="bet-name"><h3>Critical hits</h3><p class="bet-lock-tag"><span class="badge win">Lock: counts double</span></p></div>
-          <p class="bet-line">Over / under <span class="bet-num">27.5</span></p>
-          <div class="bet-sides"><button class="pk-side" type="button" aria-pressed="true">Over</button><button class="pk-side" type="button" aria-pressed="false">Under</button></div>
-          <button class="small bet-lock" type="button" aria-pressed="true">Remove my lock</button>
-        </article>
-        <article class="bet">
-          <div class="bet-name"><h3>Secondary effects landed</h3><p class="bet-sub">burns, stat drops, flinches...</p></div>
-          <p class="bet-line">Over / under <span class="bet-num">10.5</span></p>
-          <div class="bet-sides"><button class="pk-side" type="button" aria-pressed="false">Over</button><button class="pk-side" type="button" aria-pressed="false">Under</button></div>
-          <button class="small bet-lock" type="button" aria-pressed="false">Make this my lock</button>
-        </article>
-        <article class="bet">
-          <div class="bet-name"><h3>Turns spent asleep</h3></div>
-          <p class="bet-line">Over / under <span class="bet-num">4.5</span></p>
-          <div class="bet-sides"><button class="pk-side" type="button" aria-pressed="true" aria-disabled="true">Over</button><button class="pk-side" type="button" aria-pressed="false" aria-disabled="true">Under</button></div>
-          <p class="bet-result"><span class="badge win">Right, +10</span> Over: 7</p>
-        </article>
+      <h2>Bets (Gambling: .bet tickets with two .pk-side sides and the lock's on/off button or the result, beside the .bet-slip)</h2>
+      <div class="bet-cols">
+        <div class="bet-cards">
+          <article class="bet is-lock">
+            <div class="bet-top"><div class="bet-name"><h3>Critical hits</h3><p class="bet-lock-tag"><span class="badge win">Lock: counts double</span></p></div>
+            <p class="bet-line">Over / under <span class="bet-num">27.5</span></p></div>
+            <div class="bet-sides"><button class="pk-side" type="button" aria-pressed="true">Over</button><button class="pk-side" type="button" aria-pressed="false">Under</button></div>
+            <button class="small bet-lock" type="button" aria-pressed="true">Remove my lock</button>
+          </article>
+          <article class="bet">
+            <div class="bet-top"><div class="bet-name"><h3>Secondary effects landed</h3><p class="bet-sub">burns, stat drops, flinches...</p></div>
+            <p class="bet-line">Over / under <span class="bet-num">10.5</span></p></div>
+            <div class="bet-sides"><button class="pk-side" type="button" aria-pressed="false">Over</button><button class="pk-side" type="button" aria-pressed="false">Under</button></div>
+            <button class="small bet-lock" type="button" aria-pressed="false">Make this my lock</button>
+          </article>
+          <article class="bet">
+            <div class="bet-top"><div class="bet-name"><h3>Turns spent asleep</h3></div>
+            <p class="bet-line">Over / under <span class="bet-num">4.5</span></p></div>
+            <div class="bet-sides"><button class="pk-side" type="button" aria-pressed="true" aria-disabled="true">Over</button><button class="pk-side" type="button" aria-pressed="false" aria-disabled="true">Under</button></div>
+            <p class="bet-result"><span class="badge win">Right, +10</span> Over: 7</p>
+          </article>
+        </div>
+        <aside class="bet-side"><section class="bet-slip"><h3>Your slip</h3>
+          <ul class="bet-slip-list"><li><span>Critical hits (lock)</span><b>Over 27.5, +20</b></li><li><span>Turns spent asleep</span><b>Over 4.5</b></li></ul>
+          <p class="muted bet-slip-status">Saved: 2 of 6 bets placed, lock set.</p></section></aside>
       </div>
     </section>
     <section class="sample">

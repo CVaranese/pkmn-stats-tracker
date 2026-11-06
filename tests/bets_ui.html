@@ -169,7 +169,7 @@ const SCENARIOS = {
     // docs/STYLE.md: fits at 320px without the page scrolling sideways (only the table scrolls, in its wrap)
     frame.style.width = "320px";
     await wait(100);
-    const wide = [...frame.contentDocument.querySelectorAll("#bet-draw > *, #bet-list .bet, .bet-sides, .bet-lock")].filter((n) => n.getBoundingClientRect().right > 320).map((n) => n.id || n.className);
+    const wide = [...frame.contentDocument.querySelectorAll("#bet-draw > *, #bet-list .bet, .bet-sides, .bet-lock, .bet-slip")].filter((n) => n.getBoundingClientRect().right > 320).map((n) => n.id || n.className);
     check("member: every part of the bets fits a 320px screen", !wide.length, wide.join(", "));
     frame.style.width = "";
     return st;
@@ -180,13 +180,18 @@ const SCENARIOS = {
     const st = await open({ signedIn: true, member: true, lockIn: 48 * HOUR, bets: [{ person_id: ME, contest_id: c, bet_id: "turns", pick: "Under" }], locks: [{ person_id: ME, contest_id: c, bet_id: "turns" }] });
     check("returning: picks and the lock come back from the store",
       side(3, "Under").getAttribute("aria-pressed") === "true" && lockBtn(3).getAttribute("aria-pressed") === "true");
-    // user 2026-11-06: the buttons look the same and line up from row to row, whatever else the row holds
+    // user 2026-11-06: the buttons look the same and sit in the same place on every ticket, whatever else it holds
     const boxes = [0, 1, 2, 3, 4, 5].map((i) => {
-      const s = card(i).querySelector(".pk-side").getBoundingClientRect(), l = lockBtn(i).getBoundingClientRect();
-      return { left: Math.round(s.left), w: Math.round(s.width), h: Math.round(s.height), lockLeft: Math.round(l.left), lockW: Math.round(l.width), lockH: Math.round(l.height) };
+      const c = card(i).getBoundingClientRect(), s = card(i).querySelector(".pk-side").getBoundingClientRect(), l = lockBtn(i).getBoundingClientRect();
+      return { cardH: Math.round(c.height), fromBottom: Math.round(c.bottom - s.bottom), inset: Math.round(s.left - c.left), w: Math.round(s.width), h: Math.round(s.height),
+        lockW: Math.round(l.width), lockH: Math.round(l.height), centred: Math.abs((l.left + l.right) / 2 - (c.left + c.right) / 2) < 1 };
     });
-    check("returning: every row's buttons are the same size and in the same columns",
-      boxes.every((b) => JSON.stringify(b) === JSON.stringify(boxes[0])), JSON.stringify(boxes));
+    check("returning: every ticket is the same height, its buttons the same size and place, centred",
+      boxes.every((b) => JSON.stringify(b) === JSON.stringify(boxes[0])) && boxes[0].centred, JSON.stringify(boxes));
+    const slipText = $f("bet-slip-list").textContent;
+    check("returning: the slip lists the pick with its line and the lock", slipText.includes("Turns played (lock)") && slipText.includes("Under 689.5"), slipText);
+    const sideBox = frame.contentDocument.querySelector(".bet-side").getBoundingClientRect(), listBox = $f("bet-list").getBoundingClientRect();
+    check("returning: on a wide screen the slip sits to the right of the tickets", innerWidth < 900 || sideBox.left >= listBox.right, `${sideBox.left} ${listBox.right}`);
     const title = [...frame.contentDocument.querySelectorAll("#bet-list h3")].map((h) => h.textContent);
     check("returning: wording in brackets goes on the smaller line", title.includes("Turns played") && card(3).querySelector(".bet-sub").textContent === "all games added up", title.join(", "));
     return st;
@@ -224,8 +229,12 @@ const SCENARIOS = {
     check("settled: an open bet shows the count so far", card(3).textContent.includes("410 so far"), card(3).textContent);
     // me +20 -10 = +10; Other: wrong on crits -10, right on sleep +10 = 0; the house is down 10
     check("settled: the house's total", $f("bet-board-note").textContent.includes("The house is down 10"), $f("bet-board-note").textContent);
+    const slipText = $f("bet-slip-list").textContent;
+    check("settled: the slip shows what each scored", slipText.includes("Over 27.5, +20") && slipText.includes("Over 4.5, -10") && slipText.includes("Under 4.5, void"), slipText);
     const rows = [...$f("bet-board").querySelectorAll("tr")].slice(1);
     check("settled: places by score, Me first", rows[0].textContent.startsWith("1Me (you)+10") && rows[1].textContent.startsWith("2Other0"), rows.map((r) => r.textContent).join(" | "));
+    const boardWrap = $f("bet-board").parentNode;
+    check("settled: the leaderboard fits its column, the Slip button not cut off", boardWrap.scrollWidth <= boardWrap.clientWidth, `${boardWrap.scrollWidth} > ${boardWrap.clientWidth}`);
     rows[1].querySelector("button").click();
     await until(() => !$f("bet-viewing").hidden, "the slip");
     check("settled: someone's slip opens, with their picks", $f("bet-viewing").textContent.includes("Other's slip") &&
