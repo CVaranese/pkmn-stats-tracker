@@ -22,17 +22,16 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    /* charcoal panels like the banner's black, mint kept for highlights (user 2026-11-06: all-green looked muddy) */
-    --bg: #1c1f1e;
-    --surface: #272b2a;
-    --text: #f3f2ec;
-    --muted: #b4bbb6;
-    --border: #454c49;
+    --bg: #182a26;
+    --surface: #1f3430;
+    --text: #eef5f2;
+    --muted: #a8c1ba;
+    --border: #335048;
     --accent: #8fd9c6;
     --accent-text: #0d2420;
-    --row-alt: #2e3331;
+    --row-alt: #243a35;
     --outline: #08120f;
-    --band: #1f3a34;
+    --band: #15302b;
     --wall: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Crect width='120' height='60' fill='%2310302a'/%3E%3Cpath d='M0 1h120M0 31h120M1 0v30M61 30v30' stroke='%2317403a' stroke-width='3'/%3E%3C/svg%3E");
     --error: #ffb4ab;
     --error-bg: #3b1d1a;
