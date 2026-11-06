@@ -56,14 +56,14 @@ async function btLoadMine() {
 /** The parts of the block, made here: the page itself is the same for leagues with no bets. */
 function btBuild() {
   const part = (tag, cls, id) => Object.assign(el(tag, cls), { id });
-  const status = part("p", "muted", "bet-status-line");
+  const status = part("p", "muted bet-note", "bet-status-line");
   status.setAttribute("role", "status");
   const wrap = el("div", "table-wrap");
   wrap.hidden = true;
   wrap.append(part("table", "", "bet-board"));
   $("bet-draw").replaceChildren(el("h2", "section-title", "Playoff bets"), part("p", "hint", "bet-intro"),
-    part("p", "pk-countdown", "bet-countdown"), part("div", "pl-bar", "bet-account"), status,
-    part("p", "hint", "bet-viewing"), part("div", "award-grid", "bet-list"),
+    part("div", "bet-band", "bet-countdown"), part("div", "bet-note", "bet-account"), status,
+    part("p", "hint bet-note", "bet-viewing"), part("div", "award-grid", "bet-list"),
     el("h2", "section-title", "Leaderboard"), part("p", "hint", "bet-board-note"), wrap);
 }
 
@@ -74,7 +74,10 @@ function btCountdown() {
   box.hidden = btLocked();
   if (box.hidden) return;
   const tick = () => {
-    if (!btLocked()) { box.textContent = "Bets lock in " + League.countdown(bt.lockAt.getTime() - Date.now()); return; }
+    if (!btLocked()) {
+      box.replaceChildren(el("span", "bet-band-label", "Bets lock in "), el("span", "bet-band-time", League.countdown(bt.lockAt.getTime() - Date.now())));
+      return;
+    }
     clearInterval(btTimer);
     box.hidden = true;
     btLockNow("Bets are locked now.");
@@ -100,9 +103,9 @@ function btPlacedText() {
 }
 
 function btDraw() {
-  const n = bt.props.length, s = Bet.BET_STAKE;
+  const s = Bet.BET_STAKE;
   $("bet-intro").textContent = (btLocked() ? "Bets are locked: anyone's slip opens from the leaderboard. " : "") +
-    `${n} bets on the whole playoffs, every game of every round added up. Play money, ${s} points a bet: right +${s}, wrong -${s}, ` +
+    `These bets cover the whole playoffs, every game of every round added up. Play money, ${s} points a bet: right +${s}, wrong -${s}, ` +
     `and a bet that can't be settled gives its ${s} back. Your lock counts double, won or lost.`;
   const bar = $("bet-account");
   if (btLocked() || (bt.user && bt.member)) bar.replaceChildren();
@@ -129,17 +132,26 @@ function btDraw() {
   }
 }
 
-/** One bet: its wording and line, the two sides (read-only on someone else's slip, signed out, or after the lock), the
-    lock button, and how it came out. */
+/** One bet, every card the same shape: wording and line at the top, how it came out, then at the bottom the two sides
+    (read-only on someone else's slip, signed out, or after the lock) and the lock button. */
 function btCard(x) {
   const prop = btProp(x.bet_id);
   const slip = bt.viewing || bt;
   const pick = slip.mine[x.bet_id];
   const fixed = !!bt.viewing || !btCan();
   const isLock = slip.lock === x.bet_id;
-  const card = el("article", "award bet");
+  const card = el("article", "award bet" + (isLock ? " is-lock" : ""));
   card.append(el("h3", "", prop ? prop.text : x.bet_id));
-  card.append(el("p", "bet-line", x.kind === "ou" ? `Over / under ${Number(x.line)}` : "Yes or no"));
+  const line = el("p", "bet-line", x.kind === "ou" ? "Over / under " : "Yes or no");
+  if (x.kind === "ou") line.append(el("span", "bet-num", String(Number(x.line))));
+  card.append(line);
+  if (isLock) {
+    const tag = el("p", "bet-lock-tag");
+    tag.append(el("span", "badge win", "Lock: counts double"));
+    card.append(tag);
+  }
+  // nothing to say before the lock: no game counts yet
+  if (x.outcome || x.detail || btLocked()) card.append(btResult(x, pick, isLock));
   const sides = el("div", "bet-sides");
   sides.setAttribute("role", "group");
   sides.setAttribute("aria-label", prop ? prop.text : x.bet_id);
@@ -154,15 +166,17 @@ function btCard(x) {
   }
   card.append(sides);
   if (!fixed) {
-    const b = el("button", "small bet-lock", isLock ? "Remove my lock (counts double)" : "Make this my lock");
+    const b = el("button", "small bet-lock", isLock ? "Remove my lock" : "Make this my lock");
     b.type = "button";
     b.dataset.focus = x.bet_id + "|lock";
     b.setAttribute("aria-pressed", String(isLock));
-    b.disabled = !pick;
-    b.addEventListener("click", () => btSetLock(isLock ? null : x.bet_id));
+    // always at full strength (user 2026-11-06: it should pop), so with no pick it says what to do first
+    b.addEventListener("click", () => {
+      if (pick) btSetLock(isLock ? null : x.bet_id);
+      else btStatus(`Pick ${x.kind === "ou" ? "Over or Under" : "Yes or No"} on that bet first, then make it your lock.`);
+    });
     card.append(b);
-  } else if (isLock) card.append(el("p", "bet-line", "Lock: counts double"));
-  card.append(btResult(x, pick, isLock));
+  }
   return card;
 }
 

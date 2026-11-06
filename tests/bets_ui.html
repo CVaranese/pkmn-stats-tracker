@@ -138,7 +138,10 @@ const SCENARIOS = {
       $f("bet-draw").hidden === false && frame.contentDocument.querySelector("#gamble .soon").hidden && card(0).textContent.includes("Over / under 27.5"));
     check("member: the countdown runs", /^Bets lock in 1d 2?3?h?/.test($f("bet-countdown").textContent) || $f("bet-countdown").textContent.startsWith("Bets lock in 2d"), $f("bet-countdown").textContent);
     check("member: a yes / no bet has Yes and No sides", !!side(5, "Yes") && !!side(5, "No"));
-    check("member: no lock before there's a pick", lockBtn(0).disabled);
+    lockBtn(0).click();
+    await wait(50);
+    check("member: no lock before there's a pick, and it says why",
+      !st.db.bet_locks.length && !st.writes.length && $f("bet-status-line").textContent.startsWith("Pick Over or Under"), $f("bet-status-line").textContent);
     side(0, "Over").click();
     await saved();
     check("member: a pick is pressed and in the store",
@@ -177,6 +180,16 @@ const SCENARIOS = {
     const st = await open({ signedIn: true, member: true, lockIn: 48 * HOUR, bets: [{ person_id: ME, contest_id: c, bet_id: "turns", pick: "Under" }], locks: [{ person_id: ME, contest_id: c, bet_id: "turns" }] });
     check("returning: picks and the lock come back from the store",
       side(3, "Under").getAttribute("aria-pressed") === "true" && lockBtn(3).getAttribute("aria-pressed") === "true");
+    // user 2026-11-06: the buttons look the same and sit in the same place on every card, whatever else the card holds
+    const boxes = [0, 1, 2, 3, 4, 5].map((i) => {
+      const c = card(i).getBoundingClientRect(), s = card(i).querySelector(".pk-side").getBoundingClientRect(), l = lockBtn(i).getBoundingClientRect();
+      return { fromBottom: Math.round(c.bottom - s.bottom), inset: Math.round(s.left - c.left), w: Math.round(s.width), h: Math.round(s.height), lockW: Math.round(l.width), lockH: Math.round(l.height) };
+    });
+    check("returning: every card's buttons are the same size, the same distance from its bottom, and centred",
+      boxes.every((b) => JSON.stringify(b) === JSON.stringify(boxes[0])), JSON.stringify(boxes));
+    const row = frame.contentDocument.querySelector("#bet-list").getBoundingClientRect();
+    check("returning: cards in a row are the same height",
+      card(0).getBoundingClientRect().height === card(1).getBoundingClientRect().height || row.width < 600, String(row.width));
     return st;
   },
   async signedout() {

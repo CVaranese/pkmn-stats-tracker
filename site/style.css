@@ -620,14 +620,25 @@ button.slot[aria-pressed="true"] { border-color: var(--outline); background: var
 .award-who .muted { font-size: var(--fs-sm); }
 .award-value { font-size: var(--fs-md); text-align: right; white-space: nowrap; }
 .award-more { margin: 6px 0 0; font-size: var(--fs-sm); cursor: help; }
-/* Gambling: a bet's line, its two sides (Pick'em's .pk-side), the lock button and how it came out */
-.bet h3 { cursor: auto; }
-.bet-line { margin: 0 0 8px; font-size: var(--fs-md); color: var(--muted); }
-.bet-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+/* Gambling: the countdown between two lines of the header's stripe */
+.bet-band { margin: 16px 0; text-align: center; }
+.bet-band::before, .bet-band::after { content: ""; display: block; height: 10px; border-radius: var(--radius-xs); background: var(--stripe); }
+.bet-band-label { display: block; margin-top: 12px; font-size: var(--fs-md); color: var(--muted); }
+.bet-band-time { display: block; margin-bottom: 12px; font-size: var(--fs-5xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+.bet-note { margin-inline: auto; text-align: center; }
+/* a bet: every card the same shape, wording and line on top, the sides (Pick'em's .pk-side) and the lock at the bottom,
+   the same size and place on every card whatever the wording's length */
+.bet { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.bet h3 { min-height: 2.6em; margin-bottom: 4px; line-height: 1.3; cursor: auto; }
+.bet-line { margin: 0 0 10px; font-size: var(--fs-md); color: var(--muted); }
+.bet-num { display: block; font-size: var(--fs-5xl); font-weight: 700; line-height: 1.15; color: var(--text); font-variant-numeric: tabular-nums; }
+.bet-lock-tag { margin: 0 0 10px; }
+.bet-result { margin: 0 0 10px; font-size: var(--fs-md); }
+.bet-sides { display: grid; grid-template-columns: 104px 104px; gap: 6px; margin-top: auto; }
 .bet-sides .pk-side { justify-content: center; }
-.bet-lock { display: block; margin-bottom: 8px; }
-.bet-lock[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
-.bet-result { margin: 0; font-size: var(--fs-md); }
+button.bet-lock { width: 214px; margin-top: 8px; padding: 7px 10px; border: 2px solid var(--outline); font-size: var(--fs-md); font-weight: 700; }
+button.bet-lock[aria-pressed="true"] { background: var(--accent); border-color: var(--outline); color: var(--accent-text); }
+.bet.is-lock { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -1px; }
 /* Pick'em: the bracket, a column per round; each match a card with its two players, placed level with the matches
    feeding it (--pk-y, in rows of --pk-slot); lines (svg.pk-lines) join a match to the slot its winner moves into.
    Phones scroll it sideways inside its box, a round at a time. */
