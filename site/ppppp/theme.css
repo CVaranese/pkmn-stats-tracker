@@ -16,6 +16,7 @@
   /* the banner's striped floor under the header; black and porcelain along the Gambling box */
   --stripe: repeating-linear-gradient(-60deg, #1c1c1a 0 14px, #f4f4f0 14px 28px, #9a9a96 28px 32px);
   --stripe-box: repeating-linear-gradient(-45deg, #1c1c1a 0 12px, var(--porcelain) 12px 24px);
+  --ticket-top: #8fd9c6;  /* the same mint in light and dark */
   --error: #b3261e;
   --error-bg: #fbeceb;
   color-scheme: light;

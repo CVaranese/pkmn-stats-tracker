@@ -1,9 +1,9 @@
 # Changelog
 
 ## Unreleased
-- Gambling: bet cards redrawn as tickets: black outline, a stripe along the top, the line large between Over and Under, and the lock button a tear-off stub at the foot of the card, porcelain until pressed.
 
 ## 1.2 (2026-11-06)
+- Gambling: bet cards redrawn as tickets, part of 1.2 after its tag (user 2026-11-06): black outline, a solid mint band along the top, the line large between Over and Under, and the lock button a tear-off stub at the foot of the card, porcelain until pressed.
 - Gambling tab on Pinecord: real play-money bets. Six over / under bets on the whole playoffs (every game of every round added up), the same lock as Pick'em. 10 points a bet: right +10, wrong -10, a bet that can't be settled gives its 10 back, and one bet marked as your lock counts double, won or lost. Members of the Discord server sign in to bet and can change their bets until the lock; after it anyone's slip opens from the leaderboard (place, score, right / wrong / void, and the house's total). Replaces the weekly draw the preview showed. Super Champions keeps the Under construction box.
 - Lines come from simulated best-of-3 playoffs (`python -I tools/bets.py`: 22 to 33 games drawn 80% from the league's games, 20% from recent Nat Dex replays); only bets landing 35-65% Over / Yes, both blended and on league games alone, can be drawn. `tools/bets.py settle` prints the results' SQL after each round; a game with no replay voids an Under or a No (an Over or a Yes already reached stands).
 - Gambling layout: the countdown large and centred between two lines of the banner's stripe; bet tickets on the left, all one height with the Over / Under buttons the same size and place, and a stronger lock button (a locked ticket gets an outline and a badge); your slip and the leaderboard on the right, in view as you pick, moving under the tickets on phones, where a bar along the bottom says whether each tap saved. The leaderboard's right, wrong and void became one Record column to fit.
