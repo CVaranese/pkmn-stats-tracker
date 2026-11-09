@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Pinecord Pick'em: the first two playoff results (matches A and C) from Challonge, in the bracket file and the picks store.
 
 ## 1.2 (2026-11-06)
 - Gambling: bet cards redrawn as tickets, part of 1.2 after its tag (user 2026-11-06): black outline, a solid mint band along the top, the line large between Over and Under, and the lock button a tear-off stub at the foot of the card, porcelain until pressed.
