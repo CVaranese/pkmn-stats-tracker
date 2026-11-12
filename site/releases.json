@@ -2,6 +2,15 @@
   "_note": "What's new, for people using the site (newest first): shown on the league list (site/index.html) and as the version in each league page's footer. CHANGELOG.md is the detailed log for us. After any change run python -I tools/build_pages.py.",
   "releases": [
     {
+      "version": "1.2.1",
+      "title": "Playoffs, round one",
+      "notes": [
+        "Pinecord's first playoff round is in: nine games in four sets, under Games, Playoffs. No replays were saved, so they were rebuilt from the stream videos; Watch plays the video from where that game starts.",
+        "Team sheets for those games, and Pikmon's for Weeks 1 to 7.",
+        "A Pokémon that faints to its own Perish Song now counts as knocking itself out, not as a kill for the other side."
+      ]
+    },
+    {
       "version": "1.2",
       "title": "Playoff bets",
       "notes": [
