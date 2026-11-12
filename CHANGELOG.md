@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- After the code review of the Playoffs R1 work (no saved game changed): only entry hazards count as blown away by Defog / Rapid Spin (a screen wearing off the same turn doesn't, and Court Change isn't a clearer); `add_game.py` refuses a set video without `--game`; `tools/sheets.py` knows the draft's other names (DEJIME17 is DEJIME); the frame grabber retries removing its Edge profile; the Iron Barbs / Rough Skin rule looks past a line in between; the library-sheets test no longer needs its count edited for every new sheet.
 - Pinecord: the first playoff round's nine games (four sets, under Playoffs R1), rebuilt from the stream videos since no replays were saved, with the team sheets the players sent. Two carry a note: Dox vs PotatoesAreYum game 1 (the stream cut away on the last hit) and Zolo vs Cloudburst game 2 (turns 24 to 49 read from the message box, a window covered the log).
 - Stream-video tools: Rocky Helmet and Iron Barbs / Rough Skin damage now names the Pokémon behind it (a KO by either went to whoever hit last), and a Pokémon that faints to its own Explosion / Healing Wish is a self-KO, not the last hit it took. "The Pokémon was hit 2 times!" read with its é keeps its count. Hazards blown away by Defog / Rapid Spin name the move and its user, so they count as cleared (Round 1 read 0 cleared instead of 3).
 - Pinecord bets: Round 1 settled in the store. Turns asleep is Over (9); the other five stay open with their running totals.

@@ -128,6 +128,8 @@ def main():
 
     rid = replay_id(args.replay, args.game)
     copy = GAMES / (rid + ".json")
+    if rid.startswith("video-") and not args.game and any(GAMES.glob(rid + "-g?.json")):
+        sys.exit(f"{rid} is a video of a whole set (its games are saved as {rid}-g<n>): pass --game N")
     if rid.startswith("video-") and not args.file and not copy.exists():
         sys.exit("A video game needs --file with the JSON from tools/video/video_to_replay.py")
     if args.file:

@@ -164,7 +164,8 @@ screenshots), `tools/video/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video/
   game was illegal and the set was replayed (user, 2026-10-27), so only the live game was converted: `video_to_replay.py --start 1300 --length 1719`
   (new `--start`; `--length` doubles as where to stop).
 - **Tested**: frame grabs while a conversion runs need their own Edge profile and port: `TEMP=<other dir>` and
-  `video_frames.py --port 8781` (both use `%TEMP%\edge-headless-frames`; sharing it gave 0 PNGs).
+  `video_frames.py --port 8781` (both use `%TEMP%\edge-headless-frames`; sharing it gave 0 PNGs). Since 2026-11-11
+  every launch makes its own profile, so only the `--port` is still needed.
 - **Tested**: slips fixed by hand this time: a mon fainted twice from a message-box re-reading, a switch-in with the
   next line glued on ("Hawlucha)l Pointed stones dug into ..."), a nickname read as the species ("That's Rough
   Buddy"), "Zygarde" for Zygarde-10%, "POI Pot" for Pol Pot, "Appa ate Momol" for "Appa ate Momo!", an unparsed

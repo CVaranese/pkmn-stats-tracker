@@ -45,8 +45,13 @@ def problems(league):
     """What --check reports: one line each."""
     index, files, strays = scan(league)
     out = [f"{league}/mock/{name}: no saved game with that id" for name in strays]
+    # a player's other Showdown name from the draft (DEJIME17 -> DEJIME) is the same player, as on the site
+    draft = SITE / league / "games" / "draft.json"
+    alias = json.loads(draft.read_text(encoding="utf-8")).get("aliases", {}) if draft.exists() else {}
+    same = {to_id(a): to_id(b) for a, b in alias.items()} | {to_id(b): to_id(a) for a, b in alias.items()}
     for g in index["games"]:
         players = {to_id(p) for p in g["players"]}
+        players |= {same[p] for p in players if p in same}
         for kind in ("sheets", "fixes"):
             listed, saved = g.get(kind, []), files.get((g["id"], kind), [])
             out += [f"{g['id']}: {kind} lists {p} but mock/ has no file" for p in listed if p not in saved]

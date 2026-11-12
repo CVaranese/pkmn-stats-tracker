@@ -137,7 +137,11 @@ def main():
                 skipped.append(stuck)
                 break
         subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        shutil.rmtree(prof, ignore_errors=True)
+        for _ in range(5):   # Edge's children let go of the profile a moment after the kill
+            shutil.rmtree(prof, ignore_errors=True)
+            if not os.path.exists(prof):
+                break
+            time.sleep(0.4)
         if done.is_set():   # the page went through every time; any frame it couldn't seek to stays skipped
             time.sleep(0.5)
             skipped += [t for t in left if not os.path.exists(os.path.join(args.out_dir, name(t)))]

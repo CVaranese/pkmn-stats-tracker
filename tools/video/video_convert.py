@@ -16,7 +16,8 @@ SKIP_KEYS = {"name", "desc", "shortDesc", "statName", "statShortName", "weatherN
 FRAGMENTS = {"pokemon", "opposingPokemon", "team", "opposingTeam", "party", "opposingParty"}  # parts of messages
 # HP % for damage / healing the spectator log shows no number for (guesses from the game's fractions)
 SELF_KO_MOVES = {"Explosion", "Self-Destruct", "Misty Explosion", "Memento", "Healing Wish", "Lunar Dance", "Final Gambit"}
-HAZARD_CLEARERS = {"Defog", "Rapid Spin", "Mortal Spin", "Tidy Up", "Court Change"}
+HAZARD_CLEARERS = {"Defog", "Rapid Spin", "Mortal Spin", "Tidy Up"}   # Court Change swaps, it doesn't clear
+ENTRY_HAZARDS = {"Stealth Rock", "Spikes", "Toxic Spikes", "Sticky Web"}
 DRAIN_3_4 = {"Draining Kiss", "Oblivion Wing"}   # heal 3/4 of the damage; every other drain move 1/2
 TRAP_MOVES = {"Bind", "Wrap", "Fire Spin", "Clamp", "Whirlpool", "Sand Tomb", "Magma Storm", "Infestation", "Snap Trap",
               "Thunder Cage"}
@@ -336,10 +337,14 @@ class Converter:
             return side, nick, "pokemon: Mimikyu-Busted", None   # "(X was hurt!)" after the disguise breaks
         # "X was hurt!" right under "[The opposing Y's Iron Barbs]": that ability's damage, Y's kill if X faints
         # (the same wording is Aftermath's, which used to win and left the hit with nobody to credit)
-        prev = self.out[-1].split("|")
-        if sect == "abilities" and len(prev) > 3 and prev[1] == "-ability" and not prev[2].startswith(side) \
-                and prev[3] in PASSIVE_PCT:
-            return side, nick, "ability: " + prev[3], prev[2]
+        # the ability line is usually the last one out; a stat drop or item line can sit between
+        for line in reversed(self.out[-3:]):
+            prev = line.split("|")
+            if sect == "abilities" and len(prev) > 3 and prev[1] == "-ability" and not prev[2].startswith(side) \
+                    and prev[3] in PASSIVE_PCT:
+                return side, nick, "ability: " + prev[3], prev[2]
+            if prev[1] in ("move", "turn", "switch"):
+                break
         frm = {"status": eid, "weather": WEATHER_IDS.get(eid, name), "recoil": "Recoil", "confusion": "confusion",
                "items": "item: " + name, "abilities": "ability: " + name}.get(sect, name)
         if frm == "item: Rocky Helmet" and self.active.get(self.foe(side)):   # as above: the foe on the field holds it
@@ -514,7 +519,9 @@ class Converter:
                 side = self.foe(self.own_side()) if "opposing" in s["TEAM"].lower() else self.own_side()
                 who = f"{side}: {self.players[int(side[1]) - 1]}"
                 # hazards blown away: real logs name the move and its user, which is what counts as "cleared"
-                if key == "end" and self.last_mover and getattr(self, "last_move", "") in HAZARD_CLEARERS:
+                # (a screen wearing off the same turn isn't the move's doing)
+                if key == "end" and name in ENTRY_HAZARDS and self.last_mover \
+                        and getattr(self, "last_move", "") in HAZARD_CLEARERS:
                     return self.emit("-sideend", who, name, "[from] move: " + self.last_move,
                                      "[of] " + self.ref(*self.last_mover))
                 return self.emit("-sidestart" if key == "start" else "-sideend", who, label)
