@@ -811,8 +811,14 @@
         } else if (destinyBond && destinyBond.side !== victim.side) {
           [killer, kind, move] = [destinyBond, "direct", "Destiny Bond"];
         } else if (vt.effects.has("perish")) {
-          [killer, kind] = credit(victim.key, vt.effects.get("perish"), "passive");
-          if (killer === vt.effects.get("perish")) move = "Perish Song";
+          const singer = vt.effects.get("perish");
+          if (singer && singer.side === victim.side) {
+            // its own side's song: a self-KO, nobody's kill (user 2026-11-11), not the last foe to have hit it
+            [killer, kind, move] = [null, "self", "Perish Song"];
+          } else {
+            [killer, kind] = credit(victim.key, singer, "passive");
+            if (killer === singer) move = "Perish Song";
+          }
         } else {
           // Explosion, Memento, Final Gambit...; a faint with no cause seen at all stays "none"
           [killer, kind] = [null, mover === victim && SELF_KO_MOVES.has(norm(moveName || "")) ? "self" : "none"];

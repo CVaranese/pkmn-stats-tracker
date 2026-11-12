@@ -100,7 +100,8 @@ Playoffs R1 (playlist PLCVU9pDoWZ0w, uploaded 2026-11-11; added 2026-11-11, no r
 whole set, so each game is `video-<youtube id>-g<n>` and its link starts the video at that game. All nine games are in,
 every set's winner matching Challonge round 1:
 - Dox vs PotatoesAreYum (3x6D9zYjfKs): Robert 2-0. Game 1's stream cut away on the last hit (Ice Spinner took
-  Flygon's last 89%): the faint and the win are added, not seen.
+  Flygon's last 89%): the faint and the win are added, not seen (confirmed by Dox, 2026-11-11, with the Cresselia
+  faint in Zolo's game 1 and the message-box turns of Zolo's game 2).
 - DEJIME vs bah booey (ddGy3IBsDPw): Sean 2-0. Game 1's last two turns were read from the message box.
 - Sneez vs Fingy (97Fk-1fdRaI): Fingy, then Eric twice (2-1).
 - Zolo vs Cloudburst (YLN1tuKZ5t0): Zolo 2-0. In game 2 a Discord window covers the log from turn 24 to 49: those

@@ -30,6 +30,9 @@
 - **Tested:** healing is `|-heal|X|26/100|[from] item: Sitrus Berry` (drain: `[from] drain|[of] <target>`).
 - **Guess:** Salt Cure / Curse residual damage, and a Destiny Bond / Perish Song faint with no 0 HP `-damage` line first, follow SIM-PROTOCOL.md; only covered by hand-written test logs.
 - **Guess (from memory of Showdown's code, not checked):** the shown % is rounded up (only 0 at 0 HP), which is why each hit is quoted as ±1% of max HP.
+- **Decision (user, 2026-11-11):** a Pokémon that faints to its own side's Perish Song is a self-KO: nobody's kill, and
+  the HP it had left goes to no dealer (before: a passive kill for the last foe to have hit it). Tested on Playoffs R1
+  DEJIME vs weedinmyhonda game 1 (Azumarill sang, the foe switched out, only Azumarill fainted) and a synthetic log in tests.js.
 - **Decision (user, 2026-10-26):** damage is credited like kills; self-inflicted damage (recoil, Life Orb, confusion, Substitute cost, own weather, ally hits) counts as taken with no dealer; Substitute hits count 0 (no HP lost); the Disguise bust counts for the attacker that broke it. Also decided here (not asked): Pain Split lowering HP counts for its user; a faint with HP left counts that HP, credited like the kill (Destiny Bond user, Perish singer; Explosion user = no dealer).
 
 ## Hosting / Node

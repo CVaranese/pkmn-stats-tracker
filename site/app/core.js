@@ -74,7 +74,7 @@ const DESCRIPTIONS = {
   kills: "Opponents it KO'd: direct + passive.", direct_kills: "KOs from its own attacks (spread KOs count each; Destiny Bond counts).",
   passive_kills: "KOs from indirect damage it caused: burn, poison, hazards, weather, Leech Seed, Rocky Helmet…",
   deaths: "Times it fainted (still standing at a forfeit doesn't count).",
-  self_kos: "Times it knocked itself out: recoil, Life Orb, Explosion, Memento, Final Gambit, Healing Wish. Nobody gets the kill.", replay_url: "Link to the replay.",
+  self_kos: "Times it knocked itself out: recoil, Life Orb, Explosion, Memento, Final Gambit, Healing Wish, its own Perish Song. Nobody gets the kill.", replay_url: "Link to the replay.",
   games_brought: "Games it was brought to.", wins_when_brought: "Games won when it was brought.",
   kills_per_game: "Kills divided by games brought.",
   max_hp: "Max HP from the team sheet. Without one, a guess (marked ~): 0 or 252 HP EVs, as most Smogon Nat Dex sets, else as on the player's other sheets, else from its base stats.",

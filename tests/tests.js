@@ -365,6 +365,18 @@
 |turn|4
 |-start|p2a: Victim|perish0
 |faint|p2a: Victim`, [["p1: Burner", "passive", "p2: Victim"]]],
+    "perish song: the singer staying in to its own count is a self-KO, not the last foe's kill": [`
+|move|p2a: Victim|Tackle|p1a: Burner
+|-damage|p1a: Burner|80/100
+|move|p1a: Burner|Perish Song|p1a: Burner
+|-start|p1a: Burner|perish3|[silent]
+|-start|p2a: Victim|perish3|[silent]
+|turn|2
+|turn|3
+|switch|p2a: Third|Pikachu|100/100
+|turn|4
+|-start|p1a: Burner|perish0
+|faint|p1a: Burner`, [[null, "self", "p1: Burner"]]],
     "salt cure again later: the second user gets the KO": [`
 |move|p1a: Burner|Salt Cure|p2a: Victim
 |-damage|p2a: Victim|80/100
