@@ -13,7 +13,8 @@
   can't seek), on the real clock (seeking never finishes under `--virtual-time-budget`).
 - **Tested**: Showdown names seen: "pee nation" (Eric's draft pool) vs "chicken parm karm".
 
-Archived 2026-10-29: the tools are in `tools/video/` and no new games are expected from videos.
+Archived 2026-10-29: the tools are in `tools/video/` and no new games are expected from videos. Used again
+2026-11-11 for Playoffs R1 (no replays saved): notes at the end of the Pipeline section.
 
 ## Pipeline (pilot, 2026-10-27): `tools/video/video_to_replay.py`
 
@@ -163,7 +164,8 @@ screenshots), `tools/video/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video/
   game was illegal and the set was replayed (user, 2026-10-27), so only the live game was converted: `video_to_replay.py --start 1300 --length 1719`
   (new `--start`; `--length` doubles as where to stop).
 - **Tested**: frame grabs while a conversion runs need their own Edge profile and port: `TEMP=<other dir>` and
-  `video_frames.py --port 8781` (both use `%TEMP%\edge-headless-frames`; sharing it gave 0 PNGs).
+  `video_frames.py --port 8781` (both use `%TEMP%\edge-headless-frames`; sharing it gave 0 PNGs). Since 2026-11-11
+  every launch makes its own profile, so only the `--port` is still needed.
 - **Tested**: slips fixed by hand this time: a mon fainted twice from a message-box re-reading, a switch-in with the
   next line glued on ("Hawlucha)l Pointed stones dug into ..."), a nickname read as the species ("That's Rough
   Buddy"), "Zygarde" for Zygarde-10%, "POI Pot" for Pol Pot, "Appa ate Momol" for "Appa ate Momo!", an unparsed
@@ -217,6 +219,33 @@ screenshots), `tools/video/ocr_frames.ps1` (Windows OCR to JSONL), `tools/video/
   `video_frames.py --jpeg` saves those frames at about 120 KB instead of about 600 KB.
 - "X lost 0%" is real when Disguise takes the hit (tested: the user checked two in the videos, 2026-10-29); the
   converter's leading-zero CHECK skips a 0% with a Disguise line just before it. Any other 0% / 0N% is a misread.
+- **Tested** (2026-11-11, Playoffs R1 playlist PLCVU9pDoWZ0w, 4 videos, 9 games): a video can hold a whole set, live
+  battles back to back with a playback at the end. Find the games first: full-width crops every 15 s, OCR, and list
+  the turn headers per frame (a new "Format:" / "Battle started" and turn 1 = a new game). Then one run per game with
+  `--start` / `--length`; ids `video-<youtube id>-g<n>` (`add_game.py --game n`), link `?t=<start>`. All four in the
+  default layout (default `--log-box`). yt-dlp ran with `uvx --from "yt-dlp[default]" yt-dlp -f 136` and no sign-in.
+- **Tested**: the frame grabber hung on the second game: Edge is ended by force, and the reused profile reopened
+  the last run's page, which posted its old frames into the new folder. `video_frames.py` now makes a new profile
+  for every launch. A second grab while a run is going still needs its own `--port`.
+- **Tested**: the last turn or two of a live game never scroll fully into the log. In 6 of 9 games the last turn was
+  wrong or doubled until read from the message box at 0.5 to 1 s steps (`--box "110,340,480,120" --scale 4`): a whole
+  missing turn (DEJIME game 1: Temper Flare 76%, Tri Attack, then turn 32), box lines repeated into the next turn,
+  a stream that cut away before the faint (Dox game 1). Always read the ending this way.
+- **Tested**: when a window covers the log (Zolo vs Cloudburst game 2, turns 24 to 49), the scene alone gives the
+  game: crop `110,70,480,380` at scale 2 every 0.5 s, the "Turn N" label is at the top of the crop (y < 120 at that
+  scale) and the message box below y 540. Per turn, the box's lines in order of first appearance. All six faints
+  were read. Keep lines read in a single frame: dropping them as noise lost three turns' moves (two Wishes, two
+  Light Screens), which `audit_video_games.py` flagged as a side doing nothing.
+- **Tested**: `variants()` stripped accents by deleting the letter, so a "Pokémon" read with its é ("The Pokémon was
+  hit 2 times!") matched the wrong template and the hit count came out 1. Accents now fold to plain letters.
+- **Tested**: converter slips fixed in `video_convert.py`: "X was hurt by the Rocky Helmet!" had no `[of]` and
+  "X was hurt!" under "[Y's Iron Barbs]" became Aftermath, so those KOs went to whoever hit last (now `[of]` the foe
+  on the field / the ability's owner); a Pokémon fainting to its own Explosion or Healing Wish had its last hit
+  taken set to "0 fnt" (now a self-KO); "X's perish count fell to N!" had no template (now `-start|X|perishN`, and
+  the faint at perish0 keeps its HP). Still by hand: a team-preview line wrapped at "Goodra-" / "Hisui" (two
+  Pokémon), a switch line with no "!" losing the name's last letter ("Torkoa"), tooltip text over the log.
+- **Guess**: a "lost N%" smaller than the move's earlier hits on the same target means the target had only N% left
+  and fainted (Cresselia, Zolo game 1: 29% then 20% and the win line; no faint line on screen).
 
 ## Known misreads in saved games (checked 2026-10-28)
 - **Tested** (consistency pass over all 45 saved games): kills + self-KOs = deaths in every game, winners and turns match

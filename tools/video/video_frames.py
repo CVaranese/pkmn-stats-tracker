@@ -7,7 +7,7 @@ Serves tools/video/video_grab.html and the video from a local server with HTTP R
 can't seek video), opens the page in headless Edge on the real clock, and the page POSTs one PNG per time to
 /save. Each file is named <out_dir>/f<seconds*10, 5 digits>.png. Edge is killed once the page reports done.
 """
-import argparse, http.server, os, subprocess, sys, threading, time, urllib.parse
+import argparse, http.server, os, shutil, subprocess, sys, tempfile, threading, time, urllib.parse
 
 EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 TOOLS = os.path.dirname(os.path.abspath(__file__))
@@ -120,8 +120,11 @@ def main():
         done.clear()
         url = (f"http://127.0.0.1:{args.port}/video_grab.html?t={','.join(map(str, left))}"
                f"&box={box}&scale={args.scale}&filter={urllib.parse.quote(args.filter)}" + ("&jpeg=1" if args.jpeg else ""))
+        # a new profile each launch: Edge is ended by force, and a reused profile restored the last run's page,
+        # which posted its old frames into this run's folder and hung the grab (Playoffs R1, 2026-11-11)
+        prof = tempfile.mkdtemp(prefix=os.path.basename(profile) + "-")
         p = subprocess.Popen([EDGE, "--headless=new", "--disable-gpu", "--mute-audio", "--autoplay-policy=no-user-gesture-required",
-                              f"--user-data-dir={profile}-{launches}", "--dump-dom", url],
+                              f"--user-data-dir={prof}", "--dump-dom", url],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         count = lambda: sum(1 for f in os.listdir(args.out_dir) if f.endswith(ext))
         last_n, last_t = count(), time.time()
@@ -134,6 +137,11 @@ def main():
                 skipped.append(stuck)
                 break
         subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for _ in range(5):   # Edge's children let go of the profile a moment after the kill
+            shutil.rmtree(prof, ignore_errors=True)
+            if not os.path.exists(prof):
+                break
+            time.sleep(0.4)
         if done.is_set():   # the page went through every time; any frame it couldn't seek to stays skipped
             time.sleep(0.5)
             skipped += [t for t in left if not os.path.exists(os.path.join(args.out_dir, name(t)))]

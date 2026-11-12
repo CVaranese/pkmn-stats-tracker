@@ -1,0 +1,55 @@
+Ogerpon-Wellspring (F) @ Wellspring Mask
+Ability: Water Absorb
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Ivy Cudgel
+- Power Whip
+- Swords Dance
+- Encore
+
+Tyranitar @ Smooth Rock
+Ability: Sand Stream
+EVs: 252 HP / 252 Atk / 4 SpD
+Adamant Nature
+- Knock Off
+- Stealth Rock
+- Stone Edge
+- Pursuit
+
+Excadrill @ Air Balloon
+Ability: Sand Rush
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Rapid Spin
+- Iron Head
+- Earthquake
+- Rock Slide
+
+Aegislash @ Leftovers
+Ability: Stance Change
+EVs: 248 HP / 8 SpA / 252 SpD
+Calm Nature
+IVs: 0 Atk
+- King's Shield
+- Shadow Ball
+- Toxic
+- Substitute
+
+Samurott-Hisui @ Assault Vest
+Ability: Sharpness
+EVs: 252 HP / 252 Atk / 4 Def
+Adamant Nature
+- Ceaseless Edge
+- Aqua Cutter
+- Sacred Sword
+- Flip Turn
+
+Latias (F) @ Rocky Helmet
+Ability: Levitate
+EVs: 252 HP / 252 Def / 4 SpA
+Bold Nature
+IVs: 0 Atk
+- Mist Ball
+- Mystical Fire
+- Calm Mind
+- Roost

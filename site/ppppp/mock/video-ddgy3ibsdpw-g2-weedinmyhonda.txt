@@ -1,0 +1,65 @@
+fentanyl (Ferrothorn) (F) @ Air Balloon
+Ability: Iron Barbs
+Shiny: Yes
+Tera Type: Grass
+EVs: 248 HP / 252 Atk / 8 SpD
+Adamant Nature
+Body Press
+Stealth Rock
+Iron Head
+Power Whip
+
+Latinos-MagaAtoned (Latios-Mega) @ Latiosite
+Ability: Levitate
+Tera Type: Dragon
+EVs: 252 HP / 252 SpA / 4 SpD
+Modest Nature
+IVs: 0 Atk
+Roost
+Luster Purge
+Ice Beam
+Draco Meteor
+
+Dark Michaël (Mimikyu) @ Life Orb
+Ability: Disguise
+Shiny: Yes
+Tera Type: Ghost
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+Play Rough
+Shadow Claw
+Swords Dance
+Pain Split
+
+Hechicero (Landorus-Therian) @ Choice Band
+Ability: Intimidate
+Tera Type: Ground
+EVs: 252 Atk / 4 SpD / 252 Spe
+Jolly Nature
+U-turn
+Explosion
+Stone Edge
+Earthquake
+
+HIV Cognitive (Hydreigon) @ Darkinium Z
+Ability: Levitate
+Tera Type: Dark
+EVs: 252 HP / 252 SpA / 4 SpD
+Modest Nature
+IVs: 0 Atk
+Flamethrower
+Dark Pulse
+Earth Power
+Roost
+
+Antonio Inoki (Magnezone) @ Choice Specs
+Ability: Analytic
+Shiny: Yes
+Tera Type: Electric
+EVs: 248 HP / 252 SpA / 8 SpD
+Modest Nature
+IVs: 0 Atk
+Volt Switch
+Thunderbolt
+Tri Attack
+Flash Cannon

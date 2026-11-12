@@ -1,0 +1,53 @@
+Gen 8 (Aegislash) @ Air Balloon
+Ability: Stance Change
+EVs: 252 HP / 4 Atk / 252 SpA
+Quiet Nature
+- King's Shield
+- Shadow Ball
+- Close Combat
+- Flash Cannon
+
+Mr Goon (Samurott-Hisui) @ Focus Sash
+Ability: Sharpness
+EVs: 16 HP / 252 Atk / 240 Spe
+Adamant Nature
+- Ceaseless Edge
+- Aqua Cutter
+- Sacred Sword
+- Aqua Jet
+
+Ogrepoon (Ogerpon-Wellspring) (F) @ Wellspring Mask
+Ability: Water Absorb
+EVs: 76 HP / 252 Atk / 180 Spe
+Adamant Nature
+- Ivy Cudgel
+- Superpower
+- Swords Dance
+- Spiky Shield
+
+BLAZE IT (Altaria-Mega) @ Altarianite
+Ability: Natural Cure
+EVs: 236 HP / 252 Def / 20 Spe
+Impish Nature
+- Cotton Guard
+- Dragon Dance
+- Return
+- Roost
+
+Mole Man (Excadrill) @ Soft Sand
+Ability: Mold Breaker
+EVs: 8 HP / 252 Atk / 248 Spe
+Jolly Nature
+- Rapid Spin
+- Earthquake
+- Iron Head
+- Swords Dance
+
+Thunder Thighs (Dracozolt) @ Life Orb
+Ability: Sand Rush
+EVs: 36 HP / 252 Atk / 220 Spe
+Adamant Nature
+- Bolt Beak
+- Earthquake
+- Low Kick
+- Protect

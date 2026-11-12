@@ -1,0 +1,53 @@
+Ogrepoon (Ogerpon-Wellspring) (F) @ Wellspring Mask
+Ability: Water Absorb
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Ivy Cudgel
+- Knock Off
+- Play Rough
+- Swords Dance
+
+Mr Goon (Samurott-Hisui) @ Rocky Helmet
+Ability: Sharpness
+EVs: 252 HP / 252 Atk / 4 Def
+Adamant Nature
+- Ceaseless Edge
+- Sucker Punch
+- Sacred Sword
+- Flip Turn
+
+538 (Tyranitar) @ Assault Vest
+Ability: Sand Stream
+EVs: 252 HP / 84 Atk / 172 SpD
+Adamant Nature
+- Stone Edge
+- Knock Off
+- Outrage
+- Avalanche
+
+Mole Man (Excadrill) @ Groundium Z
+Ability: Sand Rush
+EVs: 112 HP / 252 Atk / 4 Def / 140 Spe
+Adamant Nature
+- Rapid Spin
+- Stealth Rock
+- Iron Head
+- Earthquake
+
+BLAZE IT (Altaria) @ Altarianite
+Ability: Natural Cure
+EVs: 248 HP / 244 Def / 16 Spe
+Impish Nature
+- Roost
+- Will-O-Wisp
+- Return
+- Cotton Guard
+
+i'm scawwed (Golisopod) @ Heavy-Duty Boots
+Ability: Emergency Exit
+EVs: 252 HP / 252 Atk / 4 Def
+Adamant Nature
+- First Impression
+- Liquidation
+- Aqua Jet
+- Knock Off

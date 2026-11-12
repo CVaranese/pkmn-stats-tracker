@@ -1,10 +1,11 @@
 """Battle-log sentences (as the Showdown client prints them) -> protocol lines for site/parser.js.
 Used by tools/video/video_to_replay.py. Showdown's English templates are turned into regexes; each matched message maps
 to one protocol line. Spectator view: "Go! X" is the recording player's own side; "the opposing X" the other."""
-import difflib, json, os, re
+import difflib, json, os, re, unicodedata
 
 # client messages the 0.11.11 server package words differently or lacks (seen in recordings)
-EXTRA = [("weather", "snowscape", "upkeep", "(The snow is blowing about!)")]
+EXTRA = [("weather", "snowscape", "upkeep", "(The snow is blowing about!)"),
+         ("moves", "perishsong", "activate", "[POKEMON]'s perish count fell to [NUMBER]!")]
 SLOT_RE = {"NUMBER": r"(\d+)", "PERCENTAGE": r"(\d+)%"}
 STATS = {"attack": "atk", "defense": "def", "sp. atk": "spa", "sp. def": "spd", "speed": "spe",
          "accuracy": "accuracy", "evasiveness": "evasion"}
@@ -14,6 +15,9 @@ STATUSES = {"brn", "par", "psn", "tox", "slp", "frz"}
 SKIP_KEYS = {"name", "desc", "shortDesc", "statName", "statShortName", "weatherName"}
 FRAGMENTS = {"pokemon", "opposingPokemon", "team", "opposingTeam", "party", "opposingParty"}  # parts of messages
 # HP % for damage / healing the spectator log shows no number for (guesses from the game's fractions)
+SELF_KO_MOVES = {"Explosion", "Self-Destruct", "Misty Explosion", "Memento", "Healing Wish", "Lunar Dance", "Final Gambit"}
+HAZARD_CLEARERS = {"Defog", "Rapid Spin", "Mortal Spin", "Tidy Up"}   # Court Change swaps, it doesn't clear
+ENTRY_HAZARDS = {"Stealth Rock", "Spikes", "Toxic Spikes", "Sticky Web"}
 DRAIN_3_4 = {"Draining Kiss", "Oblivion Wing"}   # heal 3/4 of the damage; every other drain move 1/2
 TRAP_MOVES = {"Bind", "Wrap", "Fire Spin", "Clamp", "Whirlpool", "Sand Tomb", "Magma Storm", "Infestation", "Snap Trap",
               "Thunder Cage"}
@@ -83,6 +87,8 @@ def compile_templates(templates):
 
 def variants(t):
     """The line as read, then with common OCR slips undone."""
+    # accents to plain letters first ("Pokémon" read with its é became "Pokmon": "hit 2 times" lost its count)
+    t = unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode()
     t = re.sub(r"[^\x20-\x7e]", "", t).strip()
     t2 = t.replace("VV", "W")
     t2 = re.sub(r"\b(doesn|can|isn|wasn|didn|won) t\b", r"\1't", t2)   # apostrophe not read
@@ -306,7 +312,13 @@ class Converter:
     def cause(self, sect, eid, name, key, s):
         """A passive-damage line -> (side, nick, [from] text, [of] text or None)."""
         if (sect, key) == ("default", "damageFromItem"):
-            return self.mon(s["POKEMON"]) + ("item: " + (self.close(s["ITEM"], self.items) or s["ITEM"]), None)
+            side, nick = self.mon(s["POKEMON"])
+            item = self.close(s["ITEM"], self.items) or s["ITEM"]
+            # "X was hurt by the Rocky Helmet!": the foe on the field holds it (real logs carry it as [of]);
+            # without it a Rocky Helmet KO went to whoever hit X last
+            foe = self.foe(side)
+            of = self.ref(foe, self.active[foe]) if item == "Rocky Helmet" and self.active.get(foe) else None
+            return side, nick, "item: " + item, of
         if (sect, key) == ("default", "damageFromPartialTrapping"):   # Magma Storm, Fire Spin...: 1/8, no number shown
             side, nick = self.mon(s["POKEMON"])
             move = s["MOVE"].strip()
@@ -323,8 +335,20 @@ class Converter:
         side, nick = self.mon(s["POKEMON"])
         if (sect, eid) == ("default", "default") and self.out[-1].endswith("|Mimikyu-Busted"):
             return side, nick, "pokemon: Mimikyu-Busted", None   # "(X was hurt!)" after the disguise breaks
+        # "X was hurt!" right under "[The opposing Y's Iron Barbs]": that ability's damage, Y's kill if X faints
+        # (the same wording is Aftermath's, which used to win and left the hit with nobody to credit)
+        # the ability line is usually the last one out; a stat drop or item line can sit between
+        for line in reversed(self.out[-3:]):
+            prev = line.split("|")
+            if sect == "abilities" and len(prev) > 3 and prev[1] == "-ability" and not prev[2].startswith(side) \
+                    and prev[3] in PASSIVE_PCT:
+                return side, nick, "ability: " + prev[3], prev[2]
+            if prev[1] in ("move", "turn", "switch"):
+                break
         frm = {"status": eid, "weather": WEATHER_IDS.get(eid, name), "recoil": "Recoil", "confusion": "confusion",
                "items": "item: " + name, "abilities": "ability: " + name}.get(sect, name)
+        if frm == "item: Rocky Helmet" and self.active.get(self.foe(side)):   # as above: the foe on the field holds it
+            return side, nick, frm, self.ref(self.foe(side), self.active[self.foe(side)])
         return side, nick, frm, None
 
     def event(self, sect, eid, name, key, s, text):
@@ -347,6 +371,10 @@ class Converter:
                 return self.switch(side, s["FULLNAME"])
             if key == "faint":
                 side, nick = P()
+                if f"|-start|{self.ref(side, nick)}|perish0" in self.out[-3:]:
+                    self.hp[(side, nick)] = 0   # Perish Song: it faints with HP left, no hit to blame
+                if self.last_mover == (side, nick) and getattr(self, "last_move", "") in SELF_KO_MOVES:
+                    self.hp[(side, nick)] = 0   # it knocked itself out: the last hit it took wasn't the KO
                 if self.hp.get((side, nick), 100) > 0:   # its damage line wasn't read: the last hit was the KO
                     for i in range(len(self.out) - 1, -1, -1):
                         parts = self.out[i].split("|")
@@ -475,6 +503,8 @@ class Converter:
             if (eid, key) == ("wish", "heal"):   # "X's wish came true!": heals whoever is in on X's side
                 side = self.mon(s["NICKNAME"])[0]
                 return self.heal(side, self.active[side], HEAL_PCT["default"], label)
+            if (eid, key) == ("perishsong", "activate") and "NUMBER" in s:   # the count, as real logs write it
+                return self.emit("-start", self.ref(*P()), "perish" + s["NUMBER"])
             if eid == "substitute" and key == "fail":   # not enough HP left to make one
                 return self.emit("-fail", self.ref(*self.last_mover), label)
             if (eid, key) == ("disguise", "transform"):
@@ -487,8 +517,14 @@ class Converter:
                 return self.emit("-activate", self.ref(*self.last_mover), label)
             if "TEAM" in s and key in ("start", "end"):
                 side = self.foe(self.own_side()) if "opposing" in s["TEAM"].lower() else self.own_side()
-                return self.emit("-sidestart" if key == "start" else "-sideend",
-                                 f"{side}: {self.players[int(side[1]) - 1]}", label)
+                who = f"{side}: {self.players[int(side[1]) - 1]}"
+                # hazards blown away: real logs name the move and its user, which is what counts as "cleared"
+                # (a screen wearing off the same turn isn't the move's doing)
+                if key == "end" and name in ENTRY_HAZARDS and self.last_mover \
+                        and getattr(self, "last_move", "") in HAZARD_CLEARERS:
+                    return self.emit("-sideend", who, name, "[from] move: " + self.last_move,
+                                     "[of] " + self.ref(*self.last_mover))
+                return self.emit("-sidestart" if key == "start" else "-sideend", who, label)
             if key == "removeItem" and "POKEMON" in s:
                 parts = ["-enditem", self.ref(*P()), self.close(s.get("ITEM", ""), self.items) or s.get("ITEM", ""),
                          "[from] " + label]

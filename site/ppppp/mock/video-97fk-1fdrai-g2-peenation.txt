@@ -1,0 +1,60 @@
+short king (Slowking-Galar) @ Icy Rock
+Ability: Regenerator
+Tera Type: Poison
+EVs: 252 HP / 252 SpA / 4 SpD
+Modest Nature
+IVs: 0 Atk
+Chilly Reception
+Sludge Bomb
+Psychic
+Thunder Wave
+
+Charizard-Mega-Y (Charizard-Mega-X) @ Charizardite X
+Ability: Tough Claws
+EVs: 4 HP / 252 Atk / 252 Spe
+Adamant Nature
+Dragon Dance
+Earthquake
+Dragon Claw
+Fire Punch
+
+MWAHAHAHA (Gliscor) @ Toxic Orb
+Ability: Poison Heal
+Shiny: Yes
+Tera Type: Ground
+EVs: 252 HP / 252 SpD
+Careful Nature
+Stealth Rock
+Defog
+Toxic
+Earthquake
+
+piece of paper (Kartana) @ Choice Scarf
+Ability: Beast Boost
+Shiny: Yes
+Tera Type: Grass
+EVs: 4 HP / 252 Atk / 252 Spe
+Adamant Nature
+Leaf Blade
+Psycho Cut
+Sacred Sword
+Knock Off
+
+Ninetales-Alola @ Light Clay
+Ability: Snow Cloak
+EVs: 252 SpA / 4 SpD / 252 Spe
+Timid Nature
+IVs: 0 Atk
+Moonblast
+Aurora Veil
+Dark Pulse
+Freeze-Dry
+
+Quaquaval @ Waterium Z
+Ability: Moxie
+EVs: 252 Atk / 4 SpD / 252 Spe
+Jolly Nature
+Ice Spinner
+Aqua Step
+Swords Dance
+Close Combat

@@ -3,7 +3,7 @@
 Made by `python -I tools/video/audit_video_games.py` from the logs alone (no video). Each line gives the turn, the
 log line number (in the game's `site/ppppp/games/<id>.json` `log`, counting from 1) and what looks wrong. Some are
 real (a turn spent recharging, a Pokémon that can't move with no line for it), so check each against the video.
-35 games, 0 things to check.
+44 games, 0 things to check.
 
 Coming back with more HP is only flagged for Pokémon that can't have Regenerator. Re-run after fixing.
 
@@ -14,6 +14,51 @@ Video: https://youtu.be/d5iVr2s_7dE
 
 ## Week 1: ElkG Big Large vs weedinmyhonda (`video-ff5wimd_i3k`, 27 turns)
 Video: https://youtu.be/ff5WImD_i3k
+
+- Nothing found.
+
+## Playoffs R1: Doxsego vs potatoesareyum (`video-3x6d9zyjfks-g1`, 20 turns)
+Video: https://youtu.be/3x6D9zYjfKs?t=0
+
+- Nothing found.
+
+## Playoffs R1: Doxsego vs potatoesareyum (`video-3x6d9zyjfks-g2`, 16 turns)
+Video: https://youtu.be/3x6D9zYjfKs?t=1066
+
+- Nothing found.
+
+## Playoffs R1: DEJIME vs weedinmyhonda (`video-ddgy3ibsdpw-g1`, 32 turns)
+Video: https://youtu.be/ddGy3IBsDPw?t=0
+
+- Nothing found.
+
+## Playoffs R1: DEJIME vs weedinmyhonda (`video-ddgy3ibsdpw-g2`, 21 turns)
+Video: https://youtu.be/ddGy3IBsDPw?t=945
+
+- Nothing found.
+
+## Playoffs R1: FingerStripes vs pee nation (`video-97fk-1fdrai-g1`, 16 turns)
+Video: https://youtu.be/97Fk-1fdRaI?t=0
+
+- Nothing found.
+
+## Playoffs R1: FingerStripes vs pee nation (`video-97fk-1fdrai-g2`, 24 turns)
+Video: https://youtu.be/97Fk-1fdRaI?t=1020
+
+- Nothing found.
+
+## Playoffs R1: FingerStripes vs pee nation (`video-97fk-1fdrai-g3`, 25 turns)
+Video: https://youtu.be/97Fk-1fdRaI?t=2505
+
+- Nothing found.
+
+## Playoffs R1: Zololab vs azpmCloudburst (`video-yln1tukz5t0-g1`, 36 turns)
+Video: https://youtu.be/YLN1tuKZ5t0?t=0
+
+- Nothing found.
+
+## Playoffs R1: Zololab vs azpmCloudburst (`video-yln1tukz5t0-g2`, 52 turns)
+Video: https://youtu.be/YLN1tuKZ5t0?t=1095
 
 - Nothing found.
 

@@ -1,0 +1,54 @@
+Jimbei (Azumarill) @ Leftovers
+Ability: Sap Sipper
+EVs: 252 HP / 4 SpA / 252 SpD
+Calm Nature
+IVs: 0 Atk
+- Protect
+- Substitute
+- Whirlpool
+- Perish Song
+
+Sunny (Pelipper) @ Damp Rock
+Ability: Drizzle
+EVs: 248 HP / 8 SpA / 252 SpD
+Sassy Nature
+- U-turn
+- Defog
+- Roost
+- Weather Ball
+
+Frankie (Swampert-Mega) @ Swampertite
+Ability: Swift Swim
+EVs: 68 HP / 252 Atk / 188 Spe
+Jolly Nature
+- Stealth Rock
+- Flip Turn
+- Earthquake
+- Ice Punch
+
+Robin (Tornadus-Therian) (M) @ Assault Vest
+Ability: Regenerator
+EVs: 44 HP / 252 SpA / 212 Spe
+Hasty Nature
+- Bleakwind Storm
+- U-turn
+- Weather Ball
+- Focus Blast
+
+Sanji (Overqwil) @ Darkinium Z
+Ability: Swift Swim
+EVs: 76 HP / 252 Atk / 180 Spe
+Jolly Nature
+- Swords Dance
+- Crunch
+- Liquidation
+- Poison Jab
+
+Yamato (Salamence) @ Roseli Berry
+Ability: Moxie
+EVs: 16 HP / 252 Atk / 240 Spe
+Jolly Nature
+- Dragon Dance
+- Dual Wingbeat
+- Temper Flare
+- Dragon Claw

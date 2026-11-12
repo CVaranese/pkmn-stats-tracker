@@ -65,7 +65,8 @@
    "turns": 22,
    "note": "",
    "sheets": [
-    "nezergy"
+    "nezergy",
+    "peterpikmon"
    ]
   },
   {
@@ -474,7 +475,10 @@
    "date": "2026-09-13",
    "turns": 36,
    "note": "Stream video",
-   "video": "https://youtu.be/JJaCbPX4g2E"
+   "video": "https://youtu.be/JJaCbPX4g2E",
+   "sheets": [
+    "peterpikmon"
+   ]
   },
   {
    "id": "video-4facablyaoc",
@@ -890,7 +894,8 @@
    "turns": 26,
    "note": "",
    "sheets": [
-    "doxsego"
+    "doxsego",
+    "peterpikmon"
    ]
   },
   {
@@ -1031,7 +1036,8 @@
    "note": "Stream video",
    "video": "https://youtu.be/CKLxgWZL3HM",
    "sheets": [
-    "fingerstripes"
+    "fingerstripes",
+    "peterpikmon"
    ]
   },
   {
@@ -1372,7 +1378,8 @@
    "note": "Stream video",
    "video": "https://youtu.be/ek4VkZvwnY0",
    "sheets": [
-    "potatoesareyum"
+    "potatoesareyum",
+    "peterpikmon"
    ]
   },
   {
@@ -1511,7 +1518,10 @@
    "turns": 25,
    "note": "Stream screenshots",
    "video": "https://youtu.be/ktYq3NES_GM",
-   "note_detail": "HP after hazards / weather / items estimated. pee nation forfeited turn 25."
+   "note_detail": "HP after hazards / weather / items estimated. pee nation forfeited turn 25.",
+   "sheets": [
+    "peterpikmon"
+   ]
   },
   {
    "id": "video-efjkwhtidmm",
@@ -1544,7 +1554,10 @@
    "turns": 47,
    "note": "Stream screenshots",
    "video": "https://youtu.be/efjkWhTidmM",
-   "note_detail": "HP after hazards / poison / sand / Regenerator estimated."
+   "note_detail": "HP after hazards / poison / sand / Regenerator estimated.",
+   "sheets": [
+    "peterpikmon"
+   ]
   },
   {
    "id": "video-x2mvt-7opzc",
@@ -1647,6 +1660,341 @@
    "sheets": [
     "zololab",
     "azpmcloudburst"
+   ]
+  },
+  {
+   "id": "video-3x6d9zyjfks-g1",
+   "league": "ppppp",
+   "week": "Playoffs R1",
+   "players": [
+    "Doxsego",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Ceruledge",
+     "Lopunny",
+     "Ninetales",
+     "Flygon",
+     "Enamorus",
+     "Lilligant-Hisui"
+    ],
+    [
+     "Great Tusk",
+     "Azelf",
+     "Bronzong",
+     "Enamorus-Therian",
+     "Thundurus-Therian",
+     "Goodra-Hisui"
+    ]
+   ],
+   "winner": "potatoesareyum",
+   "date": "2026-11-08",
+   "turns": 20,
+   "note": "Stream video",
+   "set": "R1 Dox-Robert",
+   "video": "https://youtu.be/3x6D9zYjfKs?t=0",
+   "note_detail": "The stream cut away on the last hit: Flygon's faint and the win aren't on screen.",
+   "sheets": [
+    "potatoesareyum",
+    "doxsego"
+   ]
+  },
+  {
+   "id": "video-3x6d9zyjfks-g2",
+   "league": "ppppp",
+   "week": "Playoffs R1",
+   "players": [
+    "Doxsego",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Ceruledge",
+     "Lopunny",
+     "Ninetales",
+     "Flygon",
+     "Enamorus",
+     "Lilligant-Hisui"
+    ],
+    [
+     "Great Tusk",
+     "Azelf",
+     "Bronzong",
+     "Enamorus-Therian",
+     "Thundurus-Therian",
+     "Goodra-Hisui"
+    ]
+   ],
+   "winner": "potatoesareyum",
+   "date": "2026-11-08",
+   "turns": 16,
+   "note": "Stream video",
+   "set": "R1 Dox-Robert",
+   "video": "https://youtu.be/3x6D9zYjfKs?t=1066",
+   "sheets": [
+    "potatoesareyum",
+    "doxsego"
+   ]
+  },
+  {
+   "id": "video-ddgy3ibsdpw-g1",
+   "league": "ppppp",
+   "week": "Playoffs R1",
+   "players": [
+    "DEJIME",
+    "weedinmyhonda"
+   ],
+   "teams": [
+    [
+     "Azumarill",
+     "Pelipper",
+     "Swampert",
+     "Tornadus-Therian",
+     "Overqwil",
+     "Salamence"
+    ],
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian",
+     "Hydreigon",
+     "Magnezone"
+    ]
+   ],
+   "winner": "DEJIME",
+   "date": "2026-11-08",
+   "turns": 32,
+   "note": "Stream video",
+   "set": "R1 Sean-Booey",
+   "video": "https://youtu.be/ddGy3IBsDPw?t=0",
+   "sheets": [
+    "dejime",
+    "weedinmyhonda"
+   ]
+  },
+  {
+   "id": "video-ddgy3ibsdpw-g2",
+   "league": "ppppp",
+   "week": "Playoffs R1",
+   "players": [
+    "DEJIME",
+    "weedinmyhonda"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Pawmot",
+     "Azumarill",
+     "Swampert",
+     "Overqwil",
+     "Tornadus-Therian"
+    ],
+    [
+     "Ferrothorn",
+     "Latios",
+     "Mimikyu",
+     "Landorus-Therian",
+     "Hydreigon",
+     "Magnezone"
+    ]
+   ],
+   "winner": "DEJIME",
+   "date": "2026-11-08",
+   "turns": 21,
+   "note": "Stream video",
+   "set": "R1 Sean-Booey",
+   "video": "https://youtu.be/ddGy3IBsDPw?t=945",
+   "sheets": [
+    "dejime",
+    "weedinmyhonda"
+   ]
+  },
+  {
+   "id": "video-97fk-1fdrai-g1",
+   "league": "ppppp",
+   "week": "Playoffs R1",
+   "players": [
+    "FingerStripes",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Rotom-Wash",
+     "Hawlucha",
+     "Tapu Koko",
+     "Iron Moth",
+     "Iron Leaves",
+     "Jirachi"
+    ],
+    [
+     "Slowking-Galar",
+     "Charizard",
+     "Gliscor",
+     "Kartana",
+     "Arctovish",
+     "Garganacl"
+    ]
+   ],
+   "winner": "FingerStripes",
+   "date": "2026-11-08",
+   "turns": 16,
+   "note": "Stream video",
+   "set": "R1 Fingy-Eric",
+   "video": "https://youtu.be/97Fk-1fdRaI?t=0",
+   "sheets": [
+    "fingerstripes",
+    "peenation"
+   ]
+  },
+  {
+   "id": "video-97fk-1fdrai-g2",
+   "league": "ppppp",
+   "week": "Playoffs R1",
+   "players": [
+    "FingerStripes",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Rotom-Wash",
+     "Hawlucha",
+     "Tapu Koko",
+     "Iron Moth",
+     "Iron Leaves",
+     "Jirachi"
+    ],
+    [
+     "Slowking-Galar",
+     "Charizard",
+     "Gliscor",
+     "Kartana",
+     "Ninetales-Alola",
+     "Quaquaval"
+    ]
+   ],
+   "winner": "pee nation",
+   "date": "2026-11-08",
+   "turns": 24,
+   "note": "Stream video",
+   "set": "R1 Fingy-Eric",
+   "video": "https://youtu.be/97Fk-1fdRaI?t=1020",
+   "sheets": [
+    "fingerstripes",
+    "peenation"
+   ]
+  },
+  {
+   "id": "video-97fk-1fdrai-g3",
+   "league": "ppppp",
+   "week": "Playoffs R1",
+   "players": [
+    "FingerStripes",
+    "pee nation"
+   ],
+   "teams": [
+    [
+     "Rotom-Wash",
+     "Hawlucha",
+     "Tapu Koko",
+     "Iron Moth",
+     "Iron Leaves",
+     "Jirachi"
+    ],
+    [
+     "Slowking-Galar",
+     "Charizard",
+     "Gliscor",
+     "Kartana",
+     "Quaquaval",
+     "Sableye"
+    ]
+   ],
+   "winner": "pee nation",
+   "date": "2026-11-08",
+   "turns": 25,
+   "note": "Stream video",
+   "set": "R1 Fingy-Eric",
+   "video": "https://youtu.be/97Fk-1fdRaI?t=2505",
+   "sheets": [
+    "fingerstripes",
+    "peenation"
+   ]
+  },
+  {
+   "id": "video-yln1tukz5t0-g1",
+   "league": "ppppp",
+   "week": "Playoffs R1",
+   "players": [
+    "Zololab",
+    "azpmCloudburst"
+   ],
+   "teams": [
+    [
+     "Diancie",
+     "Pecharunt",
+     "Vaporeon",
+     "Scrafty",
+     "Latios",
+     "Iron Treads"
+    ],
+    [
+     "Garchomp",
+     "Cresselia",
+     "Whimsicott",
+     "Melmetal",
+     "Gengar",
+     "Torkoal"
+    ]
+   ],
+   "winner": "Zololab",
+   "date": "2026-11-08",
+   "turns": 36,
+   "note": "Stream video",
+   "set": "R1 Zolo-Matt",
+   "video": "https://youtu.be/YLN1tuKZ5t0?t=0",
+   "sheets": [
+    "azpmcloudburst",
+    "zololab"
+   ]
+  },
+  {
+   "id": "video-yln1tukz5t0-g2",
+   "league": "ppppp",
+   "week": "Playoffs R1",
+   "players": [
+    "Zololab",
+    "azpmCloudburst"
+   ],
+   "teams": [
+    [
+     "Diancie",
+     "Pecharunt",
+     "Vaporeon",
+     "Scrafty",
+     "Latios",
+     "Iron Treads"
+    ],
+    [
+     "Garchomp",
+     "Cresselia",
+     "Whimsicott",
+     "Melmetal",
+     "Gengar",
+     "Torkoal"
+    ]
+   ],
+   "winner": "Zololab",
+   "date": "2026-11-08",
+   "turns": 52,
+   "note": "Stream video",
+   "set": "R1 Zolo-Matt",
+   "video": "https://youtu.be/YLN1tuKZ5t0?t=1095",
+   "note_detail": "Turns 24 to 49 read from the battle's message box: another window covered the log.",
+   "sheets": [
+    "azpmcloudburst",
+    "zololab"
    ]
   }
  ]
