@@ -1,0 +1,53 @@
+Ogrepoon (Ogerpon-Wellspring) (F) @ Wellspring Mask
+Ability: Water Absorb
+EVs: 4 HP / 252 Atk / 252 Spe
+Adamant Nature
+- Ivy Cudgel
+- Power Whip
+- Play Rough
+- Trailblaze
+
+538 (Tyranitar) @ Smooth Rock
+Ability: Sand Stream
+EVs: 252 HP / 252 Atk / 4 SpD
+Adamant Nature
+- Stealth Rock
+- Knock Off
+- Stone Edge
+- Thunder Wave
+
+Thor but fire ig (Arcanine-Hisui) @ Choice Band
+Ability: Rock Head
+EVs: 252 Atk / 4 SpD / 252 Spe
+Jolly Nature
+- Head Smash
+- Flare Blitz
+- Extreme Speed
+- Stealth Rock
+
+Mr Goon (Samurott-Hisui) @ Assault Vest
+Ability: Sharpness
+EVs: 252 HP / 4 Atk / 252 SpD
+Careful Nature
+- Ceaseless Edge
+- Razor Shell
+- Knock Off
+- Flip Turn
+
+make it rain on me (Fezandipiti) (M) @ Heavy-Duty Boots
+Ability: Toxic Chain
+EVs: 252 HP / 4 Def / 252 SpD
+Careful Nature
+- Beat Up
+- Roost
+- Light Screen
+- U-turn
+
+mole man (Excadrill) @ Air Balloon
+Ability: Sand Rush
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Earthquake
+- Rock Slide
+- Iron Head
+- Rapid Spin

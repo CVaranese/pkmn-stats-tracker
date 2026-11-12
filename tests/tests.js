@@ -990,7 +990,7 @@ Ability: Screen Cleaner
         pieced.push(...side.filter((r) => r.set_from === "pieced").map((r) => r.pokemon));
       }
     }
-    check("library sheets: all 41 sides get a set for every Pokémon", sides === 41 && full === 41, `${full} of ${sides}`);
+    check("library sheets: all 64 sides get a set for every Pokémon", sides === 64 && full === 64, `${full} of ${sides}`);
     check("library sheets: the hand-made sets are Week 1's Scrafty and Suicune", same(pieced.sort(), ["Scrafty", "Suicune"]), JSON.stringify(pieced));
   }
 
@@ -1020,6 +1020,8 @@ Ability: Screen Cleaner
     ["hello", null],
     ["video-d5ivr2s_7de", "video-d5ivr2s_7de"],   // a stored game rebuilt from its stream (tools/add_game.py)
     ["video-short", null],
+    ["video-ddgy3ibsdpw-g2", "video-ddgy3ibsdpw-g2"],   // the second game of a video that holds a whole set
+    ["video-ddgy3ibsdpw-x2", null],
   ];
   for (const [input, want] of LINKS) {
     const got = RS.replayIdFrom(input);

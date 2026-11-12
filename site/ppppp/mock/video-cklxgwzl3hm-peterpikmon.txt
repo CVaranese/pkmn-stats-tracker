@@ -1,0 +1,54 @@
+Ogrepoon (Ogerpon-Wellspring) (F) @ Wellspring Mask
+Ability: Water Absorb
+EVs: 252 Atk / 4 SpD / 252 Spe
+Jolly Nature
+- Ivy Cudgel
+- Power Whip
+- Trailblaze
+- Swords Dance
+
+BLAZE IT (Altaria-Mega) @ Altarianite
+Ability: Natural Cure
+EVs: 252 HP / 252 Def / 4 SpD
+Relaxed Nature
+- Earthquake
+- Hyper Voice
+- Heal Bell
+- Roost
+
+Stripper tassles (Fezandipiti) (M) @ Black Sludge
+Ability: Toxic Chain
+EVs: 252 HP / 4 Atk / 252 SpD
+Careful Nature
+- Roost
+- Beat Up
+- Play Rough
+- U-turn
+
+Mole man (Excadrill) @ Choice Scarf
+Ability: Mold Breaker
+EVs: 48 HP / 252 Atk / 208 Spe
+Adamant Nature
+- Rapid Spin
+- Earthquake
+- Iron Head
+- Brick Break
+
+Coco (Skeledirge) @ Heavy-Duty Boots
+Ability: Unaware
+EVs: 252 HP / 252 Def / 4 SpA
+Bold Nature
+IVs: 0 Atk
+- Alluring Voice
+- Torch Song
+- Slack Off
+- Earth Power
+
+Mr Goon (Samurott-Hisui) @ Assault Vest
+Ability: Sharpness
+EVs: 252 HP / 4 Atk / 252 SpD
+Careful Nature
+- Ceaseless Edge
+- Razor Shell
+- Sacred Sword
+- Flip Turn

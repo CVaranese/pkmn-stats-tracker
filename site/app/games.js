@@ -239,7 +239,9 @@ function libraryRow(g, n = 0) {
 function watchSrc(id) {
   const g = library.find((x) => x.id === id);
   const yt = g && g.video && g.video.match(/(?:youtu\.be\/|[?&]v=)([\w-]{11})/);
-  return yt ? "https://www.youtube-nocookie.com/embed/" + yt[1] : "watch.html?id=" + encodeURIComponent(id) + (LEAGUE.id ? "&league=" + LEAGUE.id : "");
+  // a video of a whole set: the game's link carries where it starts (?t=945)
+  const at = yt && g.video.match(/[?&]t=(\d+)/);
+  return yt ? "https://www.youtube-nocookie.com/embed/" + yt[1] + (at && +at[1] ? "?start=" + at[1] : "") : "watch.html?id=" + encodeURIComponent(id) + (LEAGUE.id ? "&league=" + LEAGUE.id : "");
 }
 const isVideo = (id) => library.some((x) => x.id === id && x.video);
 /** Play a stored game at the top of the Games tab, with no stats around it. */

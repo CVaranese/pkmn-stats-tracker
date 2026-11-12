@@ -15,6 +15,9 @@ and the rebuilt JSON. It's stored as video-<youtube id, lowercase>, dated by --d
 
     python tools/add_game.py https://youtu.be/d1nX5QVh-CA --file video-d1nX5QVh-CA.json --league ppppp --week "Week 2" --date 2026-09-13
 
+A video of a whole set: one call per game with --game N (stored as video-<id>-g<N>); a link with ?t=<seconds> in the
+rebuilt JSON's "video" starts Watch at that game.
+
 A game's date is its week's Sunday (the Sunday on or before the day it was played, in Pacific time: a replay saved
 Sunday 9pm Pacific is Monday in UTC). The site shows only the week; the date orders games.
 """
@@ -42,10 +45,12 @@ REPLAY_HOST = "https://replay.pokemonshowdown.com/"
 SAVED = [SITE.parent / "tests" / "fixtures"]  # + the league's mock/, set by main()
 
 
-def replay_id(text):
+def replay_id(text, game=None):
     m = re.search(r"(?:youtu\.be/|[?&]v=)([\w-]{11})", text)
-    if m:   # a stream video: the site's ids are lowercase
-        return "video-" + m.group(1).lower()
+    if m:   # a stream video: the site's ids are lowercase; a video of a whole set has one id per game (-g2)
+        return "video-" + m.group(1).lower() + (f"-g{game}" if game else "")
+    if game:
+        sys.exit("--game is for a stream video that holds several games")
     m = re.search(r"([a-z0-9]+-\d+(?:-[a-z0-9]+pw)?)/?(?:\.json|\.log)?\s*$", text.strip().split("?")[0])
     if not m:
         sys.exit(f"Not a replay link or id: {text}")
@@ -110,6 +115,8 @@ def main():
     ap.add_argument("--set", help='the set (best of three, playoff series) it belongs to: games with the same label are one set, e.g. "QF Karm-Joey"')
     ap.add_argument("--file", help="a saved copy of the replay's .json, when Showdown is down; for a video, the rebuilt one")
     ap.add_argument("--date", help="YYYY-MM-DD, for a game with no upload time (a video): the day it was played, not the upload day")
+    ap.add_argument("--game", type=int, choices=range(1, 10), metavar="N",
+                    help="for a stream video that holds a whole set: which game this is (the id gets -g<N>)")
     args = ap.parse_args()
     global GAMES, INDEX
     leagues = [lg["id"] for lg in json.loads((SITE / "leagues.json").read_text(encoding="utf-8"))["leagues"]]
@@ -119,7 +126,7 @@ def main():
     INDEX = GAMES / "index.json"
     SAVED.insert(0, SITE / args.league / "mock")
 
-    rid = replay_id(args.replay)
+    rid = replay_id(args.replay, args.game)
     copy = GAMES / (rid + ".json")
     if rid.startswith("video-") and not args.file and not copy.exists():
         sys.exit("A video game needs --file with the JSON from tools/video/video_to_replay.py")

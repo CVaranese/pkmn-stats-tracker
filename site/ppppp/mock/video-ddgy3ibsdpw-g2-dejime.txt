@@ -1,0 +1,54 @@
+Sunny (Pelipper) @ Damp Rock
+Ability: Drizzle
+EVs: 248 HP / 8 Def / 252 SpD
+Sassy Nature
+- Defog
+- Weather Ball
+- U-turn
+- Knock Off
+
+Chopper (Pawmot) @ Leppa Berry
+Ability: Volt Absorb
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Close Combat
+- Ice Punch
+- Revival Blessing
+- Volt Switch
+
+Jimbei (Azumarill) @ Assault Vest
+Ability: Huge Power
+EVs: 252 HP / 252 Atk / 4 SpD
+Adamant Nature
+- Liquidation
+- Play Rough
+- Aqua Jet
+- Superpower
+
+Frankie (Swampert-Mega) @ Swampertite
+Ability: Swift Swim
+EVs: 68 HP / 252 Atk / 188 Spe
+Jolly Nature
+- Earthquake
+- Power-Up Punch
+- Liquidation
+- Ice Punch
+
+Sanji (Overqwil) @ Darkinium Z
+Ability: Intimidate
+EVs: 88 HP / 252 Atk / 168 Spe
+Jolly Nature
+- Swords Dance
+- Crunch
+- Liquidation
+- Gunk Shot
+
+Robin (Tornadus-Therian) (M) @ Life Orb
+Ability: Regenerator
+EVs: 36 HP / 252 SpA / 4 SpD / 216 Spe
+Timid Nature
+IVs: 0 Atk
+- Nasty Plot
+- Dark Pulse
+- Focus Blast
+- Bleakwind Storm

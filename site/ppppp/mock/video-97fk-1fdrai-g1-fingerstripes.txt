@@ -1,0 +1,61 @@
+Aqualad (Rotom-Wash) @ Waterium Z
+Ability: Levitate
+EVs: 252 HP / 252 SpA
+Bold Nature
+IVs: 0 Atk
+Hydro Pump
+Volt Switch
+Pain Split
+Thunder Wave
+
+Robin (Hawlucha) (M) @ Electric Seed
+Ability: Unburden
+Tera Type: Fighting
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+Swords Dance
+Close Combat
+Acrobatics
+Encore
+
+Kid Flash (Tapu Koko) @ Terrain Extender
+Ability: Electric Surge
+Happiness: 0
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+Thunderbolt
+Dazzling Gleam
+U-turn
+Protect
+
+Cyborg (Iron Moth) @ Choice Specs
+Ability: Quark Drive
+Shiny: Yes
+Tera Type: Fire
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+Fire Blast
+Sludge Wave
+U-turn
+Energy Ball
+
+Beast Boy (Iron Leaves) @ Life Orb
+Ability: Quark Drive
+EVs: 96 HP / 160 Atk / 252 Spe
+Jolly Nature
+Swords Dance
+Psyblade
+Leaf Blade
+Brick Break
+
+Starfire (Jirachi) @ Shuca Berry
+Ability: Serene Grace
+Shiny: Yes
+Tera Type: Steel
+EVs: 252 HP / 252 Def
+Bold Nature
+IVs: 0 Atk
+Hidden Power [Ice]
+Healing Wish
+Doom Desire
+Stealth Rock

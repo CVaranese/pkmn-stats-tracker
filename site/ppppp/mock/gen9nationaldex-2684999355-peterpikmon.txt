@@ -1,0 +1,53 @@
+Gen 8 (Aegislash) @ Colbur Berry
+Ability: Stance Change
+EVs: 252 HP / 4 Def / 252 SpA
+Quiet Nature
+- King's Shield
+- Shadow Ball
+- Flash Cannon
+- Shadow Sneak
+
+Thor (Arcanine-Hisui) @ Choice Band
+Ability: Rock Head
+EVs: 40 HP / 252 Atk / 216 Spe
+Jolly Nature
+- Flare Blitz
+- Head Smash
+- Extreme Speed
+- Stealth Rock
+
+thunder thighs (Dracozolt) @ Life Orb
+Ability: Sand Rush
+EVs: 252 Atk / 12 SpA / 244 Spe
+Naughty Nature
+- Bolt Beak
+- Dragon Claw
+- Earthquake
+- Dragon Tail
+
+Ogrepoon (Ogerpon-Wellspring) (F) @ Wellspring Mask
+Ability: Water Absorb
+EVs: 252 Atk / 4 Def / 252 Spe
+Jolly Nature
+- Ivy Cudgel
+- Power Whip
+- Swords Dance
+- Trailblaze
+
+538 (Tyranitar) @ Smooth Rock
+Ability: Sand Stream
+EVs: 252 HP / 4 Atk / 252 Def
+Impish Nature
+- Stealth Rock
+- Thunder Wave
+- Iron Head
+- Knock Off
+
+Mr Goon (Samurott-Hisui) @ Choice Scarf
+Ability: Sharpness
+EVs: 48 HP / 252 Atk / 208 Spe
+Jolly Nature
+- Ceaseless Edge
+- Aqua Cutter
+- Sacred Sword
+- Flip Turn

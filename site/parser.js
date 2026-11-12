@@ -64,7 +64,8 @@
     text = text.slice(text.lastIndexOf("/") + 1).toLowerCase();
     text = text.replace(/\.(json|log)$/, "");
     // optional '-<password>pw' suffix on private replays; "video-<youtube id>": a stored game rebuilt from its stream
-    return /^[a-z0-9]+(-[a-z0-9]+)*-\d+(-[a-z0-9]+pw)?$/.test(text) || /^video-[a-z0-9_-]{11}$/.test(text) ? text : null;
+    // ("-g2": the second game of a video that holds a whole set)
+    return /^[a-z0-9]+(-[a-z0-9]+)*-\d+(-[a-z0-9]+pw)?$/.test(text) || /^video-[a-z0-9_-]{11}(-g[1-9])?$/.test(text) ? text : null;
   }
 
   /** All replay IDs found in a block of pasted text (links separated by lines, spaces or commas). */

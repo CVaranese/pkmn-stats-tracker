@@ -1,0 +1,61 @@
+Erfquake (Garchomp) @ Dragonium Z
+Ability: Rough Skin
+EVs: 4 HP / 252 Atk / 252 Spe
+Adamant Nature
+Shadow Claw
+Earthquake
+Stealth Rock
+Outrage
+
+Cresselia @ Leftovers
+Ability: Levitate
+EVs: 252 HP / 4 SpA / 252 SpD
+Bold Nature
+IVs: 0 Atk
+Ice Beam
+Thunder Wave
+Moonlight
+Light Screen
+
+Coin Flip (Whimsicott) @ Choice Specs
+Ability: Prankster
+Shiny: Yes
+Tera Type: Steel
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+Moonblast
+Switcheroo
+Tailwind
+Grass Whistle
+
+Melmetal @ Choice Band
+Ability: Iron Fist
+EVs: 252 HP / 252 Atk / 4 SpD
+Adamant Nature
+Double Iron Bash
+Thunder Punch
+Earthquake
+Ice Punch
+
+Gengar @ Life Orb
+Ability: Cursed Body
+EVs: 4 HP / 252 SpA / 252 Spe
+Timid Nature
+IVs: 0 Atk
+Dark Pulse
+Shadow Ball
+Sludge Wave
+Focus Blast
+
+Torkoal (M) @ Focus Sash
+Ability: Drought
+Shiny: Yes
+Tera Type: Fire
+EVs: 252 HP / 252 Def
+Impish Nature
+IVs: 0 Spe
+Stealth Rock
+Rapid Spin
+Gyro Ball
+Overheat

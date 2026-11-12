@@ -96,6 +96,18 @@ Week 8 (playlist PLGVNUmNrNtGo, uploaded 2026-10-29; added 2026-10-29): Karm vs 
 Challonge round 8 (Karm, Dox, Zolo). Big Large vs PotatoesAreYum, Nezergy vs DEJIME and Bad Bully vs Pikmon have replays.
 All six Week 8 games are in.
 
+Playoffs R1 (playlist PLCVU9pDoWZ0w, uploaded 2026-11-11; added 2026-11-11, no replays saved): each video holds the
+whole set, so each game is `video-<youtube id>-g<n>` and its link starts the video at that game. All nine games are in,
+every set's winner matching Challonge round 1:
+- Dox vs PotatoesAreYum (3x6D9zYjfKs): Robert 2-0. Game 1's stream cut away on the last hit (Ice Spinner took
+  Flygon's last 89%): the faint and the win are added, not seen.
+- DEJIME vs bah booey (ddGy3IBsDPw): Sean 2-0. Game 1's last two turns were read from the message box.
+- Sneez vs Fingy (97Fk-1fdRaI): Fingy, then Eric twice (2-1).
+- Zolo vs Cloudburst (YLN1tuKZ5t0): Zolo 2-0. In game 2 a Discord window covers the log from turn 24 to 49: those
+  turns come from the scene's message box (every faint was read, and every turn has both sides' moves; a
+  line shown for under half a second may still be missing). Game 1 ends on a Moonblast for Cresselia's last 20%: its faint is added, the win
+  line was read.
+
 ## Super Champions League (site/scl/games/, done 2026-10-28)
 
 Every regular-season and playoff set with a replay is in (165 games). Weeks 1-8 from the league sheet's schedule;
@@ -113,5 +125,11 @@ Saved in `site/mock/<game id>-<player>.txt`; each game lists its players' sheets
   is only that (Nightwing, shiny, Leftovers, Pressure, Calm Mind / Substitute / Ice Beam; no EVs line, so its max HP
   is a guess). Nothing else in that game contradicts the sheet. Week 8 vs Karm saved 2026-10-29 with its video game
   (all six Pokémon match).
+- PeterPikmon (Pikmon), 2026-11-11: Weeks 1 to 7 saved (Week 8 was already in), each matching the six Pokémon that
+  game brought. Week 1 (vs Dox) is the player's recollection of a team brought by mistake ("I believe this is what I
+  brought"); it does match the game.
+- Playoffs R1, 2026-11-11: both sides of DEJIME vs weedinmyhonda, FingerStripes vs pee nation and Zololab vs
+  azpmCloudburst, per game where the sheet changed between games (DEJIME, pee nation, FingerStripes game 3);
+  potatoesareyum's for both games. Missing: doxsego's own two.
 - azpmCloudburst (Cloudburst), 2026-10-29: Weeks 2 and 4-8 saved, every nickname in each game on its sheet (Week 6's
   "Bad Bully" is weedinmyhonda). No sheets for Weeks 1 and 3.

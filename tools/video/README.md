@@ -1,7 +1,8 @@
 # Stream-video tools (archived 2026-10-29)
 
 Retired: league games now come with Showdown replays, so no new game should need rebuilding from a stream video.
-Kept in case one does. The 35 Pinecord games rebuilt this way (`site/ppppp/games/video-*.json`) stay in the
+Kept in case one does: Playoffs R1 did (2026-11-11, 9 games from 4 set videos, no replays saved; how, in
+`docs/knowledge/video-recordings.md`). The 35 regular-season Pinecord games rebuilt this way (`site/ppppp/games/video-*.json`) stay in the
 library and on the site as they are.
 
 - `video_to_replay.py`: a YouTube stream recording -> a replay-like JSON (frames, OCR, Showdown's message templates).

@@ -1,0 +1,57 @@
+Coco (Skeledirge) @ Heavy-Duty Boots
+Ability: Unaware
+EVs: 252 HP / 252 Def / 4 SpA
+Bold Nature
+IVs: 0 Atk
+- Torch Song
+- Hex
+- Will-O-Wisp
+- Slack Off
+
+Blaze it (Altaria-Mega) @ Altarianite
+Ability: Natural Cure
+EVs: 252 HP / 108 Def / 148 SpA
+Modest Nature
+IVs: 0 Atk
+- Cotton Guard
+- Roost
+- Hyper Voice
+- Will-O-Wisp
+
+Latina (Latias) (F) @ Rocky Helmet
+Ability: Levitate
+EVs: 140 HP / 252 SpA / 116 Spe
+Modest Nature
+IVs: 0 Atk
+- Mist Ball
+- Mystical Fire
+- Defog
+- Roost
+
+Gen 8 (Aegislash) @ Leftovers
+Ability: Stance Change
+EVs: 252 HP / 140 Def / 116 SpA
+Modest Nature
+IVs: 0 Atk
+- Shadow Ball
+- King's Shield
+- Substitute
+- Toxic
+
+Mr. Goon (Samurott-Hisui) @ Choice Band
+Ability: Sharpness
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Ceaseless Edge
+- Aqua Cutter
+- Sacred Sword
+- Flip Turn
+
+wet ogre poon (Ogerpon-Wellspring) (F) @ Wellspring Mask
+Ability: Water Absorb
+EVs: 4 HP / 252 Atk / 252 Spe
+Jolly Nature
+- Ivy Cudgel
+- Power Whip
+- Swords Dance
+- Encore

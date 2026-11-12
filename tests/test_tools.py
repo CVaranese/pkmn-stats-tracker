@@ -32,6 +32,11 @@ class ReplayId(unittest.TestCase):
         self.assertEqual(add_game.replay_id("https://youtu.be/CKLxgWZL3HM"), "video-cklxgwzl3hm")
         self.assertEqual(add_game.replay_id("https://www.youtube.com/watch?v=CKLxgWZL3HM&t=5"), "video-cklxgwzl3hm")
 
+    def test_a_set_video_has_one_id_per_game(self):
+        self.assertEqual(add_game.replay_id("https://youtu.be/CKLxgWZL3HM?t=945", 2), "video-cklxgwzl3hm-g2")
+        with self.assertRaises(SystemExit):   # only a video holds several games
+            add_game.replay_id("gen9nationaldex-2705438906", 2)
+
     def test_not_a_replay_exits(self):
         with self.assertRaises(SystemExit):
             add_game.replay_id("https://example.com/hello")
@@ -103,6 +108,21 @@ class LeagueFormats(unittest.TestCase):
                 if got and got not in (fmt, fmt + "bo3"):
                     wrong.append(f"{f.name}: {got}")
             self.assertEqual(wrong, [], f"{lg['id']}: replays of another format than {fmt}")
+
+
+class TeamSheets(unittest.TestCase):
+    """Every saved team sheet (site/<league>/mock/<game id>-<player>.txt) is listed on its game in index.json, every
+    listed one has its file, and each belongs to a player of that game: the site reads only the listed ones, so a
+    file saved and not listed is never shown. Fix with python -I tools/sheets.py --league <id>."""
+    def test_files_and_index_agree(self):
+        root = Path(__file__).resolve().parent.parent
+        spec = importlib.util.spec_from_file_location("sheets", root / "tools" / "sheets.py")
+        sheets = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(sheets)
+        self.assertEqual(sheets.to_id("pee nation"), "peenation")
+        for lg in json.loads((root / "site" / "leagues.json").read_text(encoding="utf-8"))["leagues"]:
+            if (root / "site" / lg["id"] / "mock").is_dir():
+                self.assertEqual(sheets.problems(lg["id"]), [], lg["id"])
 
 
 class DiscordSettings(unittest.TestCase):
