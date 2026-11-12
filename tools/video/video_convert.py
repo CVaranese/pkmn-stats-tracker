@@ -16,7 +16,8 @@ SKIP_KEYS = {"name", "desc", "shortDesc", "statName", "statShortName", "weatherN
 FRAGMENTS = {"pokemon", "opposingPokemon", "team", "opposingTeam", "party", "opposingParty"}  # parts of messages
 # HP % for damage / healing the spectator log shows no number for (guesses from the game's fractions)
 SELF_KO_MOVES = {"Explosion", "Self-Destruct", "Misty Explosion", "Memento", "Healing Wish", "Lunar Dance", "Final Gambit"}
-DRAIN_3_4 ={"Draining Kiss", "Oblivion Wing"}   # heal 3/4 of the damage; every other drain move 1/2
+HAZARD_CLEARERS = {"Defog", "Rapid Spin", "Mortal Spin", "Tidy Up", "Court Change"}
+DRAIN_3_4 = {"Draining Kiss", "Oblivion Wing"}   # heal 3/4 of the damage; every other drain move 1/2
 TRAP_MOVES = {"Bind", "Wrap", "Fire Spin", "Clamp", "Whirlpool", "Sand Tomb", "Magma Storm", "Infestation", "Snap Trap",
               "Thunder Cage"}
 PASSIVE_PCT = {"psn": 12.5, "brn": 6.25, "Life Orb": 10, "Sandstorm": 6.25, "Hail": 6.25, "Spikes": 12.5,
@@ -511,8 +512,12 @@ class Converter:
                 return self.emit("-activate", self.ref(*self.last_mover), label)
             if "TEAM" in s and key in ("start", "end"):
                 side = self.foe(self.own_side()) if "opposing" in s["TEAM"].lower() else self.own_side()
-                return self.emit("-sidestart" if key == "start" else "-sideend",
-                                 f"{side}: {self.players[int(side[1]) - 1]}", label)
+                who = f"{side}: {self.players[int(side[1]) - 1]}"
+                # hazards blown away: real logs name the move and its user, which is what counts as "cleared"
+                if key == "end" and self.last_mover and getattr(self, "last_move", "") in HAZARD_CLEARERS:
+                    return self.emit("-sideend", who, name, "[from] move: " + self.last_move,
+                                     "[of] " + self.ref(*self.last_mover))
+                return self.emit("-sidestart" if key == "start" else "-sideend", who, label)
             if key == "removeItem" and "POKEMON" in s:
                 parts = ["-enditem", self.ref(*P()), self.close(s.get("ITEM", ""), self.items) or s.get("ITEM", ""),
                          "[from] " + label]

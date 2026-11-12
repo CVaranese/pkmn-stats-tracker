@@ -990,7 +990,7 @@ Ability: Screen Cleaner
         pieced.push(...side.filter((r) => r.set_from === "pieced").map((r) => r.pokemon));
       }
     }
-    check("library sheets: all 64 sides get a set for every Pokémon", sides === 64 && full === 64, `${full} of ${sides}`);
+    check("library sheets: all 66 sides get a set for every Pokémon", sides === 66 && full === 66, `${full} of ${sides}`);
     check("library sheets: the hand-made sets are Week 1's Scrafty and Suicune", same(pieced.sort(), ["Scrafty", "Suicune"]), JSON.stringify(pieced));
   }
 

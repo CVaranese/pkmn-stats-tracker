@@ -130,6 +130,6 @@ Saved in `site/mock/<game id>-<player>.txt`; each game lists its players' sheets
   brought"); it does match the game.
 - Playoffs R1, 2026-11-11: both sides of DEJIME vs weedinmyhonda, FingerStripes vs pee nation and Zololab vs
   azpmCloudburst, per game where the sheet changed between games (DEJIME, pee nation, FingerStripes game 3);
-  potatoesareyum's for both games. Missing: doxsego's own two.
+  potatoesareyum's and doxsego's (one sheet each for both games).
 - azpmCloudburst (Cloudburst), 2026-10-29: Weeks 2 and 4-8 saved, every nickname in each game on its sheet (Week 6's
   "Bad Bully" is weedinmyhonda). No sheets for Weeks 1 and 3.
