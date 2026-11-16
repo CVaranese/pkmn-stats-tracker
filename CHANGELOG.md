@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Pinecord Pick'em: the first two quarterfinal results from Challonge (match E Karm, match G Jake), in the bracket file and the picks store.
 - Pinecord: the first quarterfinal, Karm vs PotatoesAreYum (two games, Karm 2-0), from its replays, under Quarterfinals.
 
 ## 1.2.1 (2026-11-11)

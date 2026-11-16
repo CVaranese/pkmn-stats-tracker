@@ -112,8 +112,9 @@ every set's winner matching Challonge round 1:
 Quarterfinals (Challonge round 2), replays from the user:
 - Karm vs PotatoesAreYum (match E), added 2026-11-16, set "QF Karm-Robert": game 1
   https://replay.pokemonshowdown.com/gen9nationaldex-2714679376 (Karm, 17 turns), game 2
-  https://replay.pokemonshowdown.com/gen9nationaldex-2714684792 (Karm, 25 turns). Karm 2-0. The bracket file and
-  the picks store get the result when the round is done (`tools/challonge_bracket.py --sql`).
+  https://replay.pokemonshowdown.com/gen9nationaldex-2714684792 (Karm, 25 turns). Karm 2-0, in the bracket file and
+  the picks store since 2026-11-16.
+- Jake vs Sneez (match G): Jake won on Challonge (2026-11-16); no replays or video given yet.
 
 ## Super Champions League (site/scl/games/, done 2026-10-28)
 
