@@ -1996,6 +1996,70 @@
     "azpmcloudburst",
     "zololab"
    ]
+  },
+  {
+   "id": "gen9nationaldex-2714679376",
+   "league": "ppppp",
+   "week": "Quarterfinals",
+   "players": [
+    "chicken parm karm",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Gholdengo",
+     "Terapagos",
+     "Greninja",
+     "Deoxys-Defense",
+     "Nidoking",
+     "Aerodactyl"
+    ],
+    [
+     "Azelf",
+     "Thundurus-Therian",
+     "Great Tusk",
+     "Tyranitar",
+     "Bronzong",
+     "Houndstone"
+    ]
+   ],
+   "winner": "chicken parm karm",
+   "date": "2026-11-15",
+   "turns": 17,
+   "note": "Game 1",
+   "set": "QF Karm-Robert"
+  },
+  {
+   "id": "gen9nationaldex-2714684792",
+   "league": "ppppp",
+   "week": "Quarterfinals",
+   "players": [
+    "chicken parm karm",
+    "potatoesareyum"
+   ],
+   "teams": [
+    [
+     "Gholdengo",
+     "Terapagos",
+     "Greninja",
+     "Deoxys-Defense",
+     "Nidoking",
+     "Aerodactyl"
+    ],
+    [
+     "Azelf",
+     "Thundurus-Therian",
+     "Great Tusk",
+     "Tyranitar",
+     "Bronzong",
+     "Houndstone"
+    ]
+   ],
+   "winner": "chicken parm karm",
+   "date": "2026-11-15",
+   "turns": 25,
+   "note": "Game 2",
+   "set": "QF Karm-Robert"
   }
  ]
 }

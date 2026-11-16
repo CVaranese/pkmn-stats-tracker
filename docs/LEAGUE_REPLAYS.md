@@ -109,6 +109,12 @@ every set's winner matching Challonge round 1:
   line shown for under half a second may still be missing). Game 1 ends on a Moonblast for Cresselia's last 20%: its faint is added, the win
   line was read.
 
+Quarterfinals (Challonge round 2), replays from the user:
+- Karm vs PotatoesAreYum (match E), added 2026-11-16, set "QF Karm-Robert": game 1
+  https://replay.pokemonshowdown.com/gen9nationaldex-2714679376 (Karm, 17 turns), game 2
+  https://replay.pokemonshowdown.com/gen9nationaldex-2714684792 (Karm, 25 turns). Karm 2-0. The bracket file and
+  the picks store get the result when the round is done (`tools/challonge_bracket.py --sql`).
+
 ## Super Champions League (site/scl/games/, done 2026-10-28)
 
 Every regular-season and playoff set with a replay is in (165 games). Weeks 1-8 from the league sheet's schedule;
