@@ -115,6 +115,11 @@ Quarterfinals (Challonge round 2), replays from the user:
   https://replay.pokemonshowdown.com/gen9nationaldex-2714684792 (Karm, 25 turns). Karm 2-0, in the bracket file and
   the picks store since 2026-11-16.
 - Jake vs Sneez (match G): Jake won on Challonge (2026-11-16); no replays or video given yet.
+- Joey (ElkGBigLarge) vs Sean (DEJIME) (match F), added 2026-11-19, set "QF Joey-Sean": game 1
+  https://replay.pokemonshowdown.com/gen9nationaldex-2716294964 (Joey, 23 turns), game 2
+  https://replay.pokemonshowdown.com/gen9nationaldex-2716299413 (Sean, 22 turns), game 3
+  https://replay.pokemonshowdown.com/gen9nationaldex-2716304517 (Sean, 28 turns). Sean 2-1. The bracket file and
+  the picks store get the result from Challonge (`tools/challonge_bracket.py --sql`).
 
 ## Super Champions League (site/scl/games/, done 2026-10-28)
 

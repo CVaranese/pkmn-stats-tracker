@@ -3,6 +3,7 @@
 ## Unreleased
 - Pinecord Pick'em: the first two quarterfinal results from Challonge (match E Karm, match G Jake), in the bracket file and the picks store.
 - Pinecord: the first quarterfinal, Karm vs PotatoesAreYum (two games, Karm 2-0), from its replays, under Quarterfinals.
+- Pinecord: quarterfinal Joey vs Sean (three games, Sean 2-1), from its replays, under Quarterfinals.
 
 ## 1.2.1 (2026-11-11)
 - Kill rule (user 2026-11-11): a Pokémon that faints to its own side's Perish Song is a self-KO, nobody's kill; before, the last foe to have hit it got a passive kill and the HP it had left. One saved game changes: Playoffs R1 DEJIME vs weedinmyhonda game 1 (Azumarill 1 self-KO; Ferrothorn 1 kill fewer, 73% dealt instead of 116%). The other six review-page spots were confirmed as written.

@@ -2060,6 +2060,102 @@
    "turns": 25,
    "note": "Game 2",
    "set": "QF Karm-Robert"
+  },
+  {
+   "id": "gen9nationaldex-2716294964",
+   "league": "ppppp",
+   "week": "Quarterfinals",
+   "players": [
+    "ElkGBigLarge",
+    "DEJIME"
+   ],
+   "teams": [
+    [
+     "Rotom-Heat",
+     "Hoopa-Unbound",
+     "Scizor",
+     "Zamazenta",
+     "Keldeo-Resolute",
+     "Gastrodon"
+    ],
+    [
+     "Azumarill",
+     "Pelipper",
+     "Tornadus-Therian",
+     "Sinistcha-Masterpiece",
+     "Archaludon",
+     "Basculegion-F"
+    ]
+   ],
+   "winner": "ElkGBigLarge",
+   "date": "2026-11-15",
+   "turns": 23,
+   "note": "Game 1",
+   "set": "QF Joey-Sean"
+  },
+  {
+   "id": "gen9nationaldex-2716299413",
+   "league": "ppppp",
+   "week": "Quarterfinals",
+   "players": [
+    "DEJIME",
+    "ElkGBigLarge"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Swampert",
+     "Archaludon",
+     "Azumarill",
+     "Raging Bolt",
+     "Tornadus-Therian"
+    ],
+    [
+     "Rotom-Heat",
+     "Hoopa-Unbound",
+     "Scizor",
+     "Zamazenta",
+     "Keldeo-Resolute",
+     "Gastrodon"
+    ]
+   ],
+   "winner": "DEJIME",
+   "date": "2026-11-15",
+   "turns": 22,
+   "note": "Game 2",
+   "set": "QF Joey-Sean"
+  },
+  {
+   "id": "gen9nationaldex-2716304517",
+   "league": "ppppp",
+   "week": "Quarterfinals",
+   "players": [
+    "DEJIME",
+    "ElkGBigLarge"
+   ],
+   "teams": [
+    [
+     "Pelipper",
+     "Swampert",
+     "Archaludon",
+     "Azumarill",
+     "Raging Bolt",
+     "Tornadus-Therian"
+    ],
+    [
+     "Rotom-Heat",
+     "Hoopa-Unbound",
+     "Scizor",
+     "Zamazenta",
+     "Keldeo-Resolute",
+     "Mamoswine"
+    ]
+   ],
+   "winner": "DEJIME",
+   "date": "2026-11-15",
+   "turns": 28,
+   "note": "Game 3",
+   "set": "QF Joey-Sean"
   }
  ]
 }
